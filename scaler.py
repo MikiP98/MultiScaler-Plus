@@ -1,4 +1,14 @@
+# coding=utf-8
+import xbrz
+
 from PIL import Image
+from enum import IntEnum
+
+
+class Algorithms(IntEnum):
+    xBRZ = 1
+    RealESRGAN = 2
+
 
 def scale_image(algorithm, pil_image:Image, factor):
     pass
