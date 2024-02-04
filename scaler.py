@@ -1,5 +1,5 @@
 # coding=utf-8
-import xbrz
+import xbrz_py__1_0_2.xbrz
 
 from PIL import Image
 from enum import IntEnum
@@ -10,8 +10,12 @@ class Algorithms(IntEnum):
     RealESRGAN = 2
 
 
+# Current main function
 def scale_image(algorithm, pil_image:Image, factor):
-    pass
+    if algorithm == Algorithms.xBRZ:
+        return xbrz_py__1_0_2.xbrz.scale(pil_image, factor, pil_image.width, pil_image.height, xbrz_py__1_0_2.xbrz.ColorFormat.RGBA)
+    else:
+        raise NotImplementedError("Algorithm not implemented yet")
 
 def scale_image(algorithm, pil_image:Image, output_width, output_height):
     pass
