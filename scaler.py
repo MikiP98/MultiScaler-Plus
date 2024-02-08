@@ -11,9 +11,9 @@ from RealESRGAN import RealESRGAN
 # Enum with all available algorithms
 # Ordered alphabetically with number indicating the quality from 0 (lowest) up
 class Algorithms(IntEnum):
-    BICUBIC = 3
+    BICUBIC = 3  # less blur than bilinear
     BILINEAR = 2
-    LANCZOS = 4
+    LANCZOS = 4  # less blur than bicubic, but artifacts may appear
     NEAREST_NEIGHBOR = 0
     RealESRGAN = 6
     xBRZ = 5
