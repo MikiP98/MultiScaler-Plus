@@ -58,7 +58,9 @@ if __name__ == '__main__':
                     output_path = output_dir + '/' + new_file_name
                     print(output_path)
 
-                    if lossless_compression:
+                    if not lossless_compression:
+                        image.save(output_path)
+                    else:
                         if image.mode == 'RGBA':
                             # Go through every pixel and check if alpha is 255, if it 255 on every pixel, save it as RGB
                             # else save it as RGBA
@@ -70,9 +72,8 @@ if __name__ == '__main__':
                             if not alpha_was_used:
                                 image = image.convert('RGB')
 
-                    image.save(output_path)
+                        image.save(output_path, optimize=True)
 
-                    if lossless_compression:
                         # Go through every pixel and check add the color to the set,
                         # if the set doesn't have more 256 colors convert the image to palette
                         set_of_colors = set()
@@ -91,13 +92,14 @@ if __name__ == '__main__':
                                 colors = 2
 
                             image = image.convert('P', palette=Image.ADAPTIVE, colors=colors)
-                            # image = image.convert('P')  # palette=Image.ADAPTIVE, colors=256
-                            image.save(output_path[:-4] + "_P.png")
+                            temp_name = output_path[:-4] + "_P.png"
+                            image.save(temp_name, optimize=True)
+
                             # Check which one is smaller and keep it, remove the other one
                             # (if the palette is smaller remove '_P' from the name)
-                            if os.path.getsize(output_path) < os.path.getsize(output_path[:-4] + "_P.png"):
-                                os.remove(output_path[:-4] + "_P.png")
+                            if os.path.getsize(output_path) < os.path.getsize(temp_name):
+                                os.remove(temp_name)
                             else:
                                 os.remove(output_path)
                                 # Rename the smaller one to the original name
-                                os.rename(output_path[:-4] + "_P.png", output_path)
+                                os.rename(temp_name, output_path)
