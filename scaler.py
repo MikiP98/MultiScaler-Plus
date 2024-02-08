@@ -38,8 +38,19 @@ def scale_image(algorithm, pil_image:Image, factor, main_checked=False) -> Image
         case Algorithms.LANCZOS:
             return pil_image.resize((output_width, output_height), Image.LANCZOS)
         case Algorithms.xBRZ:
-            if factor > 6:
-                raise ValueError("Max factor for xbrz=6")
+            # if factor > 6:
+            #     raise ValueError("Max factor for xbrz=6")
+            while factor > 6:
+                print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
+                # xBRZ can only scale up to 6x,
+                # find the biggest common divisor and scale by it until factor is <= 6
+                gcd = np.gcd(factor, 6)
+                if gcd == 1:
+                    raise ValueError("Factor is greater then 6 and undividable by smaller factors!")
+                # print(f"Scaling by {gcd} to get factor smaller then 6")
+                pil_image = xbrz.scale_pillow(pil_image, gcd)
+                factor = factor // gcd
+
             return xbrz.scale_pillow(pil_image, factor)
         case Algorithms.RealESRGAN:
             model = RealESRGAN(device, scale=4)
