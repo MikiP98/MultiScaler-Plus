@@ -19,9 +19,11 @@ if __name__ == '__main__':
     add_algorithm_name_to_output_files_names = True
     add_factor_to_output_files_names = True
     sort_by_algorithm = False
+    lossless_compression = True
 
     algorithms = {scaler.Algorithms.xBRZ, scaler.Algorithms.RealESRGAN, scaler.Algorithms.NEAREST_NEIGHBOR, scaler.Algorithms.BILINEAR, scaler.Algorithms.BICUBIC, scaler.Algorithms.LANCZOS}
-    scales = {2048}
+    # algorithms = {scaler.Algorithms.NEAREST_NEIGHBOR}
+    scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72}
 
     if clear_output_directory:
         for root, dirs, files in os.walk("output"):
@@ -56,4 +58,46 @@ if __name__ == '__main__':
                     output_path = output_dir + '/' + new_file_name
                     print(output_path)
 
+                    if lossless_compression:
+                        if image.mode == 'RGBA':
+                            # Go through every pixel and check if alpha is 255, if it 255 on every pixel, save it as RGB
+                            # else save it as RGBA
+                            alpha_was_used = False
+                            for pixel in image.getdata():
+                                if pixel[3] != 255:
+                                    alpha_was_used = True
+                                    break
+                            if not alpha_was_used:
+                                image = image.convert('RGB')
+
                     image.save(output_path)
+
+                    if lossless_compression:
+                        # Go through every pixel and check add the color to the set,
+                        # if the set doesn't have more 256 colors convert the image to palette
+                        set_of_colors = set()
+                        for pixel in image.getdata():
+                            set_of_colors.add(pixel)
+                            if len(set_of_colors) > 256:
+                                break
+                        if len(set_of_colors) <= 256:
+                            colors = 256
+                            colors_len = len(set_of_colors)
+                            if colors_len <= 16:
+                                colors = 16
+                            elif colors_len <= 4:
+                                colors = 4
+                            elif colors_len <= 2:
+                                colors = 2
+
+                            image = image.convert('P', palette=Image.ADAPTIVE, colors=colors)
+                            # image = image.convert('P')  # palette=Image.ADAPTIVE, colors=256
+                            image.save(output_path[:-4] + "_P.png")
+                            # Check which one is smaller and keep it, remove the other one
+                            # (if the palette is smaller remove '_P' from the name)
+                            if os.path.getsize(output_path) < os.path.getsize(output_path[:-4] + "_P.png"):
+                                os.remove(output_path[:-4] + "_P.png")
+                            else:
+                                os.remove(output_path)
+                                # Rename the smaller one to the original name
+                                os.rename(output_path[:-4] + "_P.png", output_path)

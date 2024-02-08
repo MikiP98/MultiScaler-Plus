@@ -75,10 +75,11 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
 
             return pil_image.resize((output_width, output_height), csatpa(fallback_algorithm))
         case Algorithms.RealESRGAN:
+            image = pil_image.convert('RGB')
             factor = Fraction(factor).limit_denominator().numerator
             while factor != 1:
                 gcd = factor
-                if factor != 2 or factor != 4 or factor != 8:
+                if factor != 2 and factor != 4 and factor != 8:
                     print(f"WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!")
                     # RealESRGAN can only scale up to 8x,
                     # find the biggest common divisor and scale by it until factor is <= 8
@@ -86,19 +87,9 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
                     while gcd == 1:
                         factor += 1
                         gcd = np.gcd(factor, 8)
-                    # if gcd == 1:
-                    #     print(f"GCD: {gcd} Factor: {factor}")
-                    #     raise ValueError("Factor is greater then 8 and undividable by smaller factors!")
-                # if gcd == 3:
-                #     gcd = 4
-                #     factor = 4
-                # if gcd > 4:
-                #     gcd = 8
-                #     factor = 8
                 # print(f"GCD: {gcd} Factor: {factor}")
                 model = RealESRGAN(device, scale=gcd)
                 model.load_weights(f'weights/RealESRGAN_x{gcd}.pth', download=True)
-                image = pil_image.convert('RGB')
 
                 image = model.predict(image)
                 factor = factor // gcd
