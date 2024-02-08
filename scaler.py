@@ -4,6 +4,7 @@ import torch
 import xbrz  # See xBRZ scaling on Jira
 
 from enum import IntEnum
+from fractions import Fraction
 from PIL import Image
 from RealESRGAN import RealESRGAN
 
@@ -22,11 +23,26 @@ class Algorithms(IntEnum):
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+# convert_scaler_algorithm_to_pillow_algorithm
+def csatpa(algorithm: Algorithms):
+    match algorithm:
+        case Algorithms.NEAREST_NEIGHBOR:
+            return Image.NEAREST
+        case Algorithms.BILINEAR:
+            return Image.BILINEAR
+        case Algorithms.BICUBIC:
+            return Image.BICUBIC
+        case Algorithms.LANCZOS:
+            return Image.LANCZOS
+        case _:
+            raise AttributeError("Algorithm not supported by PIL")
+
+
 # Main function for Python for existing libs
-def scale_image(algorithm, pil_image:Image, factor, main_checked=False) -> Image:
+def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorithms.BICUBIC, main_checked=False) -> Image:
     pil_image = pil_image.convert('RGBA')
     width, height = pil_image.size
-    output_width, output_height = width * factor, height * factor
+    output_width, output_height = round(width * factor), round(height * factor)
 
     match algorithm:
         case Algorithms.NEAREST_NEIGHBOR:
@@ -40,23 +56,54 @@ def scale_image(algorithm, pil_image:Image, factor, main_checked=False) -> Image
         case Algorithms.xBRZ:
             # if factor > 6:
             #     raise ValueError("Max factor for xbrz=6")
-            while factor > 6:
-                print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
-                # xBRZ can only scale up to 6x,
-                # find the biggest common divisor and scale by it until factor is <= 6
-                gcd = np.gcd(factor, 6)
-                if gcd == 1:
-                    raise ValueError("Factor is greater then 6 and undividable by smaller factors!")
+            factor = Fraction(factor).limit_denominator().numerator
+            while factor != 1:
+                gcd = factor
+                if factor > 6:
+                    print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
+                    # xBRZ can only scale up to 6x,
+                    # find the biggest common divisor and scale by it until factor is <= 6
+                    gcd = np.gcd(factor, 6)
+                    while gcd == 1:
+                        factor += 1
+                        gcd = np.gcd(factor, 6)
+                    # if gcd == 1:
+                    #     raise ValueError("Factor is greater then 6 and undividable by smaller factors!")
                 # print(f"Scaling by {gcd} to get factor smaller then 6")
                 pil_image = xbrz.scale_pillow(pil_image, gcd)
                 factor = factor // gcd
 
-            return xbrz.scale_pillow(pil_image, factor)
+            return pil_image.resize((output_width, output_height), csatpa(fallback_algorithm))
         case Algorithms.RealESRGAN:
-            model = RealESRGAN(device, scale=4)
-            model.load_weights('weights/RealESRGAN_x4.pth', download=True)
-            image = pil_image.convert('RGB')
-            return model.predict(image)
+            factor = Fraction(factor).limit_denominator().numerator
+            while factor != 1:
+                gcd = factor
+                if factor != 2 or factor != 4 or factor != 8:
+                    print(f"WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!")
+                    # RealESRGAN can only scale up to 8x,
+                    # find the biggest common divisor and scale by it until factor is <= 8
+                    gcd = np.gcd(factor, 8)
+                    while gcd == 1:
+                        factor += 1
+                        gcd = np.gcd(factor, 8)
+                    # if gcd == 1:
+                    #     print(f"GCD: {gcd} Factor: {factor}")
+                    #     raise ValueError("Factor is greater then 8 and undividable by smaller factors!")
+                # if gcd == 3:
+                #     gcd = 4
+                #     factor = 4
+                # if gcd > 4:
+                #     gcd = 8
+                #     factor = 8
+                # print(f"GCD: {gcd} Factor: {factor}")
+                model = RealESRGAN(device, scale=gcd)
+                model.load_weights(f'weights/RealESRGAN_x{gcd}.pth', download=True)
+                image = pil_image.convert('RGB')
+
+                image = model.predict(image)
+                factor = factor // gcd
+
+            return image.resize((output_width, output_height), csatpa(fallback_algorithm))
         case _:
             if main_checked:
                 raise NotImplementedError("Not implemented yet")

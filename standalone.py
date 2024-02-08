@@ -2,6 +2,7 @@
 import os
 import scaler
 
+from fractions import Fraction
 from PIL import Image
 
 if __name__ == '__main__':
@@ -20,7 +21,7 @@ if __name__ == '__main__':
     sort_by_algorithm = False
 
     algorithms = {scaler.Algorithms.xBRZ, scaler.Algorithms.RealESRGAN, scaler.Algorithms.NEAREST_NEIGHBOR, scaler.Algorithms.BILINEAR, scaler.Algorithms.BICUBIC, scaler.Algorithms.LANCZOS}
-    scales = {4}
+    scales = {2048}
 
     if clear_output_directory:
         for root, dirs, files in os.walk("output"):
@@ -39,8 +40,11 @@ if __name__ == '__main__':
                     if add_algorithm_name_to_output_files_names:
                         new_file_name = f"{algorithm.name}_{new_file_name}"
                     if add_factor_to_output_files_names:
+                        if scale != int(scale):
+                            if len(str(scale).split(".")[1]) > 3:
+                                scale = f"{str(Fraction(scale).limit_denominator()).replace('/', '%')}"
                         new_file_name = f"{new_file_name[:-4]}_{scale}x{new_file_name[-4:]}"
-                    print(new_file_name)
+                    # print(new_file_name)
 
                     output_dir = "output"
                     if sort_by_algorithm:
@@ -51,4 +55,5 @@ if __name__ == '__main__':
 
                     output_path = output_dir + '/' + new_file_name
                     print(output_path)
+
                     image.save(output_path)

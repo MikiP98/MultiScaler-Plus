@@ -4,3 +4,4 @@ input/**
 !input
 output
 RealESRGAN_weights
+weights
