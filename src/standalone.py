@@ -19,10 +19,10 @@ if __name__ == '__main__':
     sort_by_algorithm = False
     lossless_compression = True
 
-    # algorithms = {scaler.Algorithms.xBRZ, scaler.Algorithms.RealESRGAN, scaler.Algorithms.NEAREST_NEIGHBOR, scaler.Algorithms.BILINEAR, scaler.Algorithms.BICUBIC, scaler.Algorithms.LANCZOS}
-    algorithms = {scaler.Algorithms.xBRZ}
-    # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72}
-    scales = {4}
+    algorithms = {scaler.Algorithms.xBRZ, scaler.Algorithms.RealESRGAN, scaler.Algorithms.NEAREST_NEIGHBOR, scaler.Algorithms.BILINEAR, scaler.Algorithms.BICUBIC, scaler.Algorithms.LANCZOS}
+    # algorithms = {scaler.Algorithms.xBRZ}
+    scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
+    # scales = {4}
 
     if os.path.exists("../output"):
         if clear_output_directory:
@@ -82,15 +82,16 @@ if __name__ == '__main__':
                             set_of_colors.add(pixel)
                             if len(set_of_colors) > 256:
                                 break
-                        if len(set_of_colors) <= 256:
+
+                        colors_len = len(set_of_colors)
+                        if colors_len <= 256:
                             colors = 256
-                            colors_len = len(set_of_colors)
-                            if colors_len <= 16:
-                                colors = 16
+                            if colors_len <= 2:
+                                colors = 2
                             elif colors_len <= 4:
                                 colors = 4
-                            elif colors_len <= 2:
-                                colors = 2
+                            elif colors_len <= 16:
+                                colors = 16
 
                             image = image.convert('P', palette=Image.ADAPTIVE, colors=colors)
                             temp_name = output_path[:-4] + "_P.png"
