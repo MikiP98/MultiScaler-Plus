@@ -8,9 +8,6 @@ from PIL import Image
 from scaler import Algorithms
 
 if __name__ == '__main__':
-    # path = "input/blast_furnace_front.png"
-    # image = scaler.scale_image(scaler.Algorithms.xBRZ, Image.open(path), 4)
-
     # Create input and output directory if they don't exist
     if not os.path.exists("../input"):
         os.makedirs("../input")
