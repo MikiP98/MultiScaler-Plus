@@ -1,3 +1,3 @@
-cd src
+@cd src
 python server.py
-PAUSE
+@PAUSE
