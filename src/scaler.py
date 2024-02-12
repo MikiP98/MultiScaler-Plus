@@ -69,8 +69,8 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
                         factor += 1
                         gcd = np.gcd(factor, 6)
                     # if gcd == 1:
-                    #     raise ValueError("Factor is greater then 6 and undividable by smaller factors!")
-                # print(f"Scaling by {gcd} to get factor smaller then 6")
+                    #     raise ValueError("Factor is greater than 6 and undividable by smaller factors!")
+                # print(f"Scaling by {gcd} to get factor smaller than 6")
                 pil_image = xbrz.scale_pillow(pil_image, gcd)
                 factor = factor // gcd
 
