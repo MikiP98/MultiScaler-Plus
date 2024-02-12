@@ -18,6 +18,8 @@ if __name__ == '__main__':
     sort_by_algorithm = False
     lossless_compression = True
 
+
+
     # algorithms = {Algorithms.xBRZ, Algorithms.RealESRGAN, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
     algorithms = {Algorithms.xBRZ}
     # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}

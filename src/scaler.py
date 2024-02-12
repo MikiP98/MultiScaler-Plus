@@ -1,5 +1,6 @@
 # coding=utf-8
 import numpy as np
+# import rarch
 import torch
 import xbrz  # See xBRZ scaling on Jira
 
@@ -89,7 +90,7 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
                         gcd = np.gcd(factor, 8)
                 # print(f"GCD: {gcd} Factor: {factor}")
                 model = RealESRGAN(device, scale=gcd)
-                model.load_weights(f'weights/RealESRGAN_x{gcd}.pth', download=True)
+                model.load_weights(f'weights/RealESRGAN_x{gcd}.pth')  # , download=True
 
                 image = model.predict(image)
                 factor = factor // gcd
@@ -104,13 +105,15 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
                 for y in range(height):
                     for x in range(width):
                         pixels[y][x] = pil_image.getpixel((x, y))
-                return scale_image_data(algorithm, pixels, width, height, factor, True)
+                return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
+
 
 # def scale_image(algorithm, pil_image:Image, output_width, output_height):
 #     pass
 
+
 # Main function for C++ lib
-def scale_image_data(algorithm, pixels:[[[int]]], factor, main_checked=False):
+def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Algorithms.BICUBIC, main_checked=False):
     match algorithm:
         case _:
             if main_checked:
@@ -120,7 +123,8 @@ def scale_image_data(algorithm, pixels:[[[int]]], factor, main_checked=False):
                 for y in range(len(pixels)):
                     for x in range(len(pixels[0])):
                         image.putpixel((x * factor, y * factor), pixels[y][x])
-                return scale_image(algorithm, image, factor, True)
+                return scale_image(algorithm, image, factor, fallback_algorithm, True)
+
 
 # def scale_image(algorithm, pixels:[[[int]]], output_width, output_height):
 #     pass
