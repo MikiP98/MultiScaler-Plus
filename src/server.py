@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import Response
 from PIL import Image 
-from Utils import image_to_byte_array, string_to_scaling_algorithm
+from utils import image_to_byte_array, string_to_scaling_algorithm
 from scaler import scale_image
 
 app = FastAPI()
