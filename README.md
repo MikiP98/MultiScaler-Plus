@@ -24,6 +24,7 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
 
 <sup>
 
+- Thanks to ***Dinkar Kamat*** for the **Bat To Exe Converter** tool
 - **Download** icon: <a href="https://www.flaticon.com/free-icons/install" title="install icons">Install icons created by NajmunNahar - Flaticon</a>
 - **Web GUI** icon: <a href="https://www.flaticon.com/free-icons/interface" title="interface icons">Interface icons created by Freepik - Flaticon</a>
 - **Console** icon: <a target="_blank" href="https://icons8.com/icon/nRH1nzeThlgk/console">Console</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
