@@ -16,13 +16,13 @@ Markdown
 
 requests
 sentencepiece
-tokenizers
+tokenizers==0.13.4rc3
 torch
 torchvision
 uvicorn
 wandb
 httpx
-transformers==4.31.0
+
 accelerate
 scikit-learn
 sentencepiece
