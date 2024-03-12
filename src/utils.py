@@ -7,6 +7,24 @@ from PIL import Image
 from scaler import Algorithms
 
 
+AlgorithmsToStringDictionary = {
+    Algorithms.NEAREST_NEIGHBOR: 'nearest-neighbour',
+    Algorithms.BILINEAR: 'bilinear',
+    Algorithms.BICUBIC: 'bicubic',
+    Algorithms.LANCZOS: 'lanczos',
+    Algorithms.xBRZ: 'xbrz',
+    Algorithms.RealESRGAN: 'real-esrgan'
+}
+AlgorithmsFromStringDictionary = {
+    'nearest-neighbour': Algorithms.NEAREST_NEIGHBOR,
+    'bilinear': Algorithms.BILINEAR,
+    'bicubic': Algorithms.BICUBIC,
+    'lanczos': Algorithms.LANCZOS,
+    'xbrz': Algorithms.xBRZ,
+    'real-esrgan': Algorithms.RealESRGAN
+}
+
+
 def image_to_byte_array(image: Image) -> bytes:
     # BytesIO is a file-like buffer stored in memory
     imgByteArr = io.BytesIO()
@@ -16,22 +34,15 @@ def image_to_byte_array(image: Image) -> bytes:
     imgByteArr = imgByteArr.getvalue()
     return imgByteArr
 
+
+@DeprecationWarning
 def string_to_scaling_algorithm(string: str) -> Algorithms:
-    match string:
-        case 'nearest-neighbour':
-            return Algorithms.NEAREST_NEIGHBOR
-        case 'bilinear':
-            return Algorithms.BILINEAR
-        case 'bicubic':
-            return Algorithms.BICUBIC
-        case 'lanczos':
-            return Algorithms.LANCZOS
-        case 'xbrz':
-            return Algorithms.xBRZ
-        case 'esrgan':
-            return Algorithms.RealESRGAN
-        case _:
-            raise ValueError("Algorithm not found")
+    if string in AlgorithmsFromStringDictionary:
+        return AlgorithmsFromStringDictionary[string]
+    elif string == "esrgan":
+        return Algorithms.RealESRGAN
+    else:
+        raise ValueError("Algorithm not found")
 
 
 def float_to_int32(float_value):

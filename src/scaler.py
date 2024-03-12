@@ -24,6 +24,7 @@ class Algorithms(IntEnum):
     LANCZOS = 4  # less blur than bicubic, but artifacts may appear
     NEAREST_NEIGHBOR = 0
     RealESRGAN = 6
+    SUPIR = 7
     xBRZ = 5
 
 
@@ -31,7 +32,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # convert_scaler_algorithm_to_pillow_algorithm
-def csatpa(algorithm: Algorithms):
+def csatpa(algorithm: Algorithms):  # TODO: Convert to a dictionary
     match algorithm:
         case Algorithms.NEAREST_NEIGHBOR:
             return Image.NEAREST
