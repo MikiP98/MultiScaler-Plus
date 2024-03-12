@@ -30,6 +30,9 @@ def process_image(algorithm: Algorithms, root: str, file: str, scale,
     path = os.path.join(root, file)
 
     image = scaler.scale_image(algorithm, Image.open(path), scale)
+    if image is None:
+        print(f"Saving image: {path}, is probably handled by another thread")
+        return
 
     new_file_name = file
     if add_algorithm_name_to_output_files_names:
@@ -117,9 +120,10 @@ if __name__ == '__main__':
 
 
     # algorithms = {Algorithms.xBRZ, Algorithms.RealESRGAN, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
-    algorithms = {Algorithms.xBRZ}
+    # algorithms = {Algorithms.xBRZ}
     # algorithms = {Algorithms.CPP_DEBUG}
     # algorithms = {Algorithms.RealESRGAN}
+    algorithms = {Algorithms.SUPIR}
     # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
     scales = {4}
 
@@ -137,6 +141,7 @@ if __name__ == '__main__':
             path = os.path.join(root, file)
 
             if path.endswith(".png") or path.endswith(".jpg") or path.endswith(".jpeg"):
+                print(f"Processing: {path}")
 
                 for algorithm in algorithms:
                     for scale in scales:

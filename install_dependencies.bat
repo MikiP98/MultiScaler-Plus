@@ -1,4 +1,4 @@
 @cd src
-pip install -r requirements.txt
 git submodule update --init --recursive
+pip install -r requirements.txt
 @PAUSE

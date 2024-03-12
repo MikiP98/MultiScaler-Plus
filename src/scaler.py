@@ -1,6 +1,7 @@
 # coding=utf-8
 import numpy as np
 # import rarch
+import subprocess
 import torch
 import xbrz  # See xBRZ scaling on Jira
 
@@ -11,7 +12,7 @@ from RealESRGAN import RealESRGAN
 
 # from rarch import CommonShaders
 
-import scalercg
+# import scalercg
 
 
 # Enum with all available algorithms
@@ -103,6 +104,22 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
                 factor = factor // gcd
 
             return image.resize((output_width, output_height), csatpa(fallback_algorithm))
+        case Algorithms.SUPIR:
+            script_path = './SUPIR/test.py'
+
+            # Command 1
+            # command1 = f"CUDA_VISIBLE_DEVICES=0 python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign Q --upscale 2"
+            command1 = f"python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign Q --upscale 2"
+
+            # Command 2
+            # command2 = f"CUDA_VISIBLE_DEVICES=0 python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign F --upscale 2 --s_cfg 4.0 --linear_CFG"
+
+            # Execute commands
+            # subprocess.run(command1, shell=True)
+            subprocess.run(command1)
+            # subprocess.run(command2, shell=True)
+
+            # subprocess.run(['python', script_path])
         case _:
             if main_checked:
                 raise NotImplementedError("Not implemented yet")
