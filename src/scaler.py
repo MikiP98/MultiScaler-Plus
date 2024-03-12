@@ -9,10 +9,16 @@ from fractions import Fraction
 from PIL import Image
 from RealESRGAN import RealESRGAN
 
+# from rarch import CommonShaders
+
+import scalercg
+
 
 # Enum with all available algorithms
 # Ordered alphabetically with number indicating the quality from 0 (lowest) up
 class Algorithms(IntEnum):
+    CPP_DEBUG = -1
+
     BICUBIC = 3  # less blur than bilinear
     BILINEAR = 2
     LANCZOS = 4  # less blur than bicubic, but artifacts may appear
@@ -101,7 +107,8 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
                 raise NotImplementedError("Not implemented yet")
             else:
                 width, height = pil_image.size
-                pixels = [[[int]]]
+                # pixels = [[[int]]]
+                pixels = [[[0, 0, 0, 0] for _ in range(width)] for _ in range(height)]
                 for y in range(height):
                     for x in range(width):
                         pixels[y][x] = pil_image.getpixel((x, y))
@@ -115,6 +122,14 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
 # Main function for C++ lib
 def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Algorithms.BICUBIC, main_checked=False):
     match algorithm:
+        case Algorithms.CPP_DEBUG:
+            # new_pixels = scalercg.scale("cpp_debug", pixels, factor)
+            new_pixels = scalercg.scale(pixels, factor, "cpp_debug")
+            image = Image.new("RGBA", (len(new_pixels[0]), len(new_pixels)))
+            for y in range(len(new_pixels)):
+                for x in range(len(new_pixels[0])):
+                    image.putpixel((x, y), new_pixels[y][x])
+            return image
         case _:
             if main_checked:
                 raise NotImplementedError("Not implemented yet")
@@ -125,6 +140,10 @@ def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Al
                         image.putpixel((x * factor, y * factor), pixels[y][x])
                 return scale_image(algorithm, image, factor, fallback_algorithm, True)
 
+
+# def scale_image_parallel(algorithm, pil_image: Image, factor, fallback_algorithm=Algorithms.BICUBIC):
+#     # Create new thread and run scale_image in it
+#     pass
 
 # def scale_image(algorithm, pixels:[[[int]]], output_width, output_height):
 #     pass

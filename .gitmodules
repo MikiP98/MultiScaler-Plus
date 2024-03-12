@@ -1,0 +1,3 @@
+[submodule "src/SUPIR"]
+	path = src/SUPIR
+	url = https://github.com/Fanghua-Yu/SUPIR
