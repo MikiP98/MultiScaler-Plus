@@ -65,43 +65,45 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
         case Algorithms.xBRZ:
             # if factor > 6:
             #     raise ValueError("Max factor for xbrz=6")
-            factor = Fraction(factor).limit_denominator().numerator
-            while factor != 1:
-                gcd = factor
-                if factor > 6:
-                    print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
-                    # xBRZ can only scale up to 6x,
-                    # find the biggest common divisor and scale by it until factor is <= 6
-                    gcd = np.gcd(factor, 6)
-                    while gcd == 1:
-                        factor += 1
-                        gcd = np.gcd(factor, 6)
-                    # if gcd == 1:
-                    #     raise ValueError("Factor is greater than 6 and undividable by smaller factors!")
-                # print(f"Scaling by {gcd} to get factor smaller than 6")
-                pil_image = xbrz.scale_pillow(pil_image, gcd)
-                factor = factor // gcd
+            # factor = Fraction(factor).limit_denominator().numerator
+            if factor < 1:
+                raise ValueError("xBRZ does not support downscaling!")
+            # If factor is not a whole number or is greater than 6, print a warning
+            if factor != int(factor) or factor > 6:
+                print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
+
+            current_scale = 1
+            while current_scale < factor:
+                temp_factor = 6
+                while current_scale * temp_factor > factor:
+                    temp_factor -= 1
+                temp_factor = min(temp_factor + 1, 6)
+
+                pil_image = xbrz.scale_pillow(pil_image, temp_factor)
+                current_scale *= temp_factor
 
             return pil_image.resize((output_width, output_height), csatpa(fallback_algorithm))
         case Algorithms.RealESRGAN:
             image = pil_image.convert('RGB')
-            factor = Fraction(factor).limit_denominator().numerator
-            while factor != 1:
-                gcd = factor
-                if factor != 2 and factor != 4 and factor != 8:
-                    print(f"WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!")
-                    # RealESRGAN can only scale up to 8x,
-                    # find the biggest common divisor and scale by it until factor is <= 8
-                    gcd = np.gcd(factor, 8)
-                    while gcd == 1:
-                        factor += 1
-                        gcd = np.gcd(factor, 8)
-                # print(f"GCD: {gcd} Factor: {factor}")
-                model = RealESRGAN(device, scale=gcd)
-                model.load_weights(f'weights/RealESRGAN_x{gcd}.pth')  # , download=True
 
+            if factor < 1:
+                raise ValueError("xBRZ does not support downscaling!")
+            # If factor is not a whole number or is greater than 6, print a warning
+            if factor != int(factor) or factor > 8:
+                print(f"WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!")
+
+            current_scale = 1
+            while current_scale < factor:
+                temp_factor = 8
+                while current_scale * temp_factor > factor:
+                    temp_factor /= 2
+                temp_factor = min(temp_factor * 2, 8)
+
+                model = RealESRGAN(device, scale=temp_factor)
+                model.load_weights(f'weights/RealESRGAN_x{temp_factor}.pth')  # , download=True
                 image = model.predict(image)
-                factor = factor // gcd
+
+                current_scale *= temp_factor
 
             return image.resize((output_width, output_height), csatpa(fallback_algorithm))
         case Algorithms.SUPIR:
