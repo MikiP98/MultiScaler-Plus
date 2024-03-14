@@ -1,27 +1,13 @@
 # coding=utf-8
-import argparse
+# import argparse
 import os
 import scaler
 import shutil
 
 from multiprocessing import Process
-# from threading import Thread
 from fractions import Fraction
 from PIL import Image
 from scaler import Algorithms
-# from test.support import interpreters
-
-
-# def thread_process(algorithm: Algorithms, root, file, scale,
-#                   add_algorithm_name_to_output_files_names=True,
-#                   add_factor_to_output_files_names=True,
-#                   sort_by_algorithm=False,
-#                   lossless_compression=True):
-#     # Load 'process_image.txt' to script
-#     script = open('process_image.txt', 'r').read()
-#     script += f'\nprocess_image({algorithm}, "{root}", "{file}", {scale}, {add_algorithm_name_to_output_files_names}, {add_factor_to_output_files_names}, {sort_by_algorithm}, {lossless_compression})'
-#     interp = interpreters.create()
-#     interp.run(script)
 
 
 def process_image(algorithm: Algorithms, image, root: str, file: str, scale, config):
@@ -104,23 +90,32 @@ def process_image(algorithm: Algorithms, image, root: str, file: str, scale, con
                 os.rename(temp_name, output_path)
 
 
-# algorithm, image, root, file, scale, add_algorithm_name_to_output_files_names, add_factor_to_output_files_names, sort_by_algorithm, lossless_compression
 def scale_loop(algorithm: Algorithms, image: Image, root: str, file: str, scales: set[float], config):
+    processes = []
     for scale in scales:
-        if (config['multiprocessing_level'] == 3):
+        if 3 in config['multiprocessing_level']:
             p = Process(target=process_image, args=(algorithm, image, root, file, scale, config))
+            p.start()
             processes.append(p)
         else:
             process_image(algorithm, image, root, file, scale, config)
 
+    for process in processes:
+        process.join()
 
-def alghorithm_loop(algorithms: set[Algorithms], image: Image, root: str, file: str, scales: set[float], config):
+
+def algorithm_loop(algorithms: set[Algorithms], image: Image, root: str, file: str, scales: set[float], config):
+    processes = []
     for algorithm in algorithms:
-        if (config['multiprocessing_level'] == 2):
+        if 2 in config['multiprocessing_level']:
             p = Process(target=scale_loop, args=(algorithm, image, root, file, scales, config))
+            p.start()
             processes.append(p)
         else:
             scale_loop(algorithm, image, root, file, scales, config)
+
+    for process in processes:
+        process.join()
 
 
 if __name__ == '__main__':
@@ -131,6 +126,7 @@ if __name__ == '__main__':
     # true_multithreading = False
 
     # multiprocessing_level:
+    # empty - auto select the best level of multiprocessing for the current prompt, TODO: implement
     # 0 - no multiprocessing,
     # 1 - process per image,
     # 2 - process per algorithm,
@@ -141,9 +137,8 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': True,
         'lossless_compression': True,
-        'multiprocessing_level': 2
+        'multiprocessing_level': {1, 2}
     }
-
 
     # algorithms = {Algorithms.xBRZ, Algorithms.RealESRGAN, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
     algorithms = {Algorithms.xBRZ, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
@@ -159,12 +154,11 @@ if __name__ == '__main__':
             for root, dirs, files in os.walk("../output"):
                 for file in files:
                     os.remove(os.path.join(root, file))
-                for dir in dirs:
-                    shutil.rmtree(os.path.join(root, dir))
+                for directory in dirs:
+                    shutil.rmtree(os.path.join(root, directory))
 
     # Go through all files in input directory, scale them and save them in output directory
     # if in input folder there are some directories all path will be saved in output directory
-    # threads = []
     processes = []
     for root, dirs, files in os.walk("../input"):
         for file in files:
@@ -174,26 +168,12 @@ if __name__ == '__main__':
                 print(f"Processing: {path}")
                 image = Image.open(path)
 
-                if (config['multiprocessing_level'] == 1):
-                    p = Process(target=alghorithm_loop, args=(algorithms, image, root, file, scales, config))
+                if 1 in config['multiprocessing_level']:
+                    p = Process(target=algorithm_loop, args=(algorithms, image, root, file, scales, config))
+                    p.start()
                     processes.append(p)
                 else:
-                    alghorithm_loop(algorithms, image, root, file, scales, config)
-                # for algorithm in algorithms:
-                #     if (config['multiprocessing_level'] == 2):
-                #         p = Process(target=scale_loop, args=(algorithm, image, root, file, scales, config))
-                #         processes.append(p)
-                #     else:
-                #         scale_loop(algorithm, image, root, file, scales, config)
-
-    # for thread in threads:
-    #     thread.start()
-    #
-    # for thread in threads:
-    #     thread.join()
-
-    for process in processes:
-        process.start()
+                    algorithm_loop(algorithms, image, root, file, scales, config)
 
     for process in processes:
         process.join()
