@@ -48,11 +48,13 @@ def process_image(algorithm: Algorithms, image, root: str, file: str, scale, con
         if image.mode == 'RGBA':
             # Go through every pixel and check if alpha is 255, if it 255 on every pixel, save it as RGB
             # else save it as RGBA
-            alpha_was_used = False
-            for pixel in image.getdata():
-                if pixel[3] != 255:
-                    alpha_was_used = True
-                    break
+            # alpha_was_used = False
+            # for pixel in image.getdata():
+            #     if pixel[3] != 255:
+            #         alpha_was_used = True
+            #         break
+            alpha_was_used = any(pixel[3] != 255 for pixel in image.getdata())
+
             if not alpha_was_used:
                 image = image.convert('RGB')
 
@@ -60,20 +62,30 @@ def process_image(algorithm: Algorithms, image, root: str, file: str, scale, con
 
         # Go through every pixel and check add the color to the set,
         # if the set doesn't have more 256 colors convert the image to palette
-        set_of_colors = set()
-        for pixel in image.getdata():
-            set_of_colors.add(pixel)
-            if len(set_of_colors) > 256:
-                break
+        # set_of_colors = set()
+        # for pixel in image.getdata():
+        #     set_of_colors.add(pixel)
+        #     if len(set_of_colors) > 256:
+        #         break
+        #
+        # colors_len = len(set_of_colors)
+        # if colors_len <= 256:
+        #     colors = 256
+        #     if colors_len <= 2:
+        #         colors = 2
+        #     elif colors_len <= 4:
+        #         colors = 4
+        #     elif colors_len <= 16:
+        #         colors = 16
 
-        colors_len = len(set_of_colors)
-        if colors_len <= 256:
+        unique_colors_number = len(set(image.getdata()))
+        if unique_colors_number <= 256:
             colors = 256
-            if colors_len <= 2:
+            if unique_colors_number <= 2:
                 colors = 2
-            elif colors_len <= 4:
+            elif unique_colors_number <= 4:
                 colors = 4
-            elif colors_len <= 16:
+            elif unique_colors_number <= 16:
                 colors = 16
 
             image = image.convert('P', palette=Image.ADAPTIVE, colors=colors)

@@ -1,12 +1,11 @@
 # coding=utf-8
-import numpy as np
+# import numpy as np
 # import rarch
 import subprocess
 import torch
 import xbrz  # See xBRZ scaling on Jira
 
 from enum import IntEnum
-from fractions import Fraction
 from PIL import Image
 from RealESRGAN import RealESRGAN
 
@@ -142,14 +141,14 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
 # Main function for C++ lib
 def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Algorithms.BICUBIC, main_checked=False):
     match algorithm:
-        case Algorithms.CPP_DEBUG:
-            # new_pixels = scalercg.scale("cpp_debug", pixels, factor)
-            new_pixels = scalercg.scale(pixels, factor, "cpp_debug")
-            image = Image.new("RGBA", (len(new_pixels[0]), len(new_pixels)))
-            for y in range(len(new_pixels)):
-                for x in range(len(new_pixels[0])):
-                    image.putpixel((x, y), new_pixels[y][x])
-            return image
+        # case Algorithms.CPP_DEBUG:
+        #     # new_pixels = scalercg.scale("cpp_debug", pixels, factor)
+        #     new_pixels = scalercg.scale(pixels, factor, "cpp_debug")
+        #     image = Image.new("RGBA", (len(new_pixels[0]), len(new_pixels)))
+        #     for y in range(len(new_pixels)):
+        #         for x in range(len(new_pixels[0])):
+        #             image.putpixel((x, y), new_pixels[y][x])
+        #     return image
         case _:
             if main_checked:
                 raise NotImplementedError("Not implemented yet")
