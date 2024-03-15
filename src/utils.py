@@ -57,6 +57,22 @@ def hdr_to_sdr(hdr_image):
     pass
 
 
+def has_transparency(img):
+    if img.info.get("transparency", None) is not None:
+        return True
+    if img.mode == "P":
+        transparent = img.info.get("transparency", -1)
+        for _, index in img.getcolors():
+            if index == transparent:
+                return True
+    elif img.mode == "RGBA":
+        extrema = img.getextrema()
+        if extrema[3][0] < 255:
+            return True
+
+    return False
+
+
 if __name__ == "__main__":
     # Example
     # float_value = 266123.5

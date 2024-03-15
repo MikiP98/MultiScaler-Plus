@@ -48,7 +48,8 @@ def csatpa(algorithm: Algorithms):  # TODO: Convert to a dictionary
 
 # Main function for Python for existing libs
 def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorithms.BICUBIC, main_checked=False) -> Image:
-    pil_image = pil_image.convert('RGBA')
+    # pil_image = pil_image.convert('RGBA')
+    if pil_image.
     width, height = pil_image.size
     output_width, output_height = round(width * factor), round(height * factor)
 
@@ -62,6 +63,7 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
         case Algorithms.LANCZOS:
             return pil_image.resize((output_width, output_height), Image.LANCZOS)
         case Algorithms.xBRZ:
+            pil_image = pil_image.convert('RGBA')
             # if factor > 6:
             #     raise ValueError("Max factor for xbrz=6")
             # factor = Fraction(factor).limit_denominator().numerator
