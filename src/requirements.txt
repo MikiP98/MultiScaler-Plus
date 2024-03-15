@@ -16,7 +16,7 @@ Markdown
 
 requests
 sentencepiece
-tokenizers==0.13.4rc3
+tokenizers
 torch
 torchvision
 uvicorn
@@ -49,7 +49,7 @@ tqdm
 urllib3
 webdataset
 
-xformers
+
 
 facexlib
 k-diffusion

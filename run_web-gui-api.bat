@@ -1,3 +1,3 @@
 @cd src
-uvicorn server:app
+uvicorn server:app --workers=8
 @PAUSE

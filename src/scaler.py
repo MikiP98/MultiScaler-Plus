@@ -94,8 +94,8 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
             current_scale = 1
             while current_scale < factor:
                 temp_factor = 8
-                while current_scale * temp_factor > factor:
-                    temp_factor /= 2
+                while current_scale * temp_factor >= factor:
+                    temp_factor //= 2
                 temp_factor = min(temp_factor * 2, 8)
 
                 model = RealESRGAN(device, scale=temp_factor)

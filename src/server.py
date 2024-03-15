@@ -19,7 +19,7 @@ def read_root():
     },
     response_class=Response
 )
-async def main(content: UploadFile, algorithm: str = 'bicubic', factor: float = 2):
+def main(content: UploadFile, algorithm: str = 'bicubic', factor: float = 2):
     img = Image.open(content.file)
     try:
         scaling_algorithm = string_to_scaling_algorithm(algorithm.lower())

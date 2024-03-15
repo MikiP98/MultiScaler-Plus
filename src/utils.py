@@ -35,7 +35,6 @@ def image_to_byte_array(image: Image) -> bytes:
     return imgByteArr
 
 
-@DeprecationWarning
 def string_to_scaling_algorithm(string: str) -> Algorithms:
     if string in AlgorithmsFromStringDictionary:
         return AlgorithmsFromStringDictionary[string]
