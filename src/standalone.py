@@ -1,6 +1,7 @@
 # coding=utf-8
 # import argparse
 import os
+import queue
 import scaler
 import shutil
 
@@ -99,31 +100,51 @@ def process_image(algorithm: Algorithms, image, root: str, file: str, scale, con
 
 
 def scale_loop(algorithm: Algorithms, image: Image, root: str, file: str, scales: set[float], config):
-    processes = []
+    # processes = []
+    processes = queue.Queue()
+    processes_count = 0
     for scale in scales:
         if 3 in config['multiprocessing_level']:
             p = Process(target=process_image, args=(algorithm, image, root, file, scale, config))
             p.start()
-            processes.append(p)
+            # processes.append(p)
+            processes.put(p)
+            processes_count += 1
+            if processes_count >= config['max_processes'][2]:
+                for i in range(processes_count):
+                    processes.get().join()
+                processes_count = 0
         else:
             process_image(algorithm, image, root, file, scale, config)
 
-    for process in processes:
-        process.join()
+    for i in range(processes_count):
+        processes.get().join()
+    # for process in processes:
+    #     process.join()
 
 
 def algorithm_loop(algorithms: set[Algorithms], image: Image, root: str, file: str, scales: set[float], config):
-    processes = []
+    # processes = []
+    processes = queue.Queue()
+    processes_count = 0
     for algorithm in algorithms:
         if 2 in config['multiprocessing_level']:
             p = Process(target=scale_loop, args=(algorithm, image, root, file, scales, config))
             p.start()
-            processes.append(p)
+            processes.put(p)
+            # processes.append(p)
+            processes_count += 1
+            if processes_count >= config['max_processes'][1]:
+                for i in range(processes_count):
+                    processes.get().join()
+                processes_count = 0
         else:
             scale_loop(algorithm, image, root, file, scales, config)
 
-    for process in processes:
-        process.join()
+    for i in range(processes_count):
+        processes.get().join()
+    # for process in processes:
+    #     process.join()
 
 
 if __name__ == '__main__':
@@ -145,7 +166,8 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
         'lossless_compression': True,
-        'multiprocessing_level': {1}
+        'multiprocessing_level': {1, 2},
+        'max_processes': (4, 8)
     }
 
     # algorithms = {Algorithms.xBRZ, Algorithms.RealESRGAN, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
@@ -155,8 +177,8 @@ if __name__ == '__main__':
     # algorithms = {Algorithms.CPP_DEBUG}
     # algorithms = {Algorithms.RealESRGAN}
     # algorithms = {Algorithms.SUPIR}
-    # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
-    scales = {4}
+    scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
+    # scales = {4}
 
     if os.path.exists("../output"):
         if config['clear_output_directory']:
@@ -168,7 +190,9 @@ if __name__ == '__main__':
 
     # Go through all files in input directory, scale them and save them in output directory
     # if in input folder there are some directories all path will be saved in output directory
-    processes = []
+    # processes = []
+    processes = queue.Queue()
+    processes_count = 0
     for root, dirs, files in os.walk("../input"):
         for file in files:
             path = os.path.join(root, file)
@@ -180,9 +204,20 @@ if __name__ == '__main__':
                 if 1 in config['multiprocessing_level']:
                     p = Process(target=algorithm_loop, args=(algorithms, image, root, file, scales, config))
                     p.start()
-                    processes.append(p)
+                    # processes.append(p)
+                    processes.put(p)
+                    processes_count += 1
+                    if processes_count >= config['max_processes'][0]:
+                        for i in range(processes_count):
+                            processes.get().join()
+                        processes_count = 0
+                        # for process in processes:
+                        #     process.join()
+                        # processes.clear()
                 else:
                     algorithm_loop(algorithms, image, root, file, scales, config)
 
-    for process in processes:
-        process.join()
+    for i in range(processes_count):
+        processes.get().join()
+    # for process in processes:
+    #     process.join()
