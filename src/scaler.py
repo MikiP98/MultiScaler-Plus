@@ -3,29 +3,17 @@
 # import rarch
 import subprocess
 import torch
+import utils
 import xbrz  # See xBRZ scaling on Jira
 
-from enum import IntEnum
+# from enum import IntEnum
 from PIL import Image
 from RealESRGAN import RealESRGAN
+from utils import Algorithms
 
 # from rarch import CommonShaders
 
 # import scalercg
-
-
-# Enum with all available algorithms
-# Ordered alphabetically with number indicating the quality from 0 (lowest) up
-class Algorithms(IntEnum):
-    CPP_DEBUG = -1
-
-    BICUBIC = 3  # less blur than bilinear
-    BILINEAR = 2
-    LANCZOS = 4  # less blur than bicubic, but artifacts may appear
-    NEAREST_NEIGHBOR = 0
-    RealESRGAN = 6
-    SUPIR = 7
-    xBRZ = 5
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -49,7 +37,9 @@ def csatpa(algorithm: Algorithms):  # TODO: Convert to a dictionary
 # Main function for Python for existing libs
 def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorithms.BICUBIC, main_checked=False) -> Image:
     # pil_image = pil_image.convert('RGBA')
-    if pil_image.
+    # if not utils.has_transparency(pil_image):
+    #     pil_image = pil_image.convert('RGB')
+
     width, height = pil_image.size
     output_width, output_height = round(width * factor), round(height * factor)
 

@@ -7,7 +7,7 @@ import shutil
 from multiprocessing import Process
 from fractions import Fraction
 from PIL import Image
-from scaler import Algorithms
+from utils import Algorithms
 
 
 def process_image(algorithm: Algorithms, image, root: str, file: str, scale, config):
@@ -45,16 +45,12 @@ def process_image(algorithm: Algorithms, image, root: str, file: str, scale, con
     if not config['lossless_compression']:
         image.save(output_path)
     else:
+        output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
+
         if image.mode == 'RGBA':
             # Go through every pixel and check if alpha is 255, if it 255 on every pixel, save it as RGB
             # else save it as RGBA
-            # alpha_was_used = False
-            # for pixel in image.getdata():
-            #     if pixel[3] != 255:
-            #         alpha_was_used = True
-            #         break
             alpha_was_used = any(pixel[3] != 255 for pixel in image.getdata())
-
             if not alpha_was_used:
                 image = image.convert('RGB')
 
@@ -147,19 +143,20 @@ if __name__ == '__main__':
         'clear_output_directory': True,
         'add_algorithm_name_to_output_files_names': True,
         'add_factor_to_output_files_names': True,
-        'sort_by_algorithm': True,
+        'sort_by_algorithm': False,
         'lossless_compression': True,
-        'multiprocessing_level': {1, 2}
+        'multiprocessing_level': {1}
     }
 
     # algorithms = {Algorithms.xBRZ, Algorithms.RealESRGAN, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
-    algorithms = {Algorithms.xBRZ, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
-    # algorithms = {Algorithms.xBRZ}
+    # algorithms = {Algorithms.xBRZ, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
+    # algorithms = {Algorithms.NEAREST_NEIGHBOR}
+    algorithms = {Algorithms.xBRZ}
     # algorithms = {Algorithms.CPP_DEBUG}
     # algorithms = {Algorithms.RealESRGAN}
     # algorithms = {Algorithms.SUPIR}
-    scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
-    # scales = {4}
+    # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
+    scales = {4}
 
     if os.path.exists("../output"):
         if config['clear_output_directory']:

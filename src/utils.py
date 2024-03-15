@@ -3,8 +3,22 @@
 import io
 import struct
 from email.policy import default
+from enum import IntEnum
 from PIL import Image
-from scaler import Algorithms
+
+
+# Enum with all available algorithms
+# Ordered alphabetically with number indicating the quality from 0 (lowest) up
+class Algorithms(IntEnum):
+    CPP_DEBUG = -1
+
+    BICUBIC = 3  # less blur than bilinear
+    BILINEAR = 2
+    LANCZOS = 4  # less blur than bicubic, but artifacts may appear
+    NEAREST_NEIGHBOR = 0
+    RealESRGAN = 6
+    SUPIR = 7
+    xBRZ = 5
 
 
 AlgorithmsToStringDictionary = {
@@ -57,7 +71,7 @@ def hdr_to_sdr(hdr_image):
     pass
 
 
-def has_transparency(img):
+def has_transparency(img: Image) -> bool:
     if img.info.get("transparency", None) is not None:
         return True
     if img.mode == "P":
