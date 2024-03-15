@@ -1,6 +1,7 @@
 # coding=utf-8
 # import numpy as np
 # import rarch
+import queue
 import subprocess
 import torch
 import utils
@@ -32,6 +33,9 @@ def csatpa(algorithm: Algorithms):  # TODO: Convert to a dictionary
             return Image.LANCZOS
         case _:
             raise AttributeError("Algorithm not supported by PIL")
+
+
+# def
 
 
 # Main function for Python for existing libs
@@ -126,10 +130,6 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
                 return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
 
 
-# def scale_image(algorithm, pil_image:Image, output_width, output_height):
-#     pass
-
-
 # Main function for C++ lib
 def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Algorithms.BICUBIC, main_checked=False):
     match algorithm:
@@ -152,15 +152,115 @@ def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Al
                 return scale_image(algorithm, image, factor, fallback_algorithm, True)
 
 
-# def scale_image_parallel(algorithm, pil_image: Image, factor, fallback_algorithm=Algorithms.BICUBIC):
-#     # Create new thread and run scale_image in it
-#     pass
+def scale_image_batch(algorithm, pil_image: Image, factors, fallback_algorithm=Algorithms.BICUBIC, main_checked=False):
+    # scaled_images = []
+    scaled_images = queue.Queue()
 
-# def scale_image(algorithm, pixels:[[[int]]], output_width, output_height):
-#     pass
-#
-# def scale_image(algorithm, pixels:[[int]], width, height, factor):
-#     pass
-#
-# def scale_image(algorithm, pixels:[[int]], input_width, input_height, output_width, output_height):
-#     pass
+    width, height = pil_image.size
+    # output_width, output_height = round(width * factor), round(height * factor)
+
+    match algorithm:
+        case Algorithms.NEAREST_NEIGHBOR:
+            for factor in factors:
+                output_width, output_height = round(width * factor), round(height * factor)
+                scaled_images.put(pil_image.resize((output_width, output_height), Image.NEAREST))
+
+        case Algorithms.BILINEAR:
+            for factor in factors:
+                output_width, output_height = round(width * factor), round(height * factor)
+                scaled_images.put(pil_image.resize((output_width, output_height), Image.BILINEAR))
+
+        case Algorithms.BICUBIC:
+            for factor in factors:
+                output_width, output_height = round(width * factor), round(height * factor)
+                scaled_images.put(pil_image.resize((output_width, output_height), Image.BICUBIC))
+
+        case Algorithms.LANCZOS:
+            for factor in factors:
+                output_width, output_height = round(width * factor), round(height * factor)
+                scaled_images.put(pil_image.resize((output_width, output_height), Image.LANCZOS))
+
+        case Algorithms.xBRZ:
+            pil_image = pil_image.convert('RGBA')
+            for factor in factors:
+                image = pil_image
+                output_width, output_height = round(width * factor), round(height * factor)
+
+                # if factor > 6:
+                #     raise ValueError("Max factor for xbrz=6")
+                # factor = Fraction(factor).limit_denominator().numerator
+                if factor < 1:
+                    raise ValueError("xBRZ does not support downscaling!")
+                # If factor is not a whole number or is greater than 6, print a warning
+                if factor != int(factor) or factor > 6:
+                    print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
+
+                current_scale = 1
+                while current_scale < factor:
+                    temp_factor = 6
+                    while current_scale * temp_factor >= factor:
+                        temp_factor -= 1
+                    temp_factor = min(temp_factor + 1, 6)
+
+                    image = xbrz.scale_pillow(image, temp_factor)
+                    current_scale *= temp_factor
+
+                scaled_images.put(image.resize((output_width, output_height), csatpa(fallback_algorithm)))
+
+        case Algorithms.RealESRGAN:
+            pil_image = pil_image.convert('RGB')
+
+            for factor in factors:
+                image = pil_image
+                output_width, output_height = round(width * factor), round(height * factor)
+
+                if factor < 1:
+                    raise ValueError("xBRZ does not support downscaling!")
+                # If factor is not a whole number or is greater than 6, print a warning
+                if factor not in (1, 2, 4, 8):
+                    print(f"WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!")
+
+                current_scale = 1
+                while current_scale < factor:
+                    temp_factor = 8
+                    while current_scale * temp_factor >= factor:
+                        temp_factor //= 2
+                    temp_factor = min(temp_factor * 2, 8)
+
+                    model = RealESRGAN(device, scale=temp_factor)
+                    model.load_weights(f'weights/RealESRGAN_x{temp_factor}.pth')  # , download=True
+                    image = model.predict(image)
+
+                    current_scale *= temp_factor
+
+                scaled_images.put(image.resize((output_width, output_height), csatpa(fallback_algorithm)))
+
+        case Algorithms.SUPIR:
+            script_path = './SUPIR/test.py'
+
+            # Command 1
+            # command1 = f"CUDA_VISIBLE_DEVICES=0 python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign Q --upscale 2"
+            command1 = f"python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign Q --upscale 2"
+
+            # Command 2
+            # command2 = f"CUDA_VISIBLE_DEVICES=0 python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign F --upscale 2 --s_cfg 4.0 --linear_CFG"
+
+            # Execute commands
+            # subprocess.run(command1, shell=True)
+            subprocess.run(command1)
+            # subprocess.run(command2, shell=True)
+
+            # subprocess.run(['python', script_path])
+        case _:
+            if main_checked:
+                raise NotImplementedError("Not implemented yet")
+            else:
+                width, height = pil_image.size
+                # pixels = [[[int]]]
+                pixels = [[[0, 0, 0, 0] for _ in range(width)] for _ in range(height)]
+                for y in range(height):
+                    for x in range(width):
+                        pixels[y][x] = pil_image.getpixel((x, y))
+                return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
+
+    return scaled_images
