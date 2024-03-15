@@ -255,12 +255,13 @@ def scale_image_batch(algorithm, pil_image: Image, factors, fallback_algorithm=A
             if main_checked:
                 raise NotImplementedError("Not implemented yet")
             else:
-                width, height = pil_image.size
-                # pixels = [[[int]]]
-                pixels = [[[0, 0, 0, 0] for _ in range(width)] for _ in range(height)]
-                for y in range(height):
-                    for x in range(width):
-                        pixels[y][x] = pil_image.getpixel((x, y))
-                return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
+                raise NotImplementedError("Not implemented yet")
+                # width, height = pil_image.size
+                # # pixels = [[[int]]]
+                # pixels = [[[0, 0, 0, 0] for _ in range(width)] for _ in range(height)]
+                # for y in range(height):
+                #     for x in range(width):
+                #         pixels[y][x] = pil_image.getpixel((x, y))
+                # return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
 
     return scaled_images
