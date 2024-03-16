@@ -191,7 +191,7 @@ def scale_loop(algorithm: Algorithms, image: Image, root: str, file: str, scales
     # processes = []
     processes = queue.Queue()
     processes_count = 0
-    if 3 in config['multiprocessing_level']:
+    if 3 in config['multiprocessing_levels']:
         for scale in scales:
             p = Process(target=process_image, args=(algorithm, image, root, file, scale, config))
             p.start()
@@ -220,7 +220,7 @@ def algorithm_loop(algorithms: set[Algorithms], image: Image, root: str, file: s
     processes = queue.Queue()
     processes_count = 0
     for algorithm in algorithms:
-        if 2 in config['multiprocessing_level']:
+        if 2 in config['multiprocessing_levels']:
             p = Process(target=scale_loop, args=(algorithm, image, root, file, scales, config))
             p.start()
             processes.put(p)
@@ -258,8 +258,8 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': True,
         'lossless_compression': True,
-        'multiprocessing_level': {1, 2},
-        'max_processes': (4, 8)
+        'multiprocessing_levels': {1, 2},
+        'max_processes': None
     }
     if config['max_processes'] is None:
         config['max_processes'] = (int('inf'), int('inf'), int('inf'))
@@ -295,7 +295,7 @@ if __name__ == '__main__':
                 print(f"Processing: {path}")
                 image = Image.open(path)
 
-                if 1 in config['multiprocessing_level']:
+                if 1 in config['multiprocessing_levels']:
                     p = Process(target=algorithm_loop, args=(algorithms, image, root, file, scales, config))
                     p.start()
                     # processes.append(p)
