@@ -1,13 +1,15 @@
 # coding=utf-8
 # import argparse
+import multiprocessing
 import os
 import queue
 import scaler
 import shutil
 import utils
 
-from multiprocessing import Process
 from fractions import Fraction
+from functools import partial
+from multiprocessing import Process
 from PIL import Image
 from utils import Algorithms
 
@@ -88,8 +90,14 @@ def process_image(algorithm: Algorithms, image, root: str, file: str, scale, con
     save_image(algorithm, image, root, file, scale, config)
 
 
+def save_images_chunk(args):
+    algorithm, images_chunk, root, file, scales_chunk, config = args
+    for image, scale in zip(images_chunk, scales_chunk):
+        save_image(algorithm, image, root, file, scale, config)
+
+
 def scale_loop(algorithm: Algorithms, image: Image, root: str, file: str, scales: set[float], config):
-    if 3 in config['multiprocessing_levels']:
+    if 4 in config['multiprocessing_levels']:
         processes = queue.Queue()
         processes_count = 0
 
@@ -108,9 +116,30 @@ def scale_loop(algorithm: Algorithms, image: Image, root: str, file: str, scales
             processes.get().join()
     else:
         images = scaler.scale_image_batch(algorithm, image, scales)
-        while not images.empty():
-            image = images.get()
-            save_image(algorithm, image, root, file, scales.pop(), config)
+
+        if 3 in config['multiprocessing_levels']:
+            processes = min(config['max_processes'][2], len(scales) // 2)
+            pool = multiprocessing.Pool(processes=processes)
+
+            chunk_size = len(scales) // processes  # Divide images equally among processes
+            args_list = []
+            while not images.empty():
+                images_chunk = [images.get() for _ in range(chunk_size)]
+                scales_chunk = [scales.pop() for _ in range(chunk_size)]
+                args_list.append((algorithm, images_chunk, root, file, scales_chunk, config))
+
+            # Map the process_images_chunk function to the list of argument chunks using the pool of worker processes
+            pool.map(save_images_chunk, args_list)
+
+            # Close the pool
+            pool.close()
+            # Wait for all worker processes to finish
+            pool.join()
+
+        else:
+            while not images.empty():
+                image = images.get()
+                save_image(algorithm, image, root, file, scales.pop(), config)
 
 
 def algorithm_loop(algorithms: set[Algorithms], image: Image, root: str, file: str, scales: set[float], config):
@@ -156,11 +185,26 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': True,
         'lossless_compression': True,
-        'multiprocessing_levels': {1, 2},
-        'max_processes': (2, 8, 2)
+        'multiprocessing_levels': {1, 2, 3},
+        'max_processes': (2, 2, 8)
     }
     if config['max_processes'] is None:
         config['max_processes'] = (16384, 16384, 16384)
+    else:
+        if len(config['max_processes']) < 3:
+            if len(config['max_processes']) == 0:
+                config['max_processes'] = (16384, 16384, 16384)
+            if len(config['max_processes']) == 1:
+                config['max_processes'] = (config['max_processes'][0], 16384, 16384)
+            elif len(config['max_processes']) == 2:
+                config['max_processes'] = (config['max_processes'][0], config['max_processes'][1], 16384)
+
+        if config['max_processes'][0] is None:
+            config['max_processes'] = (16384, config['max_processes'][1], config['max_processes'][2])
+        if config['max_processes'][1] is None:
+            config['max_processes'] = (config['max_processes'][0], 16384, config['max_processes'][2])
+        if config['max_processes'][2] is None:
+            config['max_processes'] = (config['max_processes'][0], config['max_processes'][1], 16384)
 
     # algorithms = {Algorithms.xBRZ, Algorithms.RealESRGAN, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
     algorithms = {Algorithms.xBRZ, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
