@@ -4,6 +4,7 @@ import os
 import queue
 import scaler
 import shutil
+import utils
 
 from multiprocessing import Process
 from fractions import Fraction
@@ -46,32 +47,17 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
     else:
         output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
 
-        if image.mode == 'RGBA':
-            # Go through every pixel and check if alpha is 255, if it 255 on every pixel, save it as RGB
-            # else save it as RGBA
-            alpha_was_used = any(pixel[3] != 255 for pixel in image.getdata())
-            if not alpha_was_used:
-                image = image.convert('RGB')
+        # if image.mode == 'RGBA':
+        #     # Go through every pixel and check if alpha is 255, if it 255 on every pixel, save it as RGB
+        #     # else save it as RGBA
+        #     alpha_was_used = any(pixel[3] != 255 for pixel in image.getdata())
+        #     if not alpha_was_used:
+        #         image = image.convert('RGB')
+
+        if not utils.has_transparency(image):
+            image = image.convert('RGB')
 
         image.save(output_path, optimize=True)
-
-        # Go through every pixel and check add the color to the set,
-        # if the set doesn't have more 256 colors convert the image to palette
-        # set_of_colors = set()
-        # for pixel in image.getdata():
-        #     set_of_colors.add(pixel)
-        #     if len(set_of_colors) > 256:
-        #         break
-        #
-        # colors_len = len(set_of_colors)
-        # if colors_len <= 256:
-        #     colors = 256
-        #     if colors_len <= 2:
-        #         colors = 2
-        #     elif colors_len <= 4:
-        #         colors = 4
-        #     elif colors_len <= 16:
-        #         colors = 16
 
         unique_colors_number = len(set(image.getdata()))
         if unique_colors_number <= 256:
@@ -96,95 +82,10 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
                 # Rename the smaller one to the original name
                 os.rename(temp_name, output_path)
 
+
 def process_image(algorithm: Algorithms, image, root: str, file: str, scale, config):
-    # image = scaler.scale_image(algorithm, Image.open(path), scale)
     image = scaler.scale_image(algorithm, image, scale)
-
     save_image(algorithm, image, root, file, scale, config)
-
-    # path = os.path.join(root, file)
-    #
-    # if image is None:
-    #     print(f"Saving image: {path}, is probably handled by another thread")
-    #     return
-    #
-    # new_file_name = file
-    # if config['add_algorithm_name_to_output_files_names']:
-    #     new_file_name = f"{algorithm.name}_{new_file_name}"
-    # if config['add_factor_to_output_files_names']:
-    #     if scale != int(scale):
-    #         if len(str(scale).split(".")[1]) > 3:
-    #             scale = f"{str(Fraction(scale).limit_denominator()).replace('/', '%')}"
-    #     new_file_name = f"{new_file_name[:-4]}_{scale}x{new_file_name[-4:]}"
-    # # print(new_file_name)
-    #
-    # output_dir = "../output"
-    # if config['sort_by_algorithm']:
-    #     output_dir += f"/{algorithm.name}"
-    #
-    # if not os.path.exists(output_dir):
-    #     os.makedirs(output_dir)
-    #
-    # output_path = output_dir + root.lstrip("../input") + '/' + new_file_name
-    # print(output_path)
-    # # Create output directory if it doesn't exist
-    # if not os.path.exists(output_dir + root.lstrip("../input")):
-    #     os.makedirs(output_dir + root.lstrip("../input"))
-    #
-    # if not config['lossless_compression']:
-    #     image.save(output_path)
-    # else:
-    #     output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
-    #
-    #     if image.mode == 'RGBA':
-    #         # Go through every pixel and check if alpha is 255, if it 255 on every pixel, save it as RGB
-    #         # else save it as RGBA
-    #         alpha_was_used = any(pixel[3] != 255 for pixel in image.getdata())
-    #         if not alpha_was_used:
-    #             image = image.convert('RGB')
-    #
-    #     image.save(output_path, optimize=True)
-    #
-    #     # Go through every pixel and check add the color to the set,
-    #     # if the set doesn't have more 256 colors convert the image to palette
-    #     # set_of_colors = set()
-    #     # for pixel in image.getdata():
-    #     #     set_of_colors.add(pixel)
-    #     #     if len(set_of_colors) > 256:
-    #     #         break
-    #     #
-    #     # colors_len = len(set_of_colors)
-    #     # if colors_len <= 256:
-    #     #     colors = 256
-    #     #     if colors_len <= 2:
-    #     #         colors = 2
-    #     #     elif colors_len <= 4:
-    #     #         colors = 4
-    #     #     elif colors_len <= 16:
-    #     #         colors = 16
-    #
-    #     unique_colors_number = len(set(image.getdata()))
-    #     if unique_colors_number <= 256:
-    #         colors = 256
-    #         if unique_colors_number <= 2:
-    #             colors = 2
-    #         elif unique_colors_number <= 4:
-    #             colors = 4
-    #         elif unique_colors_number <= 16:
-    #             colors = 16
-    #
-    #         image = image.convert('P', palette=Image.ADAPTIVE, colors=colors)
-    #         temp_name = output_path[:-4] + "_P.png"
-    #         image.save(temp_name, optimize=True)
-    #
-    #         # Check which one is smaller and keep it, remove the other one
-    #         # (if the palette is smaller remove '_P' from the name)
-    #         if os.path.getsize(output_path) < os.path.getsize(temp_name):
-    #             os.remove(temp_name)
-    #         else:
-    #             os.remove(output_path)
-    #             # Rename the smaller one to the original name
-    #             os.rename(temp_name, output_path)
 
 
 def scale_loop(algorithm: Algorithms, image: Image, root: str, file: str, scales: set[float], config):
@@ -259,10 +160,10 @@ if __name__ == '__main__':
         'sort_by_algorithm': True,
         'lossless_compression': True,
         'multiprocessing_levels': {1, 2},
-        'max_processes': None
+        'max_processes': (2, 4, 4)
     }
     if config['max_processes'] is None:
-        config['max_processes'] = (int('inf'), int('inf'), int('inf'))
+        config['max_processes'] = (16384, 16384, 16384)
 
     # algorithms = {Algorithms.xBRZ, Algorithms.RealESRGAN, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
     algorithms = {Algorithms.xBRZ, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
