@@ -89,10 +89,10 @@ def process_image(algorithm: Algorithms, image, root: str, file: str, scale, con
 
 
 def scale_loop(algorithm: Algorithms, image: Image, root: str, file: str, scales: set[float], config):
-    # processes = []
-    processes = queue.Queue()
-    processes_count = 0
     if 3 in config['multiprocessing_levels']:
+        processes = queue.Queue()
+        processes_count = 0
+
         for scale in scales:
             p = Process(target=process_image, args=(algorithm, image, root, file, scale, config))
             p.start()
@@ -103,17 +103,14 @@ def scale_loop(algorithm: Algorithms, image: Image, root: str, file: str, scales
                 for i in range(processes_count):
                     processes.get().join()
                 processes_count = 0
+
+        for i in range(processes_count):
+            processes.get().join()
     else:
         images = scaler.scale_image_batch(algorithm, image, scales)
         while not images.empty():
             image = images.get()
             save_image(algorithm, image, root, file, scales.pop(), config)
-        # process_image(algorithm, image, root, file, scale, config)
-
-    for i in range(processes_count):
-        processes.get().join()
-    # for process in processes:
-    #     process.join()
 
 
 def algorithm_loop(algorithms: set[Algorithms], image: Image, root: str, file: str, scales: set[float], config):
@@ -160,7 +157,7 @@ if __name__ == '__main__':
         'sort_by_algorithm': True,
         'lossless_compression': True,
         'multiprocessing_levels': {1, 2},
-        'max_processes': (2, 4, 4)
+        'max_processes': (2, 8, 2)
     }
     if config['max_processes'] is None:
         config['max_processes'] = (16384, 16384, 16384)
