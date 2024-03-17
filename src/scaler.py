@@ -35,11 +35,8 @@ def csatpa(algorithm: Algorithms):  # TODO: Convert to a dictionary
             raise AttributeError("Algorithm not supported by PIL")
 
 
-# def
-
-
 # Main function for Python for existing libs
-def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorithms.BICUBIC, main_checked=False) -> Image:
+def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorithms.BICUBIC, config_plus=None, main_checked=False) -> Image:
     # pil_image = pil_image.convert('RGBA')
     # if not utils.has_transparency(pil_image):
     #     pil_image = pil_image.convert('RGB')
@@ -117,6 +114,15 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
             # subprocess.run(command2, shell=True)
 
             # subprocess.run(['python', script_path])
+        case Algorithms.FSR:
+            if config_plus is not None:
+                script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
+                options = f"-Scale {factor}x {factor}x -Mode EASU"
+                files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
+                command = f"{script_path} {options} {files}"
+                subprocess.run(command)
+            else:
+                raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")
         case _:
             if main_checked:
                 raise NotImplementedError("Not implemented yet")
@@ -149,10 +155,10 @@ def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Al
                 for y in range(len(pixels)):
                     for x in range(len(pixels[0])):
                         image.putpixel((x * factor, y * factor), pixels[y][x])
-                return scale_image(algorithm, image, factor, fallback_algorithm, True)
+                return scale_image(algorithm, image, factor, fallback_algorithm, main_checked=True)
 
 
-def scale_image_batch(algorithm, pil_image: Image, factors, fallback_algorithm=Algorithms.BICUBIC, main_checked=False):
+def scale_image_batch(algorithm, pil_image: Image, factors, fallback_algorithm=Algorithms.BICUBIC, config_plus=None, main_checked=False):
     # scaled_images = []
     scaled_images = queue.Queue()
 
@@ -251,6 +257,9 @@ def scale_image_batch(algorithm, pil_image: Image, factors, fallback_algorithm=A
             # subprocess.run(command2, shell=True)
 
             # subprocess.run(['python', script_path])
+        case Algorithms.FSR:
+            for factor in factors:
+                scale_image(algorithm, pil_image, factor, fallback_algorithm=fallback_algorithm, config_plus=config_plus, main_checked=main_checked)
         case _:
             if main_checked:
                 raise NotImplementedError("Not implemented yet")

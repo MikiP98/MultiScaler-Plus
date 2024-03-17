@@ -9,16 +9,23 @@ from PIL import Image
 
 # Enum with all available algorithms
 # Ordered alphabetically with number indicating the quality from 0 (lowest) up
+# (Only up to 6! (rest are just increments because sorting was hard :/ ))
 class Algorithms(IntEnum):
     CPP_DEBUG = -1
 
-    BICUBIC = 3  # less blur than bilinear
-    BILINEAR = 2
-    LANCZOS = 4  # less blur than bicubic, but artifacts may appear
+    BICUBIC = 2  # less blur and artifacts than bilinear
+    BILINEAR = 1
+    CAS = 8  # contrast adaptive sharpening
+    FSR = 7  # FidelityFX Super Resolution
+    LANCZOS = 3  # less blur than bicubic, but artifacts may appear
     NEAREST_NEIGHBOR = 0
-    RealESRGAN = 6
-    SUPIR = 7
-    xBRZ = 5
+    RealESRGAN = 5
+    SUPIR = 6
+    xBRZ = 4
+
+
+class Filters(IntEnum):
+    CAS = 0  # contrast adaptive sharpening
 
 
 AlgorithmsToStringDictionary = {

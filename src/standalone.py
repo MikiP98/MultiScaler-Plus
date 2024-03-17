@@ -115,7 +115,11 @@ def scale_loop(algorithm: Algorithms, image: Image, root: str, file: str, scales
         for i in range(processes_count):
             processes.get().join()
     else:
-        images = scaler.scale_image_batch(algorithm, image, scales)
+        config_plus = {
+            'input_image_relative_path': file,
+        }
+        # print(f"Scaling image: {config_plus['input_image_relative_path']}")
+        images = scaler.scale_image_batch(algorithm, image, scales, config_plus=config_plus)
 
         if 3 in config['multiprocessing_levels']:
             processes = min(config['max_processes'][2], len(scales) // 2)
@@ -185,7 +189,7 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': True,
         'lossless_compression': True,
-        'multiprocessing_levels': {1, 2, 3},
+        'multiprocessing_levels': {},
         'max_processes': (2, 2, 8)
     }
     if config['max_processes'] is None:
@@ -207,14 +211,14 @@ if __name__ == '__main__':
             config['max_processes'] = (config['max_processes'][0], config['max_processes'][1], 16384)
 
     # algorithms = {Algorithms.xBRZ, Algorithms.RealESRGAN, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
-    algorithms = {Algorithms.xBRZ, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
+    # algorithms = {Algorithms.xBRZ, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
     # algorithms = {Algorithms.NEAREST_NEIGHBOR}
-    # algorithms = {Algorithms.xBRZ}
+    algorithms = {Algorithms.FSR}
     # algorithms = {Algorithms.CPP_DEBUG}
     # algorithms = {Algorithms.RealESRGAN}
     # algorithms = {Algorithms.SUPIR}
-    scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
-    # scales = {4}
+    # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
+    scales = {2}
 
     if os.path.exists("../output"):
         if config['clear_output_directory']:
