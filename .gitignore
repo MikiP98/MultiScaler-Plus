@@ -13,6 +13,8 @@ src/web_output
 src/weights
 
 src/SUPIR
+src/SUPIR/*
+src/SUPIR/**
 
 
 
