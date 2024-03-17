@@ -116,6 +116,9 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
             # subprocess.run(['python', script_path])
         case Algorithms.FSR:
             if config_plus is not None:
+                if factor > 2:
+                    print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
+
                 script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
                 options = f"-Scale {factor}x {factor}x -Mode EASU"
                 files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
@@ -258,8 +261,17 @@ def scale_image_batch(algorithm, pil_image: Image, factors, fallback_algorithm=A
 
             # subprocess.run(['python', script_path])
         case Algorithms.FSR:
-            for factor in factors:
-                scale_image(algorithm, pil_image, factor, fallback_algorithm=fallback_algorithm, config_plus=config_plus, main_checked=main_checked)
+            if config_plus is not None:
+                for factor in factors:
+                    if factor > 2:
+                        print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
+
+                    script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
+                    options = f"-Scale {factor}x {factor}x -Mode EASU"
+                    files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
+                    command = f"{script_path} {options} {files}"
+                    subprocess.run(command)
+                    # scale_image(algorithm, pil_image, factor, fallback_algorithm=fallback_algorithm, config_plus=config_plus, main_checked=main_checked)
         case _:
             if main_checked:
                 raise NotImplementedError("Not implemented yet")

@@ -189,8 +189,8 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': True,
         'lossless_compression': True,
-        'multiprocessing_levels': {},
-        'max_processes': (2, 2, 8)
+        'multiprocessing_levels': {1},
+        'max_processes': (4, 2, 8)
     }
     if config['max_processes'] is None:
         config['max_processes'] = (16384, 16384, 16384)
