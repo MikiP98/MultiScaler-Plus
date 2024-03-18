@@ -72,13 +72,17 @@ def algorithm_to_string(algorithm: Algorithms) -> str:
     #         raise ValueError("Algorithm is not yet translated")
 
 
-def image_to_byte_array(image: Image) -> bytes:
+def image_to_byte_array(image: Image, additional_lossless_compression=True) -> bytes:
+    # If additional_lossless_compression is True, apply lossless compression
+    if additional_lossless_compression:
+        return apply_lossless_compression(image)
+    # else, just convert the image to bytes
+
     # BytesIO is a file-like buffer stored in memory
     img_byte_arr = io.BytesIO()
 
     # image.save expects a file-like as an argument
-    image.save(img_byte_arr, format='PNG', optimize=True)
-    # TODO: Use more advanced lossless compression (apply_lossless_compression)
+    image.save(img_byte_arr, format='PNG')
 
     # Turn the BytesIO object back into a bytes object
     img_byte_arr = img_byte_arr.getvalue()
