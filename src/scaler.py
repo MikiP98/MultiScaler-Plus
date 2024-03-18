@@ -4,7 +4,7 @@
 import queue
 import subprocess
 import torch
-import utils
+# import utils
 import xbrz  # See xBRZ scaling on Jira
 
 # from enum import IntEnum
@@ -261,13 +261,29 @@ def scale_image_batch(algorithm, pil_image: Image, factors, fallback_algorithm=A
 
             # subprocess.run(['python', script_path])
         case Algorithms.FSR:
-            if config_plus is not None:
+            if config_plus is None:
+                raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")
+            else:
                 for factor in factors:
                     if factor > 2:
                         print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
 
                     script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
                     options = f"-Scale {factor}x {factor}x -Mode EASU"
+                    files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
+                    command = f"{script_path} {options} {files}"
+                    subprocess.run(command)
+                    # scale_image(algorithm, pil_image, factor, fallback_algorithm=fallback_algorithm, config_plus=config_plus, main_checked=main_checked)
+        case Algorithms.CAS:
+            if config_plus is None:
+                raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")
+            else:
+                for factor in factors:
+                    if factor > 2:
+                        print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
+
+                    script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
+                    options = f"-Scale {factor}x {factor}x -Sharpness 1.0 -Mode CAS"
                     files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
                     command = f"{script_path} {options} {files}"
                     subprocess.run(command)

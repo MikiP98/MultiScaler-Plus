@@ -8,7 +8,6 @@ import shutil
 import utils
 
 from fractions import Fraction
-from functools import partial
 from multiprocessing import Process
 from PIL import Image
 from utils import Algorithms
@@ -85,8 +84,8 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
                 os.rename(temp_name, output_path)
 
 
-def process_image(algorithm: Algorithms, image, root: str, file: str, scale, config):
-    image = scaler.scale_image(algorithm, image, scale)
+def process_image(algorithm: Algorithms, image: Image, root: str, file: str, scale, config, config_plus=None):
+    image = scaler.scale_image(algorithm, image, scale, config_plus=config_plus)
     save_image(algorithm, image, root, file, scale, config)
 
 
@@ -97,27 +96,29 @@ def save_images_chunk(args):
 
 
 def scale_loop(algorithm: Algorithms, image: Image, root: str, file: str, scales: set[float], config):
-    if 4 in config['multiprocessing_levels']:
+    config_plus = {
+        'input_image_relative_path': file,
+        'sharpness': 0.5
+    }
+
+    if 4 in config['multiprocessing_levels']:  # This path is ONLY recommended for HUGE image sizes
         processes = queue.Queue()
         processes_count = 0
 
         for scale in scales:
-            p = Process(target=process_image, args=(algorithm, image, root, file, scale, config))
+            p = Process(target=process_image, args=(algorithm, image, root, file, scale, config, config_plus))
             p.start()
             # processes.append(p)
             processes.put(p)
             processes_count += 1
             if processes_count >= config['max_processes'][2]:
-                for i in range(processes_count):
+                for _ in range(processes_count):
                     processes.get().join()
                 processes_count = 0
 
-        for i in range(processes_count):
+        for _ in range(processes_count):
             processes.get().join()
     else:
-        config_plus = {
-            'input_image_relative_path': file,
-        }
         # print(f"Scaling image: {config_plus['input_image_relative_path']}")
         images = scaler.scale_image_batch(algorithm, image, scales, config_plus=config_plus)
 
@@ -158,13 +159,13 @@ def algorithm_loop(algorithms: set[Algorithms], image: Image, root: str, file: s
             # processes.append(p)
             processes_count += 1
             if processes_count >= config['max_processes'][1]:
-                for i in range(processes_count):
+                for _ in range(processes_count):
                     processes.get().join()
                 processes_count = 0
         else:
             scale_loop(algorithm, image, root, file, scales, config)
 
-    for i in range(processes_count):
+    for _ in range(processes_count):
         processes.get().join()
     # for process in processes:
     #     process.join()
@@ -213,7 +214,7 @@ if __name__ == '__main__':
     # algorithms = {Algorithms.xBRZ, Algorithms.RealESRGAN, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
     # algorithms = {Algorithms.xBRZ, Algorithms.NEAREST_NEIGHBOR, Algorithms.BILINEAR, Algorithms.BICUBIC, Algorithms.LANCZOS}
     # algorithms = {Algorithms.NEAREST_NEIGHBOR}
-    algorithms = {Algorithms.FSR}
+    algorithms = {Algorithms.CAS}
     # algorithms = {Algorithms.CPP_DEBUG}
     # algorithms = {Algorithms.RealESRGAN}
     # algorithms = {Algorithms.SUPIR}
