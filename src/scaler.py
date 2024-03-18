@@ -283,7 +283,7 @@ def scale_image_batch(algorithm, pil_image: Image, factors, fallback_algorithm=A
                         print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
 
                     script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
-                    options = f"-Scale {factor}x {factor}x -Sharpness 1.0 -Mode CAS"
+                    options = f"-Scale {factor}x {factor}x -Sharpness {config_plus['sharpness']} -Mode CAS"
                     files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
                     command = f"{script_path} {options} {files}"
                     subprocess.run(command)
