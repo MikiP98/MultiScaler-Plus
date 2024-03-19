@@ -51,42 +51,6 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
         img_byte_arr = utils.apply_lossless_compression(image)
         with open(output_path, 'wb') as f:
             f.write(img_byte_arr)
-        # output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
-        #
-        # # if image.mode == 'RGBA':
-        # #     # Go through every pixel and check if alpha is 255, if it 255 on every pixel, save it as RGB
-        # #     # else save it as RGBA
-        # #     alpha_was_used = any(pixel[3] != 255 for pixel in image.getdata())
-        # #     if not alpha_was_used:
-        # #         image = image.convert('RGB')
-        #
-        # if not utils.has_transparency(image):
-        #     image = image.convert('RGB')
-        #
-        # image.save(output_path, optimize=True)
-        #
-        # unique_colors_number = len(set(image.getdata()))
-        # if unique_colors_number <= 256:
-        #     colors = 256
-        #     if unique_colors_number <= 2:
-        #         colors = 2
-        #     elif unique_colors_number <= 4:
-        #         colors = 4
-        #     elif unique_colors_number <= 16:
-        #         colors = 16
-        #
-        #     image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)
-        #     temp_name = output_path[:-4] + "_P.png"
-        #     image.save(temp_name, optimize=True)
-        #
-        #     # Check which one is smaller and keep it, remove the other one
-        #     # (if the palette is smaller remove '_P' from the name)
-        #     if os.path.getsize(output_path) < os.path.getsize(temp_name):
-        #         os.remove(temp_name)
-        #     else:
-        #         os.remove(output_path)
-        #         # Rename the smaller one to the original name
-        #         os.rename(temp_name, output_path)
 
 
 def process_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config, config_plus=None):

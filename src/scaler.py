@@ -1,6 +1,7 @@
 # coding=utf-8
 # import numpy as np
 # import rarch
+import PIL.Image
 import queue
 import subprocess
 import torch
@@ -8,7 +9,7 @@ import torch
 import xbrz  # See xBRZ scaling on Jira
 
 # from enum import IntEnum
-from PIL import Image
+# from PIL import Image
 from RealESRGAN import RealESRGAN
 from utils import Algorithms
 
@@ -24,19 +25,19 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def csatpa(algorithm: Algorithms):  # TODO: Convert to a dictionary
     match algorithm:
         case Algorithms.NEAREST_NEIGHBOR:
-            return Image.NEAREST
+            return PIL.Image.NEAREST
         case Algorithms.BILINEAR:
-            return Image.BILINEAR
+            return PIL.Image.BILINEAR
         case Algorithms.BICUBIC:
-            return Image.BICUBIC
+            return PIL.Image.BICUBIC
         case Algorithms.LANCZOS:
-            return Image.LANCZOS
+            return PIL.Image.LANCZOS
         case _:
             raise AttributeError("Algorithm not supported by PIL")
 
 
 # Main function for Python for existing libs
-def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorithms.BICUBIC, config_plus=None, main_checked=False) -> Image:
+def scale_image(algorithm, pil_image: PIL.Image, factor, fallback_algorithm=Algorithms.BICUBIC, config_plus=None, main_checked=False) -> PIL.Image:
     # pil_image = pil_image.convert('RGBA')
     # if not utils.has_transparency(pil_image):
     #     pil_image = pil_image.convert('RGB')
@@ -46,13 +47,13 @@ def scale_image(algorithm, pil_image: Image, factor, fallback_algorithm=Algorith
 
     match algorithm:
         case Algorithms.NEAREST_NEIGHBOR:
-            return pil_image.resize((output_width, output_height), Image.NEAREST)
+            return pil_image.resize((output_width, output_height), PIL.Image.NEAREST)
         case Algorithms.BILINEAR:
-            return pil_image.resize((output_width, output_height), Image.BILINEAR)
+            return pil_image.resize((output_width, output_height), PIL.Image.BILINEAR)
         case Algorithms.BICUBIC:
-            return pil_image.resize((output_width, output_height), Image.BICUBIC)
+            return pil_image.resize((output_width, output_height), PIL.Image.BICUBIC)
         case Algorithms.LANCZOS:
-            return pil_image.resize((output_width, output_height), Image.LANCZOS)
+            return pil_image.resize((output_width, output_height), PIL.Image.LANCZOS)
         case Algorithms.xBRZ:
             pil_image = pil_image.convert('RGBA')
             # if factor > 6:
@@ -154,14 +155,14 @@ def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Al
             if main_checked:
                 raise NotImplementedError("Not implemented yet")
             else:
-                image = Image.new("RGBA", (len(pixels[0]) * factor, len(pixels) * factor))
+                image = PIL.Image.new("RGBA", (len(pixels[0]) * factor, len(pixels) * factor))
                 for y in range(len(pixels)):
                     for x in range(len(pixels[0])):
                         image.putpixel((x * factor, y * factor), pixels[y][x])
                 return scale_image(algorithm, image, factor, fallback_algorithm, main_checked=True)
 
 
-def scale_image_batch(algorithm, pil_image: Image, factors, fallback_algorithm=Algorithms.BICUBIC, config_plus=None, main_checked=False):
+def scale_image_batch(algorithm, pil_image: PIL.Image, factors, fallback_algorithm=Algorithms.BICUBIC, config_plus=None, main_checked=False):
     # scaled_images = []
     scaled_images = queue.Queue()
 
@@ -172,22 +173,22 @@ def scale_image_batch(algorithm, pil_image: Image, factors, fallback_algorithm=A
         case Algorithms.NEAREST_NEIGHBOR:
             for factor in factors:
                 output_width, output_height = round(width * factor), round(height * factor)
-                scaled_images.put(pil_image.resize((output_width, output_height), Image.NEAREST))
+                scaled_images.put(pil_image.resize((output_width, output_height), PIL.Image.NEAREST))
 
         case Algorithms.BILINEAR:
             for factor in factors:
                 output_width, output_height = round(width * factor), round(height * factor)
-                scaled_images.put(pil_image.resize((output_width, output_height), Image.BILINEAR))
+                scaled_images.put(pil_image.resize((output_width, output_height), PIL.Image.BILINEAR))
 
         case Algorithms.BICUBIC:
             for factor in factors:
                 output_width, output_height = round(width * factor), round(height * factor)
-                scaled_images.put(pil_image.resize((output_width, output_height), Image.BICUBIC))
+                scaled_images.put(pil_image.resize((output_width, output_height), PIL.Image.BICUBIC))
 
         case Algorithms.LANCZOS:
             for factor in factors:
                 output_width, output_height = round(width * factor), round(height * factor)
-                scaled_images.put(pil_image.resize((output_width, output_height), Image.LANCZOS))
+                scaled_images.put(pil_image.resize((output_width, output_height), PIL.Image.LANCZOS))
 
         case Algorithms.xBRZ:
             pil_image = pil_image.convert('RGBA')

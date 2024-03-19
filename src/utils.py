@@ -1,10 +1,11 @@
 # coding=utf-8
 
 import io
+import PIL.Image
 import struct
 # from email.policy import default
 from enum import IntEnum
-from PIL import Image
+# from PIL import Image
 
 
 # Enum with all available algorithms
@@ -72,7 +73,7 @@ def algorithm_to_string(algorithm: Algorithms) -> str:
     #         raise ValueError("Algorithm is not yet translated")
 
 
-def image_to_byte_array(image: Image, additional_lossless_compression=True) -> bytes:
+def image_to_byte_array(image: PIL.Image, additional_lossless_compression=True) -> bytes:
     # If additional_lossless_compression is True, apply lossless compression
     if additional_lossless_compression:
         return apply_lossless_compression(image)
@@ -90,7 +91,7 @@ def image_to_byte_array(image: Image, additional_lossless_compression=True) -> b
     return img_byte_arr
 
 
-def apply_lossless_compression(image: Image) -> bytes:
+def apply_lossless_compression(image: PIL.Image) -> bytes:
     img_byte_arr = io.BytesIO()
 
     # if image.mode == 'RGBA':
@@ -116,7 +117,7 @@ def apply_lossless_compression(image: Image) -> bytes:
             colors = 16
 
         img_temp_byte_arr = io.BytesIO()
-        image = image.convert('P', palette=Image.ADAPTIVE, colors=colors)
+        image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)
         image.save(img_temp_byte_arr, optimize=True, format='PNG')
 
         # Check which one is smaller and keep it, remove the other one
@@ -145,7 +146,7 @@ def hdr_to_sdr(hdr_image):
     pass
 
 
-def has_transparency(img: Image) -> bool:
+def has_transparency(img: PIL.Image) -> bool:
     if img.info.get("transparency", None) is not None:
         return True
     if img.mode == "P":
