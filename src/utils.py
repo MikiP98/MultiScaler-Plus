@@ -103,7 +103,7 @@ def apply_lossless_compression(image: Image) -> bytes:
     if not has_transparency(image):
         image = image.convert('RGB')
 
-    image.save(img_byte_arr, optimize=True)
+    image.save(img_byte_arr, optimize=True, format='PNG')
 
     unique_colors_number = len(set(image.getdata()))
     if unique_colors_number <= 256:
@@ -117,7 +117,7 @@ def apply_lossless_compression(image: Image) -> bytes:
 
         img_temp_byte_arr = io.BytesIO()
         image = image.convert('P', palette=Image.ADAPTIVE, colors=colors)
-        image.save(img_temp_byte_arr, optimize=True)
+        image.save(img_temp_byte_arr, optimize=True, format='PNG')
 
         # Check which one is smaller and keep it, remove the other one
         # (if the palette is smaller remove '_P' from the name)
