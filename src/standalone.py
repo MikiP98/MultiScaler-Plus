@@ -1,5 +1,6 @@
 # coding=utf-8
 # import argparse
+import cv2
 import multiprocessing
 import os
 import PIL.Image
@@ -93,7 +94,7 @@ def scale_loop(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
 
         if 3 in config['multiprocessing_levels']:
             # print(f"Max processes: {config['max_processes'][2]}; len(Scales) // 2: {len(scales) // 2}: {len(scales)}")
-            processes = min(config['max_processes'][2], round(len(scales) / 2))
+            processes = min(config['max_processes'][2], max(round(len(scales) / 2), 1))
             pool = multiprocessing.Pool(processes=processes)
 
             chunk_size = len(scales) // processes  # Divide images equally among processes
@@ -158,7 +159,7 @@ if __name__ == '__main__':
         'clear_output_directory': True,
         'add_algorithm_name_to_output_files_names': True,
         'add_factor_to_output_files_names': True,
-        'sort_by_algorithm': True,
+        'sort_by_algorithm': False,
         'lossless_compression': True,
         'multiprocessing_levels': {1, 2, 3},
         'max_processes': (2, 2, 2)
@@ -188,8 +189,8 @@ if __name__ == '__main__':
     # algorithms = {Algorithms.CPP_DEBUG}
     # algorithms = {Algorithms.RealESRGAN}
     # algorithms = {Algorithms.SUPIR}
-    scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
-    # scales = {2}
+    # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
+    scales = {2}
 
     if os.path.exists("../output"):
         if config['clear_output_directory']:
