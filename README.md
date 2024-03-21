@@ -6,21 +6,27 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
 
 ### Supported algorithms
 - **Classical Algorithms** <sup>(Up-scaling and downscaling)</sup>:
-  - **Bicubic** *(Better than bilinear, less blur, more detail)*
+  - **Bicubic** *(Better than bilinear, less blur, more detail, higher contrast, and slightly more artifacts)*
   - **Bilinear** *(Second-simplest algorithm, most common and most blurry)*
   - **Nearest neighbor** *(Simplest algorithm, duplicates or keeps only the nearest pixel)*
-  - **Lanczos** *(Similar to bicubic, but with a higher contrast)*
-- **AI-based algorithms** <sup>(Only up-scaling)</sup>:
+  - **Area** *(Made for downscaling, averages pixels into smaller ones)* *<sup>(Only down-scaling)</sup>*
+  - **Lanczos** *(Similar to bicubic, but with a higher contrast, less 'pixelated' artifacts but more artifacts of other kinds)*
+- **AI-based Algorithms** <sup>(Only up-scaling)</sup>:
   - **RealESRGAN** *(AI-based algorithm, based on ESRGAN)*
-- **Edge detection algorithms** <sup>(Only up-scaling)</sup>:
+- **Edge Detection Algorithms** <sup>(Only up-scaling)</sup>:
   - **xBRZ** *(edge detection algorithm, based on xBR, better at preserving small details)*
+- **Smart Algorithms** <sup>(Only up-scaling)</sup>:
+  - **FSR** *(FidelityFX Super Resolution 1.1, made by AMD)*
+  - **CAS** *(Contrast Adaptive Sharpening, made by AMD)*
 
 <br/>
 
 ### Additional Credits:
 - [**RealESRGAN**](https://github.com/ai-forever/Real-ESRGAN) implementation by [ai-forever](https://github.com/ai-forever)
 - [**xBRZ**](https://github.com/ioistired/xbrz.py) implementation by [ioistired](https://github.com/ioistired)
-- ***Nearest neighbor***, ***Bilinear***, ***Bicubic*** and ***Lanchos*** algorithms are implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
+- [**FSR**](https://gpuopen.com/fidelityfx-superresolution/) and [**CAS**](https://gpuopen.com/fidelityfx-cas/) are implemented using [FidelityFX-CLI](https://github.com/GPUOpen-Effects/FidelityFX-CLI) by [GPUOpen-Effects](https://github.com/GPUOpen-Effects) and [AMD](https://www.amd.com/) <sup>*(licence in "src/FidelityFX-CLI-v1.0.3")*</sup>
+- ***Area***, ***Bicubic***, ***Bilinear***, ***Lanchos*** and ***Nearest neighbor*** algorithms are implemented using [OpenCV](https://opencv.org)
+- ***Nearest neighbor***, ***Bilinear***, ***Bicubic*** and ***Lanchos*** algorithms are also implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
 
 <sup>
 

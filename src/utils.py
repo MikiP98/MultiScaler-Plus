@@ -1,6 +1,8 @@
 # coding=utf-8
 
+import cv2
 import io
+import numpy as np
 import PIL.Image
 import struct
 # from email.policy import default
@@ -9,20 +11,24 @@ from enum import IntEnum
 
 
 # Enum with all available algorithms
-# Ordered alphabetically with number indicating the quality from 0 (lowest) up
-# (Only up to 6! (rest are just increments because sorting was hard :/ ))
+# Ordered alphabetically
 class Algorithms(IntEnum):
     CPP_DEBUG = -1
 
-    BICUBIC = 2  # less blur and artifacts than bilinear
-    BILINEAR = 1
-    CAS = 8  # contrast adaptive sharpening
-    FSR = 7  # FidelityFX Super Resolution
-    LANCZOS = 3  # less blur than bicubic, but artifacts may appear
-    NEAREST_NEIGHBOR = 0
-    RealESRGAN = 5
-    SUPIR = 6
-    xBRZ = 4
+    CAS = 0  # contrast adaptive sharpening
+    CV2_INTER_AREA = 1  # resampling using pixel area relation
+    CV2_INTER_CUBIC = 2  # bicubic interpolation over 4x4 pixel neighborhood
+    CV2_INTER_LANCZOS4 = 3  # Lanczos interpolation over 8x8 pixel neighborhood
+    CV2_INTER_LINEAR = 4  # bilinear interpolation
+    CV2_INTER_NEAREST = 5  # nearest-neighbor interpolation
+    FSR = 5  # FidelityFX Super Resolution
+    PIL_BICUBIC = 6  # less blur and artifacts than bilinear, but slower
+    PIL_BILINEAR = 7
+    PIL_LANCZOS = 8  # less blur than bicubic, but artifacts may appear
+    PIL_NEAREST_NEIGHBOR = 9
+    RealESRGAN = 10
+    SUPIR = 11
+    xBRZ = 12
 
 
 class Filters(IntEnum):
@@ -73,6 +79,42 @@ def algorithm_to_string(algorithm: Algorithms) -> str:
     #         raise ValueError("Algorithm is not yet translated")
 
 
+def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
+    if has_transparency(pil_image):
+        # print("Converting from RGBA to BGRA format...")
+        pil_image = pil_image.convert('RGBA')
+
+        # Convert Pillow image to NumPy array
+        numpy_array = np.array(pil_image)
+
+        # Convert NumPy array to OpenCV format
+        return cv2.cvtColor(numpy_array, cv2.COLOR_RGBA2BGRA)
+    else:
+        # print("Converting from RGB to BGR format...")
+        # Convert Pillow image to NumPy array
+        numpy_array = np.array(pil_image)
+
+        # Convert NumPy array to OpenCV format
+        return cv2.cvtColor(numpy_array, cv2.COLOR_RGB2BGR)
+
+
+def cv2_to_pil(cv2_image: 'np.ndarray') -> PIL.Image:
+    if cv2_image.shape[2] == 4:
+        print("Converting from BGRA to RGBA format...")
+        # Convert OpenCV image to NumPy array
+        numpy_array = cv2.cvtColor(cv2_image, cv2.COLOR_BGRA2RGBA)
+
+        # Convert NumPy array to Pillow format
+        return PIL.Image.fromarray(numpy_array)
+    else:
+        print("Converting from BGR to RGB format...")
+        # Convert OpenCV image to NumPy array
+        numpy_array = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
+
+        # Convert NumPy array to Pillow format
+        return PIL.Image.fromarray(numpy_array)
+
+
 def image_to_byte_array(image: PIL.Image, additional_lossless_compression=True) -> bytes:
     # If additional_lossless_compression is True, apply lossless compression
     if additional_lossless_compression:
@@ -91,7 +133,11 @@ def image_to_byte_array(image: PIL.Image, additional_lossless_compression=True) 
     return img_byte_arr
 
 
-def apply_lossless_compression(image: PIL.Image) -> bytes:
+def apply_lossless_compression(image) -> bytes:
+    # if image is CV2, convert it to PIL
+    if isinstance(image, np.ndarray):
+        image = cv2_to_pil(image)
+
     img_byte_arr = io.BytesIO()
 
     # if image.mode == 'RGBA':
@@ -146,7 +192,10 @@ def hdr_to_sdr(hdr_image):
     pass
 
 
-def has_transparency(img: PIL.Image) -> bool:
+def has_transparency(img) -> bool:
+    if isinstance(img, np.ndarray):
+        return img.shape[2] == 4
+
     if img.info.get("transparency", None) is not None:
         return True
     if img.mode == "P":
@@ -154,6 +203,33 @@ def has_transparency(img: PIL.Image) -> bool:
         for _, index in img.getcolors():
             if index == transparent:
                 return True
+    elif img.mode == "RGBA":
+        return True
+        # extrema = img.getextrema()
+        # if extrema[3][0] < 255:
+        #     return True
+
+    return False
+
+
+def uses_transparency(img) -> bool:
+    if isinstance(img, np.ndarray):
+        # check if the image has an alpha channel
+        if img.shape[2] == 4:
+            # Check if the alpha channel is used
+            return np.any(img[:, :, 3] != 255)
+
+        return False
+
+    if img.info.get("transparency", None) is not None:
+        return True
+
+    if img.mode == "P":
+        transparent = img.info.get("transparency", -1)
+        for _, index in img.getcolors():
+            if index == transparent:
+                return True
+
     elif img.mode == "RGBA":
         extrema = img.getextrema()
         if extrema[3][0] < 255:
