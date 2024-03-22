@@ -5,12 +5,20 @@ from utils import image_to_byte_array, string_to_scaling_algorithm
 from scaler import scale_image
 
 app = FastAPI()
+# Allow requests from all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
 
-@app.get(
+@app.post(
     "/scale",
     responses = {
         200: {
@@ -25,5 +33,5 @@ def main(content: UploadFile, algorithm: str = 'bicubic', factor: float = 2):
         scaling_algorithm = string_to_scaling_algorithm(algorithm.lower())
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    scaled_image = scale_image(scaling_algorithm, img, factor)
+    scaled_image = scale_image_batch(scaling_algorithm, img, [factor])
     return Response(content=image_to_byte_array(scaled_image), media_type="image/png")
