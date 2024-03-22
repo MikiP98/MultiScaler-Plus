@@ -5,12 +5,9 @@ input/**
 !input/example_shell_40px.png
 output
 
-src/web_input/*
-src/web_input/**
-!src/web_input/example_shell_40px.png
-src/web_output
-
-src/weights
+src/weights/*
+!src/weights/**
+!src/weights/**/*
 
 src/SUPIR
 src/SUPIR/*

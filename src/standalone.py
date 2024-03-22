@@ -152,8 +152,15 @@ def algorithm_loop(algorithms: set[Algorithms], image, root: str, file: str, sca
 
 
 def fix_config(config):
+    if config['multiprocessing_levels'] is None:
+        config['multiprocessing_levels'] = {}
+        print("New multiprocessing_levels: {}")
+
     if config['max_processes'] is None:
         config['max_processes'] = (16384, 16384, 16384)
+
+        print(f"New max_processes: {config['max_processes']}")
+
     else:
         if len(config['max_processes']) < 3:
             if len(config['max_processes']) == 0:
@@ -169,7 +176,8 @@ def fix_config(config):
             config['max_processes'] = (config['max_processes'][0], 16384, config['max_processes'][2])
         if config['max_processes'][2] is None:
             config['max_processes'] = (config['max_processes'][0], config['max_processes'][1], 16384)
-    print(f"New max_processes: {config['max_processes']}")
+
+        print(f"New max_processes: {config['max_processes']}")
 
     return config
 
@@ -179,7 +187,7 @@ if __name__ == '__main__':
     if not os.path.exists("../input"):
         os.makedirs("../input")
 
-    # true_multithreading = False
+    safe_mode = False
 
     # multiprocessing_level:
     # empty - auto select the best level of multiprocessing for the current prompt, TODO: implement
@@ -196,7 +204,8 @@ if __name__ == '__main__':
         'multiprocessing_levels': {},
         'max_processes': (4, 4, 2)
     }
-    config = fix_config(config)
+    if safe_mode:
+        config = fix_config(config)
 
     algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}
     # algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST, Algorithms.xBRZ}
