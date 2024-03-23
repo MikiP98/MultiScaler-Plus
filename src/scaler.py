@@ -284,6 +284,30 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
 
     match algorithm:
         case Algorithms.xBRZ:  # TODO: Use RGB mode if the image is not RGBA
+            pil_image = utils.cv2_to_pil(image)
+            for factor in factors:
+                image = pil_image
+                output_width, output_height = round(width * factor), round(height * factor)
+
+                if factor < 1:
+                    print(f"ERROR: xBRZ does not support downscaling! Factor: {factor}")
+                    continue
+                    # raise ValueError("xBRZ does not support downscaling!")
+                # If factor is not a whole number or is greater than 6, print a warning
+                if factor != int(factor) or factor > 6:
+                    print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
+
+                current_scale = 1
+                while current_scale < factor:
+                    temp_factor = 6
+                    while current_scale * temp_factor >= factor:
+                        temp_factor -= 1
+                    temp_factor = min(temp_factor + 1, 6)
+
+                    image = xbrz.scale_pillow(image, temp_factor)
+                    current_scale *= temp_factor
+
+                scaled_images.put(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
             # # Convert image to RGBA format
             # if cv2_image.shape[2] == 3:
             #     # print("Converting from BGR to RGBA format...")
@@ -315,88 +339,88 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
 
             # pil_image = utils.cv2_to_pil(cv2_image)
             # pil_image = image.convert('RGBA')
-            for factor in factors:
-                image = python_array_image
-                if type(image) is bytearray:
-                    print(f"Image is bytearray")
-                else:
-                    print(f"Image is not bytearray")
-                print(f"Image initial size: {len(image)}")
-                output_width, output_height = round(width * factor), round(height * factor)
-
-                # if factor > 6:
-                #     raise ValueError("Max factor for xbrz=6")
-                # factor = Fraction(factor).limit_denominator().numerator
-                if factor < 1:
-                    print(f"ERROR: xBRZ does not support downscaling! Factor: {factor}")
-                    continue
-                    # raise ValueError("xBRZ does not support downscaling!")
-                # If factor is not a whole number or is greater than 6, print a warning
-                if factor != int(factor) or factor > 6:
-                    print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
-
-                current_scale = 1
-                while current_scale < factor:
-                    temp_factor = 6
-                    while current_scale * temp_factor >= factor:
-                        temp_factor -= 1
-                    temp_factor = min(temp_factor + 1, 6)
-                    print(f"Temp factor: {temp_factor}")
-
-                    print("Image-pre:")
-                    print(image)
-                    image = xbrz.scale(image, temp_factor, width, height, xbrz.ColorFormat.RGBA)
-                    # current_scale *= temp_factor
-                    print("Image-post:")
-                    print(image)
-                    # if image is bytearray:
-                    if type(image) is bytearray:
-                        print(f"Image is bytearray")
-                    else:
-                        print(f"Image is not bytearray")
-                    print(f"Image size: {len(image)}")
-
-                    if current_scale < factor:
-                        current_scale *= temp_factor
-                        # Convert byte array to NumPy array
-                        numpy_array = np.frombuffer(image, dtype=np.uint8)
-                        rgba_image = numpy_array.reshape((height * current_scale, width * current_scale, 4))
-                        rgba_image = rgba_image[..., [3, 2, 1, 0]]  # Reorder the channels from 'ABGR' to 'RGBA'
-
-                        # Convert to BGRA format for OpenCV
-                        cv2_image_scaled = cv2.cvtColor(rgba_image, cv2.COLOR_RGBA2BGRA)
-                        rgba_image = cv2.cvtColor(cv2_image_scaled, cv2.COLOR_BGRA2RGBA)
-
-                        r, g, b, a = rgba_image[:, :, 0], rgba_image[:, :, 1], rgba_image[:, :, 2], rgba_image[:, :, 3]
-                        r = np.uint32(r)
-                        g = np.uint32(g)
-                        b = np.uint32(b)
-                        a = np.uint32(a)
-
-                        int32_image = (r << 24) | (g << 16) | (b << 8) | a
-                        flattened_array = int32_image.flatten()
-                        image = bytearray(flattened_array.tobytes())
-                        print("Image-post-post:")
-                        print(image)
-                        if type(image) is bytearray:
-                            print(f"Image is bytearray")
-                        else:
-                            print(f"Image is not bytearray")
-                        print(f"Image size: {len(image)}")
-                    else:
-                        current_scale *= temp_factor
-
-                # Convert byte array to NumPy array
-                numpy_array = np.frombuffer(image, dtype=np.uint8)
-
-                print(f"New height: {height * current_scale} = {height} * {current_scale}, New width: {width * current_scale} = {width} * {current_scale}")
-                rgba_image = numpy_array.reshape((height * current_scale, width * current_scale, 4))
-                rgba_image = rgba_image[..., [3, 2, 1, 0]]  # Reorder the channels from 'ABGR' to 'RGBA'
-
-                # Convert to BGRA format for OpenCV
-                cv2_image_scaled = cv2.cvtColor(rgba_image, cv2.COLOR_RGBA2BGRA)
-                # scaled_images.put(cv2_image_scaled)
-                scaled_images.put(cv2.resize(cv2_image_scaled, (output_width, output_height), interpolation=csatca(fallback_algorithm)))
+            # for factor in factors:
+            #     image = python_array_image
+            #     if type(image) is bytearray:
+            #         print(f"Image is bytearray")
+            #     else:
+            #         print(f"Image is not bytearray")
+            #     print(f"Image initial size: {len(image)}")
+            #     output_width, output_height = round(width * factor), round(height * factor)
+            #
+            #     # if factor > 6:
+            #     #     raise ValueError("Max factor for xbrz=6")
+            #     # factor = Fraction(factor).limit_denominator().numerator
+            #     if factor < 1:
+            #         print(f"ERROR: xBRZ does not support downscaling! Factor: {factor}")
+            #         continue
+            #         # raise ValueError("xBRZ does not support downscaling!")
+            #     # If factor is not a whole number or is greater than 6, print a warning
+            #     if factor != int(factor) or factor > 6:
+            #         print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
+            #
+            #     current_scale = 1
+            #     while current_scale < factor:
+            #         temp_factor = 6
+            #         while current_scale * temp_factor >= factor:
+            #             temp_factor -= 1
+            #         temp_factor = min(temp_factor + 1, 6)
+            #         print(f"Temp factor: {temp_factor}")
+            #
+            #         print("Image-pre:")
+            #         print(image)
+            #         image = xbrz.scale(image, temp_factor, width, height, xbrz.ColorFormat.RGBA)
+            #         # current_scale *= temp_factor
+            #         print("Image-post:")
+            #         print(image)
+            #         # if image is bytearray:
+            #         if type(image) is bytearray:
+            #             print(f"Image is bytearray")
+            #         else:
+            #             print(f"Image is not bytearray")
+            #         print(f"Image size: {len(image)}")
+            #
+            #         if current_scale < factor:
+            #             current_scale *= temp_factor
+            #             # Convert byte array to NumPy array
+            #             numpy_array = np.frombuffer(image, dtype=np.uint8)
+            #             rgba_image = numpy_array.reshape((height * current_scale, width * current_scale, 4))
+            #             rgba_image = rgba_image[..., [3, 2, 1, 0]]  # Reorder the channels from 'ABGR' to 'RGBA'
+            #
+            #             # Convert to BGRA format for OpenCV
+            #             cv2_image_scaled = cv2.cvtColor(rgba_image, cv2.COLOR_RGBA2BGRA)
+            #             rgba_image = cv2.cvtColor(cv2_image_scaled, cv2.COLOR_BGRA2RGBA)
+            #
+            #             r, g, b, a = rgba_image[:, :, 0], rgba_image[:, :, 1], rgba_image[:, :, 2], rgba_image[:, :, 3]
+            #             r = np.uint32(r)
+            #             g = np.uint32(g)
+            #             b = np.uint32(b)
+            #             a = np.uint32(a)
+            #
+            #             int32_image = (r << 24) | (g << 16) | (b << 8) | a
+            #             flattened_array = int32_image.flatten()
+            #             image = bytearray(flattened_array.tobytes())
+            #             print("Image-post-post:")
+            #             print(image)
+            #             if type(image) is bytearray:
+            #                 print(f"Image is bytearray")
+            #             else:
+            #                 print(f"Image is not bytearray")
+            #             print(f"Image size: {len(image)}")
+            #         else:
+            #             current_scale *= temp_factor
+            #
+            #     # Convert byte array to NumPy array
+            #     numpy_array = np.frombuffer(image, dtype=np.uint8)
+            #
+            #     print(f"New height: {height * current_scale} = {height} * {current_scale}, New width: {width * current_scale} = {width} * {current_scale}")
+            #     rgba_image = numpy_array.reshape((height * current_scale, width * current_scale, 4))
+            #     rgba_image = rgba_image[..., [3, 2, 1, 0]]  # Reorder the channels from 'ABGR' to 'RGBA'
+            #
+            #     # Convert to BGRA format for OpenCV
+            #     cv2_image_scaled = cv2.cvtColor(rgba_image, cv2.COLOR_RGBA2BGRA)
+            #     # scaled_images.put(cv2_image_scaled)
+            #     scaled_images.put(cv2.resize(cv2_image_scaled, (output_width, output_height), interpolation=csatca(fallback_algorithm)))
 
         case Algorithms.RealESRGAN:
             # pil_image = utils.cv2_to_pil(cv2_image)
@@ -425,7 +449,7 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
 
                     current_scale *= temp_factor
 
-                scaled_images.put(image.resize((output_width, output_height), csatpa(fallback_algorithm)))
+                scaled_images.put(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
 
         case Algorithms.SUPIR:
             script_path = './SUPIR/test.py'
@@ -478,9 +502,10 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
             else:
                 for factor in factors:
                     # raise NotImplementedError("Not implemented yet")
+                    image = utils.pil_to_cv2(image)
 
                     # Convert image to RGBA format
-                    cv2_image_rgba = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGBA)
+                    cv2_image_rgba = cv2.cvtColor(image, cv2.COLOR_BGR2RGBA)
                     # Convert 'cv2_image_rgba' numpy array to python list
                     python_array_image = cv2_image_rgba.tolist()
 
@@ -502,6 +527,5 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
                     #     for x in range(width):
                     #         pixels[y][x] = pil_image.getpixel((x, y))
                     # return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
-
 
     return scaled_images

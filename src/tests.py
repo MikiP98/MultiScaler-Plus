@@ -272,6 +272,6 @@ if __name__ == "__main__":
     # test_match_vs_dict()
     # test_custom_any()
     # enum_to_string_test()
-    # cv2_vs_pil_test()
-    test_pil_wh_vs_cv2_size()
+    cv2_vs_pil_test()
+    # test_pil_wh_vs_cv2_size()
     ...
