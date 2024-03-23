@@ -227,8 +227,9 @@ def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Al
                 # return scale_image(algorithm, image, factor, fallback_algorithm, main_checked=True)
 
 
-cv2_algorithms = {Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST}
-pil_algorithms = {Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.PIL_BILINEAR, Algorithms.PIL_BICUBIC, Algorithms.PIL_LANCZOS}
+# ud - upscale/downscale
+cv2_algorithms_ud = {Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST}
+pil_algorithms_ud = {Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.PIL_BILINEAR, Algorithms.PIL_BICUBIC, Algorithms.PIL_LANCZOS}
 
 
 def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False):
@@ -240,9 +241,9 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
 
     width, height = image.size
 
-    if algorithm == cv2.INTER_AREA:
+    if algorithm == Algorithms.CV2_INTER_AREA:
         algorithm = csatca(algorithm)
-        cv2_image = utils.cv2_to_pil(image)
+        cv2_image = utils.pil_to_cv2(image)
 
         for factor in factors:
             if factor > 1:
@@ -253,9 +254,9 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
             scaled_images.put(
                 utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_AREA)))
 
-    if algorithm in cv2_algorithms:
+    if algorithm in cv2_algorithms_ud:
         algorithm = csatca(algorithm)
-        cv2_image = utils.cv2_to_pil(image)
+        cv2_image = utils.pil_to_cv2(image)
 
         for factor in factors:
             output_width, output_height = round(width * factor), round(height * factor)
@@ -263,7 +264,7 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
 
         return scaled_images
 
-    if algorithm in pil_algorithms:
+    if algorithm in pil_algorithms_ud:
         algorithm = csatpa(algorithm)
 
         for factor in factors:

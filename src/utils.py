@@ -25,14 +25,14 @@ class Algorithms(IntEnum):
     CV2_ESPCN = 7  # Efficient Sub-Pixel Convolutional Neural Network
     CV2_FSRCNN = 8  # Fast Super-Resolution Convolutional Neural Network
     CV2_LapSRN = 9  # Laplacian Super-Resolution Network
-    FSR = 5  # FidelityFX Super Resolution
-    PIL_BICUBIC = 6  # less blur and artifacts than bilinear, but slower
-    PIL_BILINEAR = 7
-    PIL_LANCZOS = 8  # less blur than bicubic, but artifacts may appear
-    PIL_NEAREST_NEIGHBOR = 9
-    RealESRGAN = 10
-    SUPIR = 11
-    xBRZ = 12
+    FSR = 10  # FidelityFX Super Resolution
+    PIL_BICUBIC = 11  # less blur and artifacts than bilinear, but slower
+    PIL_BILINEAR = 12
+    PIL_LANCZOS = 13  # less blur than bicubic, but artifacts may appear
+    PIL_NEAREST_NEIGHBOR = 14
+    RealESRGAN = 15
+    SUPIR = 16
+    xBRZ = 17
 
 
 class Filters(IntEnum):
@@ -68,9 +68,33 @@ def string_to_algorithm(string: str) -> Algorithms:
     return string_to_algorithm_dict[string.lower()]
 
 
-@DeprecationWarning
+algorithm_to_string_dict = {
+    Algorithms.CV2_INTER_AREA: "cv2_area",
+    Algorithms.CV2_INTER_CUBIC: "cv2_bicubic",
+    Algorithms.CV2_INTER_LINEAR: "cv2_bilinear",
+    Algorithms.CV2_INTER_LANCZOS4: "cv2_lanczos",
+    Algorithms.CV2_INTER_NEAREST: "cv2_nearest",
+
+    Algorithms.CV2_EDSR: "cv2_edsr",
+    Algorithms.CV2_ESPCN: "cv2_espcn",
+    Algorithms.CV2_FSRCNN: "cv2_fsrcnn",
+    Algorithms.CV2_LapSRN: "cv2_lapsrn",
+
+    Algorithms.PIL_BICUBIC: "pil_bicubic",
+    Algorithms.PIL_BILINEAR: "pil_bilinear",
+    Algorithms.PIL_LANCZOS: "pil_lanczos",
+    Algorithms.PIL_NEAREST_NEIGHBOR: "pil_nearest",
+
+    Algorithms.CAS: "cas",
+    Algorithms.FSR: "fsr",
+    Algorithms.RealESRGAN: "real_esrgan",
+    Algorithms.SUPIR: "supir",
+    Algorithms.xBRZ: "xbrz"
+}
+
+
 def algorithm_to_string(algorithm: Algorithms) -> str:
-    return algorithm.name
+    return algorithm_to_string_dict[algorithm]
 
 
 def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
@@ -94,14 +118,14 @@ def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
 
 def cv2_to_pil(cv2_image: 'np.ndarray') -> PIL.Image:
     if cv2_image.shape[2] == 4:
-        print("Converting from BGRA to RGBA format...")
+        # print("Converting from BGRA to RGBA format...")
         # Convert OpenCV image to NumPy array
         numpy_array = cv2.cvtColor(cv2_image, cv2.COLOR_BGRA2RGBA)
 
         # Convert NumPy array to Pillow format
         return PIL.Image.fromarray(numpy_array)
     else:
-        print("Converting from BGR to RGB format...")
+        # print("Converting from BGR to RGB format...")
         # Convert OpenCV image to NumPy array
         numpy_array = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
 

@@ -1,9 +1,8 @@
 # coding=utf-8
 
-import timeit
-
 import numpy as np
-
+import scaler
+import timeit
 import utils
 
 from PIL import Image
@@ -91,6 +90,7 @@ def test_match_vs_dict(n=10_000_000, k=10):
         best_using_dict += timeit.timeit(lambda: string_to_algorithm_dict["bicubic"], number=n // k)
         worst_using_match += timeit.timeit(lambda: string_to_algorithm_match("xbrz"), number=n // k)
         worst_using_dict += timeit.timeit(lambda: string_to_algorithm_dict["xbrz"], number=n // k)
+    print()
 
     best_using_match = round(best_using_match / k, 4)
     best_using_dict = round(best_using_dict / k, 4)
@@ -181,6 +181,7 @@ def test_custom_any(n=100_000, k=10):
         numpy_conversion_any_time += timeit.timeit(lambda: numpy_conversion_any(image), number=n // k)
         numpy_conversion_any_safe_time += timeit.timeit(lambda: numpy_conversion_any_safe(image), number=n // k)
         numpy_conversion_any_safe_2_time += timeit.timeit(lambda: numpy_conversion_any_safe_2(image), number=n // k)
+    print()
 
     # custom_any_time = round(custom_any_time / k, 4)
     # custom_any_2_time = round(custom_any_2_time / k, 4)
@@ -236,6 +237,7 @@ def enum_to_string_test(n=10_000_000, k=10):
         print(f"Iteration {i + 1}/{k}")
         enum_name_time += timeit.timeit(lambda: Algorithms.CV2_INTER_NEAREST.name, number=n // k)
         dict_name_time += timeit.timeit(lambda: algorithm_to_string_dict[Algorithms.CV2_INTER_NEAREST], number=n // k)
+    print()
 
     enum_name_time = round(enum_name_time / k, 4)
     dict_name_time = round(dict_name_time / k, 4)
@@ -244,7 +246,35 @@ def enum_to_string_test(n=10_000_000, k=10):
     print(f"Dict name: {dict_name_time}")
 
 
+def cv2_vs_pil_test(n=200, k=10):
+    factors = [0.125, 0.25, 0.5, 2, 4, 8]
+
+    cv2_algorithms = [Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST]
+    pil_algorithms = [Algorithms.PIL_BICUBIC, Algorithms.PIL_BILINEAR, Algorithms.PIL_LANCZOS, Algorithms.PIL_NEAREST_NEIGHBOR]
+
+    image = Image.open("../input/NEAREST_NEIGHBOR_pixel-art_0.125x.png").convert("RGBA")
+
+    cv2_time = 0
+    pil_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        for algorithm in cv2_algorithms:
+            # print(f"Og algorithm: {utils.algorithm_to_string(algorithm)}")
+            cv2_time += timeit.timeit(lambda: scaler.scale_image_batch(algorithm, image, factors), number=n // k)
+        for algorithm in pil_algorithms:
+            pil_time += timeit.timeit(lambda: scaler.scale_image_batch(algorithm, image, factors), number=n // k)
+    print()
+
+    cv2_time = round(cv2_time / k, 4)
+    pil_time = round(pil_time / k, 4)
+
+    print(f"CV2 time: {cv2_time}")
+    print(f"PIL time: {pil_time}")
+
+
 if __name__ == "__main__":
     # test_match_vs_dict()
     # test_custom_any()
-    enum_to_string_test()
+    # enum_to_string_test()
+    cv2_vs_pil_test()
