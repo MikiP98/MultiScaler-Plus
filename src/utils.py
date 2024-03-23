@@ -99,21 +99,14 @@ def algorithm_to_string(algorithm: Algorithms) -> str:
 
 def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
     if has_transparency(pil_image):
-        # print("Converting from RGBA to BGRA format...")
         pil_image = pil_image.convert('RGBA')
-
-        # Convert Pillow image to NumPy array
-        numpy_array = np.array(pil_image)
-
-        # Convert NumPy array to OpenCV format
-        return cv2.cvtColor(numpy_array, cv2.COLOR_RGBA2BGRA)
+        color_format = cv2.COLOR_RGBA2BGRA
     else:
-        # print("Converting from RGB to BGR format...")
-        # Convert Pillow image to NumPy array
-        numpy_array = np.array(pil_image)
+        pil_image = pil_image.convert('RGB')
+        color_format = cv2.COLOR_RGB2BGR
 
-        # Convert NumPy array to OpenCV format
-        return cv2.cvtColor(numpy_array, cv2.COLOR_RGB2BGR)
+    # Convert Pillow image to NumPy array and then to OpenCV format
+    return cv2.cvtColor(np.array(pil_image), color_format)
 
 
 def cv2_to_pil(cv2_image: 'np.ndarray') -> PIL.Image:
@@ -158,14 +151,7 @@ def apply_lossless_compression(image) -> bytes:
 
     img_byte_arr = io.BytesIO()
 
-    # if image.mode == 'RGBA':
-    #     # Go through every pixel and check if alpha is 255, if it 255 on every pixel, save it as RGB
-    #     # else save it as RGBA
-    #     alpha_was_used = any(pixel[3] != 255 for pixel in image.getdata())
-    #     if not alpha_was_used:
-    #         image = image.convert('RGB')
-
-    if not has_transparency(image):
+    if not uses_transparency(image):
         image = image.convert('RGB')
 
     image.save(img_byte_arr, optimize=True, format='PNG')

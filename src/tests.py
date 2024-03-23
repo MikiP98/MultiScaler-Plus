@@ -54,40 +54,18 @@ def string_to_algorithm_match(string: str) -> Algorithms:
             raise ValueError("Algorithm not found")
 
 
-string_to_algorithm_dict = {
-    "cv2_area": Algorithms.CV2_INTER_AREA,
-    "cv2_bicubic": Algorithms.CV2_INTER_CUBIC,
-    "cv2_bilinear": Algorithms.CV2_INTER_LINEAR,
-    "cv2_lanczos": Algorithms.CV2_INTER_LANCZOS4,
-    "cv2_nearest": Algorithms.CV2_INTER_NEAREST,
-
-    "cv2_edsr": Algorithms.CV2_EDSR,
-    "cv2_espcn": Algorithms.CV2_ESPCN,
-    "cv2_fsrcnn": Algorithms.CV2_FSRCNN,
-    "cv2_lapsrn": Algorithms.CV2_LapSRN,
-
-    "pil_bicubic": Algorithms.PIL_BICUBIC,
-    "pil_bilinear": Algorithms.PIL_BILINEAR,
-    "pil_lanczos": Algorithms.PIL_LANCZOS,
-    "pil_nearest": Algorithms.PIL_NEAREST_NEIGHBOR,
-
-    "cas": Algorithms.CAS,
-    "fsr": Algorithms.FSR,
-    "real_esrgan": Algorithms.RealESRGAN,
-    "supir": Algorithms.SUPIR,
-    "xbrz": Algorithms.xBRZ
-}
+from utils import string_to_algorithm_dict
 
 
-def test_match_vs_dict(n=10_000_000, k=10):
+def test_match_vs_dict(n=20_000_000, k=10):
     best_using_match = 0
     best_using_dict = 0
     worst_using_match = 0
     worst_using_dict = 0
     for i in range(k):
         print(f"Iteration {i + 1}/{k}")
-        best_using_match += timeit.timeit(lambda: string_to_algorithm_match("bicubic"), number=n // k)
-        best_using_dict += timeit.timeit(lambda: string_to_algorithm_dict["bicubic"], number=n // k)
+        best_using_match += timeit.timeit(lambda: string_to_algorithm_match("cv2_bicubic"), number=n // k)
+        best_using_dict += timeit.timeit(lambda: string_to_algorithm_dict["cv2_bicubic"], number=n // k)
         worst_using_match += timeit.timeit(lambda: string_to_algorithm_match("xbrz"), number=n // k)
         worst_using_dict += timeit.timeit(lambda: string_to_algorithm_dict["xbrz"], number=n // k)
     print()
@@ -158,50 +136,50 @@ def numpy_conversion_any_safe_2(image):
     return False
 
 
-def test_custom_any(n=100_000, k=10):
+def test_custom_any(n=10_000, k=10):
     image = Image.open("../input/NEAREST_NEIGHBOR_pixel-art_0.125x.png").convert("RGBA")
     image_array = list(image.getdata())
     numpy_image_array = utils.pil_to_cv2(image)
 
-    # custom_any_time = 0
-    # custom_any_2_time = 0
-    # normal_any_time = 0
-    # extrema_any_time = 0
+    custom_any_time = 0
+    custom_any_2_time = 0
+    normal_any_time = 0
+    extrema_any_time = 0
     numpy_any_time = 0
-    # numpy_any_2_time = 0
+    numpy_any_2_time = 0
     numpy_conversion_any_time = 0
     numpy_conversion_any_safe_time = 0
     numpy_conversion_any_safe_2_time = 0
 
     for i in range(k):
         print(f"Iteration {i + 1}/{k}")
-        # custom_any_time += timeit.timeit(lambda: custom_any(image_array), number=n // k)
-        # custom_any_2_time += timeit.timeit(lambda: custom_any_2(image_array), number=n // k)
-        # normal_any_time += timeit.timeit(lambda: normal_any(image_array), number=n // k)
-        # extrema_any_time += timeit.timeit(lambda: extrema_any(image), number=n // k)
+        custom_any_time += timeit.timeit(lambda: custom_any(image_array), number=n // k)
+        custom_any_2_time += timeit.timeit(lambda: custom_any_2(image_array), number=n // k)
+        normal_any_time += timeit.timeit(lambda: normal_any(image_array), number=n // k)
+        extrema_any_time += timeit.timeit(lambda: extrema_any(image), number=n // k)
         numpy_any_time += timeit.timeit(lambda: numpy_any(numpy_image_array), number=n // k)
-        # numpy_any_2_time += timeit.timeit(lambda: numpy_any_2(numpy_image_array), number=n // k)
+        numpy_any_2_time += timeit.timeit(lambda: numpy_any_2(numpy_image_array), number=n // k)
         numpy_conversion_any_time += timeit.timeit(lambda: numpy_conversion_any(image), number=n // k)
         numpy_conversion_any_safe_time += timeit.timeit(lambda: numpy_conversion_any_safe(image), number=n // k)
         numpy_conversion_any_safe_2_time += timeit.timeit(lambda: numpy_conversion_any_safe_2(image), number=n // k)
     print()
 
-    # custom_any_time = round(custom_any_time / k, 4)
-    # custom_any_2_time = round(custom_any_2_time / k, 4)
-    # normal_any_time = round(normal_any_time / k, 4)
-    # extrema_any_time = round(extrema_any_time / k, 4)
+    custom_any_time = round(custom_any_time / k, 4)
+    custom_any_2_time = round(custom_any_2_time / k, 4)
+    normal_any_time = round(normal_any_time / k, 4)
+    extrema_any_time = round(extrema_any_time / k, 4)
     numpy_any_time = round(numpy_any_time / k, 4)
-    # numpy_any_2_time = round(numpy_any_2_time / k, 4)
+    numpy_any_2_time = round(numpy_any_2_time / k, 4)
     numpy_conversion_any_time = round(numpy_conversion_any_time / k, 4)
     numpy_conversion_any_safe_time = round(numpy_conversion_any_safe_time / k, 4)
     numpy_conversion_any_safe_2_time = round(numpy_conversion_any_safe_2_time / k, 4)
 
-    # print(f"Custom any-1: {custom_any_time}")
-    # print(f"Custom any-2: {custom_any_2_time}")
-    # print(f"Normal any: {normal_any_time}")
-    # print(f"Extrema any: {extrema_any_time}")
+    print(f"Custom any-1: {custom_any_time}")
+    print(f"Custom any-2: {custom_any_2_time}")
+    print(f"Normal any: {normal_any_time}")
+    print(f"Extrema any: {extrema_any_time}")
     print(f"Numpy any: {numpy_any_time}")
-    # print(f"Numpy any-2: {numpy_any_2_time}")
+    print(f"Numpy any-2: {numpy_any_2_time}")
     print(f"Numpy conversion any: {numpy_conversion_any_time}")
     print(f"Numpy conversion any safe: {numpy_conversion_any_safe_time}")
     print(f"Numpy conversion any safe-2: {numpy_conversion_any_safe_2_time}")
@@ -210,32 +188,10 @@ def test_custom_any(n=100_000, k=10):
     # --------------------------------------------------------------------------------------------------------------
 
 
-algorithm_to_string_dict = {
-    Algorithms.CV2_INTER_AREA: "cv2_area",
-    Algorithms.CV2_INTER_CUBIC: "cv2_bicubic",
-    Algorithms.CV2_INTER_LINEAR: "cv2_bilinear",
-    Algorithms.CV2_INTER_LANCZOS4: "cv2_lanczos",
-    Algorithms.CV2_INTER_NEAREST: "cv2_nearest",
-
-    Algorithms.CV2_EDSR: "cv2_edsr",
-    Algorithms.CV2_ESPCN: "cv2_espcn",
-    Algorithms.CV2_FSRCNN: "cv2_fsrcnn",
-    Algorithms.CV2_LapSRN: "cv2_lapsrn",
-
-    Algorithms.PIL_BICUBIC: "pil_bicubic",
-    Algorithms.PIL_BILINEAR: "pil_bilinear",
-    Algorithms.PIL_LANCZOS: "pil_lanczos",
-    Algorithms.PIL_NEAREST_NEIGHBOR: "pil_nearest",
-
-    Algorithms.CAS: "cas",
-    Algorithms.FSR: "fsr",
-    Algorithms.RealESRGAN: "real_esrgan",
-    Algorithms.SUPIR: "supir",
-    Algorithms.xBRZ: "xbrz"
-}
+from utils import algorithm_to_string_dict
 
 
-def enum_to_string_test(n=10_000_000, k=10):
+def enum_to_string_test(n=40_000_000, k=10):
     enum_name_time = 0
     dict_name_time = 0
 
@@ -255,7 +211,7 @@ def enum_to_string_test(n=10_000_000, k=10):
     # ------------------------------------------------------------------------------------------------------------------
 
 
-def cv2_vs_pil_test(n=200, k=10):
+def cv2_vs_pil_test(n=100, k=10):
     factors = [0.125, 0.25, 0.5, 2, 4, 8]
 
     cv2_algorithms = [Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST]
@@ -285,8 +241,37 @@ def cv2_vs_pil_test(n=200, k=10):
     # --------------------------------------------------------------------------------------------------------------
 
 
+def test_pil_wh_vs_cv2_size(n=500_000, k=10):
+    image = Image.open("../input/NEAREST_NEIGHBOR_pixel-art_0.125x.png")
+    cv2_image = utils.pil_to_cv2(image)
+
+    pil_time = 0
+    pil_to_cv2_time = 0
+    cv2_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        pil_time += timeit.timeit(lambda: image.size, number=n // k)
+        pil_to_cv2_time += timeit.timeit(lambda: utils.pil_to_cv2(image).shape[:2], number=n // k)
+        cv2_time += timeit.timeit(lambda: cv2_image.shape[:2], number=n // k)
+    print()
+
+    pil_time = round(pil_time / k, 4)
+    pil_to_cv2_time = round(pil_to_cv2_time / k, 4)
+    cv2_time = round(cv2_time / k, 4)
+
+    print(f"PIL time: {pil_time}")
+    print(f"PIL to CV2 time: {pil_to_cv2_time}")
+    print(f"CV2 time: {cv2_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "test_pil_wh_vs_cv2_size" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
 if __name__ == "__main__":
     # test_match_vs_dict()
     # test_custom_any()
     # enum_to_string_test()
-    cv2_vs_pil_test()
+    # cv2_vs_pil_test()
+    test_pil_wh_vs_cv2_size()
+    ...

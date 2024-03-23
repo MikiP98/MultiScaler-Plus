@@ -1,7 +1,9 @@
+# coding=utf-8
+
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import Response
-from PIL import Image 
-from utils import image_to_byte_array, string_to_scaling_algorithm
+from PIL import Image
+from utils import image_to_byte_array, string_to_algorithm
 from scaler import scale_image_batch
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,13 +17,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
 
+
 @app.post(
     "/scale",
-    responses = {
+    responses={
         200: {
             "content": {"image/png": {}}
         }
@@ -31,7 +35,7 @@ def read_root():
 def main(content: UploadFile, algorithm: str = 'bicubic', factor: float = 2):
     img = Image.open(content.file)
     try:
-        scaling_algorithm = string_to_scaling_algorithm(algorithm.lower())
+        scaling_algorithm = string_to_algorithm(algorithm.lower())
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     scaled_image = scale_image_batch(scaling_algorithm, img, [factor])

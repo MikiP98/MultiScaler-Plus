@@ -241,6 +241,9 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
 
     width, height = image.size
 
+    # ------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- Start of OpenCV algorithms ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
     if algorithm == Algorithms.CV2_INTER_AREA:
         algorithm = csatca(algorithm)
         cv2_image = utils.pil_to_cv2(image)
@@ -263,7 +266,11 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
             scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
 
         return scaled_images
-
+    # ----------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- End of OpenCV algorithms ----------------------------------------
+    # ----------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- Start of PIL algorithms -----------------------------------------
+    # ----------------------------------------------------------------------------------------------------------
     if algorithm in pil_algorithms_ud:
         algorithm = csatpa(algorithm)
 
@@ -271,69 +278,11 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
             output_width, output_height = round(width * factor), round(height * factor)
             scaled_images.put(image.resize((output_width, output_height), algorithm))
         return scaled_images
+    # -------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- End of PIL algorithms ----------------------------------------
+    # -------------------------------------------------------------------------------------------------------
 
     match algorithm:
-        # ------------------------------------------------------------------------------------------------------------
-        # ---------------------------------------- Start of OpenCV algorithms ----------------------------------------
-        # ------------------------------------------------------------------------------------------------------------
-        # case Algorithms.CV2_INTER_AREA:
-        #     for factor in factors:
-        #         output_width, output_height = round(width * factor), round(height * factor)
-        #         if factor > 1:
-        #             raise ValueError("INTER_AREA does not support upscaling!")
-        #         scaled_images.put(cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_AREA))
-        #
-        # case Algorithms.CV2_INTER_CUBIC:
-        #     for factor in factors:
-        #         output_width, output_height = round(width * factor), round(height * factor)
-        #         scaled_images.put(cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_CUBIC))
-        #
-        # case Algorithms.CV2_INTER_LANCZOS4:
-        #     for factor in factors:
-        #         output_width, output_height = round(width * factor), round(height * factor)
-        #         scaled_images.put(cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_LANCZOS4))
-        #
-        # case Algorithms.CV2_INTER_LINEAR:
-        #     for factor in factors:
-        #         output_width, output_height = round(width * factor), round(height * factor)
-        #         scaled_images.put(cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_LINEAR))
-        #
-        # case Algorithms.CV2_INTER_NEAREST:
-        #     for factor in factors:
-        #         output_width, output_height = round(width * factor), round(height * factor)
-        #         scaled_images.put(cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_NEAREST))
-        # ----------------------------------------------------------------------------------------------------------
-        # ---------------------------------------- End of OpenCV algorithms ----------------------------------------
-        # ----------------------------------------------------------------------------------------------------------
-        # ---------------------------------------- Start of PIL algorithms -----------------------------------------
-        # ----------------------------------------------------------------------------------------------------------
-        # case Algorithms.PIL_NEAREST_NEIGHBOR:
-        #     pil_image = utils.cv2_to_pil(cv2_image)
-        #     for factor in factors:
-        #         output_width, output_height = round(width * factor), round(height * factor)
-        #         scaled_images.put(pil_image.resize((output_width, output_height), PIL.Image.NEAREST))
-        #
-        # case Algorithms.PIL_BILINEAR:
-        #     pil_image = utils.cv2_to_pil(cv2_image)
-        #     for factor in factors:
-        #         output_width, output_height = round(width * factor), round(height * factor)
-        #         scaled_images.put(pil_image.resize((output_width, output_height), PIL.Image.BILINEAR))
-        #
-        # case Algorithms.PIL_BICUBIC:
-        #     pil_image = utils.cv2_to_pil(cv2_image)
-        #     for factor in factors:
-        #         output_width, output_height = round(width * factor), round(height * factor)
-        #         scaled_images.put(pil_image.resize((output_width, output_height), PIL.Image.BICUBIC))
-        #
-        # case Algorithms.PIL_LANCZOS:
-        #     pil_image = utils.cv2_to_pil(cv2_image)
-        #     for factor in factors:
-        #         output_width, output_height = round(width * factor), round(height * factor)
-        #         scaled_images.put(pil_image.resize((output_width, output_height), PIL.Image.LANCZOS))
-        # -------------------------------------------------------------------------------------------------------
-        # ---------------------------------------- End of PIL algorithms ----------------------------------------
-        # -------------------------------------------------------------------------------------------------------
-
         case Algorithms.xBRZ:  # TODO: Use RGB mode if the image is not RGBA
             # # Convert image to RGBA format
             # if cv2_image.shape[2] == 3:
@@ -450,8 +399,8 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
                 scaled_images.put(cv2.resize(cv2_image_scaled, (output_width, output_height), interpolation=csatca(fallback_algorithm)))
 
         case Algorithms.RealESRGAN:
-            pil_image = utils.cv2_to_pil(cv2_image)
-            pil_image = pil_image.convert('RGB')
+            # pil_image = utils.cv2_to_pil(cv2_image)
+            pil_image = image.convert('RGB')
 
             for factor in factors:
                 image = pil_image
