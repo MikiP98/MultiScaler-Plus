@@ -231,6 +231,8 @@ def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Al
 cv2_algorithms_ud = {Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST}
 pil_algorithms_ud = {Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.PIL_BILINEAR, Algorithms.PIL_BICUBIC, Algorithms.PIL_LANCZOS}
 
+cv2_ai = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
+
 
 def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False):
     # scaled_images = []
@@ -257,6 +259,8 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
             scaled_images.put(
                 utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_AREA)))
 
+        return scaled_images
+
     if algorithm in cv2_algorithms_ud:
         algorithm = csatca(algorithm)
         cv2_image = utils.pil_to_cv2(image)
@@ -264,6 +268,34 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
         for factor in factors:
             output_width, output_height = round(width * factor), round(height * factor)
             scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
+
+        return scaled_images
+
+    if algorithm in cv2_ai:
+        cv2_image = utils.pil_to_cv2(image.convert('RGB'))
+        sr = cv2.dnn_superres.DnnSuperResImpl_create()
+
+        name = algorithm.name[4:]
+        path_prefix = f"./weights/{name}/{name}"
+        allowed_factors = {2, 3, 4, 8}
+
+        for factor in factors:
+            if factor not in allowed_factors:
+                # raise ValueError("INTER_AREA does not support upscaling!")
+                print(f"ERROR: CV2 AI does not support factor: {factor}!; File names will be incorrect!\nAllowed factors: {allowed_factors}")
+                continue
+
+            path = f"{path_prefix}_x{factor}.pb"
+            # print(f"Path: {path}")
+
+            sr.readModel(path)
+            sr.setModel(name.lower(), factor)
+
+            result = sr.upsample(cv2_image)
+            scaled_images.put(utils.cv2_to_pil(cv2.resize(result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
+
+            # output_width, output_height = round(width * factor), round(height * factor)
+            # scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
 
         return scaled_images
     # ----------------------------------------------------------------------------------------------------------

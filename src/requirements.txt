@@ -1,9 +1,10 @@
 fastapi
-torch
-uvicorn[standard]
+numpy
+opencv-contrib-python
 pillow
 python-multipart
-numpy
+torch
+uvicorn[standard]
 git+https://github.com/sberbank-ai/Real-ESRGAN.git
 xbrz_wheel/xbrz.py-1.0.2-cp312-cp312-win_amd64.whl
 

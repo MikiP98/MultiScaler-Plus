@@ -316,12 +316,58 @@ def queue_vs_list(n=5_000, k=10):
     # ------------------------------------------------------------------------------------------------------------
 
 
+import sys
+import inspect
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def get_size(obj, seen=None):
+    """Recursively finds size of objects in bytes"""
+    size = sys.getsizeof(obj)
+    if seen is None:
+        seen = set()
+    obj_id = id(obj)
+    if obj_id in seen:
+        return 0
+    # Important mark as seen *before* entering recursion to gracefully handle
+    # self-referential objects
+    seen.add(obj_id)
+    if hasattr(obj, '__dict__'):
+        for cls in obj.__class__.__mro__:
+            if '__dict__' in cls.__dict__:
+                d = cls.__dict__['__dict__']
+                if inspect.isgetsetdescriptor(d) or inspect.ismemberdescriptor(d):
+                    size += get_size(obj.__dict__, seen)
+                break
+    if isinstance(obj, dict):
+        size += sum((get_size(v, seen) for v in obj.values()))
+        size += sum((get_size(k, seen) for k in obj.keys()))
+    elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+        try:
+            size += sum((get_size(i, seen) for i in obj))
+        except TypeError:
+            logging.exception("Unable to get size of %r. This may lead to incorrect sizes. Please report this error.",
+                              obj)
+    if hasattr(obj, '__slots__'):  # can have __slots__ with __dict__
+        size += sum(get_size(getattr(obj, s), seen) for s in obj.__slots__ if hasattr(obj, s))
+
+    return size
+
+
 def pil_vs_cv2_size():
     pil_image = Image.open("../input/NEAREST_NEIGHBOR_pixel-art_0.125x.png")
     cv2_image = utils.pil_to_cv2(pil_image)
 
-    print(f"PIL size: {asizeof.asizeof(pil_image)}")
-    print(f"CV2 size: {asizeof.asizeof(cv2_image)}")
+    print(f"CV2 size (nbytes): {cv2_image.nbytes}")
+    print(f"CV2 size (asizeof): {asizeof.asizeof(cv2_image)}")
+    print(f"CV2 size (pysize): {get_size(cv2_image)}")
+    print(f"CV2 size (sys): {sys.getsizeof(cv2_image)}")
+    print()
+    print(f"PIL size (asizeof): {asizeof.asizeof(pil_image)}")
+    print(f"PIL size (sys): {sys.getsizeof(pil_image)}")
+    # print(f"PIL size: {get_size(pil_image)}")  # ValueError: I/O operation on closed file.
     # --------------------------------------------------------------------------------------------------------------
     # ------------------------------------------ END OF "pil_vs_cv2_size" ------------------------------------------
     # --------------------------------------------------------------------------------------------------------------
@@ -333,6 +379,6 @@ if __name__ == "__main__":
     # enum_to_string_test()
     # cv2_vs_pil_test()
     # test_pil_wh_vs_cv2_size()
-    queue_vs_list()
+    # queue_vs_list()
     # pil_vs_cv2_size()
     ...

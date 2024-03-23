@@ -1,6 +1,5 @@
 # coding=utf-8
 # import argparse
-import cv2
 import multiprocessing
 import os
 import PIL.Image
@@ -46,9 +45,9 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
         os.makedirs(output_dir + root.lstrip("../input"))
 
     if not config['lossless_compression']:
-        # image.save(output_path)
+        image.save(output_path)
         # print(image)
-        cv2.imwrite(output_path, image)
+        # cv2.imwrite(output_path, image)
     else:
         output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
         img_byte_arr = utils.apply_lossless_compression(image)
@@ -99,7 +98,8 @@ def scale_loop(algorithm: Algorithms, image, root: str, file: str, scales: set[f
         # print("Image:")
         # print(image)
         # print(f"Scales: {scales}")
-        raise ValueError("Images queue is empty")
+        # raise ValueError("Images queue is empty")
+        pass
 
     if 3 in config['multiprocessing_levels']:
         # print(f"Max processes: {config['max_processes'][2]}; len(Scales) // 2: {len(scales) // 2}: {len(scales)}")
@@ -200,14 +200,15 @@ if __name__ == '__main__':
         'add_algorithm_name_to_output_files_names': True,
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
-        'lossless_compression': False,
+        'lossless_compression': True,
         'multiprocessing_levels': {},
         'max_processes': (4, 4, 2)
     }
     if safe_mode:
         config = fix_config(config)
 
-    algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}
+    # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}\
+    algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
     # algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST, Algorithms.xBRZ}
     # algorithms = {Algorithms.NEAREST_NEIGHBOR}
     # algorithms = {Algorithms.xBRZ}
@@ -215,8 +216,8 @@ if __name__ == '__main__':
     # algorithms = {Algorithms.RealESRGAN}
     # algorithms = {Algorithms.SUPIR}
     # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
-    scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
-    # scales = {7}
+    # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
+    scales = {4}
 
     if os.path.exists("../output"):
         if config['clear_output_directory']:
