@@ -21,6 +21,10 @@ class Algorithms(IntEnum):
     CV2_INTER_LANCZOS4 = 3  # Lanczos interpolation over 8x8 pixel neighborhood
     CV2_INTER_LINEAR = 4  # bilinear interpolation
     CV2_INTER_NEAREST = 5  # nearest-neighbor interpolation
+    CV2_EDSR = 6  # Enhanced Deep Super-Resolution
+    CV2_ESPCN = 7  # Efficient Sub-Pixel Convolutional Neural Network
+    CV2_FSRCNN = 8  # Fast Super-Resolution Convolutional Neural Network
+    CV2_LapSRN = 9  # Laplacian Super-Resolution Network
     FSR = 5  # FidelityFX Super Resolution
     PIL_BICUBIC = 6  # less blur and artifacts than bilinear, but slower
     PIL_BILINEAR = 7
@@ -35,48 +39,38 @@ class Filters(IntEnum):
     CAS = 0  # contrast adaptive sharpening
 
 
+string_to_algorithm_dict = {
+    "cv2_area": Algorithms.CV2_INTER_AREA,
+    "cv2_bicubic": Algorithms.CV2_INTER_CUBIC,
+    "cv2_bilinear": Algorithms.CV2_INTER_LINEAR,
+    "cv2_lanczos": Algorithms.CV2_INTER_LANCZOS4,
+    "cv2_nearest": Algorithms.CV2_INTER_NEAREST,
+
+    "cv2_edsr": Algorithms.CV2_EDSR,
+    "cv2_espcn": Algorithms.CV2_ESPCN,
+    "cv2_fsrcnn": Algorithms.CV2_FSRCNN,
+    "cv2_lapsrn": Algorithms.CV2_LapSRN,
+
+    "pil_bicubic": Algorithms.PIL_BICUBIC,
+    "pil_bilinear": Algorithms.PIL_BILINEAR,
+    "pil_lanczos": Algorithms.PIL_LANCZOS,
+    "pil_nearest": Algorithms.PIL_NEAREST_NEIGHBOR,
+
+    "cas": Algorithms.CAS,
+    "fsr": Algorithms.FSR,
+    "real_esrgan": Algorithms.RealESRGAN,
+    "supir": Algorithms.SUPIR,
+    "xbrz": Algorithms.xBRZ
+}
+
+
 def string_to_algorithm(string: str) -> Algorithms:
-    match string.lower():
-        case "bicubic":
-            return Algorithms.BICUBIC
-        case "bilinear":
-            return Algorithms.BILINEAR
-        case "cas":
-            return Algorithms.CAS
-        case "fsr":
-            return Algorithms.FSR
-        case "lanczos":
-            return Algorithms.LANCZOS
-        case "nearest-neighbour":
-            return Algorithms.NEAREST_NEIGHBOR
-        case "real-esrgan":
-            return Algorithms.RealESRGAN
-        case "supir":
-            return Algorithms.SUPIR
-        case "xbrz":
-            return Algorithms.xBRZ
-        case _:
-            raise ValueError("Algorithm not found")
+    return string_to_algorithm_dict[string.lower()]
 
 
 @DeprecationWarning
 def algorithm_to_string(algorithm: Algorithms) -> str:
     return algorithm.name
-    # match algorithm:
-    #     case Algorithms.NEAREST_NEIGHBOR:
-    #         return 'Nearest-neighbour'
-    #     case Algorithms.BILINEAR:
-    #         return 'Bilinear'
-    #     case Algorithms.BICUBIC:
-    #         return 'Bicubic'
-    #     case Algorithms.LANCZOS:
-    #         return 'Lanczos'
-    #     case Algorithms.xBRZ:
-    #         return 'xBRZ'
-    #     case Algorithms.RealESRGAN:
-    #         return 'RealESRGAN'
-    #     case _:
-    #         raise ValueError("Algorithm is not yet translated")
 
 
 def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
@@ -198,11 +192,13 @@ def has_transparency(img) -> bool:
 
     if img.info.get("transparency", None) is not None:
         return True
+
     if img.mode == "P":
         transparent = img.info.get("transparency", -1)
         for _, index in img.getcolors():
             if index == transparent:
                 return True
+
     elif img.mode == "RGBA":
         return True
         # extrema = img.getextrema()
@@ -231,9 +227,8 @@ def uses_transparency(img) -> bool:
                 return True
 
     elif img.mode == "RGBA":
-        extrema = img.getextrema()
-        if extrema[3][0] < 255:
-            return True
+        cv2_image = pil_to_cv2(img)
+        return np.any(cv2_image[:, :, 3] < 255)
 
     return False
 

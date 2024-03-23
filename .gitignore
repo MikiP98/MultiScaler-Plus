@@ -5,13 +5,15 @@ input/**
 !input/example_shell_40px.png
 output
 
-src/weights/*
-!src/weights/**
-!src/weights/**/*
-
 src/SUPIR
 src/SUPIR/*
 src/SUPIR/**
+
+#src/tests.py
+
+src/weights/*
+!src/weights/**
+!src/weights/**/*
 
 
 
