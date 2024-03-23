@@ -284,9 +284,10 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
 
     match algorithm:
         case Algorithms.xBRZ:  # TODO: Use RGB mode if the image is not RGBA
-            pil_image = utils.cv2_to_pil(image)
+            starting_image = image.convert('RGBA')
+
             for factor in factors:
-                image = pil_image
+                image = starting_image
                 output_width, output_height = round(width * factor), round(height * factor)
 
                 if factor < 1:
@@ -423,11 +424,10 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
             #     scaled_images.put(cv2.resize(cv2_image_scaled, (output_width, output_height), interpolation=csatca(fallback_algorithm)))
 
         case Algorithms.RealESRGAN:
-            # pil_image = utils.cv2_to_pil(cv2_image)
-            pil_image = image.convert('RGB')
+            starting_image = image.convert('RGB')
 
             for factor in factors:
-                image = pil_image
+                image = starting_image
                 output_width, output_height = round(width * factor), round(height * factor)
 
                 if factor < 1:

@@ -2,11 +2,15 @@
 
 import numpy as np
 import scaler
+# import sys
 import timeit
 import utils
 
 from PIL import Image
+from pympler import asizeof
 from utils import Algorithms
+from utils import algorithm_to_string_dict
+from utils import string_to_algorithm_dict
 
 
 def string_to_algorithm_match(string: str) -> Algorithms:
@@ -52,9 +56,6 @@ def string_to_algorithm_match(string: str) -> Algorithms:
             return Algorithms.xBRZ
         case _:
             raise ValueError("Algorithm not found")
-
-
-from utils import string_to_algorithm_dict
 
 
 def test_match_vs_dict(n=20_000_000, k=10):
@@ -188,9 +189,6 @@ def test_custom_any(n=10_000, k=10):
     # --------------------------------------------------------------------------------------------------------------
 
 
-from utils import algorithm_to_string_dict
-
-
 def enum_to_string_test(n=40_000_000, k=10):
     enum_name_time = 0
     dict_name_time = 0
@@ -268,10 +266,30 @@ def test_pil_wh_vs_cv2_size(n=500_000, k=10):
     # ------------------------------------------------------------------------------------------------------------------
 
 
+def queue_vs_list():
+    ...
+    # ------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------ END OF "queue_vs_list" ------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
+
+
+def pil_vs_cv2_size():
+    pil_image = Image.open("../input/NEAREST_NEIGHBOR_pixel-art_0.125x.png")
+    cv2_image = utils.pil_to_cv2(pil_image)
+
+    print(f"PIL size: {asizeof.asizeof(pil_image)}")
+    print(f"CV2 size: {asizeof.asizeof(cv2_image)}")
+    # --------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------ END OF "pil_vs_cv2_size" ------------------------------------------
+    # --------------------------------------------------------------------------------------------------------------
+
+
 if __name__ == "__main__":
     # test_match_vs_dict()
     # test_custom_any()
     # enum_to_string_test()
-    cv2_vs_pil_test()
+    # cv2_vs_pil_test()
     # test_pil_wh_vs_cv2_size()
+    queue_vs_list()
+    pil_vs_cv2_size()
     ...

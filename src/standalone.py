@@ -57,7 +57,7 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
 
 
 def process_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config, config_plus=None):
-    image = scaler.scale_image(algorithm, image, scale, config_plus=config_plus)
+    image = scaler.scale_image_batch(algorithm, image, [scale], config_plus=config_plus)
     save_image(algorithm, image, root, file, scale, config)
 
 
