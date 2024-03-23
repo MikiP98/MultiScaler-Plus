@@ -1,6 +1,8 @@
 # coding=utf-8
 
+import cv2
 import numpy as np
+import queue
 import scaler
 # import sys
 import timeit
@@ -266,8 +268,49 @@ def test_pil_wh_vs_cv2_size(n=500_000, k=10):
     # ------------------------------------------------------------------------------------------------------------------
 
 
-def queue_vs_list():
-    ...
+def images_into_list(algorithm, factors, image):
+    scaled_images = []
+    height, width = image.shape[:2]
+
+    for factor in factors:
+        scaled_images.append(cv2.resize(image, (int(width * factor), int(height * factor)), interpolation=algorithm))
+
+    # print(f"List bytes: {asizeof.asizeof(scaled_images)}")
+    for image in scaled_images:
+        pass
+
+
+def images_into_queue(algorithm, factors, image):
+    scaled_images = queue.Queue()
+    height, width = image.shape[:2]
+
+    for factor in factors:
+        scaled_images.put(cv2.resize(image, (int(width * factor), int(height * factor)), interpolation=algorithm))
+
+    # print(f"Queue bytes: {asizeof.asizeof(scaled_images)}")
+    while not scaled_images.empty():
+        image = scaled_images.get()
+
+
+def queue_vs_list(n=5_000, k=10):
+    algorithm = cv2.INTER_NEAREST
+    factors = [0.125, 0.25, 0.5, 2, 4, 8]
+    image = utils.pil_to_cv2(Image.open("../input/NEAREST_NEIGHBOR_pixel-art_0.125x.png"))
+
+    images_into_queue_time = 0
+    images_into_list_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        images_into_queue_time += timeit.timeit(lambda: images_into_queue(algorithm, factors, image), number=n // k)
+        images_into_list_time += timeit.timeit(lambda: images_into_list(algorithm, factors, image), number=n // k)
+    print()
+
+    images_into_queue_time = round(images_into_queue_time / k, 4)
+    images_into_list_time = round(images_into_list_time / k, 4)
+
+    print(f"Images into queue time: {images_into_queue_time}")
+    print(f"Images into list time: {images_into_list_time}")
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------ END OF "queue_vs_list" ------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
@@ -291,5 +334,5 @@ if __name__ == "__main__":
     # cv2_vs_pil_test()
     # test_pil_wh_vs_cv2_size()
     queue_vs_list()
-    pil_vs_cv2_size()
+    # pil_vs_cv2_size()
     ...
