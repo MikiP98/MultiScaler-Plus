@@ -9,8 +9,6 @@ src/SUPIR
 src/SUPIR/*
 src/SUPIR/**
 
-!src/scalercg.pyd
-
 #src/tests.py
 
 src/weights/RealESRGAN_x2.pth
