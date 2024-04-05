@@ -56,7 +56,7 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
 
 
 def process_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config, config_plus=None):
-    image = scaler.scale_image_batch(algorithm, image, [scale], config_plus=config_plus)
+    image = scaler.scale_image(algorithm, image, [scale], config_plus=config_plus)
     save_image(algorithm, image, root, file, scale, config)
 
 
@@ -208,9 +208,9 @@ if __name__ == '__main__':
         config = fix_config(config)
 
     # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}\
-    algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
+    # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
     # algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST, Algorithms.xBRZ}
-    # algorithms = {Algorithms.NEAREST_NEIGHBOR}
+    algorithms = {Algorithms.PIL_BICUBIC}
     # algorithms = {Algorithms.xBRZ}
     # algorithms = {Algorithms.CPP_DEBUG}
     # algorithms = {Algorithms.RealESRGAN}

@@ -373,6 +373,10 @@ def pil_vs_cv2_size():
     # --------------------------------------------------------------------------------------------------------------
 
 
+def docstring_tests():
+    print(scaler.csatpa.__doc__)
+
+
 if __name__ == "__main__":
     # test_match_vs_dict()
     # test_custom_any()
@@ -381,4 +385,5 @@ if __name__ == "__main__":
     # test_pil_wh_vs_cv2_size()
     # queue_vs_list()
     # pil_vs_cv2_size()
+    docstring_tests()
     ...
