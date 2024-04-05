@@ -82,9 +82,6 @@ def scale_image_batch(algorithm, image, factors, *, fallback_algorithm=Algorithm
     # scaled_images = []
     scaled_images = queue.Queue()
 
-    # pil_image = utils.cv2_to_pil(cv2_image)
-    # height, width = cv2_image.shape[:2]
-
     width, height = image.size
 
     # ------------------------------------------------------------------------------------------------------------
