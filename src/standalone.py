@@ -97,7 +97,7 @@ def scale_loop(algorithm: Algorithms, image, root: str, file: str, scales: set[f
     # else:
 
     # print(f"Scaling image: {config_plus['input_image_relative_path']}")
-    print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
+    # print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
     images = scaler.scale_image_batch(algorithm, image, scales, config_plus=config_plus)
     # print(f"Images: {images.qsize()}")
     if images.qsize() == 0:
