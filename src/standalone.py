@@ -1,16 +1,18 @@
 # coding=utf-8
-# import argparse
+import argparse
+import math
 import multiprocessing
 import os
 import PIL.Image
 import queue
 import scaler
+import sys
 import shutil
 import utils
 
 from fractions import Fraction
+from functools import lru_cache
 from multiprocessing import Process
-# from PIL import Image
 from utils import Algorithms
 
 
@@ -188,6 +190,100 @@ def fix_config(config) -> dict:
     return config
 
 
+@lru_cache(maxsize=1)
+def columnify(elements: tuple) -> str:
+    result = ""
+    max_columns = 4
+
+    max_length = max([len(algorithm) for algorithm in elements])
+    # print(f"Max length: {max_length}")
+    margin_right = 2
+    tab_spaces = 2
+
+    # Get the size of the terminal
+    if sys.stdout.isatty():
+        terminal_columns = os.get_terminal_size().columns
+        # print(f"Terminal columns: {terminal_columns}")
+        columns = max_columns
+        while terminal_columns < len("\t".expandtabs(tab_spaces)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1 and columns > 1:
+            # print(f"Calculated row length: {len("\t".expandtabs(tab_spaces * 2)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1}")
+            columns -= 1
+    else:
+        columns = 3
+    # print(f"Final row length: {len("\t".expandtabs(tab_spaces * 2)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1}")
+    # print(f"Final column count: {columns}")
+
+    overflow = len(elements) % columns
+    full_count = len(elements) - overflow
+
+    for i in range(0, full_count, columns):
+        result += "\t".expandtabs(tab_spaces)
+        if i < len(elements):
+            result += " | ".join([f"\t{elements[i + j]:<{max_length + margin_right}}".expandtabs(tab_spaces) for j in range(columns)])
+        result += "\n"
+    result += "\t".expandtabs(tab_spaces)
+    result += " | ".join([f"\t{elements[k]:<{max_length + margin_right}}".expandtabs(tab_spaces) for k in range(full_count, overflow + full_count)])
+    result += "\n"
+
+    return result
+
+
+def handle_user_input():
+    algorithms = set()
+    scales = set()
+
+    # max_columns = 4
+
+    available_algorithms = tuple(f"{algorithm.value} - {algorithm.name}" for algorithm in Algorithms)
+
+    while True:
+        print("Select algorithms you want to use separated by a space (id or name):")
+        print("Available algorithms:")
+        print(columnify(available_algorithms))
+
+        algorithms_input = input().replace(',', '').split(' ')
+        for algorithm_input in algorithms_input:
+            if algorithm_input.isdigit():
+                try:
+                    algorithms.add(Algorithms(int(algorithm_input)))
+                except ValueError:
+                    print(f"Algorithm with id '{algorithm_input}' does not exist")
+            else:
+                try:
+                    algorithms.add(utils.string_to_algorithm(algorithm_input))
+                except KeyError:
+                    print(f"Algorithm with name '{algorithm_input}' does not exist")
+
+        if len(algorithms) == 0:
+            print("You must select at least one algorithm!")
+        else:
+            break
+    print(columnify.cache_info())
+
+    while True:
+        print("Enter the scales you want to use separated by a space:")
+        scales_input = input().replace(',', ' ').split(' ')
+        for scale_input in scales_input:
+            try:
+                scales.add(float(scale_input))
+            except ValueError:
+                print(f"Scale '{scale_input}' is not a valid number")
+
+        if len(scales) == 0:
+            print("You must select at least one scale!")
+        else:
+            break
+
+    print("Algorithms:")
+    for algorithm in algorithms:
+        print(f"\t{algorithm.value} - {algorithm.name}")
+    print("Scales:")
+    for scale in scales:
+        print(f"\t{scale}")
+
+    return algorithms, scales
+
+
 if __name__ == '__main__':
     # Create input and output directory if they don't exist
     if not os.path.exists("../input"):
@@ -213,17 +309,33 @@ if __name__ == '__main__':
     if safe_mode:
         config = fix_config(config)
 
-    # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}\
-    # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
-    algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST}
-    # algorithms = {Algorithms.PIL_BICUBIC}
-    # algorithms = {Algorithms.xBRZ}
-    # algorithms = {Algorithms.CPP_DEBUG}
-    # algorithms = {Algorithms.RealESRGAN}
-    # algorithms = {Algorithms.SUPIR}
-    # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
-    # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
-    scales = {128}
+    parser = argparse.ArgumentParser(
+        prog='ProgramName',
+        description='What the program does',
+        epilog='Text at the bottom of help'
+    )
+
+    # parser.add_argument('filename')  # positional argument
+    # parser.add_argument('-c', '--count')  # option that takes a value
+    parser.add_argument('-t', '--test', action='store_true')  # on/off flag
+    args = parser.parse_args()
+    # print(args.test)
+    if args.test:
+        # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}
+        # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
+        # algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST}
+        # algorithms = {Algorithms.CV2_INTER_NEAREST}
+        # algorithms = {Algorithms.xBRZ}
+        # algorithms = {Algorithms.CPP_DEBUG}
+        algorithms = {Algorithms.RealESRGAN}
+        # algorithms = {Algorithms.SUPIR}
+        # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
+        # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
+        scales = {4}
+    else:
+        algorithms, scales = handle_user_input()
+    print(f"Received algorithms: {algorithms}")
+    print(f"Received scales: {scales}")
 
     if os.path.exists("../output"):
         if config['clear_output_directory']:
@@ -246,7 +358,6 @@ if __name__ == '__main__':
                 print(f"Processing: {path}")
                 image = PIL.Image.open(path)
                 # image = utils.pil_to_cv2(image)
-                # image = cv2.imread(path)
                 # print(type(image))
 
                 if 1 in config['multiprocessing_levels']:

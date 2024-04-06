@@ -1,3 +1,4 @@
+argparse
 fastapi
 numpy
 opencv-contrib-python

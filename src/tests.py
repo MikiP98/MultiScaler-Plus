@@ -5,14 +5,25 @@ import numpy as np
 import queue
 import scaler
 # import sys
+import time
 import timeit
 import utils
 
 from PIL import Image
 from pympler import asizeof
+from standalone import columnify
 from utils import Algorithms
 from utils import algorithm_to_string_dict
 from utils import string_to_algorithm_dict
+
+
+def warmup():
+    num = 0
+    for i in range(10_000_000):
+        num += i
+    # -----------------------------------------------------------------------------------------------------------------
+    # --------------------------------------------- END OF "warmup" ---------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
 
 
 def string_to_algorithm_match(string: str) -> Algorithms:
@@ -193,19 +204,28 @@ def test_custom_any(n=10_000, k=10):
 
 def enum_to_string_test(n=40_000_000, k=10):
     enum_name_time = 0
+    enum_name_2_time = 0
     dict_name_time = 0
+    dict_name_2_time = 0
 
+    algorithm = Algorithms.CV2_INTER_NEAREST
     for i in range(k):
         print(f"Iteration {i + 1}/{k}")
         enum_name_time += timeit.timeit(lambda: Algorithms.CV2_INTER_NEAREST.name, number=n // k)
+        enum_name_2_time += timeit.timeit(lambda: algorithm.name, number=n // k)
         dict_name_time += timeit.timeit(lambda: algorithm_to_string_dict[Algorithms.CV2_INTER_NEAREST], number=n // k)
+        dict_name_2_time += timeit.timeit(lambda: algorithm_to_string_dict[algorithm], number=n // k)
     print()
 
     enum_name_time = round(enum_name_time / k, 4)
+    enum_name_2_time = round(enum_name_2_time / k, 4)
     dict_name_time = round(dict_name_time / k, 4)
+    dict_name_2_time = round(dict_name_2_time / k, 4)
 
     print(f"Enum name: {enum_name_time}")
+    print(f"Enum name-2: {enum_name_2_time}")
     print(f"Dict name: {dict_name_time}")
+    print(f"Dict name-2: {dict_name_2_time}")
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------ END OF "enum_to_string_test" ------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
@@ -391,17 +411,76 @@ def pil_vs_cv2_size():
     # --------------------------------------------------------------------------------------------------------------
 
 
+def tuple_generation():
+    available_algorithms = tuple(f"{algorithm.value} - {algorithm.name}" for algorithm in Algorithms)
+
+
+def list_generation():
+    available_algorithms = [f"{algorithm.value} - {algorithm.name}" for algorithm in Algorithms]
+
+
+def list_vs_tuple_generation(n=1_000_000, k=10):
+    tuple_time = 0
+    list_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        tuple_time += timeit.timeit(lambda: tuple_generation(), number=n // k)
+        list_time += timeit.timeit(lambda: list_generation(), number=n // k)
+    print()
+
+    tuple_time = round(tuple_time / k, 4)
+    list_time = round(list_time / k, 4)
+
+    print(f"Tuple time: {tuple_time}")
+    print(f"List time: {list_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "list_vs_tuple_generation" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def columnify_test(n=1_000_000, k=10):
+    available_algorithms = tuple(f"{algorithm.value} - {algorithm.name}" for algorithm in Algorithms)
+
+    current = time.time()
+    for i in range(n):
+        columnify(available_algorithms)
+    columnify_cached_time = round((time.time() - current) / k, 4)
+    print(f"Columnify cached time: {columnify_cached_time}")
+
+    columnify_time = 0
+    for i in range(k):
+        # print(f"Iteration {i + 1}/{k}")
+        columnify_time += timeit.timeit(lambda: columnify(available_algorithms), number=n // k)
+    # print()
+
+    columnify_time = round(columnify_time / k, 4)
+
+    print(f"Columnify time: {columnify_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "columnify_test" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def cached_tuple_vs_list_test(n=1_000_000, k=10):
+    ...
+
+
 def docstring_tests():
     print(scaler.csatpa.__doc__)
 
 
 if __name__ == "__main__":
+    warmup()
+    print("Warmup finished\n")
     # test_match_vs_dict()
     # test_custom_any()
     # enum_to_string_test()
     # cv2_vs_pil_test()
     # test_pil_wh_vs_cv2_size()
-    queue_vs_list()
+    # queue_vs_list()
     # pil_vs_cv2_size()
+    list_vs_tuple_generation()
+    columnify_test()
     # docstring_tests()
     ...
