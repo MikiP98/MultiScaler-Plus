@@ -14,6 +14,9 @@ from multiprocessing import Process
 from utils import Algorithms
 
 
+PIL.Image.MAX_IMAGE_PIXELS = 200000000
+
+
 def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config):
     path = os.path.join(root, file)
 
@@ -151,7 +154,7 @@ def algorithm_loop(algorithms: set[Algorithms], image, root: str, file: str, sca
     #     process.join()
 
 
-def fix_config(config):
+def fix_config(config) -> dict:
     if config['multiprocessing_levels'] is None:
         config['multiprocessing_levels'] = {}
         print("New multiprocessing_levels: {}")
@@ -197,27 +200,27 @@ if __name__ == '__main__':
     # 3 - process per scale
     config = {
         'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
+        'add_algorithm_name_to_output_files_names': False,
+        'add_factor_to_output_files_names': False,
         'sort_by_algorithm': False,
         'lossless_compression': True,
-        'multiprocessing_levels': {},
+        'multiprocessing_levels': {1},
         'max_processes': (4, 4, 2)
     }
     if safe_mode:
         config = fix_config(config)
 
     # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}\
-    algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
+    # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
     # algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST, Algorithms.xBRZ}
-    # algorithms = {Algorithms.NEAREST_NEIGHBOR}
+    algorithms = {Algorithms.CV2_INTER_NEAREST}
     # algorithms = {Algorithms.xBRZ}
     # algorithms = {Algorithms.CPP_DEBUG}
     # algorithms = {Algorithms.RealESRGAN}
     # algorithms = {Algorithms.SUPIR}
     # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
     # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
-    scales = {4}
+    scales = {1}
 
     if os.path.exists("../output"):
         if config['clear_output_directory']:

@@ -221,7 +221,7 @@ def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Al
                     for x in range(len(pixels[0])):
                         image.putpixel((x * factor, y * factor), pixels[y][x])
 
-                image = utils.pil_to_cv2(image)
+                # image = utils.pil_to_cv2(image)
 
                 return scale_image_batch(algorithm, image, [factor], fallback_algorithm, main_checked=True)
                 # return scale_image(algorithm, image, factor, fallback_algorithm, main_checked=True)
