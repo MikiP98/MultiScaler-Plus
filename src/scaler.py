@@ -20,211 +20,55 @@ from utils import Algorithms
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+# scaler_algorithm_to_pillow_algorithm_dictionary
+satpad = {
+    Algorithms.PIL_BICUBIC: PIL.Image.BICUBIC,
+    Algorithms.PIL_BILINEAR: PIL.Image.BILINEAR,
+    Algorithms.PIL_LANCZOS: PIL.Image.LANCZOS,
+    Algorithms.PIL_NEAREST_NEIGHBOR: PIL.Image.NEAREST
+}
+
+
 # convert_scaler_algorithm_to_pillow_algorithm
 def csatpa(algorithm: Algorithms):
-    match algorithm:
-        case Algorithms.PIL_BICUBIC:
-            return PIL.Image.BICUBIC
-        case Algorithms.PIL_BILINEAR:
-            return PIL.Image.BILINEAR
-        case Algorithms.PIL_LANCZOS:
-            return PIL.Image.LANCZOS
-        case Algorithms.PIL_NEAREST_NEIGHBOR:
-            return PIL.Image.NEAREST
-        case _:
-            raise AttributeError("Algorithm not supported by PIL")
+    """
+    Converts a scaler algorithm to a PIL algorithm using a dictionary (satpad)
+    :param algorithm: The Scaler algorithm to convert
+    :return: The corresponding PIL algorithm
+    """
+    pillow_algorithm = satpad.get(algorithm)
+    if pillow_algorithm:
+        return pillow_algorithm
+    else:
+        raise AttributeError("Algorithm not supported by PIL")
+
+
+# scaler_algorithm_to_cv2_algorithm_dictionary
+satcad = {
+    Algorithms.CV2_INTER_AREA: cv2.INTER_AREA,
+    Algorithms.CV2_INTER_CUBIC: cv2.INTER_CUBIC,
+    Algorithms.CV2_INTER_LANCZOS4: cv2.INTER_LANCZOS4,
+    Algorithms.CV2_INTER_LINEAR: cv2.INTER_LINEAR,
+    Algorithms.CV2_INTER_NEAREST: cv2.INTER_NEAREST
+}
 
 
 # convert_scaler_algorithm_to_cv2_algorithm
 def csatca(algorithm: Algorithms):
-    match algorithm:
-        case Algorithms.CV2_INTER_AREA:
-            return cv2.INTER_AREA
-        case Algorithms.CV2_INTER_CUBIC:
-            return cv2.INTER_CUBIC
-        case Algorithms.CV2_INTER_LANCZOS4:
-            return cv2.INTER_LANCZOS4
-        case Algorithms.CV2_INTER_LINEAR:
-            return cv2.INTER_LINEAR
-        case Algorithms.CV2_INTER_NEAREST:
-            return cv2.INTER_NEAREST
-        case _:
-            raise AttributeError("Algorithm not supported by OpenCV")
+    """
+    Converts a scaler algorithm to a OpenCV algorithm using a dictionary (satcad)
+    :param algorithm: The Scaler algorithm to convert
+    :return: The corresponding OpenCV algorithm
+    """
+    algorithm_cv2 = satcad.get(algorithm)
+    if algorithm_cv2:
+        return algorithm_cv2
+    else:
+        raise AttributeError("Algorithm not supported by OpenCV")
 
 
-# # Main function for Python for existing libs
-# def scale_image(algorithm, cv2_image, factor, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> PIL.Image:
-#     # pil_image = pil_image.convert('RGBA')
-#     # if not utils.has_transparency(pil_image):
-#     #     pil_image = pil_image.convert('RGB')
-#
-#     height, width = cv2_image.shape[:2]
-#
-#     # pil_image = utils.cv2_to_pil(cv2_image)
-#     #
-#     # width, height = pil_image.size
-#     output_width, output_height = round(width * factor), round(height * factor)
-#
-#     match algorithm:
-#         case Algorithms.CV2_INTER_AREA:
-#             if factor > 1:
-#                 raise ValueError("INTER_AREA does not support upscaling!")
-#             return cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_AREA)
-#         case Algorithms.CV2_INTER_CUBIC:
-#             return cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_CUBIC)
-#         case Algorithms.CV2_INTER_LANCZOS4:
-#             return cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_LANCZOS4)
-#         case Algorithms.CV2_INTER_LINEAR:
-#             return cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_LINEAR)
-#         case Algorithms.CV2_INTER_NEAREST:
-#             return cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_NEAREST)
-#
-#         case Algorithms.PIL_NEAREST_NEIGHBOR:
-#             pil_image = utils.cv2_to_pil(cv2_image)
-#             return utils.pil_to_cv2(pil_image.resize((output_width, output_height), PIL.Image.NEAREST))
-#         case Algorithms.PIL_BILINEAR:
-#             pil_image = utils.cv2_to_pil(cv2_image)
-#             return utils.pil_to_cv2(pil_image.resize((output_width, output_height), PIL.Image.BILINEAR))
-#         case Algorithms.PIL_BICUBIC:
-#             pil_image = utils.cv2_to_pil(cv2_image)
-#             return utils.pil_to_cv2(pil_image.resize((output_width, output_height), PIL.Image.BICUBIC))
-#         case Algorithms.PIL_LANCZOS:
-#             pil_image = utils.cv2_to_pil(cv2_image)
-#             return utils.pil_to_cv2(pil_image.resize((output_width, output_height), PIL.Image.LANCZOS))
-#
-#         case Algorithms.xBRZ:
-#             # pil_image = pil_image.convert('RGBA')
-#             # Convert RGB to RGBA
-#             if cv2_image.shape[2] == 3:
-#                 cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_RGB2RGBA)
-#
-#             python_array_image = cv2_image.astype(np.int32).flatten().tolist()
-#
-#             # pil_image = utils.cv2_to_pil(cv2_image)
-#             # if factor > 6:
-#             #     raise ValueError("Max factor for xbrz=6")
-#             # factor = Fraction(factor).limit_denominator().numerator
-#             if factor < 1:
-#                 raise ValueError("xBRZ does not support downscaling!")
-#             # If factor is not a whole number or is greater than 6, print a warning
-#             if factor != int(factor) or factor > 6:
-#                 print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
-#
-#             current_scale = 1
-#             while current_scale < factor:
-#                 temp_factor = 6
-#                 while current_scale * temp_factor > factor:
-#                     temp_factor -= 1
-#                 temp_factor = min(temp_factor + 1, 6)
-#
-#                 # pil_image = xbrz.scale_pillow(pil_image, temp_factor)
-#                 python_array_image = xbrz.scale(python_array_image, temp_factor, width, height, xbrz.ColorFormat.RGBA)
-#                 current_scale *= temp_factor
-#
-#             # Convert Python array to NumPy array
-#             numpy_array_image = np.array(python_array_image, dtype=np.int32)
-#
-#             # Reshape the NumPy array to the original image shape
-#             image_shape = (height * current_scale, width * current_scale, 4)  # Provide the image shape here
-#             numpy_array_reshaped = numpy_array_image.reshape(image_shape)
-#
-#             # Convert NumPy array to CV2 image
-#             cv2_image = numpy_array_reshaped.astype(np.uint8)  # Convert back to uint8 if needed
-#
-#             return cv2.resize(cv2_image, (output_width, output_height), interpolation=csatca(fallback_algorithm))
-#             # return utils.pil_to_cv2(pil_image.resize((output_width, output_height), csatpa(fallback_algorithm)))
-#
-#         case Algorithms.RealESRGAN:
-#             pil_image = utils.cv2_to_pil(cv2_image)
-#             image = pil_image.convert('RGB')
-#
-#             if factor < 1:
-#                 raise ValueError("xBRZ does not support downscaling!")
-#             # If factor is not a whole number or is greater than 6, print a warning
-#             if factor != int(factor) or factor > 8:
-#                 print(f"WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!")
-#
-#             current_scale = 1
-#             while current_scale < factor:
-#                 temp_factor = 8
-#                 while current_scale * temp_factor >= factor:
-#                     temp_factor //= 2
-#                 temp_factor = min(temp_factor * 2, 8)
-#
-#                 model = RealESRGAN(device, scale=temp_factor)
-#                 model.load_weights(f'weights/RealESRGAN_x{temp_factor}.pth')  # , download=True
-#                 image = model.predict(image)
-#
-#                 current_scale *= temp_factor
-#
-#             return image.resize((output_width, output_height), csatpa(fallback_algorithm))
-#         case Algorithms.SUPIR:
-#             script_path = './SUPIR/test.py'
-#
-#             # Command 1
-#             # command1 = f"CUDA_VISIBLE_DEVICES=0 python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign Q --upscale 2"
-#             command1 = f"python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign Q --upscale 2"
-#
-#             # Command 2
-#             # command2 = f"CUDA_VISIBLE_DEVICES=0 python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign F --upscale 2 --s_cfg 4.0 --linear_CFG"
-#
-#             # Execute commands
-#             # subprocess.run(command1, shell=True)
-#             subprocess.run(command1)
-#             # subprocess.run(command2, shell=True)
-#
-#             # subprocess.run(['python', script_path])
-#
-#         case Algorithms.FSR:
-#             if config_plus is not None:
-#                 if factor > 2:
-#                     print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
-#
-#                 script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
-#                 options = f"-Scale {factor}x {factor}x -Mode EASU"
-#                 files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
-#                 command = f"{script_path} {options} {files}"
-#                 subprocess.run(command)
-#             else:
-#                 raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")
-#         case _:
-#             if main_checked:
-#                 raise NotImplementedError("Not implemented yet")
-#             else:
-#                 pil_image = utils.cv2_to_pil(cv2_image)
-#                 width, height = pil_image.size
-#                 # pixels = [[[int]]]
-#                 pixels = [[[0, 0, 0, 0] for _ in range(width)] for _ in range(height)]
-#                 for y in range(height):
-#                     for x in range(width):
-#                         pixels[y][x] = pil_image.getpixel((x, y))
-#                 return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
-
-
-# Main function for C++ lib
-def scale_image_data(algorithm, pixels: [[[int]]], factor, fallback_algorithm=Algorithms.PIL_BICUBIC, main_checked=False):
-    match algorithm:
-        # case Algorithms.CPP_DEBUG:
-        #     # new_pixels = scalercg.scale("cpp_debug", pixels, factor)
-        #     new_pixels = scalercg.scale(pixels, factor, "cpp_debug")
-        #     image = Image.new("RGBA", (len(new_pixels[0]), len(new_pixels)))
-        #     for y in range(len(new_pixels)):
-        #         for x in range(len(new_pixels[0])):
-        #             image.putpixel((x, y), new_pixels[y][x])
-        #     return image
-        case _:
-            if main_checked:
-                raise NotImplementedError("Not implemented yet")
-            else:
-                image = PIL.Image.new("RGBA", (len(pixels[0]) * factor, len(pixels) * factor))
-                for y in range(len(pixels)):
-                    for x in range(len(pixels[0])):
-                        image.putpixel((x * factor, y * factor), pixels[y][x])
-
-                # image = utils.pil_to_cv2(image)
-
-                return scale_image_batch(algorithm, image, [factor], fallback_algorithm, main_checked=True)
-                # return scale_image(algorithm, image, factor, fallback_algorithm, main_checked=True)
+def scale_image(algorithm, cv2_image, factor, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> PIL.Image:
+    return scale_image_batch(algorithm, cv2_image, [factor], fallback_algorithm=fallback_algorithm, config_plus=config_plus, main_checked=main_checked).get()
 
 
 # ud - upscale/downscale
@@ -237,9 +81,6 @@ cv2_ai = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algo
 def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False):
     # scaled_images = []
     scaled_images = queue.Queue()
-
-    # pil_image = utils.cv2_to_pil(cv2_image)
-    # height, width = cv2_image.shape[:2]
 
     width, height = image.size
 
@@ -561,3 +402,29 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
                     # return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
 
     return scaled_images
+
+
+# Main function for C++ lib
+def scale_image_data(algorithm, pixels: [[[int]]], factor, *, fallback_algorithm=Algorithms.PIL_BICUBIC, main_checked=False):
+    match algorithm:
+        # case Algorithms.CPP_DEBUG:
+        #     # new_pixels = scalercg.scale("cpp_debug", pixels, factor)
+        #     new_pixels = scalercg.scale(pixels, factor, "cpp_debug")
+        #     image = Image.new("RGBA", (len(new_pixels[0]), len(new_pixels)))
+        #     for y in range(len(new_pixels)):
+        #         for x in range(len(new_pixels[0])):
+        #             image.putpixel((x, y), new_pixels[y][x])
+        #     return image
+        case _:
+            if main_checked:
+                raise NotImplementedError("Not implemented yet")
+            else:
+                image = PIL.Image.new("RGBA", (len(pixels[0]) * factor, len(pixels) * factor))
+                for y in range(len(pixels)):
+                    for x in range(len(pixels[0])):
+                        image.putpixel((x * factor, y * factor), pixels[y][x])
+
+                image = utils.pil_to_cv2(image)
+
+                return scale_image_batch(algorithm, image, [factor], fallback_algorithm=fallback_algorithm, main_checked=True)
+                # return scale_image(algorithm, image, factor, fallback_algorithm, main_checked=True)

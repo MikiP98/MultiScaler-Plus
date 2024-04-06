@@ -59,7 +59,7 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
 
 
 def process_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config, config_plus=None):
-    image = scaler.scale_image_batch(algorithm, image, [scale], config_plus=config_plus)
+    image = scaler.scale_image(algorithm, image, [scale], config_plus=config_plus)
     save_image(algorithm, image, root, file, scale, config)
 
 
@@ -200,8 +200,8 @@ if __name__ == '__main__':
     # 3 - process per scale
     config = {
         'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': False,
-        'add_factor_to_output_files_names': False,
+        'add_algorithm_name_to_output_files_names': True,
+        'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
         'lossless_compression': True,
         'multiprocessing_levels': {1},
@@ -213,14 +213,14 @@ if __name__ == '__main__':
     # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}\
     # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
     # algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST, Algorithms.xBRZ}
-    algorithms = {Algorithms.CV2_INTER_NEAREST}
+    algorithms = {Algorithms.PIL_BICUBIC}
     # algorithms = {Algorithms.xBRZ}
     # algorithms = {Algorithms.CPP_DEBUG}
     # algorithms = {Algorithms.RealESRGAN}
     # algorithms = {Algorithms.SUPIR}
     # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
     # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
-    scales = {1}
+    scales = {4}
 
     if os.path.exists("../output"):
         if config['clear_output_directory']:
