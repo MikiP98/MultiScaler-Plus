@@ -28,8 +28,10 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
     if config['add_algorithm_name_to_output_files_names']:
         new_file_name = f"{algorithm.name}_{new_file_name}"
     if config['add_factor_to_output_files_names']:
+        # Check if the scale is a float, if it is, convert it to a fraction
         if scale != int(scale):
             if len(str(scale).split(".")[1]) > 3:
+                # Replace '/' with '%', because '/' is not allowed in file names
                 scale = f"{str(Fraction(scale).limit_denominator()).replace('/', '%')}"
         new_file_name = f"{new_file_name[:-4]}_{scale}x{new_file_name[-4:]}"
     # print(new_file_name)
@@ -49,13 +51,13 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
 
     if not config['lossless_compression']:
         image.save(output_path)
-        # print(image)
-        # cv2.imwrite(output_path, image)
     else:
         output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
         img_byte_arr = utils.apply_lossless_compression(image)
         with open(output_path, 'wb') as f:
             f.write(img_byte_arr)
+
+    print(f"{output_path} Saved!")
 
 
 def process_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config, config_plus=None):
@@ -95,6 +97,7 @@ def scale_loop(algorithm: Algorithms, image, root: str, file: str, scales: set[f
     # else:
 
     # print(f"Scaling image: {config_plus['input_image_relative_path']}")
+    print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
     images = scaler.scale_image_batch(algorithm, image, scales, config_plus=config_plus)
     # print(f"Images: {images.qsize()}")
     if images.qsize() == 0:
@@ -204,7 +207,7 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
         'lossless_compression': True,
-        'multiprocessing_levels': {1},
+        'multiprocessing_levels': {},
         'max_processes': (4, 4, 2)
     }
     if safe_mode:
@@ -212,15 +215,15 @@ if __name__ == '__main__':
 
     # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}\
     # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
-    # algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST, Algorithms.xBRZ}
-    algorithms = {Algorithms.PIL_BICUBIC}
+    algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST}
+    # algorithms = {Algorithms.PIL_BICUBIC}
     # algorithms = {Algorithms.xBRZ}
     # algorithms = {Algorithms.CPP_DEBUG}
     # algorithms = {Algorithms.RealESRGAN}
     # algorithms = {Algorithms.SUPIR}
     # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
     # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
-    scales = {4}
+    scales = {128}
 
     if os.path.exists("../output"):
         if config['clear_output_directory']:

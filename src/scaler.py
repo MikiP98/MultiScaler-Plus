@@ -37,7 +37,7 @@ def csatpa(algorithm: Algorithms):
     :return: The corresponding PIL algorithm
     """
     pillow_algorithm = satpad.get(algorithm)
-    if pillow_algorithm:
+    if pillow_algorithm is not None:
         return pillow_algorithm
     else:
         raise AttributeError("Algorithm not supported by PIL")
@@ -61,10 +61,10 @@ def csatca(algorithm: Algorithms):
     :return: The corresponding OpenCV algorithm
     """
     algorithm_cv2 = satcad.get(algorithm)
-    if algorithm_cv2:
+    if algorithm_cv2 is not None:
         return algorithm_cv2
     else:
-        raise AttributeError("Algorithm not supported by OpenCV")
+        raise AttributeError(f"Algorithm not supported by OpenCV: {utils.algorithm_to_string(algorithm)},  id: {algorithm}")
 
 
 def scale_image(algorithm, cv2_image, factor, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> PIL.Image:
