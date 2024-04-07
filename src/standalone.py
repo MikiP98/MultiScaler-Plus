@@ -1,5 +1,6 @@
 # coding=utf-8
 import argparse
+from collections import deque
 # import math
 import multiprocessing
 import os
@@ -142,24 +143,23 @@ def scale_loop(algorithm: Algorithms, image, root: str, file: str, scales: set[f
 
 def algorithm_loop(algorithms: set[Algorithms], image, root: str, file: str, scales: set[float], config):
     # processes = []
-    processes = queue.Queue()
+    processes = deque()
     processes_count = 0
     for algorithm in algorithms:
         if 2 in config['multiprocessing_levels']:
             p = Process(target=scale_loop, args=(algorithm, image, root, file, scales, config))
             p.start()
-            processes.put(p)
-            # processes.append(p)
+            processes.append(p)
             processes_count += 1
             if processes_count >= config['max_processes'][1]:
                 for _ in range(processes_count):
-                    processes.get().join()
+                    processes.popleft().join()
                 processes_count = 0
         else:
             scale_loop(algorithm, image, root, file, scales.copy(), config)
 
     for _ in range(processes_count):
-        processes.get().join()
+        processes.popleft().join()
     # for process in processes:
     #     process.join()
 
@@ -315,9 +315,9 @@ if __name__ == '__main__':
         config = fix_config(config)
 
     parser = argparse.ArgumentParser(
-        prog='ProgramName',
-        description='What the program does',
-        epilog='Text at the bottom of help'
+        prog='ImageScaler',
+        description='A simple image scaler',
+        epilog='Enjoy the program! :)'
     )
 
     # parser.add_argument('filename')  # positional argument
