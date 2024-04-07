@@ -297,6 +297,7 @@ def images_into_out_of_list(algorithm, factors, image):
     for factor in factors:
         scaled_images.append(cv2.resize(image, (int(width * factor), int(height * factor)), interpolation=algorithm))
 
+    len(scaled_images)
     # print(f"List bytes: {asizeof.asizeof(scaled_images)}")
     for image in scaled_images:
         ...
@@ -309,6 +310,7 @@ def images_into_out_of_list_del(algorithm, factors, image):
     for factor in factors:
         scaled_images.append(cv2.resize(image, (int(width * factor), int(height * factor)), interpolation=algorithm))
 
+    len(scaled_images)
     # print(f"List bytes: {asizeof.asizeof(scaled_images)}")
     while scaled_images:
         image = scaled_images.pop()
@@ -322,6 +324,7 @@ def images_into_out_of_queue(algorithm, factors, image):
     for factor in factors:
         scaled_images.put(cv2.resize(image, (int(width * factor), int(height * factor)), interpolation=algorithm))
 
+    scaled_images.qsize()
     # print(f"Queue bytes: {asizeof.asizeof(scaled_images)}")
     while not scaled_images.empty():
         image = scaled_images.get()
@@ -335,6 +338,7 @@ def images_into_out_of_deck(algorithm, factors, image):
     for factor in factors:
         scaled_images.append(cv2.resize(image, (int(width * factor), int(height * factor)), interpolation=algorithm))
 
+    len(scaled_images)
     # print(f"Deck bytes: {asizeof.asizeof(scaled_images)}")
     while scaled_images:
         image = scaled_images.popleft()
@@ -656,6 +660,7 @@ if __name__ == "__main__":
     # test_pil_wh_vs_cv2_size()
 
     # queue_vs_list_vs_deck(n=2_000_000, k=100, s=10)
+    queue_vs_list_vs_deck()
     # Images into queue time: 6.9286
     # Images into list time: 5.9382
     # Images into list del time: 5.9511

@@ -78,9 +78,9 @@ pil_algorithms_ud = {Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.PIL_BILINEAR, A
 cv2_ai = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
 
 
-def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False):
-    # scaled_images = []
-    scaled_images = queue.Queue()
+def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> list[PIL.Image]:
+    scaled_images = []
+    # scaled_images = queue.Queue()
 
     width, height = image.size
 
@@ -97,8 +97,8 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
                 print(f"ERROR: INTER_AREA does not support upscaling! Factor: {factor}; File names will be incorrect!")
                 continue
             output_width, output_height = round(width * factor), round(height * factor)
-            scaled_images.put(
-                utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_AREA)))
+            scaled_images.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
+            # scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_AREA)))
 
         return scaled_images
 
@@ -108,7 +108,8 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
 
         for factor in factors:
             output_width, output_height = round(width * factor), round(height * factor)
-            scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
+            scaled_images.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
+            # scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
 
         return scaled_images
 
@@ -133,7 +134,8 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
             sr.setModel(name.lower(), factor)
 
             result = sr.upsample(cv2_image)
-            scaled_images.put(utils.cv2_to_pil(cv2.resize(result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
+            scaled_images.append(utils.cv2_to_pil(cv2.resize(result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
+            # scaled_images.put(utils.cv2_to_pil(cv2.resize(result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
 
             # output_width, output_height = round(width * factor), round(height * factor)
             # scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
@@ -149,7 +151,8 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
 
         for factor in factors:
             output_width, output_height = round(width * factor), round(height * factor)
-            scaled_images.put(image.resize((output_width, output_height), algorithm))
+            scaled_images.append(image.resize((output_width, output_height), algorithm))
+            # scaled_images.put(image.resize((output_width, output_height), algorithm))
         return scaled_images
     # -------------------------------------------------------------------------------------------------------
     # ---------------------------------------- End of PIL algorithms ----------------------------------------
@@ -181,7 +184,8 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
                     image = xbrz.scale_pillow(image, temp_factor)
                     current_scale *= temp_factor
 
-                scaled_images.put(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                scaled_images.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                # scaled_images.put(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
             # # Convert image to RGBA format
             # if cv2_image.shape[2] == 3:
             #     # print("Converting from BGR to RGBA format...")
@@ -322,7 +326,8 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
 
                     current_scale *= temp_factor
 
-                scaled_images.put(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                scaled_images.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                # scaled_images.put(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
 
         case Algorithms.SUPIR:
             script_path = './SUPIR/test.py'
@@ -389,7 +394,8 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
                     # Convert 'cv2_image_rgba' numpy array to 'cv2_image' numpy array
                     cv2_image = cv2.cvtColor(cv2_image_rgba, cv2.COLOR_RGBA2BGR)
 
-                    scaled_images.put(cv2.resize(cv2_image, (width * factor, height * factor), interpolation=csatca(fallback_algorithm)))
+                    scaled_images.append(utils.cv2_to_pil(cv2.resize(cv2_image, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
+                    # scaled_images.put(cv2.resize(cv2_image, (width * factor, height * factor), interpolation=csatca(fallback_algorithm)))
 
                     # raise NotImplementedError("Not implemented yet")
 

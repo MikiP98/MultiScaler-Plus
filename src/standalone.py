@@ -1,6 +1,6 @@
 # coding=utf-8
 import argparse
-import math
+# import math
 import multiprocessing
 import os
 import PIL.Image
@@ -102,7 +102,8 @@ def scale_loop(algorithm: Algorithms, image, root: str, file: str, scales: set[f
     # print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
     images = scaler.scale_image_batch(algorithm, image, scales, config_plus=config_plus)
     # print(f"Images: {images.qsize()}")
-    if images.qsize() == 0:
+    # if images.qsize() == 0:
+    if len(images) == 0:
         # print("Image:")
         # print(image)
         # print(f"Scales: {scales}")
@@ -116,8 +117,10 @@ def scale_loop(algorithm: Algorithms, image, root: str, file: str, scales: set[f
 
         chunk_size = len(scales) // processes  # Divide images equally among processes
         args_list = []
-        while not images.empty():
-            images_chunk = [images.get() for _ in range(chunk_size)]
+        # while not images.empty():
+        while images:
+            # images_chunk = [images.get() for _ in range(chunk_size)]
+            images_chunk = [images.pop() for _ in range(chunk_size)]
             scales_chunk = [scales.pop() for _ in range(chunk_size)]
             args_list.append((algorithm, images_chunk, root, file, scales_chunk, config))
 
@@ -130,8 +133,10 @@ def scale_loop(algorithm: Algorithms, image, root: str, file: str, scales: set[f
         pool.join()
 
     else:
-        while not images.empty():
-            image = images.get()
+        # while not images.empty():
+        while images:
+            # image = images.get()
+            image = images.pop()
             save_image(algorithm, image, root, file, scales.pop(), config)
 
 
