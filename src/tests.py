@@ -2,6 +2,7 @@
 
 import cv2
 import numpy as np
+import os
 import queue
 import scaler
 # import sys
@@ -9,9 +10,9 @@ import time
 import timeit
 import utils
 
+from functools import lru_cache
 from PIL import Image
 from pympler import asizeof
-from standalone import columnify
 from utils import Algorithms
 from utils import algorithm_to_string_dict
 from utils import string_to_algorithm_dict
@@ -462,8 +463,133 @@ def columnify_test(n=1_000_000, k=10):
     # ------------------------------------------------------------------------------------------------------------------
 
 
-def cached_tuple_vs_list_test(n=1_000_000, k=10):
-    ...
+@lru_cache(maxsize=1)
+def columnify_cached(elements: tuple) -> str:
+    result = ""
+    max_columns = 4
+
+    max_length = max([len(algorithm) for algorithm in elements])
+    # print(f"Max length: {max_length}")
+    margin_right = 2
+    tab_spaces = 2
+
+    # Get the size of the terminal
+    if sys.stdout.isatty():
+        terminal_columns = os.get_terminal_size().columns
+        # print(f"Terminal columns: {terminal_columns}")
+        columns = max_columns
+        while terminal_columns < len("\t".expandtabs(tab_spaces)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1 and columns > 1:
+            # print(f"Calculated row length: {len("\t".expandtabs(tab_spaces * 2)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1}")
+            columns -= 1
+    else:
+        columns = 3
+    # print(f"Final row length: {len("\t".expandtabs(tab_spaces * 2)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1}")
+    # print(f"Final column count: {columns}")
+
+    overflow = len(elements) % columns
+    full_count = len(elements) - overflow
+
+    for i in range(0, full_count, columns):
+        result += "\t".expandtabs(tab_spaces)
+        if i < len(elements):
+            result += " | ".join([f"\t{elements[i + j]:<{max_length + margin_right}}".expandtabs(tab_spaces) for j in range(columns)])
+        result += "\n"
+    result += "\t".expandtabs(tab_spaces)
+    result += " | ".join([f"\t{elements[k]:<{max_length + margin_right}}".expandtabs(tab_spaces) for k in range(full_count, overflow + full_count)])
+    result += "\n"
+
+    return result
+
+
+def columnify(elements: list) -> str:
+    result = ""
+    max_columns = 4
+
+    max_length = max([len(algorithm) for algorithm in elements])
+    # print(f"Max length: {max_length}")
+    margin_right = 2
+    tab_spaces = 2
+
+    # Get the size of the terminal
+    if sys.stdout.isatty():
+        terminal_columns = os.get_terminal_size().columns
+        # print(f"Terminal columns: {terminal_columns}")
+        columns = max_columns
+        while terminal_columns < len("\t".expandtabs(tab_spaces)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1 and columns > 1:
+            # print(f"Calculated row length: {len("\t".expandtabs(tab_spaces * 2)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1}")
+            columns -= 1
+    else:
+        columns = 3
+    # print(f"Final row length: {len("\t".expandtabs(tab_spaces * 2)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1}")
+    # print(f"Final column count: {columns}")
+
+    overflow = len(elements) % columns
+    full_count = len(elements) - overflow
+
+    for i in range(0, full_count, columns):
+        result += "\t".expandtabs(tab_spaces)
+        if i < len(elements):
+            result += " | ".join([f"\t{elements[i + j]:<{max_length + margin_right}}".expandtabs(tab_spaces) for j in range(columns)])
+        result += "\n"
+    result += "\t".expandtabs(tab_spaces)
+    result += " | ".join([f"\t{elements[k]:<{max_length + margin_right}}".expandtabs(tab_spaces) for k in range(full_count, overflow + full_count)])
+    result += "\n"
+
+    return result
+
+
+def tuple_plus_cached(a=2):
+    available_algorithms = tuple(f"{algorithm.value} - {algorithm.name}" for algorithm in Algorithms)
+
+    for i in range(a):
+        columnify_cached(available_algorithms)
+
+    columnify_cached.cache_clear()
+
+
+def list_no_cache(a=2):
+    available_algorithms = [f"{algorithm.value} - {algorithm.name}" for algorithm in Algorithms]
+
+    for i in range(a):
+        columnify(available_algorithms)
+
+    columnify_cached.cache_clear()
+
+
+def cached_tuple_vs_list_test(n=100_000, k=10):
+    cached_tuple_time = 0
+    list_time = 0
+    cached_tuple_time_2 = 0
+    list_time_2 = 0
+    cached_tuple_time_3 = 0
+    list_time_3 = 0
+
+    a_1 = 1
+    a_2 = 2
+    a_3 = 3
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        cached_tuple_time += timeit.timeit(lambda: tuple_plus_cached(a_1), number=n // k)
+        list_time += timeit.timeit(lambda: list_no_cache(a_1), number=n // k)
+        cached_tuple_time_2 += timeit.timeit(lambda: tuple_plus_cached(a_2), number=n // k)
+        list_time_2 += timeit.timeit(lambda: list_no_cache(a_2), number=n // k)
+        cached_tuple_time_3 += timeit.timeit(lambda: tuple_plus_cached(a_3), number=n // k)
+        list_time_3 += timeit.timeit(lambda: list_no_cache(a_3), number=n // k)
+
+    cached_tuple_time = round(cached_tuple_time / k, 4)
+    list_time = round(list_time / k, 4)
+    cached_tuple_time_2 = round(cached_tuple_time_2 / k, 4)
+    list_time_2 = round(list_time_2 / k, 4)
+    cached_tuple_time_3 = round(cached_tuple_time_3 / k, 4)
+    list_time_3 = round(list_time_3 / k, 4)
+
+    print(f"Cached tuple time {a_1}x: {cached_tuple_time}")
+    print(f"List time {a_1}x: {list_time}")
+    print(f"Cached tuple time {a_2}x: {cached_tuple_time_2}")
+    print(f"List time {a_2}x: {list_time_2}")
+    print(f"Cached tuple time {a_3}x: {cached_tuple_time_3}")
+    print(f"List time {a_3}x: {list_time_3}")
 
 
 def docstring_tests():
@@ -471,6 +597,7 @@ def docstring_tests():
 
 
 if __name__ == "__main__":
+    print("Starting warmup\n")
     warmup()
     print("Warmup finished\n")
     # test_match_vs_dict()
@@ -480,7 +607,8 @@ if __name__ == "__main__":
     # test_pil_wh_vs_cv2_size()
     # queue_vs_list()
     # pil_vs_cv2_size()
-    list_vs_tuple_generation()
-    columnify_test()
+    # list_vs_tuple_generation()
+    # columnify_test()  # Broken
+    # cached_tuple_vs_list_test()
     # docstring_tests()
     ...
