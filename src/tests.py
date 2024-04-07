@@ -10,6 +10,7 @@ import time
 import timeit
 import utils
 
+from collections import deque
 from functools import lru_cache
 from PIL import Image
 from pympler import asizeof
@@ -327,29 +328,76 @@ def images_into_out_of_queue(algorithm, factors, image):
         ...
 
 
-def queue_vs_list(n=5_000, k=10):
+def images_into_out_of_deck(algorithm, factors, image):
+    scaled_images = deque()
+    height, width = image.shape[:2]
+
+    for factor in factors:
+        scaled_images.append(cv2.resize(image, (int(width * factor), int(height * factor)), interpolation=algorithm))
+
+    # print(f"Deck bytes: {asizeof.asizeof(scaled_images)}")
+    while scaled_images:
+        image = scaled_images.popleft()
+        ...
+
+
+def queue_vs_list_vs_deck(n=50_000, k=50, s=5):
     algorithm = cv2.INTER_NEAREST
     factors = [0.125, 0.25, 0.5, 2, 4, 8]
-    image = utils.pil_to_cv2(Image.open("../input/NEAREST_NEIGHBOR_pixel-art_0.125x.png"))
+    image = utils.pil_to_cv2(Image.open("../input/example_shell_40px.png"))
 
     images_into_queue_time = 0
     images_into_list_time = 0
     images_into_list_del_time = 0
+    images_into_deck_time = 0
 
+    print(f"Iteration {1}/{k}")
     for i in range(k):
-        print(f"Iteration {i + 1}/{k}")
+        if i % s == s - 1:
+            print(f"Iteration {i + 1}/{k}")
         images_into_queue_time += timeit.timeit(lambda: images_into_out_of_queue(algorithm, factors, image), number=n // k)
         images_into_list_time += timeit.timeit(lambda: images_into_out_of_list(algorithm, factors, image), number=n // k)
         images_into_list_del_time += timeit.timeit(lambda: images_into_out_of_list_del(algorithm, factors, image), number=n // k)
+        images_into_deck_time += timeit.timeit(lambda: images_into_out_of_deck(algorithm, factors, image), number=n // k)
     print()
 
     images_into_queue_time = round(images_into_queue_time / k, 4)
     images_into_list_time = round(images_into_list_time / k, 4)
     images_into_list_del_time = round(images_into_list_del_time / k, 4)
+    images_into_deck_time = round(images_into_deck_time / k, 4)
 
     print(f"Images into queue time: {images_into_queue_time}")
     print(f"Images into list time: {images_into_list_time}")
     print(f"Images into list del time: {images_into_list_del_time}")
+    print(f"Images into deck time: {images_into_deck_time}")
+
+    # ------------------------------------------------------------------------------------------------------------
+    factors = [2]
+
+    images_into_queue_time = 0
+    images_into_list_time = 0
+    images_into_list_del_time = 0
+    images_into_deck_time = 0
+
+    print(f"Iteration {1}/{k}")
+    for i in range(k):
+        if i % s == s - 1:
+            print(f"Iteration {i + 1}/{k}")
+        images_into_queue_time += timeit.timeit(lambda: images_into_out_of_queue(algorithm, factors, image), number=n // k)
+        images_into_list_time += timeit.timeit(lambda: images_into_out_of_list(algorithm, factors, image), number=n // k)
+        images_into_list_del_time += timeit.timeit(lambda: images_into_out_of_list_del(algorithm, factors, image), number=n // k)
+        images_into_deck_time += timeit.timeit(lambda: images_into_out_of_deck(algorithm, factors, image), number=n // k)
+    print()
+
+    images_into_queue_time = round(images_into_queue_time / k, 4)
+    images_into_list_time = round(images_into_list_time / k, 4)
+    images_into_list_del_time = round(images_into_list_del_time / k, 4)
+    images_into_deck_time = round(images_into_deck_time / k, 4)
+
+    print(f"Images into queue time 1: {images_into_queue_time}")
+    print(f"Images into list time 1: {images_into_list_time}")
+    print(f"Images into list del time 1: {images_into_list_del_time}")
+    print(f"Images into deck time 1: {images_into_deck_time}")
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------ END OF "queue_vs_list" ------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
@@ -597,15 +645,22 @@ def docstring_tests():
 
 
 if __name__ == "__main__":
-    print("Starting warmup\n")
+    print("Starting warmup")
     warmup()
     print("Warmup finished\n")
+
     # test_match_vs_dict()
     # test_custom_any()
     # enum_to_string_test()
     # cv2_vs_pil_test()
     # test_pil_wh_vs_cv2_size()
-    # queue_vs_list()
+
+    # queue_vs_list_vs_deck(n=2_000_000, k=100, s=10)
+    # Images into queue time: 6.9286
+    # Images into list time: 5.9382
+    # Images into list del time: 5.9511
+    # Images into deck time: 5.9904
+
     # pil_vs_cv2_size()
     # list_vs_tuple_generation()
     # columnify_test()  # Broken

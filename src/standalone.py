@@ -228,7 +228,7 @@ def columnify(elements: tuple) -> str:
     return result
 
 
-def handle_user_input():
+def handle_user_input() -> tuple[set[Algorithms], set[float]]:
     algorithms = set()
     scales = set()
 
