@@ -17,7 +17,7 @@ from fractions import Fraction
 from functools import lru_cache
 from multiprocessing import Process
 from typing import Union
-from utils import Algorithms
+from utils import Algorithms, pil_fully_supported_formats, pil_read_only_formats, pil_write_only_formats, pil_indentify_only_formats
 
 
 PIL.Image.MAX_IMAGE_PIXELS = 200000000
@@ -372,25 +372,25 @@ if __name__ == '__main__':
                 for directory in dirs:
                     shutil.rmtree(os.path.join(root, directory))
 
-    pil_fully_supported_formats = {"BLP", "BMP", "DDS", "DIB", "EPS", "GIF", "ICNS", "ICO", "IM",
-                                   "JFI", "JFIF", "JIF", "JPE", "JPEG", "JPG",
-                                   "J2K", "JP2", "JPX",
-                                   "MSP", "PCX", "PFM", "PNG", "APNG", "PPM", "SGI",
-                                   "SPIDER", "SPI",
-                                   "TGA", "TIFF", "WEBP", "XBM"}
-
-    pil_read_only_formats = {"CUR", "DCX", "FITS",
-                             "FLI", "FLC",
-                             "FPX", "FTEX", "GBR", "GD", "IMT",
-                             "IPTC", "NAA",
-                             "MCIDAS", "MIC", "MPO", "PCD", "PIXAR", "PSD", "QOI", "SUN", "WAL",
-                             "WMF", "EMF",
-                             "XPM"}
-
-    pil_write_only_formats = {"PALM", "PDF",
-                              "XVTHUMB", "XVTHUMBNAILS"}
-
-    pil_indentify_only_formats = {"BUFR", "GRIB", "HDF5", "MPEG"}
+    # pil_fully_supported_formats = {"BLP", "BMP", "DDS", "DIB", "EPS", "GIF", "ICNS", "ICO", "IM",
+    #                                "JFI", "JFIF", "JIF", "JPE", "JPEG", "JPG",
+    #                                "J2K", "JP2", "JPX",
+    #                                "MSP", "PCX", "PFM", "PNG", "APNG", "PPM", "SGI",
+    #                                "SPIDER", "SPI",
+    #                                "TGA", "TIFF", "WEBP", "XBM"}
+    #
+    # pil_read_only_formats = {"CUR", "DCX", "FITS",
+    #                          "FLI", "FLC",
+    #                          "FPX", "FTEX", "GBR", "GD", "IMT",
+    #                          "IPTC", "NAA",
+    #                          "MCIDAS", "MIC", "MPO", "PCD", "PIXAR", "PSD", "QOI", "SUN", "WAL",
+    #                          "WMF", "EMF",
+    #                          "XPM"}
+    #
+    # pil_write_only_formats = {"PALM", "PDF",
+    #                           "XVTHUMB", "XVTHUMBNAILS"}
+    #
+    # pil_indentify_only_formats = {"BUFR", "GRIB", "HDF5", "MPEG"}
 
     # Go through all files in input directory, scale them and save them in output directory
     # if in input folder there are some directories all path will be saved in output directory

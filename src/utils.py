@@ -97,6 +97,76 @@ def algorithm_to_string(algorithm: Algorithms) -> str:
     return algorithm_to_string_dict[algorithm]
 
 
+BLP = {"blp", "blp2", "tex"}
+BMP = {"bmp", "rle"}
+DDS = {"dds", "dds2"}
+DIB = {"dib", "dib2"}
+EPS = {"eps", "eps2", "epsf", "epsi"}
+GIF = {"gif", "giff"}
+ICNS = {"icns", "icon"}
+ICO = {"ico", "cur"}
+IM = {"im", "im2"}
+JPEG = {"jpg", "jpeg", "jpe"}
+JPEG_2000 = {"jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"}
+MSP = {"msp", "msp2"}
+PCX = {"pcx", "pcx2"}
+PFM = {"pfm", "pfm2"}
+PNG = {"png", "pns"}
+APNG = {"apng", "png2"}
+PPM = {"ppm", "ppm2"}
+SGI = {"sgi", "rgb", "bw"}
+SPIDER = {"spi", "spider2"}
+TGA = {"tga", "targa"}
+TIFF = {"tif", "tiff", "tiff2"}
+WEBP = {"webp", "webp2"}
+XBM = {"xbm", "xbm2"}
+
+pil_fully_supported_formats = {BLP, BMP, DDS, DIB, EPS, GIF, ICNS, ICO, IM, JPEG, JPEG_2000, MSP, PCX, PFM, PNG, APNG, PPM, SGI, SPIDER, TGA, TIFF, WEBP, XBM}
+
+
+CUR = {"cur"}
+DCX = {"dcx"}
+FITS = {"fits"}
+FLI = {"fli"}
+FLC = {"flc"}
+FPX = {"fpx"}
+FTEX = {"ftex"}
+GBR = {"gbr"}
+GD = {"gd"}
+IMT = {"imt"}
+IPTC = {"iptc"}
+NAA = {"naa"}
+MCIDAS = {"mcidas"}
+MIC = {"mic"}
+MPO = {"mpo"}
+PCD = {"pcd"}
+PIXAR = {"pixar"}
+PSD = {"psd"}
+QOI = {"qoi"}
+SUN = {"sun"}
+WAL = {"wal"}
+WMF = {"wmf"}
+EMF = {"emf"}
+XPM = {"xpm"}
+
+pil_read_only_formats = {CUR, DCX, FITS, FLI, FLC, FPX, FTEX, GBR, GD, IMT, IPTC, NAA, MCIDAS, MIC, MPO, PCD, PIXAR, PSD, QOI, SUN, WAL, WMF, EMF, XPM}
+
+
+PALM = {"palm"}
+PDF = {"pdf"}
+XV = {"xv"}
+
+pil_write_only_formats = {PALM, PDF, XV}
+
+
+BUFR = {".bufr"}
+GRIB = {".grib", ".grb"}
+HDF5 = {".h5", ".hdf5"}
+MPEG = {".mpg", ".mpeg"}
+
+pil_indentify_only_formats = {BUFR, GRIB, HDF5, MPEG}
+
+
 def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
     if has_transparency(pil_image):
         pil_image = pil_image.convert('RGBA')
