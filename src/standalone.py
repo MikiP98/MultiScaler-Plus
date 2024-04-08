@@ -293,20 +293,36 @@ def handle_user_input() -> tuple[set[Algorithms], set[float]]:
 
 
 # pil_animated_formats = {"GIF", "APNG", "MNG", "FLI", "FLC", "ANI", "WEBP", "AVIF", "HEIF", "HEIC", "BPG", "JP2", "JXL"}
-pil_animated_formats = {"APNG", "GIF", "WEBP", "MNG", "FLIF",
-                        "J2K", "JP2", "JPX"}
+pil_animated_formats = {
+    "BLP": {".blp2"},  # Only BLP2 supports multiple images and animations
+    "TIFF": {".tif", ".tiff", ".tiff2"},
+    "APNG": {".apng"},
+    "WebP": {".webp"},
+    "JPX": {".jpx"}  # Only JPEG 2000 Part 2 (JPX) supports multiple images and animations
+}
 # AV1
+# MNG: {.mng} MNG supports both multiple images and animations
+pil_animated_formats_cache = {
+    extension: image_format for image_format, extensions in pil_animated_formats for extension in extensions
+}
 
 def pngify(image: PIL.Image) -> Union[PIL.Image, list[PIL.Image]]:
-    if image.format.upper() in pil_animated_formats:
-        raise NotImplementedError("Animated images are not supported yet")
+    if image.format.upper() in pil_animated_formats_cache:
+        # Extract all frames from the animated image as a list of images
+        if image.is_animated:
+            raise NotImplementedError("Animated images are not supported yet")
 
-    else:
+        raise NotImplementedError(f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}")
+
+    # check if is RGBA or RGB
+    elif not (image.mode == "RGB" or image.mode == "RGBA"):
         image = image.convert("RGBA")
         if utils.uses_transparency(image):
             return image
         else:
             return image.convert("RGB")
+
+    return image
 
 
 if __name__ == '__main__':
