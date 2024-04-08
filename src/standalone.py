@@ -448,7 +448,10 @@ if __name__ == '__main__':
 
             elif extension in pil_write_only_formats or extension in pil_indentify_only_formats:
                 print(f"File: {path} is an recognized image format but is not supported :( (yet)")
-
+                try:
+                    image = PIL.Image.open(path)
+                finally:
+                    pass
             else:
                 print(f"File: {path} is not supported, unrecognized file extension '{extension}'")
 
