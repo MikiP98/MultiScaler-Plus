@@ -35,6 +35,7 @@ def csatpa(algorithm: Algorithms):
     Converts a scaler algorithm to a PIL algorithm using a dictionary (satpad)
     :param algorithm: The Scaler algorithm to convert
     :return: The corresponding PIL algorithm
+    :raises AttributeError: If the algorithm is not supported by PIL
     """
     pillow_algorithm = satpad.get(algorithm)
     if pillow_algorithm is not None:
@@ -59,6 +60,7 @@ def csatca(algorithm: Algorithms):
     Converts a scaler algorithm to a OpenCV algorithm using a dictionary (satcad)
     :param algorithm: The Scaler algorithm to convert
     :return: The corresponding OpenCV algorithm
+    :raises AttributeError: If the algorithm is not supported by OpenCV
     """
     algorithm_cv2 = satcad.get(algorithm)
     if algorithm_cv2 is not None:

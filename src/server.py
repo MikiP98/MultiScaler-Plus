@@ -1,11 +1,13 @@
 # coding=utf-8
+import json
 
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from PIL import Image
-from utils import image_to_byte_array, string_to_algorithm
 from scaler import scale_image_batch
-from fastapi.middleware.cors import CORSMiddleware
+from typing import List
+from utils import image_to_byte_array, string_to_algorithm
 
 app = FastAPI()
 # Allow requests from all origins
@@ -21,6 +23,25 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+
+@app.post("/endpoint")
+def process_data(file: UploadFile = File(...), algorithms: List[str] = [], scales: List[float] = []):
+    # Handle file
+    file_contents = file.read()
+
+    # Convert JSON strings back to Python lists
+    algorithms = json.loads(algorithms)
+    scales = json.loads(scales)
+
+    # Do something with the data
+    # For example:
+    print("Received file:", file.filename)
+    print("Selected algorithms:", algorithms)
+    print("Selected scales:", scales)
+
+    # Return some response
+    return {"message": "Data received successfully"}
 
 
 @app.post(
