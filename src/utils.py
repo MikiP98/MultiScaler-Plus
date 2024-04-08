@@ -97,6 +97,7 @@ def algorithm_to_string(algorithm: Algorithms) -> str:
     return algorithm_to_string_dict[algorithm]
 
 
+# TODO: Think about frozen sets
 pil_fully_supported_formats = {
     "BLP": {"blp", "blp2", "tex"},
     "BMP": {"bmp", "rle"},
