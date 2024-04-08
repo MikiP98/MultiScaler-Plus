@@ -423,6 +423,7 @@ if __name__ == '__main__':
                 image = pngify(image)
 
                 if 1 in config['multiprocessing_levels']:
+                    # TODO: Implement multiprocessing as in level 3
                     p = Process(target=algorithm_loop, args=(algorithms, image, root, file, scales, config))
                     p.start()
                     # processes.append(p)
@@ -445,7 +446,7 @@ if __name__ == '__main__':
             elif extension in pil_write_only_formats_cache or extension in pil_indentify_only_formats_cache:
                 print(f"File: {path} is an recognized image format but is not supported :( (yet)")
                 try:
-                    image = PIL.Image.open(path)
+                    image = PIL.Image.open(path)  # Open the image to display Pillow's error message
                 finally:
                     pass
             else:
