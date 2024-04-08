@@ -5,11 +5,13 @@ from collections import deque
 import multiprocessing
 import os
 import PIL.Image
+import PIL.GifImagePlugin
 import queue
 import scaler
 import sys
 import shutil
 import utils
+import zipfile
 
 from fractions import Fraction
 from functools import lru_cache
@@ -18,6 +20,7 @@ from utils import Algorithms
 
 
 PIL.Image.MAX_IMAGE_PIXELS = 200000000
+PIL.GifImagePlugin.LOADING_STRATEGY = PIL.GifImagePlugin.LoadingStrategy.RGB_ALWAYS
 
 
 def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config):
@@ -309,7 +312,8 @@ if __name__ == '__main__':
         'sort_by_algorithm': False,
         'lossless_compression': True,
         'multiprocessing_levels': {},
-        'max_processes': (4, 4, 2)
+        'max_processes': (4, 4, 2),
+        'mcmeta_correction': True
     }
     if safe_mode:
         config = fix_config(config)
@@ -350,6 +354,26 @@ if __name__ == '__main__':
                 for directory in dirs:
                     shutil.rmtree(os.path.join(root, directory))
 
+    pil_fully_supported_formats = ("BLP", "BMP", "DDS", "DIB", "EPS", "GIF", "ICNS", "ICO", "IM",
+                                   "JFI", "JFIF", "JIF", "JPE", "JPEG", "JPG",
+                                   "J2K", "JP2", "JPX",
+                                   "MSP", "PCX", "PFM", "PNG", "APNG", "PPM", "SGI",
+                                   "SPIDER", "SPI",
+                                   "TGA", "TIFF", "WEBP", "XBM")
+
+    pil_read_only_formats = ("CUR", "DCX", "FITS",
+                             "FLI", "FLC",
+                             "FPX", "FTEX", "GBR", "GD", "IMT",
+                             "IPTC", "NAA",
+                             "MCIDAS", "MIC", "MPO", "PCD", "PIXAR", "PSD", "QOI", "SUN", "WAL",
+                             "WMF", "EMF",
+                             "XPM")
+
+    pil_write_only_formats = ("PALM", "PDF",
+                              "XVTHUMB", "XVTHUMBNAILS")
+
+    pil_indentify_only_formats = ("BUFR", "GRIB", "HDF5", "MPEG")
+
     # Go through all files in input directory, scale them and save them in output directory
     # if in input folder there are some directories all path will be saved in output directory
     # processes = []
@@ -358,12 +382,31 @@ if __name__ == '__main__':
     for root, dirs, files in os.walk("../input"):
         for file in files:
             path = os.path.join(root, file)
+            extension = file.split('.')[-1].upper()
 
-            if path.endswith(".png") or path.endswith(".jpg") or path.endswith(".jpeg"):
+            if extension == "ZIP" or extension == "7Z":
+                print(f"Processing: {path}")
+                with zipfile.ZipFile(path, 'r') as zip_ref:
+                    # Get a list of all files and directories inside the zip file
+                    zip_contents = zip_ref.namelist()
+
+                    # Iterate through each file in the zip file
+                    for file_name in zip_contents:
+                        # Check if the current item is a file (not a directory)
+                        if not file_name.endswith('/'):  # Directories end with '/'
+                            # Read the content of the file
+                            with zip_ref.open(file_name) as file:
+                                # Process the content of the file
+                                print(f"Contents of {file_name}:")
+                                print(file.read())  # You can perform any operation you want with the file content
+                                print("---------------")
+
+                raise NotImplementedError("Zip and 7z files are not supported yet")
+
+            elif extension in pil_fully_supported_formats or extension in pil_read_only_formats:
                 print(f"Processing: {path}")
                 image = PIL.Image.open(path)
-                # image = utils.pil_to_cv2(image)
-                # print(type(image))
+                # image = pngify(image)
 
                 if 1 in config['multiprocessing_levels']:
                     p = Process(target=algorithm_loop, args=(algorithms, image, root, file, scales, config))
@@ -380,6 +423,19 @@ if __name__ == '__main__':
                         # processes.clear()
                 else:
                     algorithm_loop(algorithms, image, root, file, scales, config)
+
+            elif extension == "MCMETA":
+                if config['mcmeta_correction']:
+                    print(f"Processing: {path}")
+                    raise NotImplementedError("mcmeta files are not supported yet")
+                else:
+                    print(f"MCMeta file: {path} will be ignored, animated texture will be corrupted!")
+
+            elif extension in pil_write_only_formats or extension in pil_indentify_only_formats:
+                print(f"File: {path} is an recognized image format but is not supported :( (yet)")
+
+            else:
+                print(f"File: {path} is not supported, unrecognized file extension '{extension}'")
 
     for i in range(processes_count):
         processes.get().join()

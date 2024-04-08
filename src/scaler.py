@@ -3,7 +3,6 @@
 import cv2
 import numpy as np
 import PIL.Image
-import queue
 import subprocess
 import torch
 import utils
@@ -70,7 +69,7 @@ def csatca(algorithm: Algorithms):
 
 
 def scale_image(algorithm, cv2_image, factor, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> PIL.Image:
-    return scale_image_batch(algorithm, cv2_image, [factor], fallback_algorithm=fallback_algorithm, config_plus=config_plus, main_checked=main_checked).get()
+    return scale_image_batch(algorithm, cv2_image, [factor], fallback_algorithm=fallback_algorithm, config_plus=config_plus, main_checked=main_checked).pop()
 
 
 # ud - upscale/downscale
@@ -80,7 +79,7 @@ pil_algorithms_ud = {Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.PIL_BILINEAR, A
 cv2_ai = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
 
 
-def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> list[PIL.Image]:
+def scale_image_batch(algorithm, image, factors, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> list[PIL.Image]:
     scaled_images = []
     # scaled_images = queue.Queue()
 
@@ -389,7 +388,7 @@ def scale_image_batch(algorithm, image, factors, fallback_algorithm=Algorithms.C
                     # Convert 'cv2_image_rgba' numpy array to python list
                     python_array_image = cv2_image_rgba.tolist()
 
-                    python_array_image = scale_image_data(algorithm, python_array_image, factor, fallback_algorithm, True)
+                    python_array_image = scale_image_data(algorithm, python_array_image, factor, fallback_algorithm=fallback_algorithm, main_checked=True)
 
                     # Convert python list to 'cv2_image_rgba' numpy array
                     cv2_image_rgba = np.array(python_array_image, dtype=np.uint8)
@@ -432,7 +431,7 @@ def scale_image_data(algorithm, pixels: [[[int]]], factor, *, fallback_algorithm
                     for x in range(len(pixels[0])):
                         image.putpixel((x * factor, y * factor), pixels[y][x])
 
-                image = utils.pil_to_cv2(image)
+                # image = utils.pil_to_cv2(image)
 
                 return scale_image_batch(algorithm, image, [factor], fallback_algorithm=fallback_algorithm, main_checked=True)
                 # return scale_image(algorithm, image, factor, fallback_algorithm, main_checked=True)

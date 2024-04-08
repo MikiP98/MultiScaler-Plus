@@ -497,14 +497,14 @@ def columnify_test(n=1_000_000, k=10):
 
     current = time.time()
     for i in range(n):
-        columnify(available_algorithms)
+        columnify_cached(available_algorithms)
     columnify_cached_time = round((time.time() - current) / k, 4)
     print(f"Columnify cached time: {columnify_cached_time}")
 
     columnify_time = 0
     for i in range(k):
         # print(f"Iteration {i + 1}/{k}")
-        columnify_time += timeit.timeit(lambda: columnify(available_algorithms), number=n // k)
+        columnify_time += timeit.timeit(lambda: columnify_cached(available_algorithms), number=n // k)
     # print()
 
     columnify_time = round(columnify_time / k, 4)
@@ -642,6 +642,179 @@ def cached_tuple_vs_list_test(n=100_000, k=10):
     print(f"List time {a_2}x: {list_time_2}")
     print(f"Cached tuple time {a_3}x: {cached_tuple_time_3}")
     print(f"List time {a_3}x: {list_time_3}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "cached_tuple_vs_list_test" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+pil_fully_supported_formats = ("BLP", "BMP", "DDS", "DIB", "EPS", "GIF", "ICNS", "ICO", "IM",
+                                   "JFI", "JFIF", "JIF", "JPE", "JPEG", "JPG",
+                                   "J2K", "JP2", "JPX",
+                                   "MSP", "PCX", "PFM", "PNG", "APNG", "PPM", "SGI",
+                                   "SPIDER", "SPI",
+                                   "TGA", "TIFF", "WEBP", "XBM")
+
+pil_read_only_formats = ("CUR", "DCX", "FITS",
+                         "FLI", "FLC",
+                         "FPX", "FTEX", "GBR", "GD", "IMT",
+                         "IPTC", "NAA",
+                         "MCIDAS", "MIC", "MPO", "PCD", "PIXAR", "PSD", "QOI", "SUN", "WAL",
+                         "WMF", "EMF",
+                         "XPM")
+
+pil_write_only_formats = ("PALM", "PDF",
+                          "XVTHUMB", "XVTHUMBNAILS")
+
+pil_indentify_only_formats = ("BUFR", "GRIB", "HDF5", "MPEG")
+
+pil_fully_supported_formats_s = {"BLP", "BMP", "DDS", "DIB", "EPS", "GIF", "ICNS", "ICO", "IM",
+                               "JFI", "JFIF", "JIF", "JPE", "JPEG", "JPG",
+                               "J2K", "JP2", "JPX",
+                               "MSP", "PCX", "PFM", "PNG", "APNG", "PPM", "SGI",
+                               "SPIDER", "SPI",
+                               "TGA", "TIFF", "WEBP", "XBM"}
+
+pil_read_only_formats_s = {"CUR", "DCX", "FITS",
+                         "FLI", "FLC",
+                         "FPX", "FTEX", "GBR", "GD", "IMT",
+                         "IPTC", "NAA",
+                         "MCIDAS", "MIC", "MPO", "PCD", "PIXAR", "PSD", "QOI", "SUN", "WAL",
+                         "WMF", "EMF",
+                         "XPM"}
+
+pil_write_only_formats_s = {"PALM", "PDF",
+                          "XVTHUMB", "XVTHUMBNAILS"}
+
+pil_indentify_only_formats_s = {"BUFR", "GRIB", "HDF5", "MPEG"}
+
+
+def endswith_tuple():
+    for root, dirs, files in os.walk("../input"):
+        for file in files:
+            if file.endswith(pil_fully_supported_formats):
+                ...
+            elif file.endswith(pil_read_only_formats):
+                ...
+            elif file.endswith(pil_write_only_formats):
+                ...
+            elif file.endswith(pil_indentify_only_formats):
+                ...
+            else:
+                ...
+
+
+def endswith_tuple_p_create():
+    pil_fully_supported_formats = ("BLP", "BMP", "DDS", "DIB", "EPS", "GIF", "ICNS", "ICO", "IM",
+                                   "JFI", "JFIF", "JIF", "JPE", "JPEG", "JPG",
+                                   "J2K", "JP2", "JPX",
+                                   "MSP", "PCX", "PFM", "PNG", "APNG", "PPM", "SGI",
+                                   "SPIDER", "SPI",
+                                   "TGA", "TIFF", "WEBP", "XBM")
+
+    pil_read_only_formats = ("CUR", "DCX", "FITS",
+                             "FLI", "FLC",
+                             "FPX", "FTEX", "GBR", "GD", "IMT",
+                             "IPTC", "NAA",
+                             "MCIDAS", "MIC", "MPO", "PCD", "PIXAR", "PSD", "QOI", "SUN", "WAL",
+                             "WMF", "EMF",
+                             "XPM")
+
+    pil_write_only_formats = ("PALM", "PDF",
+                              "XVTHUMB", "XVTHUMBNAILS")
+
+    pil_indentify_only_formats = ("BUFR", "GRIB", "HDF5", "MPEG")
+
+    for root, dirs, files in os.walk("../input"):
+        for file in files:
+            if file.endswith(pil_fully_supported_formats):
+                ...
+            elif file.endswith(pil_read_only_formats):
+                ...
+            elif file.endswith(pil_write_only_formats):
+                ...
+            elif file.endswith(pil_indentify_only_formats):
+                ...
+            else:
+                ...
+
+def split_in_set():
+    for root, dirs, files in os.walk("../input"):
+        for file in files:
+            extension = file.split(".")[-1]
+            if extension in pil_fully_supported_formats_s:
+                ...
+            elif extension in pil_read_only_formats_s:
+                ...
+            elif extension in pil_write_only_formats_s:
+                ...
+            elif extension in pil_indentify_only_formats_s:
+                ...
+            else:
+                ...
+
+
+def split_in_set_p_create():
+    pil_fully_supported_formats_s = {"BLP", "BMP", "DDS", "DIB", "EPS", "GIF", "ICNS", "ICO", "IM",
+                                     "JFI", "JFIF", "JIF", "JPE", "JPEG", "JPG",
+                                     "J2K", "JP2", "JPX",
+                                     "MSP", "PCX", "PFM", "PNG", "APNG", "PPM", "SGI",
+                                     "SPIDER", "SPI",
+                                     "TGA", "TIFF", "WEBP", "XBM"}
+
+    pil_read_only_formats_s = {"CUR", "DCX", "FITS",
+                               "FLI", "FLC",
+                               "FPX", "FTEX", "GBR", "GD", "IMT",
+                               "IPTC", "NAA",
+                               "MCIDAS", "MIC", "MPO", "PCD", "PIXAR", "PSD", "QOI", "SUN", "WAL",
+                               "WMF", "EMF",
+                               "XPM"}
+
+    pil_write_only_formats_s = {"PALM", "PDF",
+                                "XVTHUMB", "XVTHUMBNAILS"}
+
+    pil_indentify_only_formats_s = {"BUFR", "GRIB", "HDF5", "MPEG"}
+
+    for root, dirs, files in os.walk("../input"):
+        for file in files:
+            extension = file.split(".")[-1]
+            if extension in pil_fully_supported_formats_s:
+                ...
+            elif extension in pil_read_only_formats_s:
+                ...
+            elif extension in pil_write_only_formats_s:
+                ...
+            elif extension in pil_indentify_only_formats_s:
+                ...
+            else:
+                ...
+
+
+def endswith_tuple_vs_split_in_set(n=100_000, k=10):
+    endswith_tuple_time = 0
+    split_in_set_time = 0
+    endswith_tuple_p_create_time = 0
+    split_in_set_p_create_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        endswith_tuple_time += timeit.timeit(lambda: endswith_tuple(), number=n // k)
+        split_in_set_time += timeit.timeit(lambda: split_in_set(), number=n // k)
+        endswith_tuple_p_create_time += timeit.timeit(lambda: endswith_tuple_p_create(), number=n // k)
+        split_in_set_p_create_time += timeit.timeit(lambda: split_in_set_p_create(), number=n // k)
+    print()
+
+    endswith_tuple_time = round(endswith_tuple_time / k, 4)
+    split_in_set_time = round(split_in_set_time / k, 4)
+    endswith_tuple_p_create_time = round(endswith_tuple_p_create_time / k, 4)
+    split_in_set_p_create_time = round(split_in_set_p_create_time / k, 4)
+
+    print(f"Endswith tuple time: {endswith_tuple_time}")
+    print(f"Split in set time: {split_in_set_time}")
+    print(f"Endswith tuple p create time: {endswith_tuple_p_create_time}")
+    print(f"Split in set p create time: {split_in_set_p_create_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "endswith_tuple_vs_split_in_set" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
 
 
 def docstring_tests():
@@ -660,7 +833,7 @@ if __name__ == "__main__":
     # test_pil_wh_vs_cv2_size()
 
     # queue_vs_list_vs_deck(n=2_000_000, k=100, s=10)
-    queue_vs_list_vs_deck()
+    # queue_vs_list_vs_deck()
     # Images into queue time: 6.9286
     # Images into list time: 5.9382
     # Images into list del time: 5.9511
@@ -670,5 +843,6 @@ if __name__ == "__main__":
     # list_vs_tuple_generation()
     # columnify_test()  # Broken
     # cached_tuple_vs_list_test()
+    endswith_tuple_vs_split_in_set()
     # docstring_tests()
     ...
