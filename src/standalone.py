@@ -16,6 +16,7 @@ import zipfile
 from fractions import Fraction
 from functools import lru_cache
 from multiprocessing import Process
+from typing import Union
 from utils import Algorithms
 
 
@@ -292,6 +293,23 @@ def handle_user_input() -> tuple[set[Algorithms], set[float]]:
     return algorithms, scales
 
 
+# pil_animated_formats = {"GIF", "APNG", "MNG", "FLI", "FLC", "ANI", "WEBP", "AVIF", "HEIF", "HEIC", "BPG", "JP2", "JXL"}
+pil_animated_formats = {"APNG", "GIF", "WEBP", "MNG", "FLIF",
+                        "J2K", "JP2", "JPX"}
+# AV1
+
+def pngify(image: PIL.Image) -> Union[PIL.Image, list[PIL.Image]]:
+    if image.format.upper() in pil_animated_formats:
+        raise NotImplementedError("Animated images are not supported yet")
+
+    else:
+        image = image.convert("RGBA")
+        if utils.uses_transparency(image):
+            return image
+        else:
+            return image.convert("RGB")
+
+
 if __name__ == '__main__':
     # Create input and output directory if they don't exist
     if not os.path.exists("../input"):
@@ -354,25 +372,25 @@ if __name__ == '__main__':
                 for directory in dirs:
                     shutil.rmtree(os.path.join(root, directory))
 
-    pil_fully_supported_formats = ("BLP", "BMP", "DDS", "DIB", "EPS", "GIF", "ICNS", "ICO", "IM",
+    pil_fully_supported_formats = {"BLP", "BMP", "DDS", "DIB", "EPS", "GIF", "ICNS", "ICO", "IM",
                                    "JFI", "JFIF", "JIF", "JPE", "JPEG", "JPG",
                                    "J2K", "JP2", "JPX",
                                    "MSP", "PCX", "PFM", "PNG", "APNG", "PPM", "SGI",
                                    "SPIDER", "SPI",
-                                   "TGA", "TIFF", "WEBP", "XBM")
+                                   "TGA", "TIFF", "WEBP", "XBM"}
 
-    pil_read_only_formats = ("CUR", "DCX", "FITS",
+    pil_read_only_formats = {"CUR", "DCX", "FITS",
                              "FLI", "FLC",
                              "FPX", "FTEX", "GBR", "GD", "IMT",
                              "IPTC", "NAA",
                              "MCIDAS", "MIC", "MPO", "PCD", "PIXAR", "PSD", "QOI", "SUN", "WAL",
                              "WMF", "EMF",
-                             "XPM")
+                             "XPM"}
 
-    pil_write_only_formats = ("PALM", "PDF",
-                              "XVTHUMB", "XVTHUMBNAILS")
+    pil_write_only_formats = {"PALM", "PDF",
+                              "XVTHUMB", "XVTHUMBNAILS"}
 
-    pil_indentify_only_formats = ("BUFR", "GRIB", "HDF5", "MPEG")
+    pil_indentify_only_formats = {"BUFR", "GRIB", "HDF5", "MPEG"}
 
     # Go through all files in input directory, scale them and save them in output directory
     # if in input folder there are some directories all path will be saved in output directory
@@ -406,7 +424,7 @@ if __name__ == '__main__':
             elif extension in pil_fully_supported_formats or extension in pil_read_only_formats:
                 print(f"Processing: {path}")
                 image = PIL.Image.open(path)
-                # image = pngify(image)
+                image = pngify(image)
 
                 if 1 in config['multiprocessing_levels']:
                     p = Process(target=algorithm_loop, args=(algorithms, image, root, file, scales, config))
