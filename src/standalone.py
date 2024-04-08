@@ -6,7 +6,6 @@ import multiprocessing
 import os
 import PIL.Image
 import PIL.GifImagePlugin
-import queue
 import scaler
 import sys
 import shutil
@@ -17,7 +16,7 @@ from fractions import Fraction
 from functools import lru_cache
 from multiprocessing import Process
 from typing import Union
-from utils import Algorithms, pil_fully_supported_formats, pil_read_only_formats, pil_write_only_formats, pil_indentify_only_formats
+from utils import Algorithms, pil_fully_supported_formats_cache, pil_read_only_formats_cache, pil_write_only_formats_cache, pil_indentify_only_formats_cache
 
 
 PIL.Image.MAX_IMAGE_PIXELS = 200000000
@@ -421,7 +420,7 @@ if __name__ == '__main__':
 
                 raise NotImplementedError("Zip and 7z files are not supported yet")
 
-            elif extension in pil_fully_supported_formats or extension in pil_read_only_formats:
+            elif extension in pil_fully_supported_formats_cache or extension in pil_read_only_formats_cache:
                 print(f"Processing: {path}")
                 image = PIL.Image.open(path)
                 image = pngify(image)
@@ -446,7 +445,7 @@ if __name__ == '__main__':
                 else:
                     print(f"MCMeta file: {path} will be ignored, animated texture will be corrupted!")
 
-            elif extension in pil_write_only_formats or extension in pil_indentify_only_formats:
+            elif extension in pil_write_only_formats_cache or extension in pil_indentify_only_formats_cache:
                 print(f"File: {path} is an recognized image format but is not supported :( (yet)")
                 try:
                     image = PIL.Image.open(path)
