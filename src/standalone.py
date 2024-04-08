@@ -395,7 +395,7 @@ if __name__ == '__main__':
     # Go through all files in input directory, scale them and save them in output directory
     # if in input folder there are some directories all path will be saved in output directory
     # processes = []
-    processes = queue.Queue()
+    processes = deque()
     processes_count = 0
     for root, dirs, files in os.walk("../input"):
         for file in files:
@@ -430,15 +430,12 @@ if __name__ == '__main__':
                     p = Process(target=algorithm_loop, args=(algorithms, image, root, file, scales, config))
                     p.start()
                     # processes.append(p)
-                    processes.put(p)
+                    processes.append(p)
                     processes_count += 1
                     if processes_count >= config['max_processes'][0]:
                         for i in range(processes_count):
-                            processes.get().join()
+                            processes.popleft().join()
                         processes_count = 0
-                        # for process in processes:
-                        #     process.join()
-                        # processes.clear()
                 else:
                     algorithm_loop(algorithms, image, root, file, scales, config)
 
@@ -455,7 +452,7 @@ if __name__ == '__main__':
             else:
                 print(f"File: {path} is not supported, unrecognized file extension '{extension}'")
 
-    for i in range(processes_count):
-        processes.get().join()
-    # for process in processes:
-    #     process.join()
+    for i in range(processes_count):  # TODO: Check which is faster, this or the while loop
+        processes.popleft().join()
+    # while processes:  # TODO: Check which is faster, this or the for loop
+    #     processes.popleft().join()
