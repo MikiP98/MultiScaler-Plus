@@ -306,6 +306,7 @@ pil_animated_formats_cache = {
     extension: image_format for image_format, extensions in pil_animated_formats for extension in extensions
 }
 
+
 def pngify(image: PIL.Image) -> Union[PIL.Image, list[PIL.Image]]:
     if image.format.upper() in pil_animated_formats_cache:
         # Extract all frames from the animated image as a list of images
@@ -386,26 +387,6 @@ if __name__ == '__main__':
                     os.remove(os.path.join(root, file))
                 for directory in dirs:
                     shutil.rmtree(os.path.join(root, directory))
-
-    # pil_fully_supported_formats = {"BLP", "BMP", "DDS", "DIB", "EPS", "GIF", "ICNS", "ICO", "IM",
-    #                                "JFI", "JFIF", "JIF", "JPE", "JPEG", "JPG",
-    #                                "J2K", "JP2", "JPX",
-    #                                "MSP", "PCX", "PFM", "PNG", "APNG", "PPM", "SGI",
-    #                                "SPIDER", "SPI",
-    #                                "TGA", "TIFF", "WEBP", "XBM"}
-    #
-    # pil_read_only_formats = {"CUR", "DCX", "FITS",
-    #                          "FLI", "FLC",
-    #                          "FPX", "FTEX", "GBR", "GD", "IMT",
-    #                          "IPTC", "NAA",
-    #                          "MCIDAS", "MIC", "MPO", "PCD", "PIXAR", "PSD", "QOI", "SUN", "WAL",
-    #                          "WMF", "EMF",
-    #                          "XPM"}
-    #
-    # pil_write_only_formats = {"PALM", "PDF",
-    #                           "XVTHUMB", "XVTHUMBNAILS"}
-    #
-    # pil_indentify_only_formats = {"BUFR", "GRIB", "HDF5", "MPEG"}
 
     # Go through all files in input directory, scale them and save them in output directory
     # if in input folder there are some directories all path will be saved in output directory
