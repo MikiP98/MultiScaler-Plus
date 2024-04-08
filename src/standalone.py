@@ -400,7 +400,7 @@ if __name__ == '__main__':
     for root, dirs, files in os.walk("../input"):
         for file in files:
             path = os.path.join(root, file)
-            extension = file.split('.')[-1].upper()
+            extension = file.split('.')[-1].lower()
 
             if extension == "ZIP" or extension == "7Z":
                 print(f"Processing: {path}")
