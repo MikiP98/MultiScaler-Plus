@@ -74,10 +74,14 @@ def process_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str,
 def save_images_chunk(args):
     algorithm, images_chunk, root, file, scales_chunk, config = args
     for image, scale in zip(images_chunk, scales_chunk):
-        save_image(algorithm, image, root, file, scale, config)
+        if len(image) == 1:
+            save_image(algorithm, image[0], root, file, scales.pop(), config)
+        else:
+            # Compose an APNG image
+            raise NotImplementedError("Animated (and stacked) output is not yet supported")
 
 
-def scale_loop(algorithm: Algorithms, image, root: str, file: str, scales: set[float], config):
+def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], root: str, file: str, scales: set[float], config):
     config_plus = {
         'input_image_relative_path': file,
         'sharpness': 0.5
@@ -104,7 +108,7 @@ def scale_loop(algorithm: Algorithms, image, root: str, file: str, scales: set[f
 
     # print(f"Scaling image: {config_plus['input_image_relative_path']}")
     # print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
-    images = scaler.scale_image_batch(algorithm, image, scales, config_plus=config_plus)
+    images = scaler.scale_image_batch(algorithm, images, scales, config_plus=config_plus)
     # print(f"Images: {images.qsize()}")
     # if images.qsize() == 0:
     if len(images) == 0:
@@ -139,9 +143,12 @@ def scale_loop(algorithm: Algorithms, image, root: str, file: str, scales: set[f
     else:
         # while not images.empty():
         while images:
-            # image = images.get()
             image = images.pop()
-            save_image(algorithm, image, root, file, scales.pop(), config)
+            if len(image) == 1:
+                save_image(algorithm, image[0], root, file, scales.pop(), config)
+            else:
+                # Compose an APNG image
+                raise NotImplementedError("Animated (and stacked) output is not yet supported")
 
 
 def algorithm_loop(algorithms: set[Algorithms], image, root: str, file: str, scales: set[float], config):
@@ -303,7 +310,7 @@ pil_animated_formats = {
 # AV1
 # MNG: {.mng} MNG supports both multiple images and animations
 pil_animated_formats_cache = {
-    extension: image_format for image_format, extensions in pil_animated_formats for extension in extensions
+    extension for extensions in pil_animated_formats for extension in extensions
 }
 
 
@@ -318,12 +325,10 @@ def pngify(image: PIL.Image) -> Union[PIL.Image, list[PIL.Image]]:
     # check if is RGBA or RGB
     elif not (image.mode == "RGB" or image.mode == "RGBA"):
         image = image.convert("RGBA")
-        if utils.uses_transparency(image):
-            return image
-        else:
-            return image.convert("RGB")
+        if not utils.uses_transparency(image):
+            image = image.convert("RGB")
 
-    return image
+    return [image]  # Return an 'image' with single 'frame'
 
 
 if __name__ == '__main__':
@@ -393,13 +398,15 @@ if __name__ == '__main__':
     # processes = []
     processes = deque()
     processes_count = 0
+
+    images = []
+
     for root, dirs, files in os.walk("../input"):
         for file in files:
             path = os.path.join(root, file)
             extension = file.split('.')[-1].lower()
 
             if extension == "ZIP" or extension == "7Z":
-                print(f"Processing: {path}")
                 with zipfile.ZipFile(path, 'r') as zip_ref:
                     # Get a list of all files and directories inside the zip file
                     zip_contents = zip_ref.namelist()
@@ -418,30 +425,17 @@ if __name__ == '__main__':
                 raise NotImplementedError("Zip and 7z files are not supported yet")
 
             elif extension in pil_fully_supported_formats_cache or extension in pil_read_only_formats_cache:
-                print(f"Processing: {path}")
                 image = PIL.Image.open(path)
                 image = pngify(image)
-
-                if 1 in config['multiprocessing_levels']:
-                    # TODO: Implement multiprocessing as in level 3
-                    p = Process(target=algorithm_loop, args=(algorithms, image, root, file, scales, config))
-                    p.start()
-                    # processes.append(p)
-                    processes.append(p)
-                    processes_count += 1
-                    if processes_count >= config['max_processes'][0]:
-                        for i in range(processes_count):
-                            processes.popleft().join()
-                        processes_count = 0
-                else:
-                    algorithm_loop(algorithms, image, root, file, scales, config)
+                images.append((image, root, file))
 
             elif extension == "MCMETA":
                 if config['mcmeta_correction']:
-                    print(f"Processing: {path}")
                     raise NotImplementedError("mcmeta files are not supported yet")
                 else:
                     print(f"MCMeta file: {path} will be ignored, animated texture will be corrupted!")
+
+                continue
 
             elif extension in pil_write_only_formats_cache or extension in pil_indentify_only_formats_cache:
                 print(f"File: {path} is an recognized image format but is not supported :( (yet)")
@@ -449,8 +443,28 @@ if __name__ == '__main__':
                     image = PIL.Image.open(path)  # Open the image to display Pillow's error message
                 finally:
                     pass
+
+                continue
             else:
                 print(f"File: {path} is not supported, unrecognized file extension '{extension}'")
+                continue
+
+            print(f"Loading: {path}")
+
+    for image, root, file in images:
+        if 1 in config['multiprocessing_levels']:
+            # TODO: Implement multiprocessing as in level 3
+            p = Process(target=algorithm_loop, args=(algorithms, [image], root, file, scales, config))
+            p.start()
+            # processes.append(p)
+            processes.append(p)
+            processes_count += 1
+            if processes_count >= config['max_processes'][0]:
+                for i in range(processes_count):
+                    processes.popleft().join()
+                processes_count = 0
+        else:
+            algorithm_loop(algorithms, [image], root, file, scales, config)
 
     for i in range(processes_count):  # TODO: Check which is faster, this or the while loop
         processes.popleft().join()

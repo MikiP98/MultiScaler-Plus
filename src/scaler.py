@@ -68,8 +68,8 @@ def csatca(algorithm: Algorithms):
         raise AttributeError(f"Algorithm not supported by OpenCV: {utils.algorithm_to_string(algorithm)},  id: {algorithm}")
 
 
-def scale_image(algorithm, cv2_image, factor, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> PIL.Image:
-    return scale_image_batch(algorithm, cv2_image, [factor], fallback_algorithm=fallback_algorithm, config_plus=config_plus, main_checked=main_checked).pop()
+def scale_image(algorithm, image, factor, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> PIL.Image:
+    return scale_image_batch(algorithm, image, [factor], fallback_algorithm=fallback_algorithm, config_plus=config_plus, main_checked=main_checked).pop()
 
 
 # ud - upscale/downscale
@@ -79,67 +79,84 @@ pil_algorithms_ud = {Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.PIL_BILINEAR, A
 cv2_ai = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
 
 
-def scale_image_batch(algorithm, image, factors, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> list[PIL.Image]:
+def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], factors, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> list[list[PIL.Image]]:
     scaled_images = []
     # scaled_images = queue.Queue()
 
-    width, height = image.size
+    # width, height = image.size
 
     # ------------------------------------------------------------------------------------------------------------
     # ---------------------------------------- Start of OpenCV algorithms ----------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     if algorithm == Algorithms.CV2_INTER_AREA:
         algorithm = csatca(algorithm)
-        cv2_image = utils.pil_to_cv2(image)
 
-        for factor in factors:
-            if factor > 1:
-                # raise ValueError("INTER_AREA does not support upscaling!")
-                print(f"ERROR: INTER_AREA does not support upscaling! Factor: {factor}; File names will be incorrect!")
-                continue
-            output_width, output_height = round(width * factor), round(height * factor)
-            scaled_images.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
-            # scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=cv2.INTER_AREA)))
+        for image in images:
+            for factor in factors:
+                if factor > 1:
+                    # raise ValueError("INTER_AREA does not support upscaling!")
+                    print(f"ERROR: INTER_AREA does not support upscaling! Factor: {factor}; File names will be incorrect!")
+                    continue
+
+                scaled_image = []
+                for frame in image:
+                    cv2_image = utils.pil_to_cv2(frame)
+                    width, height = frame.size
+
+                    output_width, output_height = round(width * factor), round(height * factor)
+
+                    scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
+                scaled_images.append(scaled_image)
 
         return scaled_images
 
     if algorithm in cv2_algorithms_ud:
         algorithm = csatca(algorithm)
-        cv2_image = utils.pil_to_cv2(image)
 
-        for factor in factors:
-            output_width, output_height = round(width * factor), round(height * factor)
-            scaled_images.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
-            # scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
+        for image in images:
+            for factor in factors:
+                scaled_image = []
+                for frame in image:
+                    cv2_image = utils.pil_to_cv2(frame)
+                    width, height = frame.size
+
+                    output_width, output_height = round(width * factor), round(height * factor)
+
+                    scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
+                    # scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
+                scaled_images.append(scaled_image)
 
         return scaled_images
 
     if algorithm in cv2_ai:
-        cv2_image = utils.pil_to_cv2(image.convert('RGB'))
         sr = cv2.dnn_superres.DnnSuperResImpl_create()
 
         name = algorithm.name[4:]
         path_prefix = f"./weights/{name}/{name}"
         allowed_factors = {2, 3, 4, 8}
 
-        for factor in factors:
-            if factor not in allowed_factors:
-                # raise ValueError("INTER_AREA does not support upscaling!")
-                print(f"ERROR: CV2 AI does not support factor: {factor}!; File names will be incorrect!\nAllowed factors: {allowed_factors}")
-                continue
+        for image in images:
+            for factor in factors:
+                if factor not in allowed_factors:
+                    # raise ValueError("INTER_AREA does not support upscaling!")
+                    print(f"ERROR: CV2 AI does not support factor: {factor}!; File names will be incorrect!\nAllowed factors: {allowed_factors}")
+                    continue
 
-            path = f"{path_prefix}_x{factor}.pb"
-            # print(f"Path: {path}")
+                path = f"{path_prefix}_x{factor}.pb"
+                # print(f"Path: {path}")
 
-            sr.readModel(path)
-            sr.setModel(name.lower(), factor)
+                sr.readModel(path)
+                sr.setModel(name.lower(), factor)
 
-            result = sr.upsample(cv2_image)
-            scaled_images.append(utils.cv2_to_pil(cv2.resize(result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
-            # scaled_images.put(utils.cv2_to_pil(cv2.resize(result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
+                scaled_image = []
+                for frame in image:
+                    cv2_image = utils.pil_to_cv2(frame.convert('RGB'))
+                    width, height = frame.size
 
-            # output_width, output_height = round(width * factor), round(height * factor)
-            # scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
+                    result = sr.upsample(cv2_image)
+
+                    scaled_image.append(utils.cv2_to_pil(cv2.resize(result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
+                scaled_images.append(scaled_image)
 
         return scaled_images
     # ----------------------------------------------------------------------------------------------------------
@@ -150,10 +167,15 @@ def scale_image_batch(algorithm, image, factors, *, fallback_algorithm=Algorithm
     if algorithm in pil_algorithms_ud:
         algorithm = csatpa(algorithm)
 
-        for factor in factors:
-            output_width, output_height = round(width * factor), round(height * factor)
-            scaled_images.append(image.resize((output_width, output_height), algorithm))
-            # scaled_images.put(image.resize((output_width, output_height), algorithm))
+        for image in images:
+            for factor in factors:
+                scaled_image = []
+                for frame in image:
+                    width, height = frame.size
+                    output_width, output_height = round(width * factor), round(height * factor)
+
+                    scaled_image.append(frame.resize((output_width, output_height), algorithm))
+                scaled_images.append(scaled_image)
         return scaled_images
     # -------------------------------------------------------------------------------------------------------
     # ---------------------------------------- End of PIL algorithms ----------------------------------------
@@ -161,32 +183,36 @@ def scale_image_batch(algorithm, image, factors, *, fallback_algorithm=Algorithm
 
     match algorithm:
         case Algorithms.xBRZ:  # TODO: Use RGB mode if the image is not RGBA
-            starting_image = image.convert('RGBA')
+            for image in images:
+                for factor in factors:
+                    if factor < 1:
+                        print(f"ERROR: xBRZ does not support downscaling! Factor: {factor}")
+                        continue
+                        # raise ValueError("xBRZ does not support downscaling!")
+                    # If factor is not a whole number or is greater than 6, print a warning
+                    if factor != int(factor) or factor > 6:
+                        print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
 
-            for factor in factors:
-                image = starting_image
-                output_width, output_height = round(width * factor), round(height * factor)
+                    scaled_image = []
+                    for frame in image:
+                        width, height = frame.size
 
-                if factor < 1:
-                    print(f"ERROR: xBRZ does not support downscaling! Factor: {factor}")
-                    continue
-                    # raise ValueError("xBRZ does not support downscaling!")
-                # If factor is not a whole number or is greater than 6, print a warning
-                if factor != int(factor) or factor > 6:
-                    print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
+                        frame = frame.convert('RGBA')
+                        output_width, output_height = round(width * factor), round(height * factor)
 
-                current_scale = 1
-                while current_scale < factor:
-                    temp_factor = 6
-                    while current_scale * temp_factor >= factor:
-                        temp_factor -= 1
-                    temp_factor = min(temp_factor + 1, 6)
+                        current_scale = 1
+                        while current_scale < factor:
+                            temp_factor = 6
+                            while current_scale * temp_factor >= factor:
+                                temp_factor -= 1
+                            temp_factor = min(temp_factor + 1, 6)
 
-                    image = xbrz.scale_pillow(image, temp_factor)
-                    current_scale *= temp_factor
+                            frame = xbrz.scale_pillow(frame, temp_factor)
+                            current_scale *= temp_factor
 
-                scaled_images.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
-                # scaled_images.put(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                        scaled_image.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(frame), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                    scaled_images.append(scaled_image)
+
             # # Convert image to RGBA format
             # if cv2_image.shape[2] == 3:
             #     # print("Converting from BGR to RGBA format...")
@@ -302,32 +328,35 @@ def scale_image_batch(algorithm, image, factors, *, fallback_algorithm=Algorithm
             #     scaled_images.put(cv2.resize(cv2_image_scaled, (output_width, output_height), interpolation=csatca(fallback_algorithm)))
 
         case Algorithms.RealESRGAN:
-            starting_image = image.convert('RGB')
+            for image in images:
+                for factor in factors:
+                    scaled_image = []
+                    for frame in image:
+                        width, height = frame.size
+                        output_width, output_height = round(width * factor), round(height * factor)
+                        frame = frame.convert('RGB')
 
-            for factor in factors:
-                image = starting_image
-                output_width, output_height = round(width * factor), round(height * factor)
+                        if factor < 1:
+                            raise ValueError("xBRZ does not support downscaling!")
+                        # If factor is not a whole number or is greater than 6, print a warning
+                        if factor not in (1, 2, 4, 8):
+                            print(f"WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!")
 
-                if factor < 1:
-                    raise ValueError("xBRZ does not support downscaling!")
-                # If factor is not a whole number or is greater than 6, print a warning
-                if factor not in (1, 2, 4, 8):
-                    print(f"WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!")
+                        current_scale = 1
+                        while current_scale < factor:
+                            temp_factor = 8
+                            while current_scale * temp_factor >= factor:
+                                temp_factor //= 2
+                            temp_factor = min(temp_factor * 2, 8)
 
-                current_scale = 1
-                while current_scale < factor:
-                    temp_factor = 8
-                    while current_scale * temp_factor >= factor:
-                        temp_factor //= 2
-                    temp_factor = min(temp_factor * 2, 8)
+                            model = RealESRGAN(device, scale=temp_factor)
+                            model.load_weights(f'weights/RealESRGAN_x{temp_factor}.pth')  # , download=True
+                            frame = model.predict(frame)
 
-                    model = RealESRGAN(device, scale=temp_factor)
-                    model.load_weights(f'weights/RealESRGAN_x{temp_factor}.pth')  # , download=True
-                    image = model.predict(image)
+                            current_scale *= temp_factor
 
-                    current_scale *= temp_factor
-
-                scaled_images.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                        scaled_image.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(frame), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                    scaled_images.append(scaled_image)
                 # scaled_images.put(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(image), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
 
         case Algorithms.SUPIR:
@@ -351,29 +380,46 @@ def scale_image_batch(algorithm, image, factors, *, fallback_algorithm=Algorithm
             if config_plus is None:
                 raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")
             else:
-                for factor in factors:
-                    if factor > 2:
-                        print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
+                for image in images:
+                    for factor in factors:
+                        if factor > 2:
+                            print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
 
-                    script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
-                    options = f"-Scale {factor}x {factor}x -Mode EASU"
-                    files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
-                    command = f"{script_path} {options} {files}"
-                    subprocess.run(command)
+                        print(f"WARNING: Might be currently broken!")
+                        script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
+                        options = f"-Scale {factor}x {factor}x -Mode EASU"
+                        files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
+                        command = f"{script_path} {options} {files}"
+                        subprocess.run(command)
+                        # for frame in image:
+                        #     script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
+                        #     options = f"-Scale {factor}x {factor}x -Mode EASU"
+                        #     files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
+                        #     command = f"{script_path} {options} {files}"
+                        #     subprocess.run(command)
 
         case Algorithms.CAS:
             if config_plus is None:
                 raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")
             else:
-                for factor in factors:
-                    if factor > 2:
-                        print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
+                for image in images:
+                    for factor in factors:
+                        if factor > 2:
+                            print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
 
-                    script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
-                    options = f"-Scale {factor}x {factor}x -Sharpness {config_plus['sharpness']} -Mode CAS"
-                    files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
-                    command = f"{script_path} {options} {files}"
-                    subprocess.run(command)
+                        print(f"WARNING: Might be currently broken!")
+
+                        script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
+                        options = f"-Scale {factor}x {factor}x -Sharpness {config_plus['sharpness']} -Mode CAS"
+                        files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
+                        command = f"{script_path} {options} {files}"
+                        subprocess.run(command)
+                        # for frame in image:
+                        #     script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
+                        #     options = f"-Scale {factor}x {factor}x -Sharpness {config_plus['sharpness']} -Mode CAS"
+                        #     files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
+                        #     command = f"{script_path} {options} {files}"
+                        #     subprocess.run(command)
 
         case _:
             if main_checked:
