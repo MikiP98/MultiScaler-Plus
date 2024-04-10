@@ -64,7 +64,7 @@ def main(content: UploadFile, algorithm: str = 'bicubic', factor: float = 2):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    scaled_image = scale_image_batch(scaling_algorithm, img, [factor]).get()
+    scaled_image = scale_image_batch(scaling_algorithm, [[img]], [factor]).pop().pop()
     if not scaled_image:
         scaled_image = Image.open("./web_temp_output/image.png")
 
