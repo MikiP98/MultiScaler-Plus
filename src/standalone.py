@@ -14,7 +14,6 @@ import zipfile
 
 from fractions import Fraction
 from functools import lru_cache
-from multiprocessing import Process
 from typing import Union
 from utils import Algorithms, pil_fully_supported_formats_cache, pil_read_only_formats_cache, pil_write_only_formats_cache, pil_indentify_only_formats_cache
 
@@ -72,8 +71,8 @@ def process_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str,
 
 
 def save_images_chunk(args):
-    algorithm, images_chunk, root, file, scales_chunk, config = args
-    for image, scale in zip(images_chunk, scales_chunk):
+    algorithm, images_chunk, roots_chunk, file_chunk, scales_chunk, config = args
+    for image, root, file, scales in zip(images_chunk, roots_chunk, file_chunk, scales_chunk):
         if len(image) == 1:
             save_image(algorithm, image[0], root, file, scales.pop(), config)
         else:
@@ -81,34 +80,15 @@ def save_images_chunk(args):
             raise NotImplementedError("Animated (and stacked) output is not yet supported")
 
 
-def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], root: str, file: str, scales: set[float], config):
-    config_plus = {
-        'input_image_relative_path': file,
-        'sharpness': 0.5
-    }
-
-    # if 4 in config['multiprocessing_levels']:  # This path is ONLY recommended for HUGE image sizes
-    #     processes = queue.Queue()
-    #     processes_count = 0
-    #
-    #     for scale in scales:
-    #         p = Process(target=process_image, args=(algorithm, image, root, file, scale, config, config_plus))
-    #         p.start()
-    #         # processes.append(p)
-    #         processes.put(p)
-    #         processes_count += 1
-    #         if processes_count >= config['max_processes'][2]:
-    #             for _ in range(processes_count):
-    #                 processes.get().join()
-    #             processes_count = 0
-    #
-    #     for _ in range(processes_count):
-    #         processes.get().join()
-    # else:
+def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list[str], files: list[str], scales: set[float], config):
+    # config_plus = {
+    #     'input_image_relative_path': file,
+    #     'sharpness': 0.5
+    # }
 
     # print(f"Scaling image: {config_plus['input_image_relative_path']}")
     # print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
-    images = scaler.scale_image_batch(algorithm, images, scales, config_plus=config_plus)
+    images = scaler.scale_image_batch(algorithm, images, scales)  # , config_plus=config_plus
     # print(f"Images: {images.qsize()}")
     # if images.qsize() == 0:
     if len(images) == 0:
@@ -127,10 +107,13 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], root: str, 
         args_list = []
         # while not images.empty():
         while images:
-            # images_chunk = [images.get() for _ in range(chunk_size)]
+            image_scales = scales.copy()
+
             images_chunk = [images.pop() for _ in range(chunk_size)]
-            scales_chunk = [scales.pop() for _ in range(chunk_size)]
-            args_list.append((algorithm, images_chunk, root, file, scales_chunk, config))
+            roots_chunk = [roots.pop() for _ in range(chunk_size)]
+            files_chunk = [files.pop() for _ in range(chunk_size)]
+            scales_chunk = [image_scales.pop() for _ in range(chunk_size)]
+            args_list.append((algorithm, images_chunk, roots_chunk, files_chunk, scales_chunk, config))
 
         # Map the process_images_chunk function to the list of argument chunks using the pool of worker processes
         pool.map(save_images_chunk, args_list)
@@ -141,32 +124,35 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], root: str, 
         pool.join()
 
     else:
-        # while not images.empty():
         while images:
+            image_scales = scales.copy()
             image = images.pop()
+            root = roots.pop()
+            file = files.pop()
             if len(image) == 1:
-                save_image(algorithm, image[0], root, file, scales.pop(), config)
+                save_image(algorithm, image[0], root, file, image_scales.pop(), config)
             else:
                 # Compose an APNG image
                 raise NotImplementedError("Animated (and stacked) output is not yet supported")
 
 
-def algorithm_loop(algorithms: set[Algorithms], image, root: str, file: str, scales: set[float], config):
+def algorithm_loop(algorithms: set[Algorithms], images: list[list[PIL.Image]], roots: list[str], files: list[str], scales: set[float], config):
     # processes = []
     processes = deque()
     processes_count = 0
     for algorithm in algorithms:
-        if 2 in config['multiprocessing_levels']:
-            p = Process(target=scale_loop, args=(algorithm, image, root, file, scales, config))
-            p.start()
-            processes.append(p)
-            processes_count += 1
-            if processes_count >= config['max_processes'][1]:
-                for _ in range(processes_count):
-                    processes.popleft().join()
-                processes_count = 0
-        else:
-            scale_loop(algorithm, image, root, file, scales.copy(), config)
+        # if 2 in config['multiprocessing_levels']:  # TODO: Implement multiprocessing in this level
+        #     p = Process(target=scale_loop, args=(algorithm, image, root, file, scales, config))
+        #     p.start()
+        #     processes.append(p)
+        #     processes_count += 1
+        #     if processes_count >= config['max_processes'][1]:
+        #         for _ in range(processes_count):
+        #             processes.popleft().join()
+        #         processes_count = 0
+        # else:
+        #     scale_loop(algorithm, images, roots, files, scales.copy(), config)
+        scale_loop(algorithm, images, roots, files, scales, config)
 
     for _ in range(processes_count):
         processes.popleft().join()
@@ -350,8 +336,8 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
         'lossless_compression': True,
-        'multiprocessing_levels': {},
-        'max_processes': (4, 4, 2),
+        'multiprocessing_levels': {3},
+        'max_processes': (2, 4, 4),
         'mcmeta_correction': True
     }
     if safe_mode:
@@ -375,11 +361,11 @@ if __name__ == '__main__':
         # algorithms = {Algorithms.CV2_INTER_NEAREST}
         # algorithms = {Algorithms.xBRZ}
         # algorithms = {Algorithms.CPP_DEBUG}
-        algorithms = {Algorithms.RealESRGAN}
+        algorithms = [Algorithms.RealESRGAN]
         # algorithms = {Algorithms.SUPIR}
         # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
         # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
-        scales = {4}
+        scales = [4]
     else:
         algorithms, scales = handle_user_input()
     print(f"Received algorithms: {algorithms}")
@@ -397,11 +383,17 @@ if __name__ == '__main__':
     # if in input folder there are some directories all path will be saved in output directory
     # processes = []
     processes = deque()
-    processes_count = 0
 
     images = []
+    roots = []
+    files = []
 
     for root, dirs, files in os.walk("../input"):
+        files_number = len(files)
+        print(f"Checking {files_number} files in input directory")
+
+        backup_iterator = 0  # Save guard to prevent infinite loop, IDK why byt needed :/
+
         for file in files:
             path = os.path.join(root, file)
             extension = file.split('.')[-1].lower()
@@ -427,7 +419,9 @@ if __name__ == '__main__':
             elif extension in pil_fully_supported_formats_cache or extension in pil_read_only_formats_cache:
                 image = PIL.Image.open(path)
                 image = pngify(image)
-                images.append((image, root, file))
+                images.append(image)
+                roots.append(root)
+                files.append(file)
 
             elif extension == "MCMETA":
                 if config['mcmeta_correction']:
@@ -451,22 +445,20 @@ if __name__ == '__main__':
 
             print(f"Loading: {path}")
 
-    for image, root, file in images:
-        if 1 in config['multiprocessing_levels']:
-            # TODO: Implement multiprocessing as in level 3
-            p = Process(target=algorithm_loop, args=(algorithms, [image], root, file, scales, config))
-            p.start()
-            # processes.append(p)
-            processes.append(p)
-            processes_count += 1
-            if processes_count >= config['max_processes'][0]:
-                for i in range(processes_count):
-                    processes.popleft().join()
-                processes_count = 0
-        else:
-            algorithm_loop(algorithms, [image], root, file, scales, config)
+            backup_iterator += 1
+            if backup_iterator >= files_number:
+                print("Backup iterator reached the end of the files list, BREAKING LOOP!")
+                break
 
-    for i in range(processes_count):  # TODO: Check which is faster, this or the while loop
+    if 1 in config['multiprocessing_levels']:
+        # TODO: Implement multiprocessing in this level
+        # p = Process(target=algorithm_loop, args=(algorithms, [image], root, file, scales, config))
+        # p.start()
+        # # processes.append(p)
+        # processes.append(p)
+        algorithm_loop(algorithms, images, roots, files, scales, config)
+    else:
+        algorithm_loop(algorithms, images, roots, files, scales, config)
+
+    while processes:
         processes.popleft().join()
-    # while processes:  # TODO: Check which is faster, this or the for loop
-    #     processes.popleft().join()
