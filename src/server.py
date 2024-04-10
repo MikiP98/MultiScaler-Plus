@@ -25,25 +25,6 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.post("/endpoint")
-def process_data(file: UploadFile = File(...), algorithms: List[str] = [], scales: List[float] = []):
-    # Handle file
-    file_contents = file.read()
-
-    # Convert JSON strings back to Python lists
-    algorithms = json.loads(algorithms)
-    scales = json.loads(scales)
-
-    # Do something with the data
-    # For example:
-    print("Received file:", file.filename)
-    print("Selected algorithms:", algorithms)
-    print("Selected scales:", scales)
-
-    # Return some response
-    return {"message": "Data received successfully"}
-
-
 @app.post(
     "/scale",
     responses={
