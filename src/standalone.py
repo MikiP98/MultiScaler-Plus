@@ -23,6 +23,7 @@ PIL.GifImagePlugin.LOADING_STRATEGY = PIL.GifImagePlugin.LoadingStrategy.RGB_ALW
 
 
 def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config):
+    # print(f"Saving algorithm: {algorithm} {algorithm.name}, root: {root}, file: {file}, scale: {scale}")
     path = os.path.join(root, file)
 
     if image is None:
@@ -32,6 +33,7 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
     new_file_name = file
     if config['add_algorithm_name_to_output_files_names']:
         new_file_name = f"{algorithm.name}_{new_file_name}"
+
     if config['add_factor_to_output_files_names']:
         # Check if the scale is a float, if it is, convert it to a fraction
         if scale != int(scale):
@@ -87,18 +89,18 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
     # }
 
     print("Starting scaling process")
+    # TODO: Implement multiprocessing for this and bring back the config_plus!!!
     # print(f"Scaling image: {config_plus['input_image_relative_path']}")
     # print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
     images = scaler.scale_image_batch(algorithm, images, scales)  # , config_plus=config_plus
     print("Scaling done")
-    # print(f"Images: {images.qsize()}")
-    # if images.qsize() == 0:
-    if len(images) == 0:
+
+    if len(images) < len(scales):
         # print("Image:")
         # print(image)
         # print(f"Scales: {scales}")
         # raise ValueError("Images queue is empty")
-        print("WARN: Image deck is empty! Error might have occurred!")
+        print("WARN: Image deck is shorten then expected! Error might have occurred!")
 
     print("Starting saving process")
     if 3 in config['multiprocessing_levels']:
@@ -129,15 +131,10 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
     else:
         while images:
             image_scales = scales.copy()
-            # image_roots = roots.copy()
-            # image_files = files.copy()
+
             image = images.pop()
-            # root = image_roots.pop()
-            # file = image_files.pop()
-            root = roots.pop()
-            file = files.pop()
             if len(image) == 1:
-                save_image(algorithm, image[0], root, file, image_scales.pop(), config)
+                save_image(algorithm, image[0], roots.pop(), files.pop(), image_scales.pop(), config)
             else:
                 # Compose an APNG image
                 raise NotImplementedError("Animated (and stacked) output is not yet supported")
@@ -159,7 +156,7 @@ def algorithm_loop(algorithms: set[Algorithms], images: list[list[PIL.Image]], r
         #         processes_count = 0
         # else:
         #     scale_loop(algorithm, images, roots, files, scales.copy(), config)
-        scale_loop(algorithm, images, roots, files, scales, config)
+        scale_loop(algorithm, images, roots.copy(), files.copy(), scales, config)
 
     for _ in range(processes_count):
         processes.popleft().join()
@@ -342,7 +339,7 @@ if __name__ == '__main__':
         'add_algorithm_name_to_output_files_names': True,
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
-        'lossless_compression': False,
+        'lossless_compression': True,
         'multiprocessing_levels': {},
         'max_processes': (2, 4, 4),
         'mcmeta_correction': True
@@ -364,15 +361,15 @@ if __name__ == '__main__':
     if args.test:
         # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}
         # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
-        # algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST}
+        algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST}
         # algorithms = {Algorithms.CV2_INTER_NEAREST}
-        algorithms = {Algorithms.xBRZ}
+        # algorithms = {Algorithms.xBRZ}
         # algorithms = {Algorithms.CPP_DEBUG}
         # algorithms = [Algorithms.RealESRGAN]
         # algorithms = {Algorithms.SUPIR}
         # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
         # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
-        scales = [4]
+        scales = [2]
     else:
         algorithms, scales = handle_user_input()
     print(f"Received algorithms: {algorithms}")
@@ -402,6 +399,10 @@ if __name__ == '__main__':
         backup_iterator = 0  # Save guard to prevent infinite loop, IDK why byt needed :/
 
         for file in files:
+            if backup_iterator >= files_number:
+                print("\nBackup iterator reached the end of the files list, BREAKING LOOP!\nTHIS SHOULD HAVE NOT HAPPENED!!!\n")
+                break
+
             path = os.path.join(root, file)
             extension = file.split('.')[-1].lower()
 
@@ -453,9 +454,6 @@ if __name__ == '__main__':
             print(f"Loading: {path}")
 
             backup_iterator += 1
-            if backup_iterator >= files_number:
-                print("Backup iterator reached the end of the files list, BREAKING LOOP!")
-                break
 
     if 1 in config['multiprocessing_levels']:
         # TODO: Implement multiprocessing in this level
