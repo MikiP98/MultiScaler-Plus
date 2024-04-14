@@ -323,6 +323,14 @@ def uses_transparency(img) -> bool:
     return False
 
 
+def avg(iterable):
+    return sum(iterable) / len(iterable)
+
+
+def geo_avg(iterable):
+    return (np.prod(iterable)) ** (1 / len(iterable))
+
+
 if __name__ == "__main__":
     # Example
     # float_value = 266123.5

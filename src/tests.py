@@ -5,6 +5,7 @@ import numpy as np
 import os
 import queue
 import scaler
+import standalone
 # import sys
 import time
 import timeit
@@ -248,9 +249,9 @@ def cv2_vs_pil_test(n=100, k=10):
         print(f"Iteration {i + 1}/{k}")
         for algorithm in cv2_algorithms:
             # print(f"Og algorithm: {utils.algorithm_to_string(algorithm)}")
-            cv2_time += timeit.timeit(lambda: scaler.scale_image_batch(algorithm, image, factors), number=n // k)
+            cv2_time += timeit.timeit(lambda: scaler.scale_image_batch(algorithm, [[image]], factors), number=n // k)
         for algorithm in pil_algorithms:
-            pil_time += timeit.timeit(lambda: scaler.scale_image_batch(algorithm, image, factors), number=n // k)
+            pil_time += timeit.timeit(lambda: scaler.scale_image_batch(algorithm, [[image]], factors), number=n // k)
     print()
 
     cv2_time = round(cv2_time / k, 4)
@@ -817,6 +818,63 @@ def endswith_tuple_vs_split_in_set(n=100_000, k=10):
     # ------------------------------------------------------------------------------------------------------------------
 
 
+def single_process_3():
+    config = {
+        'clear_output_directory': True,
+        'add_algorithm_name_to_output_files_names': True,
+        'add_factor_to_output_files_names': True,
+        'sort_by_algorithm': False,
+        'lossless_compression': True,
+        'multiprocessing_levels': {},
+        'max_processes': (32, 32, 32),
+        'mcmeta_correction': True
+    }
+
+    algorithms = [Algorithms.CV2_INTER_NEAREST]
+    scales = [4, 8, 16, 24, 32, 64]
+
+    standalone.run(algorithms, scales, config)
+
+
+def multi_processed_3():
+    config = {
+        'clear_output_directory': True,
+        'add_algorithm_name_to_output_files_names': True,
+        'add_factor_to_output_files_names': True,
+        'sort_by_algorithm': False,
+        'lossless_compression': True,
+        'multiprocessing_levels': {3},
+        'max_processes': (32, 32, 32),
+        'mcmeta_correction': True
+    }
+
+    algorithms = [Algorithms.CV2_INTER_NEAREST]
+    scales = [8, 16, 24, 32]
+
+    standalone.run(algorithms, scales, config)
+
+
+def single_vs_multi_3(n=4, k=2):
+    single_time = 0
+    multi_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        single_time += timeit.timeit(lambda: single_process_3(), number=n // k)
+        multi_time += timeit.timeit(lambda: multi_processed_3(), number=n // k)
+    print()
+
+    single_time = round(single_time / k, 4)
+    multi_time = round(multi_time / k, 4)
+
+    print(f"Single time: {single_time}")
+    print(f"Multi time: {multi_time}")
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "single_vs_multi_3" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
 def docstring_tests():
     print(scaler.csatpa.__doc__)
 
@@ -843,6 +901,8 @@ if __name__ == "__main__":
     # list_vs_tuple_generation()
     # columnify_test()  # Broken
     # cached_tuple_vs_list_test()
-    endswith_tuple_vs_split_in_set()
+    # endswith_tuple_vs_split_in_set()
+    single_vs_multi_3()
+
     # docstring_tests()
     ...

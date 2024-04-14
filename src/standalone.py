@@ -22,7 +22,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 200000000
 PIL.GifImagePlugin.LOADING_STRATEGY = PIL.GifImagePlugin.LoadingStrategy.RGB_ALWAYS
 
 
-def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config):
+def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config) -> None:
     # print(f"Saving algorithm: {algorithm} {algorithm.name}, root: {root}, file: {file}, scale: {scale}")
     path = os.path.join(root, file)
 
@@ -67,12 +67,7 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
     print(f"{output_path} Saved!")
 
 
-# def process_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config, config_plus=None):
-#     image = scaler.scale_image(algorithm, image, [scale], config_plus=config_plus)
-#     save_image(algorithm, image, root, file, scale, config)
-
-
-def save_images_chunk(args):
+def save_images_chunk(args) -> None:
     algorithm, images_chunk, roots_chunk, file_chunk, scales_chunk, config = args
     for image, root, file, scales in zip(images_chunk, roots_chunk, file_chunk, scales_chunk):
         if len(image) == 1:
@@ -82,7 +77,7 @@ def save_images_chunk(args):
             raise NotImplementedError("Animated (and stacked) output is not yet supported")
 
 
-def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list[str], files: list[str], scales: set[float], config):
+def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list[str], files: list[str], scales: list[float], config):
     # config_plus = {
     #     'input_image_relative_path': file,
     #     'sharpness': 0.5
@@ -103,29 +98,61 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
         print("WARN: Image deck is shorten then expected! Error might have occurred!")
 
     print("Starting saving process")
+    processes = 0
     if 3 in config['multiprocessing_levels']:
-        performance_divider = (2 if config['lossless_compression'] else 3)
-        processes = min(config['max_processes'][2], max(round(len(images) / performance_divider), 1))
-        # print(f"Using {processes} processes for saving")
+        performance_processes = utils.geo_avg(scales) / 16
+        if not config['lossless_compression']:
+            performance_processes /= 16
+
+        processes = min(config['max_processes'][2], max(round(min(len(images), performance_processes)), 1))
+
+    if processes > 1:
+        print(f"Using {processes} processes for saving")
         pool = multiprocessing.Pool(processes=processes)
 
-        chunk_size = len(scales) // processes  # Divide images equally among processes
-        args_list = []
-        # while not images.empty():
+        chunk_size = max(len(images) // processes, 1)  # Divide images equally among processes
+        chunks = []
+
+        active_root = None  # TODO: Consider adding an additional list layer to scaled_images with images for each scale
+        active_file = None
+        iterator = 0
+        scales_len = len(scales)
+        image_scales = None  # For warning suppression only
+        print("Starting data preparation...")
         while images:
-            image_scales = scales.copy()
+            if len(images) < chunk_size:
+                chunk_size = len(images)
+
+            roots_chunk = []
+            files_chunk = []
+            scales_chunk = []
+
+            end = chunk_size + iterator
+            for i in range(iterator, end):
+                if i % scales_len == 0:
+                    active_root = roots.pop()
+                    active_file = files.pop()
+                    image_scales = scales.copy()
+
+                roots_chunk.append(active_root)
+                files_chunk.append(active_file)
+                scales_chunk.append(image_scales.copy())
+            iterator += chunk_size
 
             images_chunk = [images.pop() for _ in range(chunk_size)]
-            roots_chunk = [roots.pop() for _ in range(chunk_size)]
-            files_chunk = [files.pop() for _ in range(chunk_size)]
-            scales_chunk = [image_scales.pop() for _ in range(chunk_size)]
-            args_list.append((algorithm, images_chunk, roots_chunk, files_chunk, scales_chunk, config))
+            # scales_chunk = [image_scales.copy() for _ in range(chunk_size)]
+
+            # roots_chunk = [roots.pop() for _ in range(chunk_size)]
+            # files_chunk = [files.pop() for _ in range(chunk_size)]
+
+            chunks.append((algorithm, images_chunk, roots_chunk, files_chunk, scales_chunk, config))
 
         # Map the process_images_chunk function to the list of argument chunks using the pool of worker processes
-        pool.map(save_images_chunk, args_list)
+        pool.map(save_images_chunk, chunks)
 
         # Close the pool
         pool.close()
+
         # Wait for all worker processes to finish
         pool.join()
 
@@ -134,12 +161,12 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
         active_file = None
         iterator = 0
         scales_len = len(scales)
+        image_scales = None  # For warning suppression only
         while images:
-            image_scales = scales.copy()
-
             if iterator % scales_len == 0:
                 active_root = roots.pop()
                 active_file = files.pop()
+                image_scales = scales.copy()
 
             image = images.pop()
             if len(image) == 1:
@@ -151,12 +178,15 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
             iterator += 1
 
 
-def algorithm_loop(algorithms: set[Algorithms], images: list[list[PIL.Image]], roots: list[str], files: list[str], scales: set[float], config):
+def algorithm_loop(algorithms: list[Algorithms],
+                   images: list[list[PIL.Image]],
+                   roots: list[str], files: list[str],
+                   scales: list[float], config) -> None:
     # processes = []
     processes = deque()
     processes_count = 0
     for algorithm in algorithms:
-        # if 2 in config['multiprocessing_levels']:  # TODO: Implement multiprocessing in this level
+        # if 2 in config['multiprocessing_levels']:  # TODO: Implement multiprocessing in this level (like on level 3)
         #     p = Process(target=scale_loop, args=(algorithm, image, root, file, scales, config))
         #     p.start()
         #     processes.append(p)
@@ -332,60 +362,7 @@ def pngify(image: PIL.Image) -> Union[PIL.Image, list[PIL.Image]]:
     return [image]  # Return an 'image' with single 'frame'
 
 
-if __name__ == '__main__':
-    # Create input and output directory if they don't exist
-    if not os.path.exists("../input"):
-        os.makedirs("../input")
-
-    safe_mode = False
-
-    # multiprocessing_level:
-    # empty - auto select the best level of multiprocessing for the current prompt, TODO: implement
-    # 0 - no multiprocessing,
-    # 1 - process per image,
-    # 2 - process per algorithm,
-    # 3 - process per scale
-    config = {
-        'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
-        'sort_by_algorithm': False,
-        'lossless_compression': True,
-        'multiprocessing_levels': {},
-        'max_processes': (2, 4, 4),
-        'mcmeta_correction': True
-    }
-    if safe_mode:
-        config = fix_config(config)
-
-    parser = argparse.ArgumentParser(
-        prog='ImageScaler',
-        description='A simple image scaler',
-        epilog='Enjoy the program! :)'
-    )
-
-    # parser.add_argument('filename')  # positional argument
-    # parser.add_argument('-c', '--count')  # option that takes a value
-    parser.add_argument('-t', '--test', action='store_true')  # on/off flag
-    args = parser.parse_args()
-
-    if args.test:
-        # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}
-        # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
-        algorithms = [Algorithms.CV2_INTER_NEAREST]
-        # algorithms = {Algorithms.CV2_INTER_NEAREST}
-        # algorithms = {Algorithms.xBRZ}
-        # algorithms = {Algorithms.CPP_DEBUG}
-        # algorithms = [Algorithms.RealESRGAN]
-        # algorithms = {Algorithms.SUPIR}
-        # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
-        # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
-        scales = [2, 4]
-    else:
-        algorithms, scales = handle_user_input()
-    print(f"Received algorithms: {algorithms}")
-    print(f"Received scales: {scales}")
-
+def run(algorithms: list[Algorithms], scales: list[float], config: dict):
     if os.path.exists("../output"):
         if config['clear_output_directory']:
             for root, dirs, files in os.walk("../output"):
@@ -393,16 +370,13 @@ if __name__ == '__main__':
                     os.remove(os.path.join(root, file))
                 for directory in dirs:
                     shutil.rmtree(os.path.join(root, directory))
-
     # Go through all files in input directory, scale them and save them in output directory
     # if in input folder there are some directories all path will be saved in output directory
     # processes = []
     processes = deque()
-
     images = []
     roots = []
     files = []
-
     for root, dirs, files in os.walk("../input"):
         files_number = len(files)
         print(f"Checking {files_number} files in input directory")
@@ -411,7 +385,8 @@ if __name__ == '__main__':
 
         for file in files:
             if backup_iterator >= files_number:
-                print("\nBackup iterator reached the end of the files list, BREAKING LOOP!\nTHIS SHOULD HAVE NOT HAPPENED!!!\n")
+                print(
+                    "\nBackup iterator reached the end of the files list, BREAKING LOOP!\nTHIS SHOULD HAVE NOT HAPPENED!!!\n")
                 break
 
             path = os.path.join(root, file)
@@ -465,7 +440,6 @@ if __name__ == '__main__':
             print(f"Loading: {path}")
 
             backup_iterator += 1
-
     if 1 in config['multiprocessing_levels']:
         # TODO: Implement multiprocessing in this level
         # p = Process(target=algorithm_loop, args=(algorithms, [image], root, file, scales, config))
@@ -475,6 +449,63 @@ if __name__ == '__main__':
         algorithm_loop(algorithms, images, roots, files, scales, config)
     else:
         algorithm_loop(algorithms, images, roots, files, scales, config)
-
     while processes:
         processes.popleft().join()
+
+
+if __name__ == '__main__':
+    # Create input and output directory if they don't exist
+    if not os.path.exists("../input"):
+        os.makedirs("../input")
+
+    safe_mode = False
+
+    # multiprocessing_level:
+    # empty - auto select the best level of multiprocessing for the current prompt, TODO: implement
+    # 0 - no multiprocessing,
+    # 1 - process per image,
+    # 2 - process per algorithm,
+    # 3 - process per scale
+    config = {
+        'clear_output_directory': True,
+        'add_algorithm_name_to_output_files_names': True,
+        'add_factor_to_output_files_names': True,
+        'sort_by_algorithm': False,
+        'lossless_compression': True,
+        'multiprocessing_levels': {3},
+        'max_processes': (2, 4, 4),
+        'mcmeta_correction': True
+    }
+    if safe_mode:
+        config = fix_config(config)
+
+    parser = argparse.ArgumentParser(
+        prog='ImageScaler',
+        description='A simple image scaler',
+        epilog='Enjoy the program! :)'
+    )
+
+    # parser.add_argument('filename')  # positional argument
+    # parser.add_argument('-c', '--count')  # option that takes a value
+    parser.add_argument('-t', '--test', action='store_true')  # on/off flag
+    args = parser.parse_args()
+
+    if args.test:
+        # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}
+        # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
+        algorithms = [Algorithms.CV2_INTER_NEAREST]
+        # algorithms = {Algorithms.CV2_INTER_NEAREST}
+        # algorithms = {Algorithms.xBRZ}
+        # algorithms = {Algorithms.CPP_DEBUG}
+        # algorithms = [Algorithms.RealESRGAN]
+        # algorithms = {Algorithms.SUPIR}
+        # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
+        # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
+        scales = [1, 2, 3, 4]
+    else:
+        algorithms, scales = handle_user_input()
+    print(f"Received algorithms: {algorithms}")
+    print(f"Received scales: {scales}")
+    print(f"Using config: {config}")
+
+    run(algorithms, scales, config)

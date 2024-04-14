@@ -359,8 +359,6 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
                     scaled_images.append(scaled_image)
 
         case Algorithms.SUPIR:
-            raise NotImplementedError("Not implemented yet")
-
             script_path = './SUPIR/test.py'
 
             # Command 1
@@ -372,10 +370,11 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
 
             # Execute commands
             # subprocess.run(command1, shell=True)
-            subprocess.run(command1)
+            # subprocess.run(command1)
             # subprocess.run(command2, shell=True)
 
             # subprocess.run(['python', script_path])
+            raise NotImplementedError("Not implemented yet")
 
         case Algorithms.FSR:
             if config_plus is None:
@@ -426,38 +425,36 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
             if main_checked:
                 raise NotImplementedError("Not implemented yet")
             else:
-                for factor in factors:
-                    for frame in images:
-                        image = frame[0]
-                        width, height = image.size
+                for image in images:
+                    for factor in factors:
+                        for frame in image:
+                            width, height = frame.size
 
-                        raise NotImplementedError("Not implemented yet")
-                        image = utils.pil_to_cv2(image)
+                            frame = utils.pil_to_cv2(frame.convert('RGBA'))
 
-                        # Convert image to RGBA format
-                        cv2_image_rgba = cv2.cvtColor(image, cv2.COLOR_BGR2RGBA)
-                        # Convert 'cv2_image_rgba' numpy array to python list
-                        python_array_image = cv2_image_rgba.tolist()
+                            # Convert image to RGBA format
+                            cv2_image_rgba = cv2.cvtColor(frame, cv2.COLOR_BGRA2RGBA)
+                            # Convert 'cv2_image_rgba' numpy array to python list
+                            python_array_image = cv2_image_rgba.tolist()
 
-                        python_array_image = scale_image_data(algorithm, python_array_image, factor, fallback_algorithm=fallback_algorithm, main_checked=True)
+                            python_array_image = scale_image_data(algorithm, python_array_image, factor, fallback_algorithm=fallback_algorithm, main_checked=True)
 
-                        # Convert python list to 'cv2_image_rgba' numpy array
-                        cv2_image_rgba = np.array(python_array_image, dtype=np.uint8)
-                        # Convert 'cv2_image_rgba' numpy array to 'cv2_image' numpy array
-                        cv2_image = cv2.cvtColor(cv2_image_rgba, cv2.COLOR_RGBA2BGR)
+                            # Convert python list to 'cv2_image_rgba' numpy array
+                            cv2_image_rgba = np.array(python_array_image, dtype=np.uint8)
+                            # Convert 'cv2_image_rgba' numpy array to 'cv2_image' numpy array
+                            cv2_image = cv2.cvtColor(cv2_image_rgba, cv2.COLOR_RGBA2BGRA)
 
-                        scaled_images.append(utils.cv2_to_pil(cv2.resize(cv2_image, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
-                        # scaled_images.put(cv2.resize(cv2_image, (width * factor, height * factor), interpolation=csatca(fallback_algorithm)))
+                            scaled_images.append(utils.cv2_to_pil(cv2.resize(cv2_image, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
 
-                        # raise NotImplementedError("Not implemented yet")
+                            # raise NotImplementedError("Not implemented yet")
 
-                        # width, height = pil_image.size
-                        # # pixels = [[[int]]]
-                        # pixels = [[[0, 0, 0, 0] for _ in range(width)] for _ in range(height)]
-                        # for y in range(height):
-                        #     for x in range(width):
-                        #         pixels[y][x] = pil_image.getpixel((x, y))
-                        # return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
+                            # width, height = pil_image.size
+                            # # pixels = [[[int]]]
+                            # pixels = [[[0, 0, 0, 0] for _ in range(width)] for _ in range(height)]
+                            # for y in range(height):
+                            #     for x in range(width):
+                            #         pixels[y][x] = pil_image.getpixel((x, y))
+                            # return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
 
     return scaled_images
 
