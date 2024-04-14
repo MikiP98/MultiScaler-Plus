@@ -67,9 +67,9 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
     print(f"{output_path} Saved!")
 
 
-def process_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config, config_plus=None):
-    image = scaler.scale_image(algorithm, image, [scale], config_plus=config_plus)
-    save_image(algorithm, image, root, file, scale, config)
+# def process_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config, config_plus=None):
+#     image = scaler.scale_image(algorithm, image, [scale], config_plus=config_plus)
+#     save_image(algorithm, image, root, file, scale, config)
 
 
 def save_images_chunk(args):
@@ -104,8 +104,9 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
 
     print("Starting saving process")
     if 3 in config['multiprocessing_levels']:
-        # print(f"Max processes: {config['max_processes'][2]}; len(Scales) // 2: {len(scales) // 2}: {len(scales)}")
-        processes = min(config['max_processes'][2], max(round(len(scales) / 2), 1))
+        performance_divider = (2 if config['lossless_compression'] else 3)
+        processes = min(config['max_processes'][2], max(round(len(images) / performance_divider), 1))
+        # print(f"Using {processes} processes for saving")
         pool = multiprocessing.Pool(processes=processes)
 
         chunk_size = len(scales) // processes  # Divide images equally among processes
@@ -129,15 +130,25 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
         pool.join()
 
     else:
+        active_root = None  # TODO: Consider adding an additional list layer to scaled_images with images for each scale
+        active_file = None
+        iterator = 0
+        scales_len = len(scales)
         while images:
             image_scales = scales.copy()
 
+            if iterator % scales_len == 0:
+                active_root = roots.pop()
+                active_file = files.pop()
+
             image = images.pop()
             if len(image) == 1:
-                save_image(algorithm, image[0], roots.pop(), files.pop(), image_scales.pop(), config)
+                save_image(algorithm, image[0], active_root, active_file, image_scales.pop(), config)
             else:
                 # Compose an APNG image
                 raise NotImplementedError("Animated (and stacked) output is not yet supported")
+
+            iterator += 1
 
 
 def algorithm_loop(algorithms: set[Algorithms], images: list[list[PIL.Image]], roots: list[str], files: list[str], scales: set[float], config):
@@ -361,7 +372,7 @@ if __name__ == '__main__':
     if args.test:
         # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}
         # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
-        algorithms = {Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST}
+        algorithms = [Algorithms.CV2_INTER_NEAREST]
         # algorithms = {Algorithms.CV2_INTER_NEAREST}
         # algorithms = {Algorithms.xBRZ}
         # algorithms = {Algorithms.CPP_DEBUG}
@@ -369,7 +380,7 @@ if __name__ == '__main__':
         # algorithms = {Algorithms.SUPIR}
         # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
         # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
-        scales = [2]
+        scales = [2, 4]
     else:
         algorithms, scales = handle_user_input()
     print(f"Received algorithms: {algorithms}")
