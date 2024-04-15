@@ -6,6 +6,7 @@ import multiprocessing
 import os
 import PIL.Image
 import PIL.GifImagePlugin
+import psutil
 import scaler
 import sys
 import shutil
@@ -235,26 +236,34 @@ def fix_config(config) -> dict:
         print("New multiprocessing_levels: {}")
 
     # Fix 'max_processes'
-    if config['max_processes'] is None:
-        config['max_processes'] = (16384, 16384, 16384)
+    try:
+        max_processes = min(os.cpu_count(), round(psutil.virtual_memory() / 1024 ** 3))
+        print(f"Max processes: {max_processes}")
+    except Exception as e:
+        print(f"Error during max_processes calculation, using default 16384: {e}")
+        max_processes = 16384
 
+    if config['max_processes'] is None:
+        config['max_processes'] = (max_processes, max_processes, max_processes)
         print(f"New max_processes: {config['max_processes']}")
 
     else:
+
+
         if len(config['max_processes']) < 3:
             if len(config['max_processes']) == 0:
-                config['max_processes'] = (16384, 16384, 16384)
+                config['max_processes'] = (max_processes, max_processes, max_processes)
             if len(config['max_processes']) == 1:
-                config['max_processes'] = (config['max_processes'][0], 16384, 16384)
+                config['max_processes'] = (config['max_processes'][0], max_processes, max_processes)
             elif len(config['max_processes']) == 2:
-                config['max_processes'] = (config['max_processes'][0], config['max_processes'][1], 16384)
+                config['max_processes'] = (config['max_processes'][0], config['max_processes'][1], max_processes)
 
         if config['max_processes'][0] is None:
-            config['max_processes'] = (16384, config['max_processes'][1], config['max_processes'][2])
+            config['max_processes'] = (max_processes, config['max_processes'][1], config['max_processes'][2])
         if config['max_processes'][1] is None:
-            config['max_processes'] = (config['max_processes'][0], 16384, config['max_processes'][2])
+            config['max_processes'] = (config['max_processes'][0], max_processes, config['max_processes'][2])
         if config['max_processes'][2] is None:
-            config['max_processes'] = (config['max_processes'][0], config['max_processes'][1], 16384)
+            config['max_processes'] = (config['max_processes'][0], config['max_processes'][1], max_processes)
 
         print(f"New max_processes: {config['max_processes']}")
 

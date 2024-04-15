@@ -931,6 +931,62 @@ def single_vs_multi_2(n=4, k=2):
     # ------------------------------------------------------------------------------------------------------------------
 
 
+def single_process_2_3():
+    config = {
+        'clear_output_directory': True,
+        'add_algorithm_name_to_output_files_names': True,
+        'add_factor_to_output_files_names': True,
+        'sort_by_algorithm': False,
+        'lossless_compression': True,
+        'multiprocessing_levels': {},
+        'max_processes': (32, 32, 32),
+        'mcmeta_correction': True
+    }
+
+    algorithms = [Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC]
+    scales = [2, 4, 32, 64]
+
+    standalone.run(algorithms, scales, config)
+
+
+def multi_processed_2_3():
+    config = {
+        'clear_output_directory': True,
+        'add_algorithm_name_to_output_files_names': True,
+        'add_factor_to_output_files_names': True,
+        'sort_by_algorithm': False,
+        'lossless_compression': True,
+        'multiprocessing_levels': {2, 3},
+        'max_processes': (32, 32, 32),
+        'mcmeta_correction': True
+    }
+
+    algorithms = [Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC]
+    scales = [2, 4, 32, 64]
+
+    standalone.run(algorithms, scales, config)
+
+
+def single_vs_multi_2_3(n=2, k=2):
+    single_time = 0
+    multi_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        single_time += timeit.timeit(lambda: single_process_2_3(), number=n // k)
+        multi_time += timeit.timeit(lambda: multi_processed_2_3(), number=n // k)
+    print()
+
+    single_time = round(single_time / k, 4)
+    multi_time = round(multi_time / k, 4)
+
+    print(f"Single time: {single_time}")
+    print(f"Multi time: {multi_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "single_vs_multi_2_3" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
 def docstring_tests():
     print(scaler.csatpa.__doc__)
 
@@ -959,7 +1015,8 @@ if __name__ == "__main__":
     # cached_tuple_vs_list_test()
     # endswith_tuple_vs_split_in_set()
     # single_vs_multi_3()
-    single_vs_multi_2()
+    # single_vs_multi_2()
+    single_vs_multi_2_3()
 
     # docstring_tests()
     ...
