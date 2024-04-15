@@ -91,15 +91,13 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
     print("Scaling done")
 
     if len(images) < len(scales):
-        # print("Image:")
-        # print(image)
-        # print(f"Scales: {scales}")
         # raise ValueError("Images queue is empty")
         print("WARN: Image deck is shorten then expected! Error might have occurred!")
 
     print("Starting saving process")
     processes = 0
     if 3 in config['multiprocessing_levels']:
+        # TODO: Create better algorithm, consider images sizes and frame count
         performance_processes = utils.geo_avg(scales) / 16
         if not config['lossless_compression']:
             performance_processes /= 16
@@ -178,31 +176,52 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
             iterator += 1
 
 
+def scale_loop_chunk(args) -> None:
+    algorithms_chunk, images_chunk, roots_chunk, files_chunk, scales, config = args
+    for algorithm, images, roots, files in zip(algorithms_chunk, images_chunk, roots_chunk, files_chunk):
+        scale_loop(algorithm, images, roots.copy(), files.copy(), scales, config)
+
+
 def algorithm_loop(algorithms: list[Algorithms],
                    images: list[list[PIL.Image]],
                    roots: list[str], files: list[str],
                    scales: list[float], config) -> None:
-    # processes = []
-    processes = deque()
-    processes_count = 0
-    for algorithm in algorithms:
-        # if 2 in config['multiprocessing_levels']:  # TODO: Implement multiprocessing in this level (like on level 3)
-        #     p = Process(target=scale_loop, args=(algorithm, image, root, file, scales, config))
-        #     p.start()
-        #     processes.append(p)
-        #     processes_count += 1
-        #     if processes_count >= config['max_processes'][1]:
-        #         for _ in range(processes_count):
-        #             processes.popleft().join()
-        #         processes_count = 0
-        # else:
-        #     scale_loop(algorithm, images, roots, files, scales.copy(), config)
-        scale_loop(algorithm, images, roots.copy(), files.copy(), scales, config)
+    processes = 0
+    if 2 in config['multiprocessing_levels']:  # TODO: Complete this implementation
+        # TODO: Create better algorithm
+        performance_processes = utils.geo_avg(scales) / 8 * len(algorithms)
+        if not config['lossless_compression']:
+            performance_processes /= 4
 
-    for _ in range(processes_count):
-        processes.popleft().join()
-    # for process in processes:
-    #     process.join()
+        processes = min(config['max_processes'][2], max(round(min(len(algorithms), performance_processes)), 1))
+        # processes = max(min(config['max_processes'][1], len(algorithms)), 1)
+
+    if processes > 1:
+        print(f"Using {processes} processes for 'scales loop'")
+        pool = multiprocessing.Pool(processes=processes)
+
+        chunk_size = max(len(images) // processes, 1)
+        chunks = []
+
+        iterator = 0
+        while algorithms:
+            if len(algorithms) < chunk_size:
+                chunk_size = len(algorithms)
+
+            algorithms_chunk = [algorithms.pop() for _ in range(chunk_size)]
+            images_chunk = [images for _ in range(chunk_size)]
+            roots_chunk = [roots for _ in range(chunk_size)]
+            files_chunk = [files for _ in range(chunk_size)]
+
+            chunks.append((algorithms_chunk, images_chunk, roots_chunk, files_chunk, scales, config))
+
+        pool.map(scale_loop_chunk, chunks)
+        pool.close()
+        pool.join()
+
+    else:
+        for algorithm in algorithms:
+            scale_loop(algorithm, images, roots.copy(), files.copy(), scales, config)
 
 
 def fix_config(config) -> dict:
@@ -428,7 +447,7 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict):
             elif extension in pil_write_only_formats_cache or extension in pil_indentify_only_formats_cache:
                 print(f"File: {path} is an recognized image format but is not supported :( (yet)")
                 try:
-                    image = PIL.Image.open(path)  # Open the image to display Pillow's error message
+                    PIL.Image.open(path)  # Open the image to display Pillow's error message
                 finally:
                     pass
 
@@ -472,7 +491,7 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
         'lossless_compression': True,
-        'multiprocessing_levels': {3},
+        'multiprocessing_levels': {2},
         'max_processes': (2, 4, 4),
         'mcmeta_correction': True
     }
@@ -493,7 +512,7 @@ if __name__ == '__main__':
     if args.test:
         # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}
         # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
-        algorithms = [Algorithms.CV2_INTER_NEAREST]
+        algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4]
         # algorithms = {Algorithms.CV2_INTER_NEAREST}
         # algorithms = {Algorithms.xBRZ}
         # algorithms = {Algorithms.CPP_DEBUG}
@@ -501,7 +520,7 @@ if __name__ == '__main__':
         # algorithms = {Algorithms.SUPIR}
         # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
         # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
-        scales = [1, 2, 3, 4]
+        scales = [1, 2]
     else:
         algorithms, scales = handle_user_input()
     print(f"Received algorithms: {algorithms}")
