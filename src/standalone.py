@@ -224,11 +224,17 @@ def algorithm_loop(algorithms: list[Algorithms],
             scale_loop(algorithm, images, roots.copy(), files.copy(), scales, config)
 
 
+def algorithm_loop_chunk(args) -> None:
+    raise NotImplementedError("This function is not implemented yet")
+
+
 def fix_config(config) -> dict:
+    # Fix 'multiprocessing_levels'
     if config['multiprocessing_levels'] is None:
         config['multiprocessing_levels'] = {}
         print("New multiprocessing_levels: {}")
 
+    # Fix 'max_processes'
     if config['max_processes'] is None:
         config['max_processes'] = (16384, 16384, 16384)
 
@@ -251,6 +257,53 @@ def fix_config(config) -> dict:
             config['max_processes'] = (config['max_processes'][0], config['max_processes'][1], 16384)
 
         print(f"New max_processes: {config['max_processes']}")
+
+    # Fix 'clear_output_directory'
+    if config['clear_output_directory'] is None:
+        config['clear_output_directory'] = True
+    elif type(config['clear_output_directory']) is not bool:
+        config['clear_output_directory'] = True
+
+    # Fix 'add_algorithm_name_to_output_files_names'
+    if config['add_algorithm_name_to_output_files_names'] is None:
+        config['add_algorithm_name_to_output_files_names'] = True
+    elif type(config['add_algorithm_name_to_output_files_names']) is not bool:
+        config['add_algorithm_name_to_output_files_names'] = True
+
+    # Fix 'add_factor_to_output_files_names'
+    if config['add_factor_to_output_files_names'] is None:
+        config['add_factor_to_output_files_names'] = True
+    elif type(config['add_factor_to_output_files_names']) is not bool:
+        config['add_factor_to_output_files_names'] = True
+
+    # Fix 'sort_by_algorithm'
+    if config['sort_by_algorithm'] is None:
+        config['sort_by_algorithm'] = False
+    elif type(config['sort_by_algorithm']) is not bool:
+        config['sort_by_algorithm'] = False
+
+    # Fix 'lossless_compression'
+    if config['lossless_compression'] is None:
+        config['lossless_compression'] = True
+    elif type(config['lossless_compression']) is not bool:
+        config['lossless_compression'] = True
+
+    # Fix 'mcmeta_correction'
+    if config['mcmeta_correction'] is None:
+        config['mcmeta_correction'] = True
+    elif type(config['mcmeta_correction']) is not bool:
+        config['mcmeta_correction'] = True
+
+    # config = {
+    #     'clear_output_directory': True,
+    #     'add_algorithm_name_to_output_files_names': True,
+    #     'add_factor_to_output_files_names': True,
+    #     'sort_by_algorithm': False,
+    #     'lossless_compression': True,
+    #     'multiprocessing_levels': {2},
+    #     'max_processes': (2, 4, 4),
+    #     'mcmeta_correction': True
+    # }
 
     return config
 
