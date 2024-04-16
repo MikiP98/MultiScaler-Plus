@@ -460,7 +460,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
 
 
 # Main function for C++ lib
-def scale_image_data(algorithm, pixels: [[[int]]], factor, *, fallback_algorithm=Algorithms.PIL_BICUBIC, main_checked=False):
+def scale_image_data(algorithm, pixels: [[[int]]], factor, *, fallback_algorithm=Algorithms.PIL_BICUBIC, main_checked=False) -> PIL.Image:
     match algorithm:
         # case Algorithms.CPP_DEBUG:
         #     # new_pixels = scalercg.scale("cpp_debug", pixels, factor)

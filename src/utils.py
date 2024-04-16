@@ -1,4 +1,5 @@
 # coding=utf-8
+from typing import Union
 
 import cv2
 import io
@@ -273,10 +274,10 @@ def int32_to_float(int_value):
 
 def hdr_to_sdr(hdr_image):
     # Convert HDR image to 4x SDR image
-    pass
+    raise NotImplementedError("HDR to SDR conversion is not implemented yet!")
 
 
-def has_transparency(img) -> bool:
+def has_transparency(img: Union[PIL.Image, np.ndarray]) -> bool:
     if isinstance(img, np.ndarray):
         return img.shape[2] == 4
 
@@ -298,7 +299,7 @@ def has_transparency(img) -> bool:
     return False
 
 
-def uses_transparency(img) -> bool:
+def uses_transparency(img: Union[PIL.Image, np.ndarray]) -> bool:
     if isinstance(img, np.ndarray):
         # check if the image has an alpha channel
         if img.shape[2] == 4:
@@ -312,7 +313,8 @@ def uses_transparency(img) -> bool:
 
     if img.mode == "P":
         transparent = img.info.get("transparency", -1)
-        for _, index in img.getcolors():
+
+        for _, index in img.getcolors():  # TODO: Consider using ndarray
             if index == transparent:
                 return True
 
@@ -323,15 +325,25 @@ def uses_transparency(img) -> bool:
     return False
 
 
-def avg(iterable):
+def avg(iterable) -> float:
+    """
+    Calculate the average of an iterable
+    :param iterable:
+    :return:
+    """
     return sum(iterable) / len(iterable)
 
 
-def geo_avg(iterable):
+def geo_avg(iterable) -> float:
+    """
+    Calculate the geometric average of an iterable
+    :param iterable:
+    :return:
+    """
     return (np.prod(iterable)) ** (1 / len(iterable))
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # This is a test code
     # Example
     # float_value = 266123.5
     float_value = 3.4e+38
