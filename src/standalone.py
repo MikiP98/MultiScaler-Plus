@@ -422,7 +422,7 @@ pil_animated_formats_cache = {
 
 
 def pngify(image: PIL.Image) -> Union[PIL.Image, list[PIL.Image]]:
-    if image.format.upper() in pil_animated_formats_cache:
+    if image.format.lower() in pil_animated_formats_cache:
         # Extract all frames from the animated image as a list of images
         if image.is_animated:
             raise NotImplementedError("Animated images are not supported yet")
