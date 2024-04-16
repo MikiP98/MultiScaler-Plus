@@ -31,6 +31,7 @@ satpad = {
 # convert_scaler_algorithm_to_pillow_algorithm
 def csatpa(algorithm: Algorithms):
     """
+    ConvertScalerAlgorithmToPillowAlgorithm()\n
     Converts a scaler algorithm to a PIL algorithm using a dictionary (satpad)
     :param algorithm: The Scaler algorithm to convert
     :return: The corresponding PIL algorithm
@@ -56,6 +57,7 @@ satcad = {
 # convert_scaler_algorithm_to_cv2_algorithm
 def csatca(algorithm: Algorithms):
     """
+    ConvertScalerAlgorithmToCV2Algorithm()\n
     Converts a scaler algorithm to a OpenCV algorithm using a dictionary (satcad)
     :param algorithm: The Scaler algorithm to convert
     :return: The corresponding OpenCV algorithm

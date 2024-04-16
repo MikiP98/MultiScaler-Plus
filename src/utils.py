@@ -179,6 +179,11 @@ pil_indentify_only_formats_cache = {
 
 
 def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
+    """
+    Convert a Pillow image to OpenCV format
+    :param pil_image: PIL image object (PIL.Image)
+    :return: OpenCV format image (np.ndarray)
+    """
     if has_transparency(pil_image):
         pil_image = pil_image.convert('RGBA')
         color_format = cv2.COLOR_RGBA2BGRA
@@ -191,6 +196,11 @@ def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
 
 
 def cv2_to_pil(cv2_image: 'np.ndarray') -> PIL.Image:
+    """
+    Convert an OpenCV image to Pillow format
+    :param cv2_image: OpenCV format image (np.ndarray)
+    :return: PIL image object (PIL.Image)
+    """
     if cv2_image.shape[2] == 4:
         # print("Converting from BGRA to RGBA format...")
         # Convert OpenCV image to NumPy array
