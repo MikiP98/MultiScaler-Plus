@@ -1,6 +1,5 @@
 # coding=utf-8
 import argparse
-from collections import deque
 # import math
 import multiprocessing
 import os
@@ -15,7 +14,6 @@ import zipfile
 
 from fractions import Fraction
 from functools import lru_cache
-from typing import Union
 from utils import Algorithms, pil_fully_supported_formats_cache, pil_read_only_formats_cache, pil_write_only_formats_cache, pil_indentify_only_formats_cache
 
 
@@ -78,7 +76,7 @@ def save_images_chunk(args) -> None:
             raise NotImplementedError("Animated (and stacked) output is not yet supported")
 
 
-def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list[str], files: list[str], scales: list[float], config):
+def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list[str], files: list[str], scales: list[float], config) -> None:
     # config_plus = {
     #     'input_image_relative_path': file,
     #     'sharpness': 0.5
@@ -225,7 +223,7 @@ def algorithm_loop(algorithms: list[Algorithms],
             scale_loop(algorithm, images, roots.copy(), files.copy(), scales, config)
 
 
-def fix_config(config) -> dict:
+def fix_config(config: dict) -> dict:
     # Fix 'multiprocessing_levels'
     if config['multiprocessing_levels'] is None:
         config['multiprocessing_levels'] = {}
@@ -421,7 +419,7 @@ pil_animated_formats_cache = {
 }
 
 
-def pngify(image: PIL.Image) -> Union[PIL.Image, list[PIL.Image]]:
+def pngify(image: PIL.Image) -> list[PIL.Image]:
     if image.format.lower() in pil_animated_formats_cache:
         # Extract all frames from the animated image as a list of images
         if image.is_animated:
@@ -438,7 +436,7 @@ def pngify(image: PIL.Image) -> Union[PIL.Image, list[PIL.Image]]:
     return [image]  # Return an 'image' with single 'frame'
 
 
-def run(algorithms: list[Algorithms], scales: list[float], config: dict):
+def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None:
     if os.path.exists("../output"):
         if config['clear_output_directory']:
             for root, dirs, files in os.walk("../output"):
@@ -552,7 +550,17 @@ if __name__ == '__main__':
     # parser.add_argument('filename')  # positional argument
     # parser.add_argument('-c', '--count')  # option that takes a value
     parser.add_argument('-t', '--test', action='store_true')  # on/off flag
+    parser.add_argument('-opv', '--override-python-version', action='store_true')  # on/off flag
     args = parser.parse_args()
+
+    if sys.version_info[0] != 3 and sys.version_info[1] != 12 and not args.override_python_version:
+        message = """
+            Some functionality of this application is designed to run on Python 3.12!
+            Please upgrade your Python version to 3.12 or higher!
+            If you still want to your current python version use flag '--override-python-version' or '-opv' to bypass this check
+            (note that some functionality may not work properly and the application may crash!)
+        """
+        raise Exception("Some functionality of this application is designed to run on Python 3.12\nPlease upgrade your Python version to 3.12 or higher!\nIf you still want to your current python version use flag '--override-python-version' or '-opv' to bypass this check (note that some functionality may not work properly and the application may crash!)")
 
     if args.test:
         algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4]
