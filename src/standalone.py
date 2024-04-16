@@ -407,13 +407,12 @@ def handle_user_input() -> tuple[set[Algorithms], set[float]]:
     return algorithms, scales
 
 
-# pil_animated_formats = {"GIF", "APNG", "MNG", "FLI", "FLC", "ANI", "WEBP", "AVIF", "HEIF", "HEIC", "BPG", "JP2", "JXL"}
 pil_animated_formats = {
-    "BLP": {".blp2"},  # Only BLP2 supports multiple images and animations
-    "TIFF": {".tif", ".tiff", ".tiff2"},
-    "APNG": {".apng"},
-    "WebP": {".webp"},
-    "JPX": {".jpx"}  # Only JPEG 2000 Part 2 (JPX) supports multiple images and animations
+    "BLP": {"blp2"},  # Only BLP2 supports multiple images and animations
+    "TIFF": {"tif", "tiff", "tiff2"},
+    "APNG": {"apng"},
+    "WebP": {"webp"},
+    "JPX": {"jpx"}  # Only JPEG 2000 Part 2 (JPX) supports multiple images and animations
 }
 # AV1
 # MNG: {.mng} MNG supports both multiple images and animations
@@ -527,11 +526,9 @@ if __name__ == '__main__':
     safe_mode = False
 
     # multiprocessing_level:
-    # empty - auto select the best level of multiprocessing for the current prompt, TODO: implement
-    # 0 - no multiprocessing,
-    # 1 - process per image,
-    # 2 - process per algorithm,
-    # 3 - process per scale
+    # empty - no multiprocessing,
+    # 2 - to process different algorithms in parallel, (Note that this level also splits every subsequent workflow)
+    # 3 - to save multiple images in parallel
     config = {
         'clear_output_directory': True,
         'add_algorithm_name_to_output_files_names': True,
@@ -540,6 +537,7 @@ if __name__ == '__main__':
         'lossless_compression': True,
         'multiprocessing_levels': {2},
         'max_processes': (2, 4, 4),
+        'override_processes_number': False,  # If True, max_processes will set the Exact number of processes, instead of the Maximum number of processes
         'mcmeta_correction': True
     }
     if safe_mode:
@@ -557,16 +555,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.test:
-        # algorithms = {Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4}
-        # algorithms = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
         algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4]
-        # algorithms = {Algorithms.CV2_INTER_NEAREST}
-        # algorithms = {Algorithms.xBRZ}
-        # algorithms = {Algorithms.CPP_DEBUG}
         # algorithms = [Algorithms.RealESRGAN]
-        # algorithms = {Algorithms.SUPIR}
-        # scales = {2, 4, 8, 16, 32, 64, 1.5, 3, 6, 12, 24, 48, 1.25, 2.5, 5, 10, 20, 40, 1.75, 3.5, 7, 14, 28, 56, 1.125, 2.25, 4.5, 9, 18, 36, 72, 256}
-        # scales = {0.128, 0.333, 1, 2, 3, 4, 8}  # , 9, 16, 256
         scales = [1, 2]
     else:
         algorithms, scales = handle_user_input()
