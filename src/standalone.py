@@ -225,10 +225,6 @@ def algorithm_loop(algorithms: list[Algorithms],
             scale_loop(algorithm, images, roots.copy(), files.copy(), scales, config)
 
 
-def algorithm_loop_chunk(args) -> None:
-    raise NotImplementedError("This function is not implemented yet")
-
-
 def fix_config(config) -> dict:
     # Fix 'multiprocessing_levels'
     if config['multiprocessing_levels'] is None:
@@ -453,8 +449,6 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict):
                     shutil.rmtree(os.path.join(root, directory))
     # Go through all files in input directory, scale them and save them in output directory
     # if in input folder there are some directories all path will be saved in output directory
-    # processes = []
-    processes = deque()
     images = []
     roots = []
     files = []
@@ -466,8 +460,7 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict):
 
         for file in files:
             if backup_iterator >= files_number:
-                print(
-                    "\nBackup iterator reached the end of the files list, BREAKING LOOP!\nTHIS SHOULD HAVE NOT HAPPENED!!!\n")
+                print("\nBackup iterator reached the end of the files list, BREAKING LOOP!\nTHIS SHOULD HAVE NOT HAPPENED!!!\n")
                 break
 
             path = os.path.join(root, file)
@@ -500,7 +493,7 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict):
 
             elif extension == "MCMETA":
                 if config['mcmeta_correction']:
-                    raise NotImplementedError("mcmeta files are not supported yet")
+                    print(f"MCMeta files are not supported yet :(\nfile: {path} will be ignored, animated texture will be corrupted!")
                 else:
                     print(f"MCMeta file: {path} will be ignored, animated texture will be corrupted!")
 
@@ -521,17 +514,9 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict):
             print(f"Loading: {path}")
 
             backup_iterator += 1
-    if 1 in config['multiprocessing_levels']:
-        # TODO: Implement multiprocessing in this level
-        # p = Process(target=algorithm_loop, args=(algorithms, [image], root, file, scales, config))
-        # p.start()
-        # # processes.append(p)
-        # processes.append(p)
-        algorithm_loop(algorithms, images, roots, files, scales, config)
-    else:
-        algorithm_loop(algorithms, images, roots, files, scales, config)
-    while processes:
-        processes.popleft().join()
+
+    # After switching to list[list[image]] format, multiprocessing on this level became obsolete
+    algorithm_loop(algorithms, images, roots, files, scales, config)
 
 
 if __name__ == '__main__':
