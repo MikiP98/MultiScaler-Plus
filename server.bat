@@ -1,2 +1,2 @@
 @cd src
-uvicorn server:main --workers=8
+uvicorn server:app --workers=8
