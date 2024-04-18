@@ -22,7 +22,7 @@ from utils import string_to_algorithm_dict
 
 def warmup():
     num = 0
-    for i in range(10_000_000):
+    for i in range(20_000_000):
         num += i
     # -----------------------------------------------------------------------------------------------------------------
     # --------------------------------------------- END OF "warmup" ---------------------------------------------------
@@ -987,6 +987,392 @@ def single_vs_multi_2_3(n=2, k=2):
     # ------------------------------------------------------------------------------------------------------------------
 
 
+def list_alike_test(n=1_000_000, k=10):
+    elements = 100
+
+    generator_time = 0
+    list_time = 0
+    tuple_time = 0
+    set_time = 0
+    frozen_set_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        generator_time += timeit.timeit(lambda: (gen := i for i in range(elements)), number=n // k)
+        list_time += timeit.timeit(lambda: (iter := [i for i in range(elements)]), number=n // k)
+        tuple_time += timeit.timeit(lambda: (iter := tuple(i for i in range(elements))), number=n // k)
+        set_time += timeit.timeit(lambda: (iter := {i for i in range(elements)}), number=n // k)
+        frozen_set_time += timeit.timeit(lambda: (iter := frozenset(i for i in range(elements))), number=n // k)
+    print()
+
+    list_time = round(list_time / k, 4)
+    generator_time = round(generator_time / k, 4)
+    tuple_time = round(tuple_time / k, 4)
+    set_time = round(set_time / k, 4)
+    frozen_set_time = round(frozen_set_time / k, 4)
+
+    print(f"Generator time: {generator_time}")
+    print(f"List time: {list_time}")
+    print(f"Tuple time: {tuple_time}")
+    print(f"Set time: {set_time}")
+    print(f"Frozen set time: {frozen_set_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "list_alike_test" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def list_alike_test_2(n=3_000_000, k=10):
+    elements = 100
+
+    list_time = 0
+    tuple_time = 0
+    set_time = 0
+    frozen_set_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        list_time += timeit.timeit(lambda: (iter := list(range(elements))), number=n // k)
+        tuple_time += timeit.timeit(lambda: (iter := tuple(range(elements))), number=n // k)
+        set_time += timeit.timeit(lambda: (iter := set(range(elements))), number=n // k)
+        frozen_set_time += timeit.timeit(lambda: (iter := frozenset(range(elements))), number=n // k)
+    print()
+
+    list_time = round(list_time / k, 4)
+    tuple_time = round(tuple_time / k, 4)
+    set_time = round(set_time / k, 4)
+    frozen_set_time = round(frozen_set_time / k, 4)
+
+    print(f"List time: {list_time}")
+    print(f"Tuple time: {tuple_time}")
+    print(f"Set time: {set_time}")
+    print(f"Frozen set time: {frozen_set_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "list_alike_test_2" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def set_vs_frozenset_generation(n=10_000_000, k=20):
+    elements = 100
+
+    set_time = 0
+    frozen_set_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        set_time += timeit.timeit(lambda: (iter := set(range(elements))), number=n // k)
+        frozen_set_time += timeit.timeit(lambda: (iter := frozenset(range(elements))), number=n // k)
+    print()
+
+    set_time = round(set_time / k, 4)
+    frozen_set_time = round(frozen_set_time / k, 4)
+
+    print(f"Set time: {set_time}")
+    print(f"Frozen set time: {frozen_set_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "set_vs_frozenset" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def frozen_set_from_elements(n=4_000_000, k=10):
+    list_elements = list(range(100))
+    tuple_elements = tuple(range(100))
+    set_elements = set(range(100))
+
+    list_time = 0
+    tuple_time = 0
+    set_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        list_time += timeit.timeit(lambda: (frozen_set := frozenset(list_elements)), number=n // k)
+        tuple_time += timeit.timeit(lambda: (frozen_set := frozenset(tuple_elements)), number=n // k)
+        set_time += timeit.timeit(lambda: (frozen_set := frozenset(set_elements)), number=n // k)
+    print()
+
+    list_time = round(list_time / k, 4)
+    tuple_time = round(tuple_time / k, 4)
+    set_time = round(set_time / k, 4)
+
+    print(f"From list time: {list_time}")
+    print(f"From tuple time: {tuple_time}")
+    print(f"From set time: {set_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "frozen_set_from_elements" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def dict_with_list():
+    pil_fully_supported_formats = {
+        "BLP": ["blp", "blp2", "tex"],
+        "BMP": ["bmp", "rle"],
+        "DDS": ["dds", "dds2"],
+        "DIB": ["dib", "dib2"],
+        "EPS": ["eps", "eps2", "epsf", "epsi"],
+        "GIF": ["gif", "giff"],
+        "ICNS": ["icns", "icon"],
+        "ICO": ["ico", "cur"],
+        "IM": ["im", "im2"],
+        "JPEG": ["jpg", "jpeg", "jpe"],
+        "JPEG 2000": ["jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"],
+        "MSP": ["msp", "msp2"],
+        "PCX": ["pcx", "pcx2"],
+        "PFM": ["pfm", "pfm2"],
+        "PNG": ["png", "pns"],
+        "APNG": ["apng", "png2"],
+        "PPM": ["ppm", "ppm2"],
+        "SGI": ["sgi", "rgb", "bw"],
+        "SPIDER": ["spi", "spider2"],
+        "TGA": ["tga", "targa"],
+        "TIFF": ["tif", "tiff", "tiff2"],
+        "WebP": ["webp", "webp2"],
+        "XBM": ["xbm", "xbm2"]
+    }
+
+
+def dict_with_tuple():
+    pil_fully_supported_formats = {
+        "BLP": ("blp", "blp2", "tex"),
+        "BMP": ("bmp", "rle"),
+        "DDS": ("dds", "dds2"),
+        "DIB": ("dib", "dib2"),
+        "EPS": ("eps", "eps2", "epsf", "epsi"),
+        "GIF": ("gif", "giff"),
+        "ICNS": ("icns", "icon"),
+        "ICO": ("ico", "cur"),
+        "IM": ("im", "im2"),
+        "JPEG": ("jpg", "jpeg", "jpe"),
+        "JPEG 2000": ("jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"),
+        "MSP": ("msp", "msp2"),
+        "PCX": ("pcx", "pcx2"),
+        "PFM": ("pfm", "pfm2"),
+        "PNG": ("png", "pns"),
+        "APNG": ("apng", "png2"),
+        "PPM": ("ppm", "ppm2"),
+        "SGI": ("sgi", "rgb", "bw"),
+        "SPIDER": ("spi", "spider2"),
+        "TGA": ("tga", "targa"),
+        "TIFF": ("tif", "tiff", "tiff2"),
+        "WebP": ("webp", "webp2"),
+        "XBM": ("xbm", "xbm2")
+    }
+
+def dict_with_set():
+    pil_fully_supported_formats = {
+        "BLP": {"blp", "blp2", "tex"},
+        "BMP": {"bmp", "rle"},
+        "DDS": {"dds", "dds2"},
+        "DIB": {"dib", "dib2"},
+        "EPS": {"eps", "eps2", "epsf", "epsi"},
+        "GIF": {"gif", "giff"},
+        "ICNS": {"icns", "icon"},
+        "ICO": {"ico", "cur"},
+        "IM": {"im", "im2"},
+        "JPEG": {"jpg", "jpeg", "jpe"},
+        "JPEG 2000": {"jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"},
+        "MSP": {"msp", "msp2"},
+        "PCX": {"pcx", "pcx2"},
+        "PFM": {"pfm", "pfm2"},
+        "PNG": {"png", "pns"},
+        "APNG": {"apng", "png2"},
+        "PPM": {"ppm", "ppm2"},
+        "SGI": {"sgi", "rgb", "bw"},
+        "SPIDER": {"spi", "spider2"},
+        "TGA": {"tga", "targa"},
+        "TIFF": {"tif", "tiff", "tiff2"},
+        "WebP": {"webp", "webp2"},
+        "XBM": {"xbm", "xbm2"}
+    }
+
+
+def dict_with_frozenset():
+    pil_fully_supported_formats = {
+        "BLP": frozenset({"blp", "blp2", "tex"}),
+        "BMP": frozenset({"bmp", "rle"}),
+        "DDS": frozenset({"dds", "dds2"}),
+        "DIB": frozenset({"dib", "dib2"}),
+        "EPS": frozenset({"eps", "eps2", "epsf", "epsi"}),
+        "GIF": frozenset({"gif", "giff"}),
+        "ICNS": frozenset({"icns", "icon"}),
+        "ICO": frozenset({"ico", "cur"}),
+        "IM": frozenset({"im", "im2"}),
+        "JPEG": frozenset({"jpg", "jpeg", "jpe"}),
+        "JPEG 2000": frozenset({"jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"}),
+        "MSP": frozenset({"msp", "msp2"}),
+        "PCX": frozenset({"pcx", "pcx2"}),
+        "PFM": frozenset({"pfm", "pfm2"}),
+        "PNG": frozenset({"png", "pns"}),
+        "APNG": frozenset({"apng", "png2"}),
+        "PPM": frozenset({"ppm", "ppm2"}),
+        "SGI": frozenset({"sgi", "rgb", "bw"}),
+        "SPIDER": frozenset({"spi", "spider2"}),
+        "TGA": frozenset({"tga", "targa"}),
+        "TIFF": frozenset({"tif", "tiff", "tiff2"}),
+        "WebP": frozenset({"webp", "webp2"}),
+        "XBM": frozenset({"xbm", "xbm2"})
+    }
+
+
+def dict_with_list_vs_tuple_vs_set_vs_frozenset(n=2_000_000, k=10):
+    dict_with_list_time = 0
+    dict_with_tuple_time = 0
+    dict_with_set_time = 0
+    dict_with_frozenset_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        dict_with_list_time += timeit.timeit(lambda: dict_with_list(), number=n // k)
+        dict_with_tuple_time += timeit.timeit(lambda: dict_with_tuple(), number=n // k)
+        dict_with_set_time += timeit.timeit(lambda: dict_with_set(), number=n // k)
+        dict_with_frozenset_time += timeit.timeit(lambda: dict_with_frozenset(), number=n // k)
+    print()
+
+    dict_with_list_time = round(dict_with_list_time / k, 4)
+    dict_with_tuple_time = round(dict_with_tuple_time / k, 4)
+    dict_with_set_time = round(dict_with_set_time / k, 4)
+    dict_with_frozenset_time = round(dict_with_frozenset_time / k, 4)
+
+    print(f"Dict with list time: {dict_with_list_time}")
+    print(f"Dict with tuple time: {dict_with_tuple_time}")
+    print(f"Dict with set time: {dict_with_set_time}")
+    print(f"Dict with frozenset time: {dict_with_frozenset_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "dict_with_list_vs_tuple_vs_set_vs_frozenset" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def set_from_dick_w_tuples_simple():
+    pil_fully_supported_formats = {
+        "BLP": ("blp", "blp2", "tex"),
+        "BMP": ("bmp", "rle"),
+        "DDS": ("dds", "dds2"),
+        "DIB": ("dib", "dib2"),
+        "EPS": ("eps", "eps2", "epsf", "epsi"),
+        "GIF": ("gif", "giff"),
+        "ICNS": ("icns", "icon"),
+        "ICO": ("ico", "cur"),
+        "IM": ("im", "im2"),
+        "JPEG": ("jpg", "jpeg", "jpe"),
+        "JPEG 2000": ("jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"),
+        "MSP": ("msp", "msp2"),
+        "PCX": ("pcx", "pcx2"),
+        "PFM": ("pfm", "pfm2"),
+        "PNG": ("png", "pns"),
+        "APNG": ("apng", "png2"),
+        "PPM": ("ppm", "ppm2"),
+        "SGI": ("sgi", "rgb", "bw"),
+        "SPIDER": ("spi", "spider2"),
+        "TGA": ("tga", "targa"),
+        "TIFF": ("tif", "tiff", "tiff2"),
+        "WebP": ("webp", "webp2"),
+        "XBM": ("xbm", "xbm2")
+    }
+    print(pil_fully_supported_formats.values().fla)
+    print(*pil_fully_supported_formats.values())
+    pil_fully_supported_formats_cache = set(pil_fully_supported_formats.values())
+    print(pil_fully_supported_formats_cache)
+    raise NotImplementedError("Not implemented yet")
+
+
+def set_from_dick_w_tuples_custom():
+    pil_fully_supported_formats = {
+        "BLP": ("blp", "blp2", "tex"),
+        "BMP": ("bmp", "rle"),
+        "DDS": ("dds", "dds2"),
+        "DIB": ("dib", "dib2"),
+        "EPS": ("eps", "eps2", "epsf", "epsi"),
+        "GIF": ("gif", "giff"),
+        "ICNS": ("icns", "icon"),
+        "ICO": ("ico", "cur"),
+        "IM": ("im", "im2"),
+        "JPEG": ("jpg", "jpeg", "jpe"),
+        "JPEG 2000": ("jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"),
+        "MSP": ("msp", "msp2"),
+        "PCX": ("pcx", "pcx2"),
+        "PFM": ("pfm", "pfm2"),
+        "PNG": ("png", "pns"),
+        "APNG": ("apng", "png2"),
+        "PPM": ("ppm", "ppm2"),
+        "SGI": ("sgi", "rgb", "bw"),
+        "SPIDER": ("spi", "spider2"),
+        "TGA": ("tga", "targa"),
+        "TIFF": ("tif", "tiff", "tiff2"),
+        "WebP": ("webp", "webp2"),
+        "XBM": ("xbm", "xbm2")
+    }
+    pil_fully_supported_formats_cache = frozenset(
+        extension for extensions in pil_fully_supported_formats.values() for extension in extensions
+    )
+    print(pil_fully_supported_formats_cache)
+
+
+def set_from_dick_w_lists_simple():
+    pil_fully_supported_formats = {
+        "BLP": ["blp", "blp2", "tex"],
+        "BMP": ["bmp", "rle"],
+        "DDS": ["dds", "dds2"],
+        "DIB": ["dib", "dib2"],
+        "EPS": ["eps", "eps2", "epsf", "epsi"],
+        "GIF": ["gif", "giff"],
+        "ICNS": ["icns", "icon"],
+        "ICO": ["ico", "cur"],
+        "IM": ["im", "im2"],
+        "JPEG": ["jpg", "jpeg", "jpe"],
+        "JPEG 2000": ["jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"],
+        "MSP": ["msp", "msp2"],
+        "PCX": ["pcx", "pcx2"],
+        "PFM": ["pfm", "pfm2"],
+        "PNG": ["png", "pns"],
+        "APNG": ["apng", "png2"],
+        "PPM": ["ppm", "ppm2"],
+        "SGI": ["sgi", "rgb", "bw"],
+        "SPIDER": ["spi", "spider2"],
+        "TGA": ["tga", "targa"],
+        "TIFF": ["tif", "tiff", "tiff2"],
+        "WebP": ["webp", "webp2"],
+        "XBM": ["xbm", "xbm2"]
+    }
+    list_of_lists = list(
+        extensions for extensions in pil_fully_supported_formats.values()
+    )
+    print(list_of_lists)
+
+
+def set_from_dick_w_lists_custom():
+    pil_fully_supported_formats = {
+        "BLP": ["blp", "blp2", "tex"],
+        "BMP": ["bmp", "rle"],
+        "DDS": ["dds", "dds2"],
+        "DIB": ["dib", "dib2"],
+        "EPS": ["eps", "eps2", "epsf", "epsi"],
+        "GIF": ["gif", "giff"],
+        "ICNS": ["icns", "icon"],
+        "ICO": ["ico", "cur"],
+        "IM": ["im", "im2"],
+        "JPEG": ["jpg", "jpeg", "jpe"],
+        "JPEG 2000": ["jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"],
+        "MSP": ["msp", "msp2"],
+        "PCX": ["pcx", "pcx2"],
+        "PFM": ["pfm", "pfm2"],
+        "PNG": ["png", "pns"],
+        "APNG": ["apng", "png2"],
+        "PPM": ["ppm", "ppm2"],
+        "SGI": ["sgi", "rgb", "bw"],
+        "SPIDER": ["spi", "spider2"],
+        "TGA": ["tga", "targa"],
+        "TIFF": ["tif", "tiff", "tiff2"],
+        "WebP": ["webp", "webp2"],
+        "XBM": ["xbm", "xbm2"]
+    }
+    pil_fully_supported_formats_cache = frozenset(
+        extension for extensions in pil_fully_supported_formats.values() for extension in extensions
+    )
+    print(pil_fully_supported_formats_cache)
+
+
+def set_from_dict(n=1_000_000, k=10):
+    ...
+
+
 def docstring_tests():
     print(scaler.csatpa.__doc__)
 
@@ -1016,7 +1402,21 @@ if __name__ == "__main__":
     # endswith_tuple_vs_split_in_set()
     # single_vs_multi_3()
     # single_vs_multi_2()
-    single_vs_multi_2_3()
+    # single_vs_multi_2_3()
+    # list_alike_test()
+    # list_alike_test_2()
+    # set_vs_frozenset_generation()
+    # frozen_set_from_elements()
+    # dict_with_list_vs_tuple_vs_set_vs_frozenset()
+
+    # set_from_dick_w_tuples_simple()
+    # set_from_dick_w_tuples_custom()
+    set_from_dick_w_lists_simple()
+
+    # print(list(range(100)))
+    # print(tuple(range(100)))
+    # print(set(range(100)))
+    # print(frozenset(range(100)))
 
     # docstring_tests()
     ...

@@ -124,9 +124,10 @@ pil_fully_supported_formats = {
     "WebP": {"webp", "webp2"},
     "XBM": {"xbm", "xbm2"}
 }
-pil_fully_supported_formats_cache = {
-    extension: image_format for image_format, extensions in pil_fully_supported_formats.items() for extension in extensions
-}
+pil_fully_supported_formats_cache = frozenset(
+    extension for image_format, extensions in pil_fully_supported_formats.items() for extension in extensions
+)
+# print(pil_fully_supported_formats.values())
 
 pil_read_only_formats = {
     "CUR": {"cur"},
@@ -154,18 +155,18 @@ pil_read_only_formats = {
     "EMF": {"emf"},
     "XPM": {"xpm"}
 }
-pil_read_only_formats_cache = {
-    extension: image_format for image_format, extensions in pil_read_only_formats.items() for extension in extensions
-}
+pil_read_only_formats_cache = frozenset(
+    extension for image_format, extensions in pil_read_only_formats.items() for extension in extensions
+)
 
 pil_write_only_formats = {
     "PALM": {"palm"},
     "PDF": {"pdf"},
     "XV Thumbnails": {"xv"}
 }
-pil_write_only_formats_cache = {
-    extension: image_format for image_format, extensions in pil_write_only_formats.items() for extension in extensions
-}
+pil_write_only_formats_cache = frozenset(
+    extension for image_format, extensions in pil_write_only_formats.items() for extension in extensions
+)
 
 pil_indentify_only_formats = {
     "BUFR": {"bufr"},
@@ -173,9 +174,9 @@ pil_indentify_only_formats = {
     "HDF5": {"h5", "hdf5"},
     "MPEG": {"mpg", "mpeg"}
 }
-pil_indentify_only_formats_cache = {
-    extension: image_format for image_format, extensions in pil_indentify_only_formats.items() for extension in extensions
-}
+pil_indentify_only_formats_cache = frozenset(
+    extension for image_format, extensions in pil_indentify_only_formats.items() for extension in extensions
+)
 
 
 def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
