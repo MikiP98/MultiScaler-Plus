@@ -1240,7 +1240,7 @@ def dict_with_list_vs_tuple_vs_set_vs_frozenset(n=2_000_000, k=10):
     # ------------------------------------------------------------------------------------------------------------------
 
 
-def set_from_dick_w_tuples_simple():
+def set_from_dict_w_tuples_simple():
     pil_fully_supported_formats = {
         "BLP": ("blp", "blp2", "tex"),
         "BMP": ("bmp", "rle"),
@@ -1266,14 +1266,79 @@ def set_from_dick_w_tuples_simple():
         "WebP": ("webp", "webp2"),
         "XBM": ("xbm", "xbm2")
     }
-    print(pil_fully_supported_formats.values().fla)
+    print(pil_fully_supported_formats.values())
     print(*pil_fully_supported_formats.values())
     pil_fully_supported_formats_cache = set(pil_fully_supported_formats.values())
     print(pil_fully_supported_formats_cache)
     raise NotImplementedError("Not implemented yet")
 
 
-def set_from_dick_w_tuples_custom():
+def set_from_dict_w_tuples_custom():
+    pil_fully_supported_formats = {
+        "BLP": ("blp", "blp2", "tex"),
+        "BMP": ("bmp", "rle"),
+        "DDS": ("dds", "dds2"),
+        "DIB": ("dib", "dib2"),
+        "EPS": ("eps", "eps2", "epsf", "epsi"),
+        "GIF": ("gif", "giff"),
+        "ICNS": ("icns", "icon"),
+        "ICO": ("ico", "cur"),
+        "IM": ("im", "im2"),
+        "JPEG": ("jpg", "jpeg", "jpe"),
+        "JPEG 2000": ("jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"),
+        "MSP": ("msp", "msp2"),
+        "PCX": ("pcx", "pcx2"),
+        "PFM": ("pfm", "pfm2"),
+        "PNG": ("png", "pns"),
+        "APNG": ("apng", "png2"),
+        "PPM": ("ppm", "ppm2"),
+        "SGI": ("sgi", "rgb", "bw"),
+        "SPIDER": ("spi", "spider2"),
+        "TGA": ("tga", "targa"),
+        "TIFF": ("tif", "tiff", "tiff2"),
+        "WebP": ("webp", "webp2"),
+        "XBM": ("xbm", "xbm2")
+    }
+    pil_fully_supported_formats_cache = set(
+        extension for extensions in pil_fully_supported_formats.values() for extension in extensions
+    )
+    # print(pil_fully_supported_formats_cache)
+
+
+def frozenset_from_dict_w_tuples_simple():
+    pil_fully_supported_formats = {
+        "BLP": ("blp", "blp2", "tex"),
+        "BMP": ("bmp", "rle"),
+        "DDS": ("dds", "dds2"),
+        "DIB": ("dib", "dib2"),
+        "EPS": ("eps", "eps2", "epsf", "epsi"),
+        "GIF": ("gif", "giff"),
+        "ICNS": ("icns", "icon"),
+        "ICO": ("ico", "cur"),
+        "IM": ("im", "im2"),
+        "JPEG": ("jpg", "jpeg", "jpe"),
+        "JPEG 2000": ("jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"),
+        "MSP": ("msp", "msp2"),
+        "PCX": ("pcx", "pcx2"),
+        "PFM": ("pfm", "pfm2"),
+        "PNG": ("png", "pns"),
+        "APNG": ("apng", "png2"),
+        "PPM": ("ppm", "ppm2"),
+        "SGI": ("sgi", "rgb", "bw"),
+        "SPIDER": ("spi", "spider2"),
+        "TGA": ("tga", "targa"),
+        "TIFF": ("tif", "tiff", "tiff2"),
+        "WebP": ("webp", "webp2"),
+        "XBM": ("xbm", "xbm2")
+    }
+    print(pil_fully_supported_formats.values())
+    print(*pil_fully_supported_formats.values())
+    pil_fully_supported_formats_cache = set(pil_fully_supported_formats.values())
+    print(pil_fully_supported_formats_cache)
+    raise NotImplementedError("Not implemented yet")
+
+
+def frozenset_from_dict_w_tuples_custom():
     pil_fully_supported_formats = {
         "BLP": ("blp", "blp2", "tex"),
         "BMP": ("bmp", "rle"),
@@ -1302,10 +1367,10 @@ def set_from_dick_w_tuples_custom():
     pil_fully_supported_formats_cache = frozenset(
         extension for extensions in pil_fully_supported_formats.values() for extension in extensions
     )
-    print(pil_fully_supported_formats_cache)
+    # print(pil_fully_supported_formats_cache)
 
 
-def set_from_dick_w_lists_simple():
+def set_from_dict_w_lists_simple():
     pil_fully_supported_formats = {
         "BLP": ["blp", "blp2", "tex"],
         "BMP": ["bmp", "rle"],
@@ -1335,9 +1400,75 @@ def set_from_dick_w_lists_simple():
         extensions for extensions in pil_fully_supported_formats.values()
     )
     print(list_of_lists)
+    raise NotImplementedError("Not implemented yet")
 
 
-def set_from_dick_w_lists_custom():
+def set_from_dict_w_lists_custom():
+    pil_fully_supported_formats = {
+        "BLP": ["blp", "blp2", "tex"],
+        "BMP": ["bmp", "rle"],
+        "DDS": ["dds", "dds2"],
+        "DIB": ["dib", "dib2"],
+        "EPS": ["eps", "eps2", "epsf", "epsi"],
+        "GIF": ["gif", "giff"],
+        "ICNS": ["icns", "icon"],
+        "ICO": ["ico", "cur"],
+        "IM": ["im", "im2"],
+        "JPEG": ["jpg", "jpeg", "jpe"],
+        "JPEG 2000": ["jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"],
+        "MSP": ["msp", "msp2"],
+        "PCX": ["pcx", "pcx2"],
+        "PFM": ["pfm", "pfm2"],
+        "PNG": ["png", "pns"],
+        "APNG": ["apng", "png2"],
+        "PPM": ["ppm", "ppm2"],
+        "SGI": ["sgi", "rgb", "bw"],
+        "SPIDER": ["spi", "spider2"],
+        "TGA": ["tga", "targa"],
+        "TIFF": ["tif", "tiff", "tiff2"],
+        "WebP": ["webp", "webp2"],
+        "XBM": ["xbm", "xbm2"]
+    }
+    pil_fully_supported_formats_cache = set(
+        extension for extensions in pil_fully_supported_formats.values() for extension in extensions
+    )
+    # print(pil_fully_supported_formats_cache)
+
+
+def frozenset_from_dict_w_lists_simple():
+    pil_fully_supported_formats = {
+        "BLP": ["blp", "blp2", "tex"],
+        "BMP": ["bmp", "rle"],
+        "DDS": ["dds", "dds2"],
+        "DIB": ["dib", "dib2"],
+        "EPS": ["eps", "eps2", "epsf", "epsi"],
+        "GIF": ["gif", "giff"],
+        "ICNS": ["icns", "icon"],
+        "ICO": ["ico", "cur"],
+        "IM": ["im", "im2"],
+        "JPEG": ["jpg", "jpeg", "jpe"],
+        "JPEG 2000": ["jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"],
+        "MSP": ["msp", "msp2"],
+        "PCX": ["pcx", "pcx2"],
+        "PFM": ["pfm", "pfm2"],
+        "PNG": ["png", "pns"],
+        "APNG": ["apng", "png2"],
+        "PPM": ["ppm", "ppm2"],
+        "SGI": ["sgi", "rgb", "bw"],
+        "SPIDER": ["spi", "spider2"],
+        "TGA": ["tga", "targa"],
+        "TIFF": ["tif", "tiff", "tiff2"],
+        "WebP": ["webp", "webp2"],
+        "XBM": ["xbm", "xbm2"]
+    }
+    list_of_lists = list(
+        extensions for extensions in pil_fully_supported_formats.values()
+    )
+    print(list_of_lists)
+    raise NotImplementedError("Not implemented yet")
+
+
+def frozenset_from_dict_w_lists_custom():
     pil_fully_supported_formats = {
         "BLP": ["blp", "blp2", "tex"],
         "BMP": ["bmp", "rle"],
@@ -1366,11 +1497,36 @@ def set_from_dick_w_lists_custom():
     pil_fully_supported_formats_cache = frozenset(
         extension for extensions in pil_fully_supported_formats.values() for extension in extensions
     )
-    print(pil_fully_supported_formats_cache)
+    # print(pil_fully_supported_formats_cache)
 
 
 def set_from_dict(n=1_000_000, k=10):
-    ...
+    set_f_dict_w_tuples_custom_time = 0
+    frozenset_f_dict_w_tuples_custom_time = 0
+    set_f_dict_w_lists_custom_time = 0
+    frozenset_f_dict_w_lists_custom_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        set_f_dict_w_tuples_custom_time += timeit.timeit(lambda: set_from_dict_w_tuples_custom(), number=n // k)
+        frozenset_f_dict_w_tuples_custom_time += timeit.timeit(lambda: frozenset_from_dict_w_tuples_custom(), number=n // k)
+        set_f_dict_w_lists_custom_time += timeit.timeit(lambda: set_from_dict_w_lists_custom(), number=n // k)
+        frozenset_f_dict_w_lists_custom_time += timeit.timeit(lambda: frozenset_from_dict_w_lists_custom(), number=n // k)
+    print()
+
+    set_f_dict_w_tuples_custom_time = round(set_f_dict_w_tuples_custom_time / k, 4)
+    frozenset_f_dict_w_tuples_custom_time = round(frozenset_f_dict_w_tuples_custom_time / k, 4)
+    set_f_dict_w_lists_custom_time = round(set_f_dict_w_lists_custom_time / k, 4)
+    frozenset_f_dict_w_lists_custom_time = round(frozenset_f_dict_w_lists_custom_time / k, 4)
+
+    print(f"Set from dict w tuples custom time: {set_f_dict_w_tuples_custom_time}")
+    print(f"Frozenset from dict w tuples custom time: {frozenset_f_dict_w_tuples_custom_time}")
+    print(f"Set from dict w lists custom time: {set_f_dict_w_lists_custom_time}")
+    print(f"Frozenset from dict w lists custom time: {frozenset_f_dict_w_lists_custom_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "set_from_dict" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
 
 
 def docstring_tests():
@@ -1409,9 +1565,10 @@ if __name__ == "__main__":
     # frozen_set_from_elements()
     # dict_with_list_vs_tuple_vs_set_vs_frozenset()
 
+    set_from_dict()
     # set_from_dick_w_tuples_simple()
     # set_from_dick_w_tuples_custom()
-    set_from_dick_w_lists_simple()
+    # set_from_dict_w_lists_simple()
 
     # print(list(range(100)))
     # print(tuple(range(100)))

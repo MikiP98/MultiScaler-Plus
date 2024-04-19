@@ -100,82 +100,82 @@ def algorithm_to_string(algorithm: Algorithms) -> str:
 
 # TODO: Think about frozen sets
 pil_fully_supported_formats = {
-    "BLP": {"blp", "blp2", "tex"},
-    "BMP": {"bmp", "rle"},
-    "DDS": {"dds", "dds2"},
-    "DIB": {"dib", "dib2"},
-    "EPS": {"eps", "eps2", "epsf", "epsi"},
-    "GIF": {"gif", "giff"},
-    "ICNS": {"icns", "icon"},
-    "ICO": {"ico", "cur"},
-    "IM": {"im", "im2"},
-    "JPEG": {"jpg", "jpeg", "jpe"},
-    "JPEG 2000": {"jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"},
-    "MSP": {"msp", "msp2"},
-    "PCX": {"pcx", "pcx2"},
-    "PFM": {"pfm", "pfm2"},
-    "PNG": {"png", "pns"},
-    "APNG": {"apng", "png2"},
-    "PPM": {"ppm", "ppm2"},
-    "SGI": {"sgi", "rgb", "bw"},
-    "SPIDER": {"spi", "spider2"},
-    "TGA": {"tga", "targa"},
-    "TIFF": {"tif", "tiff", "tiff2"},
-    "WebP": {"webp", "webp2"},
-    "XBM": {"xbm", "xbm2"}
+    "BLP": ("blp", "blp2", "tex"),
+    "BMP": ("bmp", "rle"),
+    "DDS": ("dds", "dds2"),
+    "DIB": ("dib", "dib2"),
+    "EPS": ("eps", "eps2", "epsf", "epsi"),
+    "GIF": ("gif", "giff"),
+    "ICNS": ("icns", "icon"),
+    "ICO": ("ico", "cur"),
+    "IM": ("im", "im2"),
+    "JPEG": ("jpg", "jpeg", "jpe"),
+    "JPEG 2000": ("jp2", "j2k", "jpf", "jpx", "jpm", "j2c", "j2r", "jpx"),
+    "MSP": ("msp", "msp2"),
+    "PCX": ("pcx", "pcx2"),
+    "PFM": ("pfm", "pfm2"),
+    "PNG": ("png", "pns"),
+    "APNG": ("apng", "png2"),
+    "PPM": ("ppm", "ppm2"),
+    "SGI": ("sgi", "rgb", "bw"),
+    "SPIDER": ("spi", "spider2"),
+    "TGA": ("tga", "targa"),
+    "TIFF": ("tif", "tiff", "tiff2"),
+    "WebP": ("webp", "webp2"),
+    "XBM": ("xbm", "xbm2")
 }
 pil_fully_supported_formats_cache = frozenset(
-    extension for image_format, extensions in pil_fully_supported_formats.items() for extension in extensions
+    extension for extensions in pil_fully_supported_formats.values() for extension in extensions
 )
 # print(pil_fully_supported_formats.values())
 
 pil_read_only_formats = {
-    "CUR": {"cur"},
-    "DCX": {"dcx"},
-    "FITS": {"fits"},
-    "FLI": {"fli"},
-    "FLC": {"flc"},
-    "FPX": {"fpx"},
-    "FTEX": {"ftex"},
-    "GBR": {"gbr"},
-    "GD": {"gd"},
-    "IMT": {"imt"},
-    "IPTC": {"iptc"},
-    "NAA": {"naa"},
-    "MCIDAS": {"mcidas"},
-    "MIC": {"mic"},
-    "MPO": {"mpo"},
-    "PCD": {"pcd"},
-    "PIXAR": {"pixar"},
-    "PSD": {"psd"},
-    "QOI": {"qoi"},
-    "SUN": {"sun"},
-    "WAL": {"wal"},
-    "WMF": {"wmf"},
-    "EMF": {"emf"},
-    "XPM": {"xpm"}
+    "CUR": ("cur"),
+    "DCX": ("dcx"),
+    "FITS": ("fits"),
+    "FLI": ("fli"),
+    "FLC": ("flc"),
+    "FPX": ("fpx"),
+    "FTEX": ("ftex"),
+    "GBR": ("gbr"),
+    "GD": ("gd"),
+    "IMT": ("imt"),
+    "IPTC": ("iptc"),
+    "NAA": ("naa"),
+    "MCIDAS": ("mcidas"),
+    "MIC": ("mic"),
+    "MPO": ("mpo"),
+    "PCD": ("pcd"),
+    "PIXAR": ("pixar"),
+    "PSD": ("psd"),
+    "QOI": ("qoi"),
+    "SUN": ("sun"),
+    "WAL": ("wal"),
+    "WMF": ("wmf"),
+    "EMF": ("emf"),
+    "XPM": ("xpm")
 }
 pil_read_only_formats_cache = frozenset(
-    extension for image_format, extensions in pil_read_only_formats.items() for extension in extensions
+    extension for extensions in pil_read_only_formats.values() for extension in extensions
 )
 
 pil_write_only_formats = {
-    "PALM": {"palm"},
-    "PDF": {"pdf"},
-    "XV Thumbnails": {"xv"}
+    "PALM": ("palm"),
+    "PDF": ("pdf"),
+    "XV Thumbnails": ("xv")
 }
 pil_write_only_formats_cache = frozenset(
-    extension for image_format, extensions in pil_write_only_formats.items() for extension in extensions
+    extension for extensions in pil_write_only_formats.values() for extension in extensions
 )
 
 pil_indentify_only_formats = {
-    "BUFR": {"bufr"},
-    "GRIB": {"grib", "grb"},
-    "HDF5": {"h5", "hdf5"},
-    "MPEG": {"mpg", "mpeg"}
+    "BUFR": ("bufr"),
+    "GRIB": ("grib", "grb"),
+    "HDF5": ("h5", "hdf5"),
+    "MPEG": ("mpg", "mpeg")
 }
 pil_indentify_only_formats_cache = frozenset(
-    extension for image_format, extensions in pil_indentify_only_formats.items() for extension in extensions
+    extension for extensions in pil_indentify_only_formats.values() for extension in extensions
 )
 
 
