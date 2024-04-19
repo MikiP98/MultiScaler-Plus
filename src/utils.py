@@ -11,6 +11,20 @@ from enum import IntEnum
 # from PIL import Image
 
 
+class ImageType(IntEnum):
+    Single = 0
+    Stacked = 1
+    Animated = 2
+
+
+class Image:
+    def __init__(self, images: list[list[PIL.Image]], image_type=ImageType.Single, animation_spacing=(1000/30)):
+        self.images = images
+        self.imageType = image_type
+        if image_type == ImageType.Animated:
+            self.animationSpacing = animation_spacing
+
+
 # Enum with all available algorithms
 # Ordered alphabetically
 class Algorithms(IntEnum):
