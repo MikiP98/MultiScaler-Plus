@@ -9,6 +9,7 @@ import utils
 import xbrz  # See xBRZ scaling on Jira
 
 from RealESRGAN import RealESRGAN
+from termcolor import colored
 from utils import Algorithms
 
 # from rarch import CommonShaders
@@ -78,10 +79,11 @@ def scale_image(algorithm, image, factor, *, fallback_algorithm=Algorithms.CV2_I
 cv2_algorithms_ud = {Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST}
 pil_algorithms_ud = {Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.PIL_BILINEAR, Algorithms.PIL_BICUBIC, Algorithms.PIL_LANCZOS}
 
-cv2_ai = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_LapSRN}
+cv2_ai_234 = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN}
+cv2_ai_248 = {Algorithms.CV2_LapSRN}
 
 
-def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], factors, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> list[list[PIL.Image]]:
+def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> list[utils.Image]:
     scaled_images = []
     # scaled_images = queue.Queue()
 
@@ -93,72 +95,132 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
     if algorithm == Algorithms.CV2_INTER_AREA:
         algorithm = csatca(algorithm)
 
-        for image in images:
+        for image_object in images:
+            new_image_object_list = []
             for factor in factors:
                 if factor > 1:
                     # raise ValueError("INTER_AREA does not support upscaling!")
-                    print(f"ERROR: INTER_AREA does not support upscaling! Factor: {factor}; File names will be incorrect!")
+                    print(colored(f"ERROR: INTER_AREA does not support upscaling! Factor: {factor}; File names will be incorrect!"), 'red')
                     continue
 
                 scaled_image = []
-                for frame in image:
+                for frame in image_object.images[0]:
                     cv2_image = utils.pil_to_cv2(frame)
                     width, height = frame.size
 
                     output_width, output_height = round(width * factor), round(height * factor)
 
                     scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
-                scaled_images.append(scaled_image)
+
+                new_image_object_list.append(scaled_image)
+            scaled_images.append(utils.Image(new_image_object_list))
 
         return scaled_images
 
     if algorithm in cv2_algorithms_ud:
         algorithm = csatca(algorithm)
 
-        for image in images:
+        for image_object in images:
+            new_image_object_list = []
             for factor in factors:
                 scaled_image = []
-                for frame in image:
+                for frame in image_object.images[0]:
                     cv2_image = utils.pil_to_cv2(frame)
                     width, height = frame.size
 
                     output_width, output_height = round(width * factor), round(height * factor)
 
                     scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
-                    # scaled_images.put(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)))
-                scaled_images.append(scaled_image)
+
+                new_image_object_list.append(scaled_image)
+            scaled_images.append(utils.Image(new_image_object_list))
 
         return scaled_images
 
-    if algorithm in cv2_ai:
-        sr = cv2.dnn_superres.DnnSuperResImpl_create()
+    def cv2_ai_common_scale(image_object, factor, sr, path_prefix, name):
+        path = f"{path_prefix}_x{factor}.pb"
+        # print(f"Path: {path}")
+
+        sr.readModel(path)
+        sr.setModel(name.lower(), factor)
+
+        scaled_image = []
+        for frame in image_object.images[0]:
+            cv2_image = utils.pil_to_cv2(frame.convert('RGB'))
+            width, height = frame.size
+
+            result = sr.upsample(cv2_image)
+
+            scaled_image.append(utils.cv2_to_pil(
+                cv2.resize(result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
+
+        return scaled_image
+
+    def cv2_ai_common():
+        sr = cv2.dnn_superres.DnnSuperResImpl_create()  # Ignore the warning, works fine
 
         name = algorithm.name[4:]
         path_prefix = f"./weights/{name}/{name}"
-        allowed_factors = {2, 3, 4, 8}
 
-        for image in images:
+        for image_object in images:
+            new_image_object_list = []
             for factor in factors:
                 if factor not in allowed_factors:
                     # raise ValueError("INTER_AREA does not support upscaling!")
-                    print(f"ERROR: CV2 AI does not support factor: {factor}!; File names will be incorrect!\nAllowed factors: {allowed_factors}")
-                    continue
+                    print(colored(f"Warning: CV2 AI '{algorithm.name}' does not support factor: {factor}! Allowed factors: {allowed_factors}; Result might be blurry!", 'yellow'))
+                    if factor < 1:
+                        print(colored(f"ERROR: CV2 AIs do not support downscaling! Cannot perform any fixes! Scaling with fallback algorithm: {fallback_algorithm.name}"), 'red')
+                        scaled_image = []
+                        for frame in image_object.images[0]:
+                            cv2_image = utils.pil_to_cv2(frame)
+                            width, height = frame.size
 
-                path = f"{path_prefix}_x{factor}.pb"
-                # print(f"Path: {path}")
+                            output_width, output_height = round(width * factor), round(height * factor)
 
-                sr.readModel(path)
-                sr.setModel(name.lower(), factor)
+                            scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                        new_image_object_list.append(scaled_image)
 
-                scaled_image = []
-                for frame in image:
-                    cv2_image = utils.pil_to_cv2(frame.convert('RGB'))
-                    width, height = frame.size
+                    # min_allowed_factor = min(allowed_factors)
+                    max_allowed_factor = max(allowed_factors)
+                    scaled_image = []
+                    for frame in image_object.images[0]:
+                        width, height = frame.size
+                        result = utils.pil_to_cv2(frame.convert('RGB'))
+                        current_factor = 1
+                        while current_factor < factor:
+                            temp_factor = max_allowed_factor
+                            while current_factor * temp_factor >= factor:
+                                temp_factor -= 1
+                            while temp_factor not in allowed_factors:
+                                temp_factor += 1
 
-                    result = sr.upsample(cv2_image)
+                            current_factor *= temp_factor
 
-                    scaled_image.append(utils.cv2_to_pil(cv2.resize(result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
-                scaled_images.append(scaled_image)
+                            path = f"{path_prefix}_x{temp_factor}.pb"
+                            # print(f"Path: {path}")
+
+                            sr.readModel(path)
+                            sr.setModel(name.lower(), temp_factor)
+
+                            result = sr.upsample(result)
+
+                        scaled_image.append(utils.cv2_to_pil(cv2.resize(result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
+
+                    new_image_object_list.append(scaled_image)
+
+                else:
+                    new_image_object_list.append(cv2_ai_common_scale(image_object, factor, sr, path_prefix, name))
+            scaled_images.append(utils.Image(new_image_object_list))
+
+    if algorithm in cv2_ai_234:
+        allowed_factors = {2, 3, 4}
+        cv2_ai_common()
+
+        return scaled_images
+
+    if algorithm in cv2_ai_248:
+        allowed_factors = {2, 4, 8}
+        cv2_ai_common()
 
         return scaled_images
     # ----------------------------------------------------------------------------------------------------------
@@ -169,34 +231,48 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
     if algorithm in pil_algorithms_ud:
         algorithm = csatpa(algorithm)
 
-        for image in images:
+        for image_object in images:
+            new_image_object_list = []
             for factor in factors:
                 scaled_image = []
-                for frame in image:
+                for frame in image_object.images[0]:
                     width, height = frame.size
                     output_width, output_height = round(width * factor), round(height * factor)
 
                     scaled_image.append(frame.resize((output_width, output_height), algorithm))
-                scaled_images.append(scaled_image)
+                new_image_object_list.append(scaled_image)
+            scaled_images.append(utils.Image(new_image_object_list))
         return scaled_images
-    # -------------------------------------------------------------------------------------------------------
-    # ---------------------------------------- End of PIL algorithms ----------------------------------------
-    # -------------------------------------------------------------------------------------------------------
-
+    # ---------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- End of PIL algorithms ------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- Start of custom algorithms --------------------------------------
+    # ---------------------------------------------------------------------------------------------------------
     match algorithm:
         case Algorithms.xBRZ:  # TODO: Use RGB mode if the image is not RGBA
-            for image in images:
+            for image_object in images:
+                new_image_object_list = []
                 for factor in factors:
                     if factor < 1:
-                        print(f"ERROR: xBRZ does not support downscaling! Factor: {factor}")
-                        continue
+                        print(colored(f"ERROR: xBRZ does not support downscaling! Factor: {factor}; Defaulting to fallback alhorithm: {fallback_algorithm.name}"), 'red')
+                        scaled_image = []
+                        for frame in image_object.images[0]:
+                            cv2_image = utils.pil_to_cv2(frame)
+                            width, height = frame.size
+
+                            output_width, output_height = round(width * factor), round(height * factor)
+
+                            scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height),
+                                                                            interpolation=csatca(fallback_algorithm))))
+                        new_image_object_list.append(scaled_image)
+                        # continue
                         # raise ValueError("xBRZ does not support downscaling!")
                     # If factor is not a whole number or is greater than 6, print a warning
                     if factor != int(factor) or factor > 6:
-                        print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
+                        print(colored(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!"), 'yellow')
 
                     scaled_image = []
-                    for frame in image:
+                    for frame in image_object.images[0]:
                         width, height = frame.size
 
                         frame = frame.convert('RGBA')
@@ -213,136 +289,34 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
                             current_scale *= temp_factor
 
                         scaled_image.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(frame), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
-                    scaled_images.append(scaled_image)
-
-            # # Convert image to RGBA format
-            # if cv2_image.shape[2] == 3:
-            #     # print("Converting from BGR to RGBA format...")
-            #     cv2_image_rgba = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGBA)
-            # else:
-            #     # print("Converting from BGRA to RGBA format...")
-            #     cv2_image_rgba = cv2.cvtColor(cv2_image, cv2.COLOR_BGRA2RGBA)
-            #
-            # # Convert image to 32-bit integers (pack channels into one 32-bit integer)
-            # # int32_image = np.packbits(cv2_image_rgba, axis=-1).view(np.int32)
-            # # Convert RGBA channels to 32-bit integers
-            # # channel_dtype = np.uint32  # Use 32-bit unsigned integers for channel values
-            # r, g, b, a = cv2_image_rgba[:, :, 0], cv2_image_rgba[:, :, 1], cv2_image_rgba[:, :, 2], cv2_image_rgba[:, :, 3]
-            # r = np.uint32(r)
-            # g = np.uint32(g)
-            # b = np.uint32(b)
-            # a = np.uint32(a)
-            #
-            # # Combine RGBA channels into a single 32-bit integer
-            # int32_image = (r << 24) | (g << 16) | (b << 8) | a
-            # # int32_image = (cv2_image_rgba[:, :, 0] << 24) | (cv2_image_rgba[:, :, 1] << 16) | (cv2_image_rgba[:, :, 2] << 8) | cv2_image_rgba[:, :, 3]
-            # # print(int32_image)
-            # # Flatten the array
-            # flattened_array = int32_image.flatten()
-            # python_array_image = bytearray(flattened_array.tobytes())
-            #
-            # # python_array_image = bytearray(cv2_image.astype(np.int32).flatten().tobytes())  #.tolist()
-            # # print(cv2_image.astype(np.int32).flatten())
-
-            # pil_image = utils.cv2_to_pil(cv2_image)
-            # pil_image = image.convert('RGBA')
-            # for factor in factors:
-            #     image = python_array_image
-            #     if type(image) is bytearray:
-            #         print(f"Image is bytearray")
-            #     else:
-            #         print(f"Image is not bytearray")
-            #     print(f"Image initial size: {len(image)}")
-            #     output_width, output_height = round(width * factor), round(height * factor)
-            #
-            #     # if factor > 6:
-            #     #     raise ValueError("Max factor for xbrz=6")
-            #     # factor = Fraction(factor).limit_denominator().numerator
-            #     if factor < 1:
-            #         print(f"ERROR: xBRZ does not support downscaling! Factor: {factor}")
-            #         continue
-            #         # raise ValueError("xBRZ does not support downscaling!")
-            #     # If factor is not a whole number or is greater than 6, print a warning
-            #     if factor != int(factor) or factor > 6:
-            #         print(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!")
-            #
-            #     current_scale = 1
-            #     while current_scale < factor:
-            #         temp_factor = 6
-            #         while current_scale * temp_factor >= factor:
-            #             temp_factor -= 1
-            #         temp_factor = min(temp_factor + 1, 6)
-            #         print(f"Temp factor: {temp_factor}")
-            #
-            #         print("Image-pre:")
-            #         print(image)
-            #         image = xbrz.scale(image, temp_factor, width, height, xbrz.ColorFormat.RGBA)
-            #         # current_scale *= temp_factor
-            #         print("Image-post:")
-            #         print(image)
-            #         # if image is bytearray:
-            #         if type(image) is bytearray:
-            #             print(f"Image is bytearray")
-            #         else:
-            #             print(f"Image is not bytearray")
-            #         print(f"Image size: {len(image)}")
-            #
-            #         if current_scale < factor:
-            #             current_scale *= temp_factor
-            #             # Convert byte array to NumPy array
-            #             numpy_array = np.frombuffer(image, dtype=np.uint8)
-            #             rgba_image = numpy_array.reshape((height * current_scale, width * current_scale, 4))
-            #             rgba_image = rgba_image[..., [3, 2, 1, 0]]  # Reorder the channels from 'ABGR' to 'RGBA'
-            #
-            #             # Convert to BGRA format for OpenCV
-            #             cv2_image_scaled = cv2.cvtColor(rgba_image, cv2.COLOR_RGBA2BGRA)
-            #             rgba_image = cv2.cvtColor(cv2_image_scaled, cv2.COLOR_BGRA2RGBA)
-            #
-            #             r, g, b, a = rgba_image[:, :, 0], rgba_image[:, :, 1], rgba_image[:, :, 2], rgba_image[:, :, 3]
-            #             r = np.uint32(r)
-            #             g = np.uint32(g)
-            #             b = np.uint32(b)
-            #             a = np.uint32(a)
-            #
-            #             int32_image = (r << 24) | (g << 16) | (b << 8) | a
-            #             flattened_array = int32_image.flatten()
-            #             image = bytearray(flattened_array.tobytes())
-            #             print("Image-post-post:")
-            #             print(image)
-            #             if type(image) is bytearray:
-            #                 print(f"Image is bytearray")
-            #             else:
-            #                 print(f"Image is not bytearray")
-            #             print(f"Image size: {len(image)}")
-            #         else:
-            #             current_scale *= temp_factor
-            #
-            #     # Convert byte array to NumPy array
-            #     numpy_array = np.frombuffer(image, dtype=np.uint8)
-            #
-            #     print(f"New height: {height * current_scale} = {height} * {current_scale}, New width: {width * current_scale} = {width} * {current_scale}")
-            #     rgba_image = numpy_array.reshape((height * current_scale, width * current_scale, 4))
-            #     rgba_image = rgba_image[..., [3, 2, 1, 0]]  # Reorder the channels from 'ABGR' to 'RGBA'
-            #
-            #     # Convert to BGRA format for OpenCV
-            #     cv2_image_scaled = cv2.cvtColor(rgba_image, cv2.COLOR_RGBA2BGRA)
-            #     # scaled_images.put(cv2_image_scaled)
-            #     scaled_images.put(cv2.resize(cv2_image_scaled, (output_width, output_height), interpolation=csatca(fallback_algorithm)))
+                    new_image_object_list.append(scaled_image)
+                scaled_images.append(utils.Image(new_image_object_list))
 
         case Algorithms.RealESRGAN:
-            for image in images:
+            for image_object in images:
+                new_image_object_list = []
                 for factor in factors:
                     scaled_image = []
-                    for frame in image:
+                    if factor < 1:
+                        print("RealESRGAN AI does not support downscaling!; Defaulting to fallback algorithm: {fallback_algorithm.name}")
+
+                        for frame in image_object.images[0]:
+                            cv2_image = utils.pil_to_cv2(frame)
+                            width, height = frame.size
+
+                            output_width, output_height = round(width * factor), round(height * factor)
+
+                            scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                        new_image_object_list.append(scaled_image)
+
+                    for frame in image_object.images[0]:
                         width, height = frame.size
                         output_width, output_height = round(width * factor), round(height * factor)
                         frame = frame.convert('RGB')
 
-                        if factor < 1:
-                            raise ValueError("xBRZ does not support downscaling!")
                         # If factor is not a whole number or is greater than 6, print a warning
                         if factor not in (1, 2, 4, 8):
-                            print(f"WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!")
+                            print(colored("WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!"), 'yellow')
 
                         current_scale = 1
                         while current_scale < factor:
@@ -358,7 +332,8 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
                             current_scale *= temp_factor
 
                         scaled_image.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(frame), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
-                    scaled_images.append(scaled_image)
+                    new_image_object_list.append(scaled_image)
+                scaled_images.append(utils.Image(new_image_object_list))
 
         case Algorithms.SUPIR:
             script_path = './SUPIR/test.py'
@@ -382,12 +357,13 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
             if config_plus is None:
                 raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")
             else:
-                for image in images:
+                for _ in images:
                     for factor in factors:
                         if factor > 2:
                             print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
 
                         print(f"WARNING: Might be currently broken!")
+
                         script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
                         options = f"-Scale {factor}x {factor}x -Mode EASU"
                         files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
@@ -404,7 +380,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
             if config_plus is None:
                 raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")
             else:
-                for image in images:
+                for _ in images:
                     for factor in factors:
                         if factor > 2:
                             print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
@@ -427,9 +403,11 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
             if main_checked:
                 raise NotImplementedError("Not implemented yet")
             else:
-                for image in images:
+                for image_object in images:
+                    new_image_object_list = []
                     for factor in factors:
-                        for frame in image:
+                        scaled_image = []
+                        for frame in image_object.images[0]:
                             width, height = frame.size
 
                             frame = utils.pil_to_cv2(frame.convert('RGBA'))
@@ -446,7 +424,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
                             # Convert 'cv2_image_rgba' numpy array to 'cv2_image' numpy array
                             cv2_image = cv2.cvtColor(cv2_image_rgba, cv2.COLOR_RGBA2BGRA)
 
-                            scaled_images.append(utils.cv2_to_pil(cv2.resize(cv2_image, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
+                            scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
 
                             # raise NotImplementedError("Not implemented yet")
 
@@ -457,6 +435,8 @@ def scale_image_batch(algorithm: Algorithms, images: list[list[PIL.Image]], fact
                             #     for x in range(width):
                             #         pixels[y][x] = pil_image.getpixel((x, y))
                             # return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
+                        new_image_object_list.append(scaled_image)
+                    scaled_images.append(utils.Image(new_image_object_list))
 
     return scaled_images
 

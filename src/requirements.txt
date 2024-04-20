@@ -4,6 +4,7 @@ numpy
 opencv-contrib-python
 pillow
 python-multipart
+termcolor
 torch
 uvicorn[standard]
 git+https://github.com/sberbank-ai/Real-ESRGAN.git

@@ -1,5 +1,6 @@
 # coding=utf-8
 import argparse
+import concurrent.futures
 # import math
 import multiprocessing
 import os
@@ -9,11 +10,13 @@ import psutil
 import scaler
 import sys
 import shutil
+# import termcolor
 import utils
 import zipfile
 
 from fractions import Fraction
 from functools import lru_cache
+from termcolor import colored
 from utils import Algorithms, pil_fully_supported_formats_cache, pil_read_only_formats_cache, pil_write_only_formats_cache, pil_indentify_only_formats_cache
 
 
@@ -21,7 +24,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 200000000
 PIL.GifImagePlugin.LOADING_STRATEGY = PIL.GifImagePlugin.LoadingStrategy.RGB_ALWAYS
 
 
-def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config) -> None:
+def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config) -> None:
     # print(f"Saving algorithm: {algorithm} {algorithm.name}, root: {root}, file: {file}, scale: {scale}")
     path = os.path.join(root, file)
 
@@ -63,20 +66,48 @@ def save_image(algorithm: Algorithms, image, root: str, file: str, scale, config
         with open(output_path, 'wb') as f:
             f.write(img_byte_arr)
 
-    print(f"{output_path} Saved!")
+    print(colored(f"{output_path} Saved!", 'light_green'))
 
 
 def save_images_chunk(args) -> None:
-    algorithm, images_chunk, roots_chunk, file_chunk, scales_chunk, config = args
-    for image, root, file, scales in zip(images_chunk, roots_chunk, file_chunk, scales_chunk):
-        if len(image) == 1:
-            save_image(algorithm, image[0], root, file, scales.pop(), config)
-        else:
-            # Compose an APNG image
-            raise NotImplementedError("Animated (and stacked) output is not yet supported")
+    algorithm, images_chunk, roots_chunk, file_chunk, scales, config = args
+    # print(f"Type of scales: {type(scales)}")
+    # print(f"scales: {scales}")
+    while images_chunk:
+        image_object = images_chunk.pop()
+        root = roots_chunk.pop()
+        file = file_chunk.pop()
+
+        for scaled_image, scale in zip(image_object.images, scales):
+            if len(scaled_image) == 1:
+                save_image(algorithm, scaled_image[0], root, file, scale, config)
+            else:
+                # Compose an APNG image
+                raise NotImplementedError("Animated (and stacked) output is not yet supported")
+
+    # for image_object, root, file in zip(images_chunk, roots_chunk, file_chunk):
+    #     # print(f"Type of image_object: {type(image_object)}")
+    #     # print(f"Type of image_object.images: {type(image_object.images)}")
+    #     # print(f"Type of root: {type(root)}")
+    #     # print(f"Type of file: {type(file)}")
+    #     print(f"Type of scales: {type(scales)}")
+    #
+    #     for scaled_image, scale in zip(image_object.images, scales):
+    #         if len(scaled_image) == 1:
+    #             save_image(algorithm, scaled_image[0], root, file, scale, config)
+    #         else:
+    #             # Compose an APNG image
+    #             raise NotImplementedError("Animated (and stacked) output is not yet supported")
+
+    # for scaled_image, scale in zip(image_object.images, scales):
+    #     if len(scaled_image) == 1:
+    #         save_image(algorithm, scaled_image[0], root, file, scale, config)
+    #     else:
+    #         # Compose an APNG image
+    #         raise NotImplementedError("Animated (and stacked) output is not yet supported")
 
 
-def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list[str], files: list[str], scales: list[float], config) -> None:
+def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str], files: list[str], scales: list[float], config) -> None:
     # config_plus = {
     #     'input_image_relative_path': file,
     #     'sharpness': 0.5
@@ -86,22 +117,27 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
     # TODO: Implement multiprocessing for this and bring back the config_plus!!!
     # print(f"Scaling image: {config_plus['input_image_relative_path']}")
     # print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
-    images = scaler.scale_image_batch(algorithm, images, scales)  # , config_plus=config_plus
-    print("Scaling done")
+    image_objects = scaler.scale_image_batch(algorithm, images, scales)  # , config_plus=config_plus
+    print(colored("Scaling done\n", 'green'))
 
     if len(images) < len(scales):
         # raise ValueError("Images queue is empty")
-        print("WARN: Image deck is shorten then expected! Error might have occurred!")
+        print(colored("WARN: Image deck is shorten then expected! Error might have occurred!", 'yellow'))
 
     print("Starting saving process")
     processes = 0
     if 3 in config['multiprocessing_levels']:
-        # TODO: Create better algorithm, consider images sizes and frame count
-        performance_processes = utils.geo_avg(scales) / 16
-        if not config['lossless_compression']:
-            performance_processes /= 16
+        if config['override_processes_count']:
+            processes = config['max_processes'][2]
+        else:
+            # TODO: Create better algorithm, consider images sizes and frame count
+            performance_processes = utils.geo_avg(scales) / 16
+            if not config['lossless_compression']:
+                performance_processes /= 16
 
-        processes = min(config['max_processes'][2], max(round(min(len(images), performance_processes)), 1))
+            performance_processes = round(performance_processes)
+
+            processes = min(config['max_processes'][2], max(round(min(len(images), performance_processes)), 1))
 
     if processes > 1:
         print(f"Using {processes} processes for saving")
@@ -110,40 +146,19 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
         chunk_size = max(len(images) // processes, 1)  # Divide images equally among processes
         chunks = []
 
-        active_root = None  # TODO: Consider adding an additional list layer to scaled_images with images for each scale
-        active_file = None
-        iterator = 0
-        scales_len = len(scales)
-        image_scales = None  # For warning suppression only
         print("Starting data preparation...")
-        while images:
+        while image_objects:
             if len(images) < chunk_size:
                 chunk_size = len(images)
 
-            roots_chunk = []
-            files_chunk = []
-            scales_chunk = []
+            images_chunk = [image_objects.pop() for _ in range(chunk_size)]
+            roots_chunk = [roots.pop() for _ in range(chunk_size)]
+            files_chunk = [files.pop() for _ in range(chunk_size)]
 
-            end = chunk_size + iterator
-            for i in range(iterator, end):
-                if i % scales_len == 0:
-                    active_root = roots.pop()
-                    active_file = files.pop()
-                    image_scales = scales.copy()
+            chunks.append((algorithm, images_chunk, roots_chunk, files_chunk, scales, config))
 
-                roots_chunk.append(active_root)
-                files_chunk.append(active_file)
-                scales_chunk.append(image_scales.copy())
-            iterator += chunk_size
-
-            images_chunk = [images.pop() for _ in range(chunk_size)]
-            # scales_chunk = [image_scales.copy() for _ in range(chunk_size)]
-
-            # roots_chunk = [roots.pop() for _ in range(chunk_size)]
-            # files_chunk = [files.pop() for _ in range(chunk_size)]
-
-            chunks.append((algorithm, images_chunk, roots_chunk, files_chunk, scales_chunk, config))
-
+        print(colored("Data preparation done", 'light_green'))
+        # print(f"Chunks: {chunks}")
         # Map the process_images_chunk function to the list of argument chunks using the pool of worker processes
         pool.map(save_images_chunk, chunks)
 
@@ -154,73 +169,77 @@ def scale_loop(algorithm: Algorithms, images: list[list[PIL.Image]], roots: list
         pool.join()
 
     else:
-        active_root = None  # TODO: Consider adding an additional list layer to scaled_images with images for each scale
-        active_file = None
-        iterator = 0
-        scales_len = len(scales)
-        image_scales = None  # For warning suppression only
-        while images:
-            if iterator % scales_len == 0:
-                active_root = roots.pop()
-                active_file = files.pop()
-                image_scales = scales.copy()
+        while image_objects:
+            image_object = image_objects.pop()
+            root = roots.pop()
+            file = files.pop()
 
-            image = images.pop()
-            if len(image) == 1:
-                save_image(algorithm, image[0], active_root, active_file, image_scales.pop(), config)
-            else:
-                # Compose an APNG image
-                raise NotImplementedError("Animated (and stacked) output is not yet supported")
+            for scaled_image, scale in zip(image_object.images, scales):
+                if len(scaled_image) == 1:
+                    save_image(algorithm, scaled_image[0], root, file, scale, config)
+                else:
+                    # Compose an APNG image
+                    raise NotImplementedError("Animated (and stacked) output is not yet supported")
+            # iterator += 1
 
-            iterator += 1
+    print(colored("Saving done\n", 'green'))
 
 
 def scale_loop_chunk(args) -> None:
-    algorithms_chunk, images_chunk, roots_chunk, files_chunk, scales, config = args
-    for algorithm, images, roots, files in zip(algorithms_chunk, images_chunk, roots_chunk, files_chunk):
-        scale_loop(algorithm, images, roots.copy(), files.copy(), scales, config)
+    algorithms_chunk, images, roots, files, scales, config = args
+    for algorithm in algorithms_chunk:
+        scale_loop(algorithm, images.copy(), roots.copy(), files.copy(), scales, config)
 
 
 def algorithm_loop(algorithms: list[Algorithms],
-                   images: list[list[PIL.Image]],
+                   images: list[utils.Image],
                    roots: list[str], files: list[str],
                    scales: list[float], config) -> None:
     processes = 0
     if 2 in config['multiprocessing_levels']:  # TODO: Complete this implementation
-        # TODO: Create better algorithm
-        performance_processes = utils.geo_avg(scales) / 8 * len(algorithms)
-        if not config['lossless_compression']:
-            performance_processes /= 4
+        if config['override_processes_count']:
+            processes = config['max_processes'][1]
+        else:
+            # TODO: Create better algorithm
+            performance_processes = utils.geo_avg(scales) / 8 * len(algorithms)
+            if not config['lossless_compression']:
+                performance_processes /= 4
 
-        processes = min(config['max_processes'][2], max(round(min(len(algorithms), performance_processes)), 1))
-        # processes = max(min(config['max_processes'][1], len(algorithms)), 1)
+            performance_processes = round(performance_processes)
+
+            processes = min(config['max_processes'][2], max(round(min(len(algorithms), performance_processes)), 1))
+            # processes = max(min(config['max_processes'][1], len(algorithms)), 1)
 
     if processes > 1:
         print(f"Using {processes} processes for 'scales loop'")
-        pool = multiprocessing.Pool(processes=processes)
 
         chunk_size = max(len(images) // processes, 1)
         chunks = []
 
-        iterator = 0
         while algorithms:
             if len(algorithms) < chunk_size:
                 chunk_size = len(algorithms)
 
             algorithms_chunk = [algorithms.pop() for _ in range(chunk_size)]
-            images_chunk = [images for _ in range(chunk_size)]
-            roots_chunk = [roots for _ in range(chunk_size)]
-            files_chunk = [files for _ in range(chunk_size)]
+            # images_chunk = [images for _ in range(chunk_size)]
+            # roots_chunk = [roots for _ in range(chunk_size)]
+            # files_chunk = [files for _ in range(chunk_size)]
 
-            chunks.append((algorithms_chunk, images_chunk, roots_chunk, files_chunk, scales, config))
+            chunks.append((algorithms_chunk, images, roots, files, scales, config))
+            # chunks.append((algorithms_chunk, images_chunk, roots_chunk, files_chunk, scales, config))
 
-        pool.map(scale_loop_chunk, chunks)
-        pool.close()
-        pool.join()
+        if 3 not in config['multiprocessing_levels']:
+            pool = multiprocessing.Pool(processes=processes)
+            pool.map(scale_loop_chunk, chunks)
+            pool.close()
+            pool.join()
+        else:
+            with concurrent.futures.ProcessPoolExecutor(max_workers=processes) as executor:
+                executor.map(scale_loop_chunk, chunks)
 
     else:
         for algorithm in algorithms:
-            scale_loop(algorithm, images, roots.copy(), files.copy(), scales, config)
+            scale_loop(algorithm, images.copy(), roots.copy(), files.copy(), scales, config)
 
 
 def fix_config(config: dict) -> dict:
@@ -234,7 +253,7 @@ def fix_config(config: dict) -> dict:
         max_processes = min(os.cpu_count(), round(psutil.virtual_memory() / 1024 ** 3))
         print(f"Max processes: {max_processes}")
     except Exception as e:
-        print(f"Error during max_processes calculation, using default 16384: {e}")
+        print(colored(f"Error during max_processes calculation, using default 16384: {e}", 'red'))
         max_processes = 16384
 
     if config['max_processes'] is None:
@@ -419,7 +438,7 @@ pil_animated_formats_cache = {
 }
 
 
-def pngify(image: PIL.Image) -> list[PIL.Image]:
+def pngify(image: PIL.Image) -> utils.Image:
     if image.format.lower() in pil_animated_formats_cache:
         # Extract all frames from the animated image as a list of images
         if image.is_animated:
@@ -433,19 +452,25 @@ def pngify(image: PIL.Image) -> list[PIL.Image]:
         if not utils.uses_transparency(image):
             image = image.convert("RGB")
 
-    return [image]  # Return an 'image' with single 'frame'
+    return utils.Image([[image]])
+    # return [image]  # Return an 'image' with single 'frame'
 
 
 def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None:
     if os.path.exists("../output"):
         if config['clear_output_directory']:
+            print("\nOutput directory is being cleared!")
             for root, dirs, files in os.walk("../output"):
+                # print(f"Files: {files}")
+                # print(f"Directories: {dirs}")
                 for file in files:
                     os.remove(os.path.join(root, file))
                 for directory in dirs:
                     shutil.rmtree(os.path.join(root, directory))
+            print(colored("Output directory has been cleared!\n", 'green'))
     # Go through all files in input directory, scale them and save them in output directory
     # if in input folder there are some directories all path will be saved in output directory
+
     images = []
     roots = []
     files = []
@@ -457,8 +482,9 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
 
         for file in files:
             if backup_iterator >= files_number:
-                print("\nBackup iterator reached the end of the files list, BREAKING LOOP!\nTHIS SHOULD HAVE NOT HAPPENED!!!\n")
+                print(colored("\nBackup iterator reached the end of the files list, BREAKING LOOP!\nTHIS SHOULD HAVE NOT HAPPENED!!!\n", 'red'))
                 break
+            backup_iterator += 1
 
             path = os.path.join(root, file)
             extension = file.split('.')[-1].lower()
@@ -488,7 +514,7 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
                 roots.append(root)
                 files.append(file)
 
-            elif extension == "MCMETA":
+            elif extension == "mcmeta":
                 if config['mcmeta_correction']:
                     print(f"MCMeta files are not supported yet :(\nfile: {path} will be ignored, animated texture will be corrupted!")
                 else:
@@ -509,8 +535,6 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
                 continue
 
             print(f"Loading: {path}")
-
-            backup_iterator += 1
 
     # After switching to list[list[image]] format, multiprocessing on this level became obsolete
     algorithm_loop(algorithms, images, roots, files, scales, config)
@@ -533,9 +557,9 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
         'lossless_compression': True,
-        'multiprocessing_levels': {2},
-        'max_processes': (2, 4, 4),
-        'override_processes_number': False,  # If True, max_processes will set the Exact number of processes, instead of the Maximum number of processes
+        'multiprocessing_levels': {},
+        'max_processes': (2, 2, 2),
+        'override_processes_count': False,  # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
         'mcmeta_correction': True
     }
     if safe_mode:
@@ -543,7 +567,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
         prog='ImageScaler',
-        description='A simple image scaler',
+        description='An advanced image scaler',
         epilog='Enjoy the program! :)'
     )
 
@@ -553,23 +577,36 @@ if __name__ == '__main__':
     parser.add_argument('-opv', '--override-python-version', action='store_true')  # on/off flag
     args = parser.parse_args()
 
-    if sys.version_info[0] != 3 and sys.version_info[1] != 12 and not args.override_python_version:
-        message = """
-            Some functionality of this application is designed to run on Python 3.12!
-            Please upgrade your Python version to 3.12 or higher!
-            If you still want to your current python version use flag '--override-python-version' or '-opv' to bypass this check
-            (note that some functionality may not work properly and the application may crash!)
-        """
-        raise Exception("Some functionality of this application is designed to run on Python 3.12\nPlease upgrade your Python version to 3.12 or higher!\nIf you still want to your current python version use flag '--override-python-version' or '-opv' to bypass this check (note that some functionality may not work properly and the application may crash!)")
+    if sys.version_info[0] != 3 and sys.version_info[1] != 12:
+        if not args.override_python_version:
+            message = """
+                Some functionality of this application is designed to run on Python 3.12!
+                Please upgrade your Python version to 3.12 or higher!
+                If you still want to your current python version use flag '--override-python-version' or '-opv' to bypass this check
+                (note that some functionality may not work properly and the application may crash!)
+            """
+            raise AssertionError(message)
+        else:
+            message = """
+                WARNING: You are using an unsupported Python version!
+                Some functionality of this application may not work properly and the application may crash!
+            """
+            print(colored(message, 'yellow'))
 
     if args.test:
-        algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4]
-        # algorithms = [Algorithms.RealESRGAN]
-        scales = [1, 2]
+        # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4]
+        # algorithms = [Algorithms.CV2_INTER_AREA]
+        algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.RealESRGAN, Algorithms.xBRZ]  # , Algorithms.FSR
+        scales = [2, 4, 8]
+        # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
         algorithms, scales = handle_user_input()
-    print(f"Received algorithms: {algorithms}")
-    print(f"Received scales: {scales}")
-    print(f"Using config: {config}")
+    print(f"Received algorithms: {colored(algorithms, 'blue')}")
+    print(f"Received scales: {colored(scales, 'blue')}")
+    print("Using config: ", end='')
+    print(colored("{\n\t".expandtabs(4), 'magenta'), end='')
+    print("\n\t".expandtabs(4).join(f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in config.items()))
+    print(colored('}', 'magenta'))
 
     run(algorithms, scales, config)
+    print(colored("ALL DONE!", 'green'))  # TODO: Rainbow-ify this message :)

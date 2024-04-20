@@ -6,22 +6,13 @@ import io
 import numpy as np
 import PIL.Image
 import struct
-# from email.policy import default
 from enum import IntEnum
-# from PIL import Image
-
-
-class ImageType(IntEnum):
-    Single = 0
-    Stacked = 1
-    Animated = 2
 
 
 class Image:
-    def __init__(self, images: list[list[PIL.Image]], image_type=ImageType.Single, animation_spacing=(1000/30)):
+    def __init__(self, images: list[list[PIL.Image]], *, is_animated=False, animation_spacing=(1000/30)):
         self.images = images
-        self.imageType = image_type
-        if image_type == ImageType.Animated:
+        if is_animated:
             self.animationSpacing = animation_spacing
 
 
@@ -250,7 +241,7 @@ def image_to_byte_array(image: PIL.Image, additional_lossless_compression=True) 
     return img_byte_arr
 
 
-def apply_lossless_compression(image) -> bytes:
+def apply_lossless_compression(image: Union[PIL.Image, np.ndarray]) -> bytes:
     # if image is CV2, convert it to PIL
     if isinstance(image, np.ndarray):
         image = cv2_to_pil(image)
