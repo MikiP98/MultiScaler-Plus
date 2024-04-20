@@ -826,6 +826,7 @@ def single_process_3():
         'sort_by_algorithm': False,
         'lossless_compression': True,
         'multiprocessing_levels': {},
+        'override_processes_count': False,
         'max_processes': (32, 32, 32),
         'mcmeta_correction': True
     }
@@ -844,6 +845,7 @@ def multi_processed_3():
         'sort_by_algorithm': False,
         'lossless_compression': True,
         'multiprocessing_levels': {3},
+        'override_processes_count': False,
         'max_processes': (32, 32, 32),
         'mcmeta_correction': True
     }
@@ -883,12 +885,14 @@ def single_process_2():
         'sort_by_algorithm': False,
         'lossless_compression': True,
         'multiprocessing_levels': {},
+        'override_processes_count': False,
         'max_processes': (32, 32, 32),
         'mcmeta_correction': True
     }
 
-    algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.xBRZ]
-    scales = [2, 4, 6]
+    algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
+                  Algorithms.RealESRGAN, Algorithms.xBRZ]  # , Algorithms.FSR
+    scales = [2, 4, 8]
 
     standalone.run(algorithms, scales, config)
 
@@ -901,12 +905,14 @@ def multi_processed_2():
         'sort_by_algorithm': False,
         'lossless_compression': True,
         'multiprocessing_levels': {2},
+        'override_processes_count': False,
         'max_processes': (32, 32, 32),
         'mcmeta_correction': True
     }
 
-    algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.xBRZ]
-    scales = [2, 4, 6]
+    algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
+                  Algorithms.RealESRGAN, Algorithms.xBRZ]  # , Algorithms.FSR
+    scales = [2, 4, 8]
 
     standalone.run(algorithms, scales, config)
 
@@ -939,6 +945,7 @@ def single_process_2_3():
         'sort_by_algorithm': False,
         'lossless_compression': True,
         'multiprocessing_levels': {},
+        'override_processes_count': False,
         'max_processes': (32, 32, 32),
         'mcmeta_correction': True
     }
@@ -957,6 +964,7 @@ def multi_processed_2_3():
         'sort_by_algorithm': False,
         'lossless_compression': True,
         'multiprocessing_levels': {2, 3},
+        'override_processes_count': False,
         'max_processes': (32, 32, 32),
         'mcmeta_correction': True
     }
@@ -1557,7 +1565,7 @@ if __name__ == "__main__":
     # cached_tuple_vs_list_test()
     # endswith_tuple_vs_split_in_set()
     # single_vs_multi_3()
-    # single_vs_multi_2()
+    single_vs_multi_2(n=2)
     # single_vs_multi_2_3()
     # list_alike_test()
     # list_alike_test_2()
@@ -1565,7 +1573,7 @@ if __name__ == "__main__":
     # frozen_set_from_elements()
     # dict_with_list_vs_tuple_vs_set_vs_frozenset()
 
-    set_from_dict()
+    # set_from_dict()
     # set_from_dick_w_tuples_simple()
     # set_from_dick_w_tuples_custom()
     # set_from_dict_w_lists_simple()

@@ -30,15 +30,16 @@ class Algorithms(IntEnum):
     CV2_EDSR = 6  # Enhanced Deep Super-Resolution
     CV2_ESPCN = 7  # Efficient Sub-Pixel Convolutional Neural Network
     CV2_FSRCNN = 8  # Fast Super-Resolution Convolutional Neural Network
-    CV2_LapSRN = 9  # Laplacian Super-Resolution Network
-    FSR = 10  # FidelityFX Super Resolution
-    PIL_BICUBIC = 11  # less blur and artifacts than bilinear, but slower
-    PIL_BILINEAR = 12
-    PIL_LANCZOS = 13  # less blur than bicubic, but artifacts may appear
-    PIL_NEAREST_NEIGHBOR = 14
-    RealESRGAN = 15
-    SUPIR = 16
-    xBRZ = 17
+    CV2_FSRCNN_small = 9  # Fast Super-Resolution Convolutional Neural Network - Small
+    CV2_LapSRN = 10  # Laplacian Super-Resolution Network
+    FSR = 11  # FidelityFX Super Resolution
+    PIL_BICUBIC = 12  # less blur and artifacts than bilinear, but slower
+    PIL_BILINEAR = 13
+    PIL_LANCZOS = 14  # less blur than bicubic, but artifacts may appear
+    PIL_NEAREST_NEIGHBOR = 15
+    RealESRGAN = 16
+    SUPIR = 17
+    xBRZ = 18
 
 
 class Filters(IntEnum):
@@ -55,6 +56,7 @@ string_to_algorithm_dict = {
     "cv2_edsr": Algorithms.CV2_EDSR,
     "cv2_espcn": Algorithms.CV2_ESPCN,
     "cv2_fsrcnn": Algorithms.CV2_FSRCNN,
+    "cv2_fsrcnn_small": Algorithms.CV2_FSRCNN_small,
     "cv2_lapsrn": Algorithms.CV2_LapSRN,
 
     "pil_bicubic": Algorithms.PIL_BICUBIC,
@@ -84,6 +86,7 @@ algorithm_to_string_dict = {
     Algorithms.CV2_EDSR: "cv2_edsr",
     Algorithms.CV2_ESPCN: "cv2_espcn",
     Algorithms.CV2_FSRCNN: "cv2_fsrcnn",
+    Algorithms.CV2_FSRCNN_small: "cv2_fsrcnn_small",
     Algorithms.CV2_LapSRN: "cv2_lapsrn",
 
     Algorithms.PIL_BICUBIC: "pil_bicubic",

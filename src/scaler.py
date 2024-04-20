@@ -71,15 +71,15 @@ def csatca(algorithm: Algorithms):
         raise AttributeError(f"Algorithm not supported by OpenCV: {utils.algorithm_to_string(algorithm)},  id: {algorithm}")
 
 
-def scale_image(algorithm, image, factor, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> PIL.Image:
-    return scale_image_batch(algorithm, image, [factor], fallback_algorithm=fallback_algorithm, config_plus=config_plus, main_checked=main_checked).pop()
+def scale_image(algorithm: Algorithms, image: utils.Image, factor: int, *, fallback_algorithm=Algorithms.CV2_INTER_AREA, config_plus=None, main_checked=False) -> PIL.Image:
+    return scale_image_batch(algorithm, [image], [factor], fallback_algorithm=fallback_algorithm, config_plus=config_plus, main_checked=main_checked).pop()
 
 
 # ud - upscale/downscale
 cv2_algorithms_ud = {Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_NEAREST}
 pil_algorithms_ud = {Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.PIL_BILINEAR, Algorithms.PIL_BICUBIC, Algorithms.PIL_LANCZOS}
 
-cv2_ai_234 = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN}
+cv2_ai_234 = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small}
 cv2_ai_248 = {Algorithms.CV2_LapSRN}
 
 
@@ -100,7 +100,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
             for factor in factors:
                 if factor > 1:
                     # raise ValueError("INTER_AREA does not support upscaling!")
-                    print(colored(f"ERROR: INTER_AREA does not support upscaling! Factor: {factor}; File names will be incorrect!"), 'red')
+                    print(colored(f"ERROR: INTER_AREA does not support upscaling! Factor: {factor}; File names will be incorrect!", 'red'))
                     continue
 
                 scaled_image = []
@@ -137,7 +137,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
 
         return scaled_images
 
-    def cv2_ai_common_scale(image_object, factor, sr, path_prefix, name):
+    def cv2_ai_common_scale(image_object: utils.Image, factor: int, sr: cv2.dnn_superres.DnnSuperResImpl, path_prefix: str, name: str):
         path = f"{path_prefix}_x{factor}.pb"
         # print(f"Path: {path}")
 
@@ -169,7 +169,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                     # raise ValueError("INTER_AREA does not support upscaling!")
                     print(colored(f"Warning: CV2 AI '{algorithm.name}' does not support factor: {factor}! Allowed factors: {allowed_factors}; Result might be blurry!", 'yellow'))
                     if factor < 1:
-                        print(colored(f"ERROR: CV2 AIs do not support downscaling! Cannot perform any fixes! Scaling with fallback algorithm: {fallback_algorithm.name}"), 'red')
+                        print(colored(f"ERROR: CV2 AIs do not support downscaling! Cannot perform any fixes! Scaling with fallback algorithm: {fallback_algorithm.name}", 'red'))
                         scaled_image = []
                         for frame in image_object.images[0]:
                             cv2_image = utils.pil_to_cv2(frame)
@@ -254,7 +254,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                 new_image_object_list = []
                 for factor in factors:
                     if factor < 1:
-                        print(colored(f"ERROR: xBRZ does not support downscaling! Factor: {factor}; Defaulting to fallback alhorithm: {fallback_algorithm.name}"), 'red')
+                        print(colored(f"ERROR: xBRZ does not support downscaling! Factor: {factor}; Defaulting to fallback alhorithm: {fallback_algorithm.name}", 'red'))
                         scaled_image = []
                         for frame in image_object.images[0]:
                             cv2_image = utils.pil_to_cv2(frame)
@@ -269,7 +269,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                         # raise ValueError("xBRZ does not support downscaling!")
                     # If factor is not a whole number or is greater than 6, print a warning
                     if factor != int(factor) or factor > 6:
-                        print(colored(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!"), 'yellow')
+                        print(colored(f"WARNING: Scaling by xBRZ with factor {factor} is not supported, result might be blurry!", 'yellow'))
 
                     scaled_image = []
                     for frame in image_object.images[0]:
@@ -298,7 +298,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                 for factor in factors:
                     scaled_image = []
                     if factor < 1:
-                        print("RealESRGAN AI does not support downscaling!; Defaulting to fallback algorithm: {fallback_algorithm.name}")
+                        print(colored("RealESRGAN AI does not support downscaling!; Defaulting to fallback algorithm: {fallback_algorithm.name}", 'red'))
 
                         for frame in image_object.images[0]:
                             cv2_image = utils.pil_to_cv2(frame)
@@ -316,7 +316,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
 
                         # If factor is not a whole number or is greater than 6, print a warning
                         if factor not in (1, 2, 4, 8):
-                            print(colored("WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!"), 'yellow')
+                            print(colored("WARNING: Scaling by RealESRGAN with factor {factor} is not supported, result might be blurry!", 'yellow'))
 
                         current_scale = 1
                         while current_scale < factor:
@@ -360,9 +360,9 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                 for _ in images:
                     for factor in factors:
                         if factor > 2:
-                            print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
+                            print(colored("WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!", 'yellow'))
 
-                        print(f"WARNING: Might be currently broken!")
+                        print(colored("WARNING: Might be currently broken!", 'yellow'))
 
                         script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
                         options = f"-Scale {factor}x {factor}x -Mode EASU"
@@ -383,9 +383,9 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                 for _ in images:
                     for factor in factors:
                         if factor > 2:
-                            print(f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!")
+                            print(colored("WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!", 'yellow'))
 
-                        print(f"WARNING: Might be currently broken!")
+                        print(colored("WARNING: Might be currently broken!", 'yellow'))
 
                         script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
                         options = f"-Scale {factor}x {factor}x -Sharpness {config_plus['sharpness']} -Mode CAS"
@@ -461,5 +461,5 @@ def scale_image_data(algorithm, pixels: [[[int]]], factor, *, fallback_algorithm
                     for x in range(len(pixels[0])):
                         image.putpixel((x * factor, y * factor), pixels[y][x])
 
-                return scale_image(algorithm, image, [factor], fallback_algorithm=fallback_algorithm, main_checked=True)
+                return scale_image(algorithm, image, factor, fallback_algorithm=fallback_algorithm, main_checked=True)
                 # return scale_image(algorithm, image, factor, fallback_algorithm, main_checked=True)

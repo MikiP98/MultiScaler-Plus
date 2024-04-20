@@ -194,16 +194,27 @@ def scale_loop_chunk(args) -> None:
 def algorithm_loop(algorithms: list[Algorithms],
                    images: list[utils.Image],
                    roots: list[str], files: list[str],
-                   scales: list[float], config) -> None:
+                   scales: list[float], config: dict) -> None:
     processes = 0
     if 2 in config['multiprocessing_levels']:  # TODO: Complete this implementation
         if config['override_processes_count']:
             processes = config['max_processes'][1]
         else:
-            # TODO: Create better algorithm
-            performance_processes = utils.geo_avg(scales) / 8 * len(algorithms)
+            # Calc average image size
+            images_frames = [image.images[0] for image in images]
+            # print(f"Images frames: {images_frames}")
+            size_sum = 0
+            for frames in images_frames:
+                for frame in frames:
+                    size_sum += frame.size[0] * frame.size[1]
+
+            performance_constant = 786_432  # 2^18 * 3
+            performance_processes = size_sum * utils.avg(scales)**2 * len(scales) * len(algorithms) / performance_constant
+
+            # performance_processes = utils.geo_avg(scales) / 8 * len(algorithms)
+            print(f"Performance processes: {performance_processes}")
             if not config['lossless_compression']:
-                performance_processes /= 4
+                performance_processes /= 32
 
             performance_processes = round(performance_processes)
 
@@ -213,7 +224,7 @@ def algorithm_loop(algorithms: list[Algorithms],
     if processes > 1:
         print(f"Using {processes} processes for 'scales loop'")
 
-        chunk_size = max(len(images) // processes, 1)
+        chunk_size = max(len(algorithms) // processes, 1)
         chunks = []
 
         while algorithms:
@@ -261,8 +272,6 @@ def fix_config(config: dict) -> dict:
         print(f"New max_processes: {config['max_processes']}")
 
     else:
-
-
         if len(config['max_processes']) < 3:
             if len(config['max_processes']) == 0:
                 config['max_processes'] = (max_processes, max_processes, max_processes)
@@ -548,7 +557,7 @@ if __name__ == '__main__':
     safe_mode = False
 
     # multiprocessing_level:
-    # empty - no multiprocessing,
+    # empty - no multiprocessing
     # 2 - to process different algorithms in parallel, (Note that this level also splits every subsequent workflow)
     # 3 - to save multiple images in parallel
     config = {
@@ -557,7 +566,7 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
         'lossless_compression': True,
-        'multiprocessing_levels': {},
+        'multiprocessing_levels': {2},
         'max_processes': (2, 2, 2),
         'override_processes_count': False,  # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
         'mcmeta_correction': True
