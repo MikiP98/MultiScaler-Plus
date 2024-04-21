@@ -832,7 +832,7 @@ def single_process_3():
     }
 
     algorithms = [Algorithms.CV2_INTER_NEAREST]
-    scales = [4, 8, 16, 24, 32, 64]
+    scales = [4, 8, 16, 24, 32, 64, 72, 88]
 
     standalone.run(algorithms, scales, config)
 
@@ -851,7 +851,7 @@ def multi_processed_3():
     }
 
     algorithms = [Algorithms.CV2_INTER_NEAREST]
-    scales = [8, 16, 24, 32]
+    scales = [4, 8, 16, 24, 32, 64, 72, 88]
 
     standalone.run(algorithms, scales, config)
 
@@ -1564,8 +1564,8 @@ if __name__ == "__main__":
     # columnify_test()  # Broken
     # cached_tuple_vs_list_test()
     # endswith_tuple_vs_split_in_set()
-    # single_vs_multi_3()
-    single_vs_multi_2(n=2)
+    single_vs_multi_3(n=2)
+    # single_vs_multi_2(n=2)
     # single_vs_multi_2_3()
     # list_alike_test()
     # list_alike_test_2()

@@ -85,27 +85,6 @@ def save_images_chunk(args) -> None:
                 # Compose an APNG image
                 raise NotImplementedError("Animated (and stacked) output is not yet supported")
 
-    # for image_object, root, file in zip(images_chunk, roots_chunk, file_chunk):
-    #     # print(f"Type of image_object: {type(image_object)}")
-    #     # print(f"Type of image_object.images: {type(image_object.images)}")
-    #     # print(f"Type of root: {type(root)}")
-    #     # print(f"Type of file: {type(file)}")
-    #     print(f"Type of scales: {type(scales)}")
-    #
-    #     for scaled_image, scale in zip(image_object.images, scales):
-    #         if len(scaled_image) == 1:
-    #             save_image(algorithm, scaled_image[0], root, file, scale, config)
-    #         else:
-    #             # Compose an APNG image
-    #             raise NotImplementedError("Animated (and stacked) output is not yet supported")
-
-    # for scaled_image, scale in zip(image_object.images, scales):
-    #     if len(scaled_image) == 1:
-    #         save_image(algorithm, scaled_image[0], root, file, scale, config)
-    #     else:
-    #         # Compose an APNG image
-    #         raise NotImplementedError("Animated (and stacked) output is not yet supported")
-
 
 def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str], files: list[str], scales: list[float], config) -> None:
     # config_plus = {
@@ -130,10 +109,22 @@ def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str
         if config['override_processes_count']:
             processes = config['max_processes'][2]
         else:
+            # # Calc average image size
+            # images_frames = [image.images[0] for image in images]
+            # # print(f"Images frames: {images_frames}")
+            # size_sum = 0
+            # for frames in images_frames:
+            #     for frame in frames:
+            #         size_sum += frame.size[0] * frame.size[1]
+            #
+            # performance_constant = 150_000_000
+            # performance_processes = size_sum * utils.avg(scales) ** 2 * len(scales) / performance_constant
             # TODO: Create better algorithm, consider images sizes and frame count
             performance_processes = utils.geo_avg(scales) / 16
             if not config['lossless_compression']:
-                performance_processes /= 16
+                performance_processes /= 32
+
+            print(f"Performance processes: {performance_processes}")
 
             performance_processes = round(performance_processes)
 
@@ -566,7 +557,7 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
         'lossless_compression': True,
-        'multiprocessing_levels': {2},
+        'multiprocessing_levels': {3},
         'max_processes': (2, 2, 2),
         'override_processes_count': False,  # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
         'mcmeta_correction': True
