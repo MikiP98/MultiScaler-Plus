@@ -594,10 +594,10 @@ if __name__ == '__main__':
             print(colored(message, 'yellow'))
 
     if args.test:
-        # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4]
+        algorithms = [Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small]
         # algorithms = [Algorithms.CV2_INTER_AREA]
-        algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.RealESRGAN, Algorithms.xBRZ]  # , Algorithms.FSR
-        scales = [2, 4, 8]
+        # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.RealESRGAN, Algorithms.xBRZ]  # , Algorithms.FSR
+        scales = [2, 3, 4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
         algorithms, scales = handle_user_input()

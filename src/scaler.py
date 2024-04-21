@@ -142,7 +142,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
         # print(f"Path: {path}")
 
         sr.readModel(path)
-        sr.setModel(name.lower(), factor)
+        sr.setModel(name.lower().split('_')[0], factor)
 
         scaled_image = []
         for frame in image_object.images[0]:
