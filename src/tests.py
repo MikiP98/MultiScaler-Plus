@@ -240,7 +240,7 @@ def cv2_vs_pil_test(n=100, k=10):
     cv2_algorithms = [Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_NEAREST]
     pil_algorithms = [Algorithms.PIL_BICUBIC, Algorithms.PIL_BILINEAR, Algorithms.PIL_LANCZOS, Algorithms.PIL_NEAREST_NEIGHBOR]
 
-    image = Image.open("../input/NEAREST_NEIGHBOR_pixel-art_0.125x.png").convert("RGBA")
+    image = utils.pngify(Image.open("../input/NEAREST_NEIGHBOR_pixel-art_0.125x.png").convert("RGBA"))
 
     cv2_time = 0
     pil_time = 0
@@ -249,9 +249,9 @@ def cv2_vs_pil_test(n=100, k=10):
         print(f"Iteration {i + 1}/{k}")
         for algorithm in cv2_algorithms:
             # print(f"Og algorithm: {utils.algorithm_to_string(algorithm)}")
-            cv2_time += timeit.timeit(lambda: scaler.scale_image_batch(algorithm, [[image]], factors), number=n // k)
+            cv2_time += timeit.timeit(lambda: scaler.scale_image_batch(algorithm, [image], factors), number=n // k)
         for algorithm in pil_algorithms:
-            pil_time += timeit.timeit(lambda: scaler.scale_image_batch(algorithm, [[image]], factors), number=n // k)
+            pil_time += timeit.timeit(lambda: scaler.scale_image_batch(algorithm, [image], factors), number=n // k)
     print()
 
     cv2_time = round(cv2_time / k, 4)
