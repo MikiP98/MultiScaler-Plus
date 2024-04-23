@@ -370,14 +370,11 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                 relative_output_path_of_images = map(lambda x: x.replace('.png', '_FSR.png'), relative_output_path_of_images)
 
                 for relative_input_path, relative_output_path in zip(relative_input_path_of_images, relative_output_path_of_images):
-                    print(colored("WARNING: Might be currently broken!", 'yellow'))
                     print(f"Relative input path: {relative_input_path}")
                     print(f"Relative output path: {relative_output_path}")
                     for factor in factors:
                         if factor > 2:
                             print(colored("WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!", 'yellow'))
-
-                        print(colored("WARNING: Might be currently broken!", 'yellow'))
 
                         script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
                         options = f"-Scale {factor}x {factor}x -Mode EASU"
@@ -415,8 +412,6 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                     for factor in factors:
                         if factor > 2:
                             print(colored("WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!", 'yellow'))
-
-                        print(colored("WARNING: Might be currently broken!", 'yellow'))
 
                         script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
                         options = f"-Scale {factor}x {factor}x -Sharpness {sharpness} -Mode CAS"
