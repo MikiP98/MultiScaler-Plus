@@ -17,6 +17,7 @@ import zipfile
 from fractions import Fraction
 from functools import lru_cache
 from termcolor import colored
+from typing import Union
 from utils import Algorithms, pil_fully_supported_formats_cache, pil_read_only_formats_cache, pil_write_only_formats_cache, pil_indentify_only_formats_cache, pngify
 
 
@@ -371,9 +372,9 @@ def columnify(elements: tuple) -> str:
     return result
 
 
-def handle_user_input() -> tuple[set[Algorithms], set[float]]:
-    algorithms = set()
-    scales = set()
+def handle_user_input() -> tuple[list[Algorithms], list[float], Union[float, None]]:
+    algorithms = []
+    scales = []
 
     # max_columns = 4
 
@@ -388,12 +389,14 @@ def handle_user_input() -> tuple[set[Algorithms], set[float]]:
         for algorithm_input in algorithms_input:
             if algorithm_input.isdigit():
                 try:
-                    algorithms.add(Algorithms(int(algorithm_input)))
+                    # algorithms.add(Algorithms(int(algorithm_input)))
+                    algorithms.append(Algorithms(int(algorithm_input)))
                 except ValueError:
                     print(f"Algorithm with id '{algorithm_input}' does not exist")
             else:
                 try:
-                    algorithms.add(utils.string_to_algorithm(algorithm_input))
+                    # algorithms.add(utils.string_to_algorithm(algorithm_input))
+                    algorithms.append(utils.string_to_algorithm(algorithm_input))
                 except KeyError:
                     print(f"Algorithm with name '{algorithm_input}' does not exist")
 
@@ -401,14 +404,15 @@ def handle_user_input() -> tuple[set[Algorithms], set[float]]:
             print("You must select at least one algorithm!")
         else:
             break
-    print(columnify.cache_info())
+    # print(columnify.cache_info())
 
     while True:
-        print("Enter the scales you want to use separated by a space:")
+        print("\nEnter the scales you want to use separated by a space:")
         scales_input = input().replace(',', ' ').split(' ')
         for scale_input in scales_input:
             try:
-                scales.add(float(scale_input))
+                # scales.add(float(scale_input))
+                scales.append(float(scale_input))
             except ValueError:
                 print(f"Scale '{scale_input}' is not a valid number")
 
@@ -417,32 +421,31 @@ def handle_user_input() -> tuple[set[Algorithms], set[float]]:
         else:
             break
 
+    sharpness = None
+    for algorithm in algorithms:
+        if algorithm == Algorithms.CAS:
+            while True:
+                print("\nEnter the sharpness value for the CAS algorithm (0.0 - 1.0):")
+                sharpness = input()
+                try:
+                    sharpness = float(sharpness)
+                    if sharpness < 0 or sharpness > 1:
+                        print("Sharpness must be in range 0.0 - 1.0")
+                    else:
+                        break
+                except ValueError:
+                    print("Sharpness must be a number")
+
     print("Algorithms:")
     for algorithm in algorithms:
         print(f"\t{algorithm.value} - {algorithm.name}")
     print("Scales:")
     for scale in scales:
         print(f"\t{scale}")
+    if sharpness is not None:
+        print(f"Sharpness: {sharpness}")
 
-    return algorithms, scales
-
-
-# def pngify(image: PIL.Image) -> utils.Image:
-#     if image.format.lower() in pil_animated_formats_cache:
-#         # Extract all frames from the animated image as a list of images
-#         if image.is_animated:
-#             raise NotImplementedError("Animated images are not supported yet")
-#
-#         raise NotImplementedError(f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}")
-#
-#     # check if is RGBA or RGB
-#     elif not (image.mode == "RGB" or image.mode == "RGBA"):
-#         image = image.convert("RGBA")
-#         if not utils.uses_transparency(image):
-#             image = image.convert("RGB")
-#
-#     return utils.Image([[image]])
-#     # return [image]  # Return an 'image' with single 'frame'
+    return algorithms, scales, sharpness
 
 
 def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None:
@@ -589,7 +592,7 @@ if __name__ == '__main__':
         scales = [2]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
-        algorithms, scales = handle_user_input()
+        algorithms, scales, sharpness = handle_user_input()
     print(f"Received algorithms: {colored(algorithms, 'blue')}")
     print(f"Received scales: {colored(scales, 'blue')}")
     print("Using config: ", end='')
