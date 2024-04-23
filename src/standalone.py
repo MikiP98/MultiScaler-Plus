@@ -128,7 +128,7 @@ def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str
             if not config['lossless_compression']:
                 performance_processes /= 32
 
-            print(f"Performance processes: {performance_processes}")
+            # print(f"Performance processes: {performance_processes}")
 
             performance_processes = round(performance_processes)
 
@@ -207,7 +207,7 @@ def algorithm_loop(algorithms: list[Algorithms],
             performance_processes = size_sum * utils.avg(scales)**2 * len(scales) * len(algorithms) / performance_constant
 
             # performance_processes = utils.geo_avg(scales) / 8 * len(algorithms)
-            print(f"Performance processes: {performance_processes}")
+            # print(f"Performance processes: {performance_processes}")
             if not config['lossless_compression']:
                 performance_processes /= 32
 
@@ -549,7 +549,7 @@ if __name__ == '__main__':
         'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
         'lossless_compression': True,
-        'multiprocessing_levels': {3},
+        'multiprocessing_levels': {},
         'max_processes': (2, 2, 2),
         'override_processes_count': False,  # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
         'mcmeta_correction': True
