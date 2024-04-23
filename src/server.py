@@ -4,9 +4,10 @@
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+import os
 from PIL import Image
 from scaler import scale_image_batch
-from utils import image_to_byte_array, string_to_algorithm
+from utils import image_to_byte_array, string_to_algorithm, cli_algorithms, pngify
 
 app = FastAPI()
 # Allow requests from all origins
@@ -45,11 +46,30 @@ def main(content: UploadFile, algorithm: str = 'bicubic', factor: float = 2):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    config_plus = {
+    if algorithm in cli_algorithms:
+        config_plus = {
+            'sharpness': 0.5,
+            'relative_input_path_of_images': ['./web_temp_input/image.png'],
+            'relative_output_path_of_images': ['./web_temp_output/image.png']
+        }
+        image_bytes = image_to_byte_array(img)
 
-    }
-    scaled_image = scale_image_batch(scaling_algorithm, [[img]], [factor], config_plus=config_plus).pop().pop()
-    if not scaled_image:
+        # check if 'web_temp_input' and 'web_temp_output' directories exist, if not create them
+        if not os.path.exists('./web_temp_input'):
+            os.makedirs('./web_temp_input')
+        if not os.path.exists('./web_temp_output'):
+            os.makedirs('./web_temp_output')
+
+        with open('./web_temp_input/image.png', 'wb') as f:
+            f.write(image_bytes)
+    else:
+        config_plus = None
+
+    scaled_image_list = scale_image_batch(scaling_algorithm, [pngify(img)], [factor], config_plus=config_plus)
+
+    if not scaled_image_list or len(scaled_image_list) == 0:
         scaled_image = Image.open("./web_temp_output/image.png")
+    else:
+        scaled_image = scaled_image_list.pop()
 
     return Response(content=image_to_byte_array(scaled_image), media_type="image/png")

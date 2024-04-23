@@ -17,14 +17,14 @@ import zipfile
 from fractions import Fraction
 from functools import lru_cache
 from termcolor import colored
-from utils import Algorithms, pil_fully_supported_formats_cache, pil_read_only_formats_cache, pil_write_only_formats_cache, pil_indentify_only_formats_cache
+from utils import Algorithms, pil_fully_supported_formats_cache, pil_read_only_formats_cache, pil_write_only_formats_cache, pil_indentify_only_formats_cache, pngify
 
 
 PIL.Image.MAX_IMAGE_PIXELS = 200000000
 PIL.GifImagePlugin.LOADING_STRATEGY = PIL.GifImagePlugin.LoadingStrategy.RGB_ALWAYS
 
 
-def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config) -> None:
+def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config: dict) -> None:
     # print(f"Saving algorithm: {algorithm} {algorithm.name}, root: {root}, file: {file}, scale: {scale}")
     path = os.path.join(root, file)
 
@@ -86,17 +86,20 @@ def save_images_chunk(args) -> None:
                 raise NotImplementedError("Animated (and stacked) output is not yet supported")
 
 
-def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str], files: list[str], scales: list[float], config) -> None:
-    # config_plus = {
-    #     'input_image_relative_path': file,
-    #     'sharpness': 0.5
-    # }
-
+def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str], files: list[str], scales: list[float], config: dict) -> None:
     print("Starting scaling process")
     # TODO: Implement multiprocessing for this and bring back the config_plus!!!
     # print(f"Scaling image: {config_plus['input_image_relative_path']}")
     # print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
-    image_objects = scaler.scale_image_batch(algorithm, images, scales)  # , config_plus=config_plus
+    if algorithm in utils.cli_algorithms:
+        config_plus = {
+            'sharpness': 0.5,
+            'relative_input_path_of_images': [root + '/' + file for root, file in zip(roots, files)]
+        }
+    else:
+        config_plus = None
+
+    image_objects = scaler.scale_image_batch(algorithm, images, scales, config_plus=config_plus)
     print(colored("Scaling done\n", 'green'))
 
     if len(images) < len(scales):
@@ -424,36 +427,22 @@ def handle_user_input() -> tuple[set[Algorithms], set[float]]:
     return algorithms, scales
 
 
-pil_animated_formats = {
-    "BLP": {"blp2"},  # Only BLP2 supports multiple images and animations
-    "TIFF": {"tif", "tiff", "tiff2"},
-    "APNG": {"apng"},
-    "WebP": {"webp"},
-    "JPX": {"jpx"}  # Only JPEG 2000 Part 2 (JPX) supports multiple images and animations
-}
-# AV1
-# MNG: {.mng} MNG supports both multiple images and animations
-pil_animated_formats_cache = {
-    extension for extensions in pil_animated_formats for extension in extensions
-}
-
-
-def pngify(image: PIL.Image) -> utils.Image:
-    if image.format.lower() in pil_animated_formats_cache:
-        # Extract all frames from the animated image as a list of images
-        if image.is_animated:
-            raise NotImplementedError("Animated images are not supported yet")
-
-        raise NotImplementedError(f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}")
-
-    # check if is RGBA or RGB
-    elif not (image.mode == "RGB" or image.mode == "RGBA"):
-        image = image.convert("RGBA")
-        if not utils.uses_transparency(image):
-            image = image.convert("RGB")
-
-    return utils.Image([[image]])
-    # return [image]  # Return an 'image' with single 'frame'
+# def pngify(image: PIL.Image) -> utils.Image:
+#     if image.format.lower() in pil_animated_formats_cache:
+#         # Extract all frames from the animated image as a list of images
+#         if image.is_animated:
+#             raise NotImplementedError("Animated images are not supported yet")
+#
+#         raise NotImplementedError(f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}")
+#
+#     # check if is RGBA or RGB
+#     elif not (image.mode == "RGB" or image.mode == "RGBA"):
+#         image = image.convert("RGBA")
+#         if not utils.uses_transparency(image):
+#             image = image.convert("RGB")
+#
+#     return utils.Image([[image]])
+#     # return [image]  # Return an 'image' with single 'frame'
 
 
 def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None:
@@ -594,10 +583,10 @@ if __name__ == '__main__':
             print(colored(message, 'yellow'))
 
     if args.test:
-        algorithms = [Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small]
+        algorithms = [Algorithms.FSR, Algorithms.CAS]
         # algorithms = [Algorithms.CV2_INTER_AREA]
-        # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.RealESRGAN, Algorithms.xBRZ]  # , Algorithms.FSR
-        scales = [2, 3, 4]
+        # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR]
+        scales = [2]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
         algorithms, scales = handle_user_input()

@@ -46,6 +46,9 @@ class Filters(IntEnum):
     CAS = 0  # contrast adaptive sharpening
 
 
+cli_algorithms = {Algorithms.FSR, Algorithms.CAS, Algorithms.SUPIR}
+
+
 string_to_algorithm_dict = {
     "cv2_area": Algorithms.CV2_INTER_AREA,
     "cv2_bicubic": Algorithms.CV2_INTER_CUBIC,
@@ -187,6 +190,20 @@ pil_indentify_only_formats_cache = frozenset(
 )
 
 
+pil_animated_formats = {
+    "BLP": {"blp2"},  # Only BLP2 supports multiple images and animations
+    "TIFF": {"tif", "tiff", "tiff2"},
+    "APNG": {"apng"},
+    "WebP": {"webp"},
+    "JPX": {"jpx"}  # Only JPEG 2000 Part 2 (JPX) supports multiple images and animations
+}
+# AV1
+# MNG: {.mng} MNG supports both multiple images and animations
+pil_animated_formats_cache = {
+    extension for extensions in pil_animated_formats for extension in extensions
+}
+
+
 def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
     """
     Convert a Pillow image to OpenCV format
@@ -276,6 +293,24 @@ def apply_lossless_compression(image: Union[PIL.Image, np.ndarray]) -> bytes:
             img_byte_arr = img_temp_byte_arr
 
     return img_byte_arr.getvalue()
+
+
+def pngify(image: PIL.Image) -> Image:
+    if image.format.lower() in pil_animated_formats_cache:
+        # Extract all frames from the animated image as a list of images
+        if image.is_animated:
+            raise NotImplementedError("Animated images are not supported yet")
+
+        raise NotImplementedError(f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}")
+
+    # check if is RGBA or RGB
+    elif not (image.mode == "RGB" or image.mode == "RGBA"):
+        image = image.convert("RGBA")
+        if not uses_transparency(image):
+            image = image.convert("RGB")
+
+    return Image([[image]])
+    # return [image]  # Return an 'image' with single 'frame'
 
 
 @DeprecationWarning
