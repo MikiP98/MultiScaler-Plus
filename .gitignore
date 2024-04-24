@@ -5,13 +5,21 @@ input/**
 !input/example_shell_40px.png
 output
 
-tsrc/SUPIR
-tsrc/SUPIR/*
-tsrc/SUPIR/**
+#src/SUPIR
+#src/SUPIR/*
+#src/SUPIR/**
 
-tsrc/MultiScaler-Plus_Web_Server
-tsrc/MultiScaler-Plus_Web_Server/*
-tsrc/MultiScaler-Plus_Web_Server/**
+#src/MultiScaler-Plus_Web_Server
+#src/MultiScaler-Plus_Web_Server/*
+#src/MultiScaler-Plus_Web_Server/**
+
+src/web_temp_input
+src/web_temp_input/*
+src/web_temp_input/**
+
+src/web_temp_output
+src/web_temp_output/*
+src/web_temp_output/**
 
 #src/tests.py
 

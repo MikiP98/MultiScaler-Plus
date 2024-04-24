@@ -35,7 +35,7 @@ def read_root():
     response_class=Response
 )
 def main(content: UploadFile, algorithm: str = 'bicubic', factor: float = 2):
-    print(content)
+    # print(content)
     img = Image.open(content.file)
 
     try:
@@ -46,7 +46,8 @@ def main(content: UploadFile, algorithm: str = 'bicubic', factor: float = 2):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    if algorithm in cli_algorithms:
+    # print(f"Algorithm: {algorithm}")
+    if scaling_algorithm in cli_algorithms:
         config_plus = {
             'sharpness': 0.5,
             'relative_input_path_of_images': ['./web_temp_input/image.png'],
@@ -70,6 +71,6 @@ def main(content: UploadFile, algorithm: str = 'bicubic', factor: float = 2):
     if not scaled_image_list or len(scaled_image_list) == 0:
         scaled_image = Image.open("./web_temp_output/image.png")
     else:
-        scaled_image = scaled_image_list.pop()
+        scaled_image = scaled_image_list.pop().images[0][0]
 
     return Response(content=image_to_byte_array(scaled_image), media_type="image/png")

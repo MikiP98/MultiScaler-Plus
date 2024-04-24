@@ -363,11 +363,12 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
 
                 if 'relative_output_path_of_images' not in config_plus:
                     relative_output_path_of_images = map(lambda x: x.replace('input', 'output'), relative_input_path_of_images)
+                    relative_output_path_of_images = map(lambda x: x.replace('.png', '_FSR.png'), relative_output_path_of_images)
                 else:
                     relative_output_path_of_images = config_plus['relative_output_path_of_images']
 
                 # change file name to include '_FSR' before the file extension
-                relative_output_path_of_images = map(lambda x: x.replace('.png', '_FSR.png'), relative_output_path_of_images)
+                # relative_output_path_of_images = map(lambda x: x.replace('.png', '_FSR.png'), relative_output_path_of_images)
 
                 for relative_input_path, relative_output_path in zip(relative_input_path_of_images, relative_output_path_of_images):
                     print(f"Relative input path: {relative_input_path}")
@@ -402,11 +403,12 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
 
                 if 'relative_output_path_of_images' not in config_plus:
                     relative_output_path_of_images = map(lambda x: x.replace('input', 'output'), relative_input_path_of_images)
+                    relative_output_path_of_images = map(lambda x: x.replace('.png', '_CAS.png'), relative_output_path_of_images)  # Ignore the warning, variable initialized on previous line
                 else:
                     relative_output_path_of_images = config_plus['relative_output_path_of_images']
 
                 # change file name to include '_CAS' before the file extension
-                relative_output_path_of_images = map(lambda x: x.replace('.png', '_CAS.png'), relative_output_path_of_images)
+                # relative_output_path_of_images = map(lambda x: x.replace('.png', '_CAS.png'), relative_output_path_of_images)
 
                 for relative_input_path, relative_output_path in zip(relative_input_path_of_images, relative_output_path_of_images):
                     for factor in factors:
