@@ -89,6 +89,12 @@ def save_images_chunk(args) -> None:
 
 def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str], files: list[str], scales: list[float], config: dict) -> None:
     print("Starting scaling process")
+
+    # print(f"Length of images: {len(images)}")
+    # print(f"Length of roots: {len(roots)}")
+    # print(f"Length of files: {len(files)}")
+    # print(f"Files: {files}")
+
     # TODO: Implement multiprocessing for this and bring back the config_plus!!!
     # print(f"Scaling image: {config_plus['input_image_relative_path']}")
     # print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
@@ -465,8 +471,12 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
 
     images = []
     roots = []
-    files = []
+    file_names = []
     for root, dirs, files in os.walk("../input"):
+        # print(f"Length of images: {len(images)}")
+        # print(f"Length of roots: {len(roots)}")
+        # print(f"Length of files: {len(file_names)}")
+
         files_number = len(files)
         print(f"Checking {files_number} files in input directory")
 
@@ -481,7 +491,7 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
             path = os.path.join(root, file)
             extension = file.split('.')[-1].lower()
 
-            if extension == "ZIP" or extension == "7Z":
+            if extension == "zip" or extension == "7z":
                 with zipfile.ZipFile(path, 'r') as zip_ref:
                     # Get a list of all files and directories inside the zip file
                     zip_contents = zip_ref.namelist()
@@ -502,13 +512,19 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
             elif extension in pil_fully_supported_formats_cache or extension in pil_read_only_formats_cache:
                 image = PIL.Image.open(path)
                 image = pngify(image)
+
                 images.append(image)
                 roots.append(root)
-                files.append(file)
+                file_names.append(file)
+                # print(f"Appended root: {root} and file: {file} to their respective lists")
 
             elif extension == "mcmeta":
-                if config['mcmeta_correction']:
-                    print(f"MCMeta files are not supported yet :(\nfile: {path} will be ignored, animated texture will be corrupted!")
+                if config['copy_mcmeta']:
+                    print(f"MCMeta file: {path} is being copied to the output directory")
+                    output_dir = f"../output{root.lstrip('../input')}"
+                    if not os.path.exists(output_dir):
+                        os.makedirs(output_dir)
+                    shutil.copy2(path, output_dir)
                 else:
                     print(f"MCMeta file: {path} will be ignored, animated texture will be corrupted!")
 
@@ -528,8 +544,12 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
 
             print(f"Loading: {path}")
 
+    # print(f"Length of images: {len(images)}")
+    # print(f"Length of roots: {len(roots)}")
+    # print(f"Length of files: {len(file_names)}")
+
     # After switching to list[list[image]] format, multiprocessing on this level became obsolete
-    algorithm_loop(algorithms, images, roots, files, scales, config)
+    algorithm_loop(algorithms, images, roots, file_names, scales, config)
 
 
 if __name__ == '__main__':
@@ -545,14 +565,14 @@ if __name__ == '__main__':
     # 3 - to save multiple images in parallel
     config = {
         'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
+        'add_algorithm_name_to_output_files_names': False,
+        'add_factor_to_output_files_names': False,
         'sort_by_algorithm': False,
         'lossless_compression': True,
         'multiprocessing_levels': {},
         'max_processes': (2, 2, 2),
         'override_processes_count': False,  # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
-        'mcmeta_correction': True
+        'copy_mcmeta': True
     }
     if safe_mode:
         config = fix_config(config)
