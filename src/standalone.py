@@ -565,8 +565,8 @@ if __name__ == '__main__':
     # 3 - to save multiple images in parallel
     config = {
         'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': False,
-        'add_factor_to_output_files_names': False,
+        'add_algorithm_name_to_output_files_names': True,
+        'add_factor_to_output_files_names': True,
         'sort_by_algorithm': False,
         'lossless_compression': True,
         'multiprocessing_levels': {},
@@ -606,10 +606,10 @@ if __name__ == '__main__':
             print(colored(message, 'yellow'))
 
     if args.test:
-        algorithms = [Algorithms.FSR, Algorithms.CAS]
+        algorithms = [Algorithms.Super_xBR]
         # algorithms = [Algorithms.CV2_INTER_AREA]
         # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR]
-        scales = [2]
+        scales = [4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
         algorithms, scales, sharpness = handle_user_input()

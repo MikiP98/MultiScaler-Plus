@@ -9,6 +9,7 @@ import utils
 import xbrz  # See xBRZ scaling on Jira
 
 from RealESRGAN import RealESRGAN
+from superxbr import superxbr
 from termcolor import colored
 from utils import Algorithms
 
@@ -426,6 +427,39 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                         #     files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
                         #     command = f"{script_path} {options} {files}"
                         #     subprocess.run(command)
+
+        case Algorithms.Super_xBR:
+            for image_object in images:
+                new_image_object_list = []
+                for factor in factors:
+                    if factor < 2:
+                        print(colored(f"WARNING: Super-xBR does not support factors smaller then 2, factor: {factor}! Defaulting to fallback algorithm",'red'))
+                    # Check if factor is not a power of 2
+                    factor_check = factor
+                    temp_factor = factor
+                    while factor_check > 2:
+                        if factor_check % 2 != 0:
+                            print(colored(f"WARNING: Super-xBR does not support factor: {factor}! Result might be blurry!", 'yellow'))
+                            temp_factor = 2
+                            while temp_factor < factor:
+                                temp_factor *= 2
+                            break
+                        factor_check //= 2
+
+                    power = 1
+                    while 2**power != temp_factor:
+                        power += 1
+
+                    scaled_image = []
+                    for frame in image_object.images[0]:
+                        width, height = frame.size
+                        output_width, output_height = round(width * temp_factor), round(height * temp_factor)
+
+                        frame = superxbr.scale(frame, power)
+
+                        scaled_image.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(frame), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                    new_image_object_list.append(scaled_image)
+                scaled_images.append(utils.Image(new_image_object_list))
 
         case _:
             if main_checked:

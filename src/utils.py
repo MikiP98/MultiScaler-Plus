@@ -38,15 +38,16 @@ class Algorithms(IntEnum):
     PIL_LANCZOS = 14  # less blur than bicubic, but artifacts may appear
     PIL_NEAREST_NEIGHBOR = 15
     RealESRGAN = 16
-    SUPIR = 17
-    xBRZ = 18
+    Super_xBR = 17
+    SUPIR = 18
+    xBRZ = 19
 
 
 class Filters(IntEnum):
     CAS = 0  # contrast adaptive sharpening
 
 
-cli_algorithms = {Algorithms.FSR, Algorithms.CAS, Algorithms.SUPIR}
+cli_algorithms = {Algorithms.FSR, Algorithms.CAS, Algorithms.SUPIR, Algorithms.Super_xBR}
 
 
 string_to_algorithm_dict = {
@@ -70,6 +71,7 @@ string_to_algorithm_dict = {
     "cas": Algorithms.CAS,
     "fsr": Algorithms.FSR,
     "real_esrgan": Algorithms.RealESRGAN,
+    "super_xbr": Algorithms.Super_xBR,
     "supir": Algorithms.SUPIR,
     "xbrz": Algorithms.xBRZ
 }
@@ -100,6 +102,7 @@ algorithm_to_string_dict = {
     Algorithms.CAS: "cas",
     Algorithms.FSR: "fsr",
     Algorithms.RealESRGAN: "real_esrgan",
+    Algorithms.Super_xBR: "super_xbr",
     Algorithms.SUPIR: "supir",
     Algorithms.xBRZ: "xbrz"
 }
