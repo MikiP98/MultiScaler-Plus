@@ -606,10 +606,11 @@ if __name__ == '__main__':
             print(colored(message, 'yellow'))
 
     if args.test:
-        algorithms = [Algorithms.Super_xBR]
+        algorithms = [Algorithms.hqx]
         # algorithms = [Algorithms.CV2_INTER_AREA]
-        # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR, Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR]
-        scales = [4]
+        # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
+        #               Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx]
+        scales = [2]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
         algorithms, scales, sharpness = handle_user_input()

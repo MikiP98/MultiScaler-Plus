@@ -1,6 +1,7 @@
 # coding=utf-8
 # import rarch
 import cv2
+import hqx
 import numpy as np
 import PIL.Image
 import subprocess
@@ -458,6 +459,48 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                         frame = superxbr.scale(frame, power)
 
                         scaled_image.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(frame), (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                    new_image_object_list.append(scaled_image)
+                scaled_images.append(utils.Image(new_image_object_list))
+
+        case Algorithms.hqx:
+            allowed_factors = {2, 3, 4}
+            for image_object in images:
+                new_image_object_list = []
+                for factor in factors:
+                    if factor not in allowed_factors:
+                        if factor < 1:
+                            print(colored(f"ERROR: HQx does not support downscaling! Cannot perform any fixes! Scaling with fallback algorithm: {fallback_algorithm.name}", 'red'))
+                            scaled_image = []
+                            for frame in image_object.images[0]:
+                                cv2_image = utils.pil_to_cv2(frame)
+                                width, height = frame.size
+
+                                output_width, output_height = round(width * factor), round(height * factor)
+
+                                scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                            new_image_object_list.append(scaled_image)
+
+                        print(colored(f"WARNING: HQx does not support factor: {factor}! Allowed factors: {allowed_factors}; Result might be blurry!", 'yellow'))
+
+                    # min_allowed_factor = min(allowed_factors)
+                    max_allowed_factor = max(allowed_factors)
+                    scaled_image = []
+                    for frame in image_object.images[0]:
+                        width, height = frame.size
+                        result = frame.convert('RGB')
+
+                        current_factor = 1
+                        while current_factor < factor:
+                            temp_factor = max_allowed_factor
+                            while current_factor * temp_factor >= factor:
+                                temp_factor -= 1
+                            while temp_factor not in allowed_factors:
+                                temp_factor += 1
+
+                            result = hqx.hqx_scale(result, temp_factor)
+                            current_factor *= temp_factor
+
+                        scaled_image.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(result), (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
                     new_image_object_list.append(scaled_image)
                 scaled_images.append(utils.Image(new_image_object_list))
 

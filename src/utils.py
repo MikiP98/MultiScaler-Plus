@@ -33,14 +33,15 @@ class Algorithms(IntEnum):
     CV2_FSRCNN_small = 9  # Fast Super-Resolution Convolutional Neural Network - Small
     CV2_LapSRN = 10  # Laplacian Super-Resolution Network
     FSR = 11  # FidelityFX Super Resolution
-    PIL_BICUBIC = 12  # less blur and artifacts than bilinear, but slower
-    PIL_BILINEAR = 13
-    PIL_LANCZOS = 14  # less blur than bicubic, but artifacts may appear
-    PIL_NEAREST_NEIGHBOR = 15
-    RealESRGAN = 16
-    Super_xBR = 17
-    SUPIR = 18
-    xBRZ = 19
+    hqx = 12  # high quality scale
+    PIL_BICUBIC = 13  # less blur and artifacts than bilinear, but slower
+    PIL_BILINEAR = 14
+    PIL_LANCZOS = 15  # less blur than bicubic, but artifacts may appear
+    PIL_NEAREST_NEIGHBOR = 16
+    RealESRGAN = 17
+    Super_xBR = 18
+    SUPIR = 19
+    xBRZ = 20
 
 
 class Filters(IntEnum):
@@ -70,6 +71,7 @@ string_to_algorithm_dict = {
 
     "cas": Algorithms.CAS,
     "fsr": Algorithms.FSR,
+    "hqx": Algorithms.hqx,  # "hq2x", "hq3x", "hq4x"
     "real_esrgan": Algorithms.RealESRGAN,
     "super_xbr": Algorithms.Super_xBR,
     "supir": Algorithms.SUPIR,
@@ -101,6 +103,7 @@ algorithm_to_string_dict = {
 
     Algorithms.CAS: "cas",
     Algorithms.FSR: "fsr",
+    Algorithms.hqx: "hqx",
     Algorithms.RealESRGAN: "real_esrgan",
     Algorithms.Super_xBR: "super_xbr",
     Algorithms.SUPIR: "supir",
