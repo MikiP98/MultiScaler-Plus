@@ -12,8 +12,14 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
   - **Area** *(Averages pixels into smaller ones)* *<sup>(Only down-scaling)</sup>*
   - **Lanczos** *(Better than bicubic, less blur, higher contrast)*
 - **AI-based Algorithms** <sup>(Only up-scaling)</sup>:
+  - **EDSR**
+  - **ESPCN**
+  - **FSRCNN** *(normal and small)*
+  - **LapSRN**
   - **RealESRGAN** *(AI-based algorithm, based on ESRGAN)*
 - **Edge Detection Algorithms** <sup>(Only up-scaling)</sup>:
+  - **hqx** *(edge detection algorithm, simple, not so great)*
+  - **Super xBR** *(edge detection algorithm, based on xBR, more angles but more blur)*
   - **xBRZ** *(edge detection algorithm, based on xBR, better at preserving small details)*
 - **Smart Algorithms** <sup>(Only up-scaling)</sup>:
   - **FSR** *(FidelityFX Super Resolution 1.1, made by AMD)*
