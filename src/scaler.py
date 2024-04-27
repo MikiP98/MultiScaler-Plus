@@ -9,6 +9,7 @@ import torch
 import utils
 import xbrz  # See xBRZ scaling on Jira
 
+from Edge_Directed_Interpolation.edi import EDI_upscale  # EDI_predict is wierd, EDI_Downscale is nearest neighbor...
 from RealESRGAN import RealESRGAN
 from superxbr import superxbr
 from termcolor import colored
@@ -501,6 +502,52 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                             current_factor *= temp_factor
 
                         scaled_image.append(utils.cv2_to_pil(cv2.resize(utils.pil_to_cv2(result), (width * factor, height * factor), interpolation=csatca(fallback_algorithm))))
+                    new_image_object_list.append(scaled_image)
+                scaled_images.append(utils.Image(new_image_object_list))
+
+        case Algorithms.NEDI:
+            if 'NEDI_m' not in config_plus:
+                print(colored("WARNING: NEDI_m (edge detection radius) is not in config_plus! Using default value '4'", 'yellow'))
+                config_plus['NEDI_m'] = 4
+            for image_object in images:
+                new_image_object_list = []
+                for factor in factors:
+                    if factor < 1:
+                        print(colored(f"ERROR: NEDI does not support downscaling! Cannot perform any fixes! Scaling with fallback algorithm: {fallback_algorithm.name}", 'red'))
+                        scaled_image = []
+                        for frame in image_object.images[0]:
+                            cv2_image = utils.pil_to_cv2(frame)
+                            width, height = frame.size
+
+                            output_width, output_height = round(width * factor), round(height * factor)
+
+                            scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=csatca(fallback_algorithm))))
+                        new_image_object_list.append(scaled_image)
+
+                    # If factor is not a whole number or is not a power of 2, print a warning
+                    # if factor != int(factor) or factor > 6:
+                    #     print(colored(f"WARNING: Scaling by NEDI with factor {factor} is not supported, result might be blurry!", 'yellow'))
+
+                    temp_factor_repeat = 1
+                    while 2**temp_factor_repeat <= factor:
+                        temp_factor_repeat += 1
+
+                    scaled_image = []
+                    for frame in image_object.images[0]:
+                        width, height = frame.size
+
+                        # frame = frame.convert('RGBA')
+                        frame = utils.pil_to_cv2(frame)
+                        channels = [frame[:, :, i] for i in range(frame.shape[2])]
+
+                        for _ in range(temp_factor_repeat):
+                            channels = [EDI_upscale(channel, config_plus['NEDI_m']) for channel in channels]
+
+                        frame = np.stack(channels, axis=2)
+
+                        output_width, output_height = round(width * factor), round(height * factor)
+
+                        scaled_image.append(utils.cv2_to_pil(cv2.resize(frame, (output_width, output_height), interpolation=csatca(fallback_algorithm))))
                     new_image_object_list.append(scaled_image)
                 scaled_images.append(utils.Image(new_image_object_list))
 

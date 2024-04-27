@@ -34,14 +34,15 @@ class Algorithms(IntEnum):
     CV2_LapSRN = 10  # Laplacian Super-Resolution Network
     FSR = 11  # FidelityFX Super Resolution
     hqx = 12  # high quality scale
-    PIL_BICUBIC = 13  # less blur and artifacts than bilinear, but slower
-    PIL_BILINEAR = 14
-    PIL_LANCZOS = 15  # less blur than bicubic, but artifacts may appear
-    PIL_NEAREST_NEIGHBOR = 16
-    RealESRGAN = 17
-    Super_xBR = 18
-    SUPIR = 19
-    xBRZ = 20
+    NEDI = 13  # New Edge-Directed Interpolation
+    PIL_BICUBIC = 14  # less blur and artifacts than bilinear, but slower
+    PIL_BILINEAR = 15
+    PIL_LANCZOS = 16  # less blur than bicubic, but artifacts may appear
+    PIL_NEAREST_NEIGHBOR = 17
+    RealESRGAN = 18
+    Super_xBR = 19
+    SUPIR = 20
+    xBRZ = 21
 
 
 class Filters(IntEnum):
@@ -68,7 +69,7 @@ string_to_algorithm_dict = {
     "pil_bilinear": Algorithms.PIL_BILINEAR,
     "pil_lanczos": Algorithms.PIL_LANCZOS,
     "pil_nearest": Algorithms.PIL_NEAREST_NEIGHBOR,
-
+    "nedi": Algorithms.NEDI,
     "cas": Algorithms.CAS,
     "fsr": Algorithms.FSR,
     "hqx": Algorithms.hqx,  # "hq2x", "hq3x", "hq4x"
@@ -104,6 +105,7 @@ algorithm_to_string_dict = {
     Algorithms.CAS: "cas",
     Algorithms.FSR: "fsr",
     Algorithms.hqx: "hqx",
+    Algorithms.NEDI: "nedi",
     Algorithms.RealESRGAN: "real_esrgan",
     Algorithms.Super_xBR: "super_xbr",
     Algorithms.SUPIR: "supir",

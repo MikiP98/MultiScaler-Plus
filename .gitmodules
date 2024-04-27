@@ -1,15 +1,9 @@
 [submodule "src/SUPIR"]
 	path = src/SUPIR
 	url = https://github.com/Fanghua-Yu/SUPIR
-[submodule "src/-f"]
-	path = src/-f
-	url = https://github.com/MikiP98/MultiScaler-Plus_Web_Server
 [submodule "src/MultiScaler-Plus_Web_Server"]
 	path = src/MultiScaler-Plus_Web_Server
 	url = https://github.com/MikiP98/MultiScaler-Plus_Web_Server
-[submodule "SUPIR"]
-	path = SUPIR
-	url = https://github.com/Fanghua-Yu/SUPIR
-[submodule "MultiScaler-Plus_Web_Server"]
-	path = MultiScaler-Plus_Web_Server
-	url = https://github.com/MikiP98/MultiScaler-Plus_Web_Server
+[submodule "src/Edge_Directed_Interpolation"]
+	path = src/Edge_Directed_Interpolation
+	url = https://github.com/Kirstihly/Edge-Directed_Interpolation
