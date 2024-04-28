@@ -103,6 +103,10 @@ def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str
             'sharpness': 0.5,
             'relative_input_path_of_images': [root + '/' + file for root, file in zip(roots, files)]
         }
+    elif algorithm == Algorithms.NEDI:
+        config_plus = {
+            'NEDI_m': 4,
+        }
     else:
         config_plus = None
 
@@ -572,7 +576,10 @@ if __name__ == '__main__':
         'multiprocessing_levels': {},
         'max_processes': (2, 2, 2),
         'override_processes_count': False,  # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
-        'copy_mcmeta': True
+        'copy_mcmeta': True,
+        'texture_outbound_protection': True,  # TODO: Implement this, prevents multi-face (in 1 image) textures to expand over current alpha (fully transparent) border
+        'texture_inbound_protection': True,  # TODO: Implement this, prevents multi-face (in 1 image) textures to not fully cover current alpha (fully transparent) border
+        'texture_mask_mode': ('alpha', 'black')  # TODO: Implement this, What should be the mask made of, first is when image has alpha channel, second when it doesn't
     }
     if safe_mode:
         config = fix_config(config)
@@ -606,10 +613,10 @@ if __name__ == '__main__':
             print(colored(message, 'yellow'))
 
     if args.test:
-        algorithms = [Algorithms.hqx]
+        algorithms = [Algorithms.NEDI]
         # algorithms = [Algorithms.CV2_INTER_AREA]
         # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
-        #               Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx]
+        #               Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
         scales = [2]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:

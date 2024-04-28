@@ -16,9 +16,10 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
   - **ESPCN**
   - **FSRCNN** *(normal and small)*
   - **LapSRN**
-  - **RealESRGAN** *(AI-based algorithm, based on ESRGAN)*
+  - **RealESRGAN** *(improved ESRGAN)*
 - **Edge Detection Algorithms** <sup>(Only up-scaling)</sup>:
   - **hqx** *(edge detection algorithm, simple, not so great)*
+  - **NEDI** *(New Edge-Directed Interpolation, can be better than hqx, but probably won't)*
   - **Super xBR** *(edge detection algorithm, based on xBR, more angles but more blur)*
   - **xBRZ** *(edge detection algorithm, based on xBR, better at preserving small details)*
 - **Smart Algorithms** <sup>(Only up-scaling)</sup>:
@@ -31,6 +32,7 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
 - **WebUI** and **Scaling App** created by [***Mikołaj Pokora***](https://github.com/MikiP98)
 - **API backend** and **xBRZ wheel** by [***Piotr Przetacki***](https://github.com/PiotrPrzetacki)
 - [**RealESRGAN**](https://github.com/ai-forever/Real-ESRGAN) implementation by [ai-forever](https://github.com/ai-forever)
+- [**NEDI**](https://github.com/Kirstihly/Edge-Directed_Interpolation) implementation by [Ley (Kirstihly)](https://github.com/Kirstihly)
 - [**hqx**](https://pypi.org/project/hqx/) implementation by [whoatemybutter](https://pypi.org/user/whoatemybutter/)
 - [**xBRZ**](https://github.com/ioistired/xbrz.py) implementation by [ioistired](https://github.com/ioistired)
 - [**Super xBR**](https://github.com/MikiP98/py-super-xbr) implementation originally created by [Matt Schwartz (n0spaces)](https://github.com/n0spaces) corrected by [Mikołaj Pokora](https://github.com/MikiP98)

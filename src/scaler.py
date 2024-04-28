@@ -265,8 +265,7 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
 
                             output_width, output_height = round(width * factor), round(height * factor)
 
-                            scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height),
-                                                                            interpolation=csatca(fallback_algorithm))))
+                            scaled_image.append(utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=csatca(fallback_algorithm))))
                         new_image_object_list.append(scaled_image)
                         # continue
                         # raise ValueError("xBRZ does not support downscaling!")
@@ -339,21 +338,6 @@ def scale_image_batch(algorithm: Algorithms, images: list[utils.Image], factors,
                 scaled_images.append(utils.Image(new_image_object_list))
 
         case Algorithms.SUPIR:
-            script_path = './SUPIR/test.py'
-
-            # Command 1
-            # command1 = f"CUDA_VISIBLE_DEVICES=0 python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign Q --upscale 2"
-            command1 = f"python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign Q --upscale 2"
-
-            # Command 2
-            # command2 = f"CUDA_VISIBLE_DEVICES=0 python {script_path} --img_dir '../input' --save_dir ../output --SUPIR_sign F --upscale 2 --s_cfg 4.0 --linear_CFG"
-
-            # Execute commands
-            # subprocess.run(command1, shell=True)
-            # subprocess.run(command1)
-            # subprocess.run(command2, shell=True)
-
-            # subprocess.run(['python', script_path])
             raise NotImplementedError("Not implemented yet")
 
         case Algorithms.FSR:
