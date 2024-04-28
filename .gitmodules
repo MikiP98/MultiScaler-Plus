@@ -7,6 +7,3 @@
 [submodule "src/Edge_Directed_Interpolation"]
 	path = src/Edge_Directed_Interpolation
 	url = https://github.com/Kirstihly/Edge-Directed_Interpolation
-[submodule "src/src/Edge_Directed_Interpolation"]
-	path = src/src/Edge_Directed_Interpolation
-	url = https://github.com/Kirstihly/Edge-Directed_Interpolation
