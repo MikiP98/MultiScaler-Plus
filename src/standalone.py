@@ -613,11 +613,14 @@ if __name__ == '__main__':
             print(colored(message, 'yellow'))
 
     if args.test:
-        algorithms = [Algorithms.NEDI]
+        # algorithms = [Algorithms.NEDI]
         # algorithms = [Algorithms.CV2_INTER_AREA]
         # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
         #               Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
-        scales = [2]
+        algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4, 
+                      Algorithms.CV2_ESPCN, Algorithms.CV2_EDSR, Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small,
+                      Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
+        scales = [4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
         algorithms, scales, sharpness = handle_user_input()

@@ -21,3 +21,8 @@ npm i
 
 @REM git submodule add https://github.com/Fanghua-Yu/SUPIR
 @REM git submodule add https://github.com/MikiP98/MultiScaler-Plus_Web_Server
+
+
+
+@REM https://visualstudio.microsoft.com/pl/visual-cpp-build-tools/
+@REM git+https://github.com/MikiP98/py-super-xbr.git

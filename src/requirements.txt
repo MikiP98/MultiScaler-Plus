@@ -8,6 +8,13 @@ python-multipart
 termcolor
 torch
 uvicorn[standard]
+psutil
+
+setuptools
+wheel
+
+matplotlib
+
 git+https://github.com/sberbank-ai/Real-ESRGAN.git
-xbrz_wheel/xbrz.py-1.0.2-cp312-cp312-win_amd64.whl
-git+https://github.com/MikiP98/py-super-xbr.git
+prebuild_wheels/xbrz.py-1.0.2-cp312-cp312-win_amd64.whl
+prebuild_wheels/py_super_xbr-0.0.2-cp312-cp312-win_amd64.whl
