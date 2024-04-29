@@ -10,14 +10,12 @@ import psutil
 import scaler
 import sys
 import shutil
-# import termcolor
 import utils
 import zipfile
 
 from fractions import Fraction
 from functools import lru_cache
 from termcolor import colored
-from typing import Union
 from utils import Algorithms, pil_fully_supported_formats_cache, pil_read_only_formats_cache, pil_write_only_formats_cache, pil_indentify_only_formats_cache, pngify
 
 
@@ -100,12 +98,12 @@ def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str
     # print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
     if algorithm in utils.cli_algorithms:
         config_plus = {
-            'sharpness': 0.5,
+            'sharpness': config['sharpness'],
             'relative_input_path_of_images': [root + '/' + file for root, file in zip(roots, files)]
         }
     elif algorithm == Algorithms.NEDI:
         config_plus = {
-            'NEDI_m': 4,
+            'NEDI_m': config['NEDI_m']
         }
     else:
         config_plus = None
@@ -382,7 +380,7 @@ def columnify(elements: tuple) -> str:
     return result
 
 
-def handle_user_input() -> tuple[list[Algorithms], list[float], Union[float, None]]:
+def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, int | None]:
     algorithms = []
     scales = []
 
@@ -432,6 +430,7 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], Union[float, Non
             break
 
     sharpness = None
+    nedi_m = None
     for algorithm in algorithms:
         if algorithm == Algorithms.CAS:
             while True:
@@ -445,6 +444,18 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], Union[float, Non
                         break
                 except ValueError:
                     print("Sharpness must be a number")
+        elif algorithm == Algorithms.NEDI:
+            while True:
+                print("\nEnter the NEDI 'm' value (edge search radius) for the NEDI algorithm (must be a power of 2, >=1):")
+                nedi_m = input()
+                try:
+                    nedi_m = int(nedi_m)
+                    if nedi_m < 1 or nedi_m & (nedi_m - 1) != 0:
+                        print("NEDI 'm' must be a power of 2 and >= 1")
+                    else:
+                        break
+                except ValueError:
+                    print("NEDI 'm' must be a number")
 
     print("Algorithms:")
     for algorithm in algorithms:
@@ -455,7 +466,7 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], Union[float, Non
     if sharpness is not None:
         print(f"Sharpness: {sharpness}")
 
-    return algorithms, scales, sharpness
+    return algorithms, scales, sharpness, nedi_m
 
 
 def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None:
@@ -579,7 +590,10 @@ if __name__ == '__main__':
         'copy_mcmeta': True,
         'texture_outbound_protection': True,  # TODO: Implement this, prevents multi-face (in 1 image) textures to expand over current alpha (fully transparent) border
         'texture_inbound_protection': True,  # TODO: Implement this, prevents multi-face (in 1 image) textures to not fully cover current alpha (fully transparent) border
-        'texture_mask_mode': ('alpha', 'black')  # TODO: Implement this, What should be the mask made of, first is when image has alpha channel, second when it doesn't
+        'texture_mask_mode': ('alpha', 'black'),  # TODO: Implement this, What should be the mask made of, first is when image has alpha channel, second when it doesn't
+
+        'sharpness': 0.5,
+        'NEDI_m': 4
     }
     if safe_mode:
         config = fix_config(config)
@@ -617,13 +631,15 @@ if __name__ == '__main__':
         # algorithms = [Algorithms.CV2_INTER_AREA]
         # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
         #               Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
-        algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4, 
-                      Algorithms.CV2_ESPCN, Algorithms.CV2_EDSR, Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small,
-                      Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
+        algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4,
+                      Algorithms.CV2_ESPCN, Algorithms.CV2_EDSR, Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small, Algorithms.RealESRGAN,
+                      Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
         scales = [4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
-        algorithms, scales, sharpness = handle_user_input()
+        algorithms, scales, sharpness, nedi_m = handle_user_input()
+        config['sharpness'] = sharpness
+        config['NEDI_m'] = nedi_m
     print(f"Received algorithms: {colored(algorithms, 'blue')}")
     print(f"Received scales: {colored(scales, 'blue')}")
     print("Using config: ", end='')
