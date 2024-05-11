@@ -28,6 +28,13 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
 
 <br/>
 
+### Examples:
+![Wiki Example Shell](./src/example_images/input/example_shell_40px.png)
+
+TODO
+
+<br/>
+
 ### Credits:
 - **WebUI** and **Scaling App** created by [***Mikołaj Pokora***](https://github.com/MikiP98)
 - **API backend** and **xBRZ wheel** by [***Piotr Przetacki***](https://github.com/PiotrPrzetacki)

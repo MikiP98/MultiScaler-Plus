@@ -339,6 +339,56 @@ def hdr_to_sdr(hdr_image):
     raise NotImplementedError("HDR to SDR conversion is not implemented yet!")
 
 
+def generate_mask(image: PIL.Image, scale: float, mode: tuple) -> np.ndarray:
+    # Generate an outbound mask for the image
+    mask_mode = 'A'
+    if has_transparency(image):
+        mask_mode = mode[0]
+    else:
+        mask_mode = mode[1]
+
+    if mask_mode == 'alpha':
+        ndarray = pil_to_cv2(image)
+
+        # print(ndarray.shape)
+        new_shape = ndarray.shape[:2]
+        # print(new_shape)
+
+        mask_array = np.zeros(new_shape, dtype=np.uint8)
+        for i in range(ndarray.shape[0]):
+            for j in range(ndarray.shape[1]):
+                if ndarray[i, j, 3] == 255:
+                    mask_array[i, j] = 255
+
+        mask_image = cv2.resize(mask_array, (round(new_shape[0] * scale), round(new_shape[1] * scale)), interpolation=cv2.INTER_NEAREST)
+        return mask_image
+
+    elif mask_mode == 'black':
+        ndarray = pil_to_cv2(image)
+
+        new_shape = ndarray.shape[:2]
+
+        mask_array = np.zeros(new_shape, dtype=np.uint8)
+        for i in range(ndarray.shape[0]):
+            for j in range(ndarray.shape[1]):
+                if sum(ndarray[i, j]) != 0:
+                    mask_array[i, j] = 255
+
+        mask_image = cv2.resize(mask_array, (round(new_shape[0] * scale), round(new_shape[1] * scale)), interpolation=cv2.INTER_NEAREST)
+        return mask_image
+
+
+def apply_mask(image: PIL.Image, mask: np.ndarray) -> PIL.Image:
+    # Apply a mask to the image
+    image_array = pil_to_cv2(image)
+
+    mask_py = list(mask)
+    for i in range(image_array.shape[0]):
+        for j in range(image_array.shape[1]):
+            for k in range(image_array.shape[2]):
+                image_array[i, j, k] = image_array[i, j, k] * mask_py[i][j] / 255
+
+
 def has_transparency(img: Union[PIL.Image, np.ndarray]) -> bool:
     if isinstance(img, np.ndarray):
         return img.shape[2] == 4

@@ -108,8 +108,45 @@ def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str
     else:
         config_plus = None
 
+    masks = []
+    if config['texture_outbound_protection']:
+        print("Texture outbound protection is enabled, generating masks...")
+        for image in images:
+            image_masks = []
+            for frame in image.images[0]:
+                frame_masks = []
+                for scale in scales:
+                    mask = utils.generate_mask(frame, scale, config['texture_mask_mode'])
+                    frame_masks.append(mask)
+                image_masks.append(frame_masks)
+            masks.append(image_masks)
+
     image_objects = scaler.scale_image_batch(algorithm, images, scales, config_plus=config_plus)
     print(colored("Scaling done\n", 'green'))
+
+    if config['texture_outbound_protection']:
+        print("Applying texture outbound protection...")
+        new_list = []
+        print(f"Masks before: {masks}")
+        for image_obj, mask in zip(image_objects, masks):
+            new_image = []
+            print(f"Image: {image_obj}")
+            print(f"Mask: {mask}")
+            for frame, frame_masks in zip(image_obj.images, mask):
+                new_frame = []
+                print(f"Frame: {frame}")
+                print(f"Frame masks: {frame_masks}")
+                for scaled_frame, masker in zip(frame, frame_masks):
+                    print(f"Masker: {masker}")
+                    print(f"Frame: {scaled_frame}")
+                    scaled_frame = utils.apply_mask(scaled_frame, masker)
+                    new_frame.append(scaled_frame)
+                new_image.append(new_frame)
+            new_list.append(new_image)
+            print(f"Masks after: {masks}")
+
+        image_objects = new_list
+        print(colored("Texture outbound protection done\n", 'green'))
 
     if len(images) < len(scales):
         # raise ValueError("Images queue is empty")
@@ -173,7 +210,7 @@ def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str
 
     else:
         while image_objects:
-            image_object = image_objects.pop()
+            image_object: utils.Image = image_objects.pop()
             root = roots.pop()
             file = files.pop()
 
@@ -380,7 +417,40 @@ def columnify(elements: tuple) -> str:
     return result
 
 
-def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, int | None]:
+def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, int | None, dict[str, any]]:
+    # multiprocessing_level:
+    # empty - no multiprocessing
+    # 2 - to process different algorithms in parallel, (Note that this level also splits every subsequent workflow)
+    # 3 - to save multiple images in parallel
+    default_config = {
+        'clear_output_directory': True,
+
+        'add_algorithm_name_to_output_files_names': True,
+        'add_factor_to_output_files_names': True,
+
+        'sort_by_algorithm': False,
+        'sort_by_image': False,  # TODO: Implement this
+        'sort_by_scale': False,  # TODO: Implement this
+
+        'lossless_compression': True,
+
+        'multiprocessing_levels': {},
+        'max_processes': (2, 2, 2),
+        'override_processes_count': False,
+        # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
+
+        'copy_mcmeta': True,
+        'texture_outbound_protection': False,
+        # TODO: Implement this, prevents multi-face (in 1 image) textures to expand over current textures border
+        'texture_inbound_protection': False,
+        # TODO: Implement this, prevents multi-face (in 1 image) textures to not fully cover current textures border
+        'texture_mask_mode': ('alpha', 'black'),
+        # TODO: Implement this, What should be the mask made of, first is when image has alpha channel, second when it doesn't
+
+        'sharpness': 0.5,
+        'NEDI_m': 4
+    }
+
     algorithms = []
     scales = []
 
@@ -457,6 +527,30 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
                 except ValueError:
                     print("NEDI 'm' must be a number")
 
+    print("\nDo you wish to proceed with default configuration?")
+    print("Default configuration:")
+    print(colored("{\n\t".expandtabs(4), 'magenta'), end='')
+    print("\n\t".expandtabs(4).join(f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in default_config.items()))
+    print(colored('}', 'magenta'))
+    print("Y/N")
+    default_config_input = input()
+    if (
+            default_config_input.lower() == 'n' or
+            default_config_input.lower() == 'no' or
+            default_config_input.lower() == 'false' or
+            default_config_input.lower() == '0'
+    ):
+        print("Enter the configuration:")
+        config = {}
+        for key, value in default_config.items():
+            print(f"{key}:", end=' ')
+            config[key] = input()
+            print()
+        config = fix_config(config)
+    else:
+        config = default_config
+
+    print("\nSelected options:")
     print("Algorithms:")
     for algorithm in algorithms:
         print(f"\t{algorithm.value} - {algorithm.name}")
@@ -465,8 +559,16 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         print(f"\t{scale}")
     if sharpness is not None:
         print(f"Sharpness: {sharpness}")
+    if nedi_m is not None:
+        print(f"NEDI 'm': {nedi_m}")
 
-    return algorithms, scales, sharpness, nedi_m
+    print("Is this correct? Y/N")
+
+    correct = input()
+    if correct.lower() == 'n' or correct.lower() == 'no' or correct.lower() == 'false' or correct.lower() == '0':
+        return handle_user_input()
+    else:
+        return algorithms, scales, sharpness, nedi_m, config
 
 
 def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None:
@@ -567,36 +669,24 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
     algorithm_loop(algorithms, images, roots, file_names, scales, config)
 
 
+def rainbowify(text: str) -> str:
+    colors = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
+    len_colors = len(colors)
+    rainbow_text = ""
+    i = 0
+    for char in text:
+        if char == ' ':
+            rainbow_text += ' '
+        else:
+            rainbow_text += colored(char, colors[i % len_colors])
+            i += 1
+    return rainbow_text
+
+
 if __name__ == '__main__':
     # Create input and output directory if they don't exist
     if not os.path.exists("../input"):
         os.makedirs("../input")
-
-    safe_mode = False
-
-    # multiprocessing_level:
-    # empty - no multiprocessing
-    # 2 - to process different algorithms in parallel, (Note that this level also splits every subsequent workflow)
-    # 3 - to save multiple images in parallel
-    config = {
-        'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
-        'sort_by_algorithm': False,
-        'lossless_compression': True,
-        'multiprocessing_levels': {},
-        'max_processes': (2, 2, 2),
-        'override_processes_count': False,  # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
-        'copy_mcmeta': True,
-        'texture_outbound_protection': True,  # TODO: Implement this, prevents multi-face (in 1 image) textures to expand over current alpha (fully transparent) border
-        'texture_inbound_protection': True,  # TODO: Implement this, prevents multi-face (in 1 image) textures to not fully cover current alpha (fully transparent) border
-        'texture_mask_mode': ('alpha', 'black'),  # TODO: Implement this, What should be the mask made of, first is when image has alpha channel, second when it doesn't
-
-        'sharpness': 0.5,
-        'NEDI_m': 4
-    }
-    if safe_mode:
-        config = fix_config(config)
 
     parser = argparse.ArgumentParser(
         prog='ImageScaler',
@@ -627,17 +717,41 @@ if __name__ == '__main__':
             print(colored(message, 'yellow'))
 
     if args.test:
-        # algorithms = [Algorithms.NEDI]
+        config = {
+            'clear_output_directory': True,
+
+            'add_algorithm_name_to_output_files_names': True,
+            'add_factor_to_output_files_names': True,
+
+            'sort_by_algorithm': False,
+            'sort_by_image': False,
+            'sort_by_scale': False,
+
+            'lossless_compression': True,
+
+            'multiprocessing_levels': {},
+            'max_processes': (2, 2, 2),
+            'override_processes_count': False,
+
+            'copy_mcmeta': True,
+            'texture_outbound_protection': True,
+            'texture_inbound_protection': False,
+            'texture_mask_mode': ('alpha', 'black'),
+
+            'sharpness': 0.5,
+            'NEDI_m': 4
+        }
+        algorithms = [Algorithms.xBRZ]
         # algorithms = [Algorithms.CV2_INTER_AREA]
         # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
         #               Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
-        algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4,
-                      Algorithms.CV2_ESPCN, Algorithms.CV2_EDSR, Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small, Algorithms.RealESRGAN,
-                      Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
+        # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4,
+        #               Algorithms.CV2_ESPCN, Algorithms.CV2_EDSR, Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small, Algorithms.RealESRGAN,
+        #               Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
         scales = [4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
-        algorithms, scales, sharpness, nedi_m = handle_user_input()
+        algorithms, scales, sharpness, nedi_m, config = handle_user_input()
         config['sharpness'] = sharpness
         config['NEDI_m'] = nedi_m
     print(f"Received algorithms: {colored(algorithms, 'blue')}")
@@ -648,4 +762,8 @@ if __name__ == '__main__':
     print(colored('}', 'magenta'))
 
     run(algorithms, scales, config)
-    print(colored("ALL DONE!", 'green'))  # TODO: Rainbow-ify this message :)
+    rainbow_all_done = rainbowify("ALL NICE & DONE!")
+    print(rainbow_all_done)
+    thanks = rainbowify("Thanks for using this App!")
+    print(thanks)
+    # print(colored("ALL DONE!", 'green'))
