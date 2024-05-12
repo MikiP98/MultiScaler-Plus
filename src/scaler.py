@@ -483,20 +483,34 @@ def scale_image_batch(
                 relative_input_path_of_images = config_plus['relative_input_path_of_images']
 
                 if 'relative_output_path_of_images' not in config_plus:
-                    relative_output_path_of_images = map(lambda x: x.replace('input', 'output'), relative_input_path_of_images)
-                    relative_output_path_of_images = map(lambda x: x.replace('.png', '_FSR.png'), relative_output_path_of_images)
+                    relative_output_path_of_images = map(
+                        lambda x: x.replace('input', 'output'), relative_input_path_of_images
+                    )
+                    relative_output_path_of_images = map(
+                        lambda x: x.replace('.png', '_FSR.png'), relative_output_path_of_images
+                    )
                 else:
                     relative_output_path_of_images = config_plus['relative_output_path_of_images']
 
                 # change file name to include '_FSR' before the file extension
-                # relative_output_path_of_images = map(lambda x: x.replace('.png', '_FSR.png'), relative_output_path_of_images)
+                # relative_output_path_of_images = map(
+                #     lambda x: x.replace('.png', '_FSR.png'), relative_output_path_of_images
+                # )
 
-                for relative_input_path, relative_output_path in zip(relative_input_path_of_images, relative_output_path_of_images):
+                for relative_input_path, relative_output_path in zip(
+                        relative_input_path_of_images, relative_output_path_of_images
+                ):
                     print(f"Relative input path: {relative_input_path}")
                     print(f"Relative output path: {relative_output_path}")
                     for factor in factors:
                         if factor > 2:
-                            print(colored("WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!", 'yellow'))
+                            print(
+                                colored(
+                                    "WARNING: Scaling with FSR by factor of {factor} is not supported, "
+                                    "result might be blurry!",
+                                    'yellow'
+                                )
+                            )
 
                         script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
                         options = f"-Scale {factor}x {factor}x -Mode EASU"
@@ -506,7 +520,10 @@ def scale_image_batch(
                         # for frame in image:
                         #     script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
                         #     options = f"-Scale {factor}x {factor}x -Mode EASU"
-                        #     files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
+                        #     files = (
+                        #         f"../input/{config_plus['input_image_relative_path']} "
+                        #         f"../output/{config_plus['input_image_relative_path']}"
+                        #     )
                         #     command = f"{script_path} {options} {files}"
                         #     subprocess.run(command)
 
@@ -523,13 +540,19 @@ def scale_image_batch(
                 relative_input_path_of_images = config_plus['relative_input_path_of_images']
 
                 if 'relative_output_path_of_images' not in config_plus:
-                    relative_output_path_of_images = map(lambda x: x.replace('input', 'output'), relative_input_path_of_images)
-                    relative_output_path_of_images = map(lambda x: x.replace('.png', '_CAS.png'), relative_output_path_of_images)  # Ignore the warning, variable initialized on previous line
+                    relative_output_path_of_images = map(
+                        lambda x: x.replace('input', 'output'), relative_input_path_of_images
+                    )
+                    relative_output_path_of_images = map(
+                        lambda x: x.replace('.png', '_CAS.png'), relative_output_path_of_images
+                    )
                 else:
                     relative_output_path_of_images = config_plus['relative_output_path_of_images']
 
                 # change file name to include '_CAS' before the file extension
-                # relative_output_path_of_images = map(lambda x: x.replace('.png', '_CAS.png'), relative_output_path_of_images)
+                # relative_output_path_of_images = map(
+                #     lambda x: x.replace('.png', '_CAS.png'), relative_output_path_of_images
+                # )
 
                 for relative_input_path, relative_output_path in (
                         zip(relative_input_path_of_images, relative_output_path_of_images)
@@ -552,7 +575,10 @@ def scale_image_batch(
                         # for frame in image:
                         #     script_path = './FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
                         #     options = f"-Scale {factor}x {factor}x -Sharpness {config_plus['sharpness']} -Mode CAS"
-                        #     files = f"../input/{config_plus['input_image_relative_path']} ../output/{config_plus['input_image_relative_path']}"
+                        #     files = (
+                        #         f"../input/{config_plus['input_image_relative_path']} "
+                        #         f"../output/{config_plus['input_image_relative_path']}"
+                        #     )
                         #     command = f"{script_path} {options} {files}"
                         #     subprocess.run(command)
 
@@ -641,7 +667,13 @@ def scale_image_batch(
                                 )
                             new_image_object_list.append(scaled_image)
 
-                        print(colored(f"WARNING: HQx does not support factor: {factor}! Allowed factors: {allowed_factors}; Result might be blurry!", 'yellow'))
+                        print(
+                            colored(
+                                f"WARNING: HQx does not support factor: {factor}! "
+                                f"Allowed factors: {allowed_factors}; Result might be blurry!",
+                                'yellow'
+                            )
+                        )
 
                     # min_allowed_factor = min(allowed_factors)
                     max_allowed_factor = max(allowed_factors)

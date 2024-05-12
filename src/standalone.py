@@ -467,7 +467,10 @@ def columnify(elements: tuple) -> str:
         result += "\n"
     result += "\t".expandtabs(tab_spaces)
     result += " | ".join(
-        [f"\t{elements[k]:<{max_length + margin_right}}".expandtabs(tab_spaces) for k in range(full_count, overflow + full_count)]
+        [
+            f"\t{elements[k]:<{max_length + margin_right}}"
+            .expandtabs(tab_spaces) for k in range(full_count, overflow + full_count)
+        ]
     )
     result += "\n"
 
