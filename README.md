@@ -28,10 +28,108 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
 
 <br/>
 
-### Examples:
-![Wiki Example Shell](./src/example_images/input/example_shell_40px.png)
+### Installation:
+1. Make sure you have installed on your system:
+   - **Python 3.12**
+   - **Node.js** *(16.0.0 or newer)*
+2. Clone this repository
+3. Run the included `install.bat` script
 
-TODO
+### Usage:
+- **Command line tool**:
+  - Run the included `run_console.bat` script
+  - Run the python script manually: `python src/standalone.py`
+    - You can also pass arguments to the script. Add `--help` to see the list of available arguments
+- **Web GUI** *(currently lacks some functionality)*:
+  - Run the included `run_webui.bat` script
+
+<br/>
+
+### Examples:
+Example Wiki Shell:
+
+Original image *(160px)*:
+
+![Wiki Example - Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png)
+
+Scaled down image *(40px)*:
+
+![Wiki Example Shell - Small](./src/example_images/input/example_shell_40px.png)
+
+Results of up-scaling the image *(40px -> 160px)*:
+
+| Original | Nearest Neighbour | Bilinear | Bicubic | Lanczos |
+|:--------:|:-----------------:|:--------:|:-------:|:-------:|
+
+<br/>
+
+### Supported file formats:
+**Tested working:**
+- **Write:**
+  - **PNG**
+- **Read:**
+  - **PNG** *(.png)*
+  - **JPEG** *(.jpg, .jpeg)*
+
+**Should work:**
+- **Read:**
+  <table>
+    <tr>
+      <th>
+- 
+    - **APNG** *(.apng, .png2)*
+    - **BLP** *(.blp, .blp2, .tex)*
+    - **BMP** *(.bmp, .rle)*
+    - **CUR** *(.cur)*
+    - **DCX** *(.dcx)*
+    - **DDS** *(.dds, .dds2)*
+    - **DIB** *(.dib, .dib2)*
+    - **EMF** *(.emf)*
+    - **EPS** *(.eps, .eps2, .epsf, .epsi)*
+    - **FITS** *(.fits)*
+    - **FLC** *(.flc)*
+    - **FLI** *(.fli)*
+    - **FPX** *(.fpx)*
+    - **FTEX** *(.ftex)*
+    - **GBR** *(.gbr)*
+    - **GD** *(.gd)*
+    - **GIF** *(.gif, .giff)*
+    - **ICNS** *(.icns, .icon)*
+    - **ICO** *(.ico, .cur)*
+    - **IM** *(.im, .im2)*
+    - **IMT** *(.imt)*
+    - **IPTC** *(.iptc)*
+    - **JPEG** *(.jpg, .jpeg, .jpe)*
+    - **JPEG 2000** *(.jp2, .j2k, .jpf, .jpx, .jpm, .j2c, .j2r, .jpx)*
+      </th>
+      <th>
+-
+    - **MCIDAS** *(.mcidas)*
+    - **MIC** *(.mic)*
+    - **MPO** *(.mpo)*
+    - **MSP** *(.msp, .msp2)*
+    - **NAA** *(.naa)*
+    - **PCD** *(.pcd)*
+    - **PCX** *(.pcx, .pcx2)*
+    - **PFM** *(.pfm, .pfm2)*
+    - **PIXAR** *(.pixar)*
+    - **PNG** *(.png, .pns)*
+    - **PPM** *(.ppm, .ppm2)*
+    - **PSD** *(.psd)*
+    - **QOI** *(.qoi)*
+    - **SGI** *(.sgi, .rgb, .bw)*
+    - **SPIDER** *(.spi, .spider2)*
+    - **SUN** *(.sun)*
+    - **TGA** *(.tga, .targa)*
+    - **TIFF** *(.tif, .tiff, .tiff2)*
+    - **WAL** *(.wal)*
+    - **WMF** *(.wmf)*
+    - **WebP** *(.webp, .webp2)*
+    - **XBM** *(.xbm, .xbm2)*
+    - **XPM** *(.xpm)*
+      </th>
+    </tr>
+  </table>
 
 <br/>
 
@@ -49,7 +147,6 @@ TODO
 
 <sup>
 
-- Thanks to ***Dinkar Kamat*** for the **Bat To Exe Converter** tool
 - **Download** icon: <a href="https://www.flaticon.com/free-icons/install" title="install icons">Install icons created by NajmunNahar - Flaticon</a>
 - **Web GUI** icon: <a href="https://www.flaticon.com/free-icons/interface" title="interface icons">Interface icons created by Freepik - Flaticon</a>
 - **Console** icon: <a target="_blank" href="https://icons8.com/icon/nRH1nzeThlgk/console">Console</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
