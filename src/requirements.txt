@@ -1,4 +1,5 @@
 argparse
+coverage
 fastapi
 hqx
 numpy
