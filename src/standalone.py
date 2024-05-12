@@ -103,6 +103,7 @@ def scale_loop(
         config: dict,
         masks: list[list[list[PIL.Image]]] | None = None
 ) -> None:
+    print(f"Masks at beginning:\n{masks}")
 
     print("Starting scaling process")
 
@@ -146,11 +147,18 @@ def scale_loop(
         print("Applying texture outbound protection...")
 
         new_image_objects = []
+        # print(f"Image objects: {image_objects}")
+        # print(f"Masks: {masks}")
         for image_obj, masks_for_scales in zip(image_objects, masks):
+            print("First loop layer executed")
+            # print(f"Image object: {image_obj}")
+            # print(f"Masks for scales: {masks_for_scales}")
             scaled_images = []
             for scaled_image, masks_for_frames in zip(image_obj.images, masks_for_scales):
+                print("Second loop layer executed")
                 new_image = []
                 for frame, mask in zip(scaled_image, masks_for_frames):
+                    print("Third loop layer executed")
                     new_frame = utils.apply_mask(frame, mask)
                     new_image.append(new_frame)
                 scaled_images.append(new_image)
@@ -279,9 +287,10 @@ def algorithm_loop(
                 for frame in image.images[0]:
                     mask = utils.generate_mask(frame, scale, config['texture_mask_mode'])
                     masks_for_frames.append(mask)
-                masks_for_frames.append(masks_for_frames)
+                masks_for_scales.append(masks_for_frames)
             masks_for_images.append(masks_for_scales)
         print(colored("Masks generated!", 'green'))
+    print(f"Masks for images:\n{masks_for_images}")
 
     processes = 0
     if 2 in config['multiprocessing_levels']:  # TODO: Complete this implementation
