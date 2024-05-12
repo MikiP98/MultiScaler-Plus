@@ -1,0 +1,14 @@
+[flake8]
+exclude =
+    .git,
+    __pycache__,
+    docs/source/conf.py,
+    old,
+    SUPIR
+    Edge_Directed_Interpolation
+
+per-file-ignores =
+    # imported but unused
+    __init__.py: F401
+
+max-line-length = 120
