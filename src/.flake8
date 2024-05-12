@@ -4,8 +4,10 @@ exclude =
     __pycache__,
     docs/source/conf.py,
     old,
-    SUPIR
-    Edge_Directed_Interpolation
+    SUPIR,
+    Edge_Directed_Interpolation,
+    MultiScaler-Plus_Web_Server,
+    benchmarks.py
 
 per-file-ignores =
     # imported but unused
