@@ -401,12 +401,15 @@ def apply_mask(image: PIL.Image, mask: np.ndarray) -> PIL.Image:
     # print(f"image shape: {image_array.shape}")
     for i in range(image_array.shape[0]):
         for j in range(image_array.shape[1]):
-            if mask_py[j][i] == 0:
-                print(f"Cleared pixel at ({i+1}, {j+1})")
-                # print(f"Because mask value is {mask_py[j][i]}")
-                for k in range(image_array.shape[2]):
-                    image_array[i, j, k] = 0
+            # if mask_py[j][i] == 0:
+            #     print(f"Cleared pixel at ({i+1}, {j+1})")
+            #     # print(f"Because mask value is {mask_py[j][i]}")
+            #     for k in range(image_array.shape[2]):
+            #         image_array[i, j, k] = 0
+            for k in range(image_array.shape[2]):
+                image_array[i, j, k] = mask_py[j][i]
 
+    # print(f"mask_py:\n{mask_py}")
     return cv2_to_pil(image_array)
 
 

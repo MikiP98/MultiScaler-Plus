@@ -163,6 +163,7 @@ def scale_loop(
                     new_image.append(new_frame)
                 scaled_images.append(new_image)
             new_image_objects.append(utils.Image(scaled_images))
+        image_objects = new_image_objects
 
         # new_list = []
         # print(f"Masks before: {masks}")
