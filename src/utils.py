@@ -309,7 +309,9 @@ def pngify(image: PIL.Image) -> Image:
         if image.is_animated:
             raise NotImplementedError("Animated images are not supported yet")
 
-        raise NotImplementedError(f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}")
+        raise NotImplementedError(
+            f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}"
+        )
 
     # check if is RGBA or RGB
     elif not (image.mode == "RGB" or image.mode == "RGBA"):
@@ -360,7 +362,11 @@ def generate_mask(image: PIL.Image, scale: float, mode: tuple) -> np.ndarray:
                 if ndarray[i, j, 3] == 255:
                     mask_array[i, j] = 255
 
-        mask_image = cv2.resize(mask_array, (round(new_shape[0] * scale), round(new_shape[1] * scale)), interpolation=cv2.INTER_NEAREST)
+        mask_image = cv2.resize(
+            mask_array,
+            (round(new_shape[0] * scale), round(new_shape[1] * scale)),
+            interpolation=cv2.INTER_NEAREST
+        )
         return mask_image
 
     elif mask_mode == 'black':
@@ -374,7 +380,11 @@ def generate_mask(image: PIL.Image, scale: float, mode: tuple) -> np.ndarray:
                 if sum(ndarray[i, j]) != 0:
                     mask_array[i, j] = 255
 
-        mask_image = cv2.resize(mask_array, (round(new_shape[0] * scale), round(new_shape[1] * scale)), interpolation=cv2.INTER_NEAREST)
+        mask_image = cv2.resize(
+            mask_array,
+            (round(new_shape[0] * scale), round(new_shape[1] * scale)),
+            interpolation=cv2.INTER_NEAREST
+        )
         return mask_image
 
 

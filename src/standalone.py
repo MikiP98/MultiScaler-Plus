@@ -16,7 +16,15 @@ import zipfile
 from fractions import Fraction
 from functools import lru_cache
 from termcolor import colored
-from utils import Algorithms, pil_fully_supported_formats_cache, pil_read_only_formats_cache, pil_write_only_formats_cache, pil_indentify_only_formats_cache, pngify
+from utils import (
+    Algorithms,
+    avg,
+    pil_fully_supported_formats_cache,
+    pil_read_only_formats_cache,
+    pil_write_only_formats_cache,
+    pil_indentify_only_formats_cache,
+    pngify
+)
 
 
 PIL.Image.MAX_IMAGE_PIXELS = 200000000
@@ -85,7 +93,17 @@ def save_images_chunk(args) -> None:
                 raise NotImplementedError("Animated (and stacked) output is not yet supported")
 
 
-def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str], files: list[str], scales: list[float], config: dict) -> None:
+def scale_loop(
+        algorithm:
+        Algorithms,
+        images: list[utils.Image],
+        roots: list[str],
+        files: list[str],
+        scales: list[float],
+        config: dict,
+        masks: list[list[list[PIL.Image]]] | None = None
+) -> None:
+
     print("Starting scaling process")
 
     # print(f"Length of images: {len(images)}")
@@ -108,44 +126,56 @@ def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str
     else:
         config_plus = None
 
-    masks = []
-    if config['texture_outbound_protection']:
-        print("Texture outbound protection is enabled, generating masks...")
-        for image in images:
-            image_masks = []
-            for frame in image.images[0]:
-                frame_masks = []
-                for scale in scales:
-                    mask = utils.generate_mask(frame, scale, config['texture_mask_mode'])
-                    frame_masks.append(mask)
-                image_masks.append(frame_masks)
-            masks.append(image_masks)
+    # masks = []
+    # if config['texture_outbound_protection']:
+    #     print("Texture outbound protection is enabled, generating masks...")
+    #     for image in images:
+    #         image_masks = []
+    #         for frame in image.images[0]:
+    #             frame_masks = []
+    #             for scale in scales:
+    #                 mask = utils.generate_mask(frame, scale, config['texture_mask_mode'])
+    #                 frame_masks.append(mask)
+    #             image_masks.append(frame_masks)
+    #         masks.append(image_masks)
 
     image_objects = scaler.scale_image_batch(algorithm, images, scales, config_plus=config_plus)
     print(colored("Scaling done\n", 'green'))
 
     if config['texture_outbound_protection']:
         print("Applying texture outbound protection...")
-        new_list = []
-        print(f"Masks before: {masks}")
-        for image_obj, mask in zip(image_objects, masks):
-            new_image = []
-            print(f"Image: {image_obj}")
-            print(f"Mask: {mask}")
-            for frame, frame_masks in zip(image_obj.images, mask):
-                new_frame = []
-                print(f"Frame: {frame}")
-                print(f"Frame masks: {frame_masks}")
-                for scaled_frame, masker in zip(frame, frame_masks):
-                    print(f"Masker: {masker}")
-                    print(f"Frame: {scaled_frame}")
-                    scaled_frame = utils.apply_mask(scaled_frame, masker)
-                    new_frame.append(scaled_frame)
-                new_image.append(new_frame)
-            new_list.append(new_image)
-            print(f"Masks after: {masks}")
 
-        image_objects = new_list
+        new_image_objects = []
+        for image_obj, masks_for_scales in zip(image_objects, masks):
+            scaled_images = []
+            for scaled_image, masks_for_frames in zip(image_obj.images, masks_for_scales):
+                new_image = []
+                for frame, mask in zip(scaled_image, masks_for_frames):
+                    new_frame = utils.apply_mask(frame, mask)
+                    new_image.append(new_frame)
+                scaled_images.append(new_image)
+            new_image_objects.append(utils.Image(scaled_images))
+
+        # new_list = []
+        # print(f"Masks before: {masks}")
+        # for image_obj, mask in zip(image_objects, masks):
+        #     new_image = []
+        #     print(f"Image: {image_obj}")
+        #     print(f"Mask: {mask}")
+        #     for frame, frame_masks in zip(image_obj.images, mask):
+        #         new_frame = []
+        #         print(f"Frame: {frame}")
+        #         print(f"Frame masks: {frame_masks}")
+        #         for scaled_frame, masker in zip(frame, frame_masks):
+        #             print(f"Masker: {masker}")
+        #             print(f"Frame: {scaled_frame}")
+        #             scaled_frame = utils.apply_mask(scaled_frame, masker)
+        #             new_frame.append(scaled_frame)
+        #         new_image.append(new_frame)
+        #     new_list.append(new_image)
+        #     print(f"Masks after: {masks}")
+        #
+        # image_objects = new_list
         print(colored("Texture outbound protection done\n", 'green'))
 
     if len(images) < len(scales):
@@ -231,10 +261,28 @@ def scale_loop_chunk(args) -> None:
         scale_loop(algorithm, images.copy(), roots.copy(), files.copy(), scales, config)
 
 
-def algorithm_loop(algorithms: list[Algorithms],
-                   images: list[utils.Image],
-                   roots: list[str], files: list[str],
-                   scales: list[float], config: dict) -> None:
+def algorithm_loop(
+        algorithms: list[Algorithms],
+        images: list[utils.Image],
+        roots: list[str], files: list[str],
+        scales: list[float], config: dict
+) -> None:
+
+    masks_for_images = None
+    if config['texture_outbound_protection'] or config['texture_inbound_protection']:
+        print(colored("Texture protection is enabled, generating masks...", 'yellow'))
+        masks_for_images = []
+        for image in images:
+            masks_for_scales = []
+            for scale in scales:
+                masks_for_frames = []
+                for frame in image.images[0]:
+                    mask = utils.generate_mask(frame, scale, config['texture_mask_mode'])
+                    masks_for_frames.append(mask)
+                masks_for_frames.append(masks_for_frames)
+            masks_for_images.append(masks_for_scales)
+        print(colored("Masks generated!", 'green'))
+
     processes = 0
     if 2 in config['multiprocessing_levels']:  # TODO: Complete this implementation
         if config['override_processes_count']:
@@ -249,7 +297,7 @@ def algorithm_loop(algorithms: list[Algorithms],
                     size_sum += frame.size[0] * frame.size[1]
 
             performance_constant = 786_432  # 2^18 * 3
-            performance_processes = size_sum * utils.avg(scales)**2 * len(scales) * len(algorithms) / performance_constant
+            performance_processes = size_sum * avg(scales)**2 * len(scales) * len(algorithms) / performance_constant
 
             # performance_processes = utils.geo_avg(scales) / 8 * len(algorithms)
             # print(f"Performance processes: {performance_processes}")
@@ -276,8 +324,7 @@ def algorithm_loop(algorithms: list[Algorithms],
             # roots_chunk = [roots for _ in range(chunk_size)]
             # files_chunk = [files for _ in range(chunk_size)]
 
-            chunks.append((algorithms_chunk, images, roots, files, scales, config))
-            # chunks.append((algorithms_chunk, images_chunk, roots_chunk, files_chunk, scales, config))
+            chunks.append((algorithms_chunk, images, roots, files, scales, config, masks_for_images))
 
         if 3 not in config['multiprocessing_levels']:
             pool = multiprocessing.Pool(processes=processes)
@@ -290,7 +337,7 @@ def algorithm_loop(algorithms: list[Algorithms],
 
     else:
         for algorithm in algorithms:
-            scale_loop(algorithm, images.copy(), roots.copy(), files.copy(), scales, config)
+            scale_loop(algorithm, images.copy(), roots.copy(), files.copy(), scales, config, masks_for_images)
 
 
 def fix_config(config: dict) -> dict:
@@ -394,12 +441,18 @@ def columnify(elements: tuple) -> str:
         terminal_columns = os.get_terminal_size().columns
         # print(f"Terminal columns: {terminal_columns}")
         columns = max_columns
-        while terminal_columns < len("\t".expandtabs(tab_spaces)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1 and columns > 1:
-            # print(f"Calculated row length: {len("\t".expandtabs(tab_spaces * 2)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1}")
+
+        def calc_row_length() -> int:
+            return len("\t".expandtabs(tab_spaces)) + (
+                    max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2
+            ) * columns - 1
+
+        while terminal_columns < calc_row_length() and columns > 1:
+            # print(f"Calculated row length: {calc_row_length()}")
             columns -= 1
     else:
         columns = 3
-    # print(f"Final row length: {len("\t".expandtabs(tab_spaces * 2)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1}")
+    # print(f"Final row length: {calc_row_length()}")
     # print(f"Final column count: {columns}")
 
     overflow = len(elements) % columns
@@ -408,10 +461,14 @@ def columnify(elements: tuple) -> str:
     for i in range(0, full_count, columns):
         result += "\t".expandtabs(tab_spaces)
         if i < len(elements):
-            result += " | ".join([f"\t{elements[i + j]:<{max_length + margin_right}}".expandtabs(tab_spaces) for j in range(columns)])
+            result += " | ".join(
+                [f"\t{elements[i + j]:<{max_length + margin_right}}".expandtabs(tab_spaces) for j in range(columns)]
+            )
         result += "\n"
     result += "\t".expandtabs(tab_spaces)
-    result += " | ".join([f"\t{elements[k]:<{max_length + margin_right}}".expandtabs(tab_spaces) for k in range(full_count, overflow + full_count)])
+    result += " | ".join(
+        [f"\t{elements[k]:<{max_length + margin_right}}".expandtabs(tab_spaces) for k in range(full_count, overflow + full_count)]
+    )
     result += "\n"
 
     return result
@@ -445,7 +502,7 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         'texture_inbound_protection': False,
         # TODO: Implement this, prevents multi-face (in 1 image) textures to not fully cover current textures border
         'texture_mask_mode': ('alpha', 'black'),
-        # TODO: Implement this, What should be the mask made of, first is when image has alpha channel, second when it doesn't
+        # TODO: Implement this, What should be used to make the mask, 1st is when alpha is present, 2nd when it is not
 
         'sharpness': 0.5,
         'NEDI_m': 4
@@ -516,7 +573,10 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
                     print("Sharpness must be a number")
         elif algorithm == Algorithms.NEDI:
             while True:
-                print("\nEnter the NEDI 'm' value (edge search radius) for the NEDI algorithm (must be a power of 2, >=1):")
+                print(
+                    "\n"
+                    "Enter the NEDI 'm' value (edge search radius) for the NEDI algorithm (must be a power of 2, >=1):"
+                )
                 nedi_m = input()
                 try:
                     nedi_m = int(nedi_m)
@@ -530,7 +590,11 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
     print("\nDo you wish to proceed with default configuration?")
     print("Default configuration:")
     print(colored("{\n\t".expandtabs(4), 'magenta'), end='')
-    print("\n\t".expandtabs(4).join(f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in default_config.items()))
+    print(
+        "\n\t".expandtabs(4).join(
+            f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in default_config.items()
+        )
+    )
     print(colored('}', 'magenta'))
     print("Y/N")
     default_config_input = input()
@@ -601,7 +665,15 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
 
         for file in files:
             if backup_iterator >= files_number:
-                print(colored("\nBackup iterator reached the end of the files list, BREAKING LOOP!\nTHIS SHOULD HAVE NOT HAPPENED!!!\n", 'red'))
+                print(
+                    colored(
+                        "\n"
+                        "Backup iterator reached the end of the files list, BREAKING LOOP!"
+                        "\n"
+                        "THIS SHOULD HAVE NOT HAPPENED!!!"
+                        "\n", 'red'
+                    )
+                )
                 break
             backup_iterator += 1
 
@@ -705,7 +777,8 @@ if __name__ == '__main__':
             message = """
                 Some functionality of this application is designed to run on Python 3.12!
                 Please upgrade your Python version to 3.12 or higher!
-                If you still want to your current python version use flag '--override-python-version' or '-opv' to bypass this check
+                If you still want to force your current python version use flag
+                '--override-python-version' or '-opv' to bypass this check
                 (note that some functionality may not work properly and the application may crash!)
             """
             raise AssertionError(message)
@@ -743,11 +816,19 @@ if __name__ == '__main__':
         }
         algorithms = [Algorithms.xBRZ]
         # algorithms = [Algorithms.CV2_INTER_AREA]
-        # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
-        #               Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
-        # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4,
-        #               Algorithms.CV2_ESPCN, Algorithms.CV2_EDSR, Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small, Algorithms.RealESRGAN,
-        #               Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
+        # algorithms = [
+        #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
+        #     Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx,
+        #     Algorithms.NEDI
+        # ]
+        # algorithms = [
+        #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR,
+        #     Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4,
+        #     Algorithms.CV2_ESPCN, Algorithms.CV2_EDSR, Algorithms.CV2_FSRCNN,
+        #     Algorithms.CV2_FSRCNN_small, Algorithms.RealESRGAN,
+        #     Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR,
+        #     Algorithms.hqx, Algorithms.NEDI
+        # ]
         scales = [4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
@@ -758,7 +839,11 @@ if __name__ == '__main__':
     print(f"Received scales: {colored(scales, 'blue')}")
     print("Using config: ", end='')
     print(colored("{\n\t".expandtabs(4), 'magenta'), end='')
-    print("\n\t".expandtabs(4).join(f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in config.items()))
+    print(
+        "\n\t".expandtabs(4).join(
+            f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in config.items()
+        )
+    )
     print(colored('}', 'magenta'))
 
     run(algorithms, scales, config)
