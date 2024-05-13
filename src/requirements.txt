@@ -6,6 +6,7 @@ numpy
 opencv-contrib-python
 pillow
 psutil
+pyanime4k
 python-multipart
 termcolor
 torch

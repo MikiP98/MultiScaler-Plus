@@ -1,5 +1,5 @@
 # coding=utf-8
-# import rarch
+import pyanime4k.ac
 import cv2
 import hqx
 import numpy as np
@@ -14,8 +14,6 @@ from RealESRGAN import RealESRGAN
 from superxbr import superxbr
 from termcolor import colored
 from utils import Algorithms
-
-# from rarch import CommonShaders
 
 # import scalercg
 
@@ -781,6 +779,49 @@ def scale_image_batch(
                         )
                     new_image_object_list.append(scaled_image)
                 scaled_images.append(utils.Image(new_image_object_list))
+
+        case Algorithms.Anime4K:
+            scaled_images: list[utils.Image] = []
+            for image_object in images:
+                image_object_list: list[list[PIL.Image.Image]] = []
+                for factor in factors:
+                    scaled_frames: list[PIL.Image.Image] = []
+                    for frame in image_object.images[0]:
+                        np_image = np.array(frame.convert('RGB'))
+
+                        current_factor = 1
+                        while current_factor < factor:
+                            print(f"iteration: {current_factor}")
+
+                            parameters = pyanime4k.ac.Parameters()
+                            parameters.HDN = True
+                            a = pyanime4k.ac.AC(
+                                managerList=pyanime4k.ac.ManagerList([pyanime4k.ac.OpenCLACNetManager(pID=0, dID=0)]),
+                                type=pyanime4k.ac.ProcessorType.OpenCL_ACNet
+                            )
+
+                            a.load_image_from_numpy(np_image, input_type=pyanime4k.ac.AC_INPUT_RGB)
+
+                            a.process()
+                            current_factor *= 2
+
+                            np_image = a.save_image_to_numpy()
+
+                            a = None  # REQUIRED, DO NOT DELETE! Else raises a GPU error!
+
+                        new_frame = PIL.Image.fromarray(np_image)
+
+                        scaled_frames.append(
+                            utils.cv2_to_pil(
+                                cv2.resize(
+                                    utils.pil_to_cv2(new_frame),
+                                    (frame.size[0] * factor, frame.size[1] * factor),
+                                    interpolation=csatca(fallback_algorithm)
+                                )
+                            )
+                        )
+                    image_object_list.append(scaled_frames)
+                scaled_images.append(utils.Image(image_object_list))
 
         case _:
             if main_checked:

@@ -511,11 +511,11 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
 
         'copy_mcmeta': True,
         'texture_outbound_protection': False,
-        # TODO: Implement this, prevents multi-face (in 1 image) textures to expand over current textures border
+        # prevents multi-face (in 1 image) textures to expand over current textures border
         'texture_inbound_protection': False,
         # TODO: Implement this, prevents multi-face (in 1 image) textures to not fully cover current textures border
         'texture_mask_mode': ('alpha', 'black'),
-        # TODO: Implement this, What should be used to make the mask, 1st is when alpha is present, 2nd when it is not
+        # What should be used to make the mask, 1st is when alpha is present, 2nd when it is not  TODO: add more options
 
         'sharpness': 0.5,
         'NEDI_m': 4
@@ -821,7 +821,7 @@ if __name__ == '__main__':
 
             'copy_mcmeta': True,
             'texture_outbound_protection': True,
-            'texture_inbound_protection': False,
+            'texture_inbound_protection': True,
             'texture_mask_mode': ('alpha', 'black'),
 
             'sharpness': 0.5,
