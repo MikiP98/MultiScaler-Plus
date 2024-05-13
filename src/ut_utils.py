@@ -17,7 +17,7 @@ def generate_markdown_for_example_images(split=True):
     algorithms = [
         "Original",
         "Nearest Neighbour", "Bilinear", "Bicubic", "Lanczos",
-        "EDSR", "ESPCN", "FSRCNN", "FSRCNN-small", "LapSRN", "RealESRGAN",
+        "EDSR", "ESPCN", "FSRCNN", "FSRCNN-small", "LapSRN", "RealESRGAN", "Anime4K",
         "hqx", "NEDI <sup>*(m = 4)*</sup>", "Super xBR", "xBRZ",
         "FSR", "CAS <sup>*(sharpness = 0.5)*</sup>"
     ]
@@ -35,6 +35,7 @@ def generate_markdown_for_example_images(split=True):
         "./src/example_images/output/CV2_FSRCNN_small_example_shell_40px_4x.png",
         "./src/example_images/output/CV2_LapSRN_example_shell_40px_4x.png",
         "./src/example_images/output/RealESRGAN_example_shell_40px_4x.png",
+        "./src/example_images/output/Anime4K_example_shell_40px_4x.png",
 
         "./src/example_images/output/hqx_example_shell_40px_4x.png",
         "./src/example_images/output/NEDI_example_shell_40px_4x.png",
@@ -50,18 +51,38 @@ def generate_markdown_for_example_images(split=True):
     print("```")
     print(f"| {' | '.join(algorithms[:columns])} |")
     print(f"| {' | '.join([':---:'] * columns)} |")
-    print(f"| {' | '.join([f'![{algorithm}]({link})' for algorithm, link in zip(algorithms[:columns], links[:columns])])} |")
+    print(
+        f"| {' | '.join(
+            [f'![{algorithm}]({link})' for algorithm, link in zip(algorithms[:columns], links[:columns])]
+        )} |"
+    )
     for i in range(columns, len(algorithms), columns):
         if not split:
             print(f"| {' | '.join(algorithms[i:i + columns])} |")
-            print(f"| {' | '.join([f'![{algorithm}]({link})' for algorithm, link in zip(algorithms[i:i + columns], links[i:i + columns])])} |")
+            print(
+                f"| {' | '.join(
+                    [
+                        f'![{algorithm}]({link})' for algorithm, link in zip(
+                            algorithms[i:i + columns], links[i:i + columns]
+                        )
+                    ]
+                )} |"
+            )
         else:
             if columns > len(algorithms) - i:
                 columns = len(algorithms) - i
             print()
             print(f"| {' | '.join(algorithms[i:i + columns])} |")
             print(f"| {' | '.join([':---:'] * columns)} |")
-            print(f"| {' | '.join([f'![{algorithm}]({link})' for algorithm, link in zip(algorithms[i:i + columns], links[i:i + columns])])} |")
+            print(
+                f"| {' | '.join(
+                    [
+                        f'![{algorithm}]({link})' for algorithm, link in zip(
+                            algorithms[i:i + columns], links[i:i + columns]
+                        )
+                    ]
+                )} |"
+            )
 
 
 if __name__ == "__main__":
