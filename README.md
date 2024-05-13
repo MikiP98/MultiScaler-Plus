@@ -85,14 +85,23 @@ Results of up-scaling the image *(40px -> 160px)*:
 | Original | Nearest Neighbour | Bilinear | Bicubic |
 | :---: | :---: | :---: | :---: |
 | ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](./src/example_images/output/CV2_INTER_NEAREST_example_shell_40px_4x.png) | ![Bilinear](./src/example_images/output/CV2_INTER_LINEAR_example_shell_40px_4x.png) | ![Bicubic](./src/example_images/output/CV2_INTER_CUBIC_example_shell_40px_4x.png) |
+
 | Lanczos | EDSR | ESPCN | FSRCNN |
+| :---: | :---: | :---: | :---: |
 | ![Lanczos](./src/example_images/output/CV2_INTER_LANCZOS4_example_shell_40px_4x.png) | ![EDSR](./src/example_images/output/CV2_EDSR_example_shell_40px_4x.png) | ![ESPCN](./src/example_images/output/CV2_ESPCN_example_shell_40px_4x.png) | ![FSRCNN](./src/example_images/output/CV2_FSRCNN_example_shell_40px_4x.png) |
+
 | FSRCNN-small | LapSRN | RealESRGAN | hqx |
+| :---: | :---: | :---: | :---: |
 | ![FSRCNN-small](./src/example_images/output/CV2_FSRCNN_small_example_shell_40px_4x.png) | ![LapSRN](./src/example_images/output/CV2_LapSRN_example_shell_40px_4x.png) | ![RealESRGAN](./src/example_images/output/RealESRGAN_example_shell_40px_4x.png) | ![hqx](./src/example_images/output/hqx_example_shell_40px_4x.png) |
+
 | NEDI <sup>*(m = 4)*</sup> | Super xBR | xBRZ | FSR |
+| :---: | :---: | :---: | :---: |
 | ![NEDI <sup>*(m = 4)*</sup>](./src/example_images/output/NEDI_example_shell_40px_4x.png) | ![Super xBR](./src/example_images/output/Super_xBR_example_shell_40px_4x.png) | ![xBRZ](./src/example_images/output/xBRZ_example_shell_40px_4x.png) | ![FSR](./src/example_images/output/example_shell_40px_FSR.png) |
+
 | CAS <sup>*(sharpness = 0.5)*</sup> |
+| :---: |
 | ![CAS <sup>*(sharpness = 0.5)*</sup>](./src/example_images/output/example_shell_40px_CAS.png) |
+
 
 <br/>
 

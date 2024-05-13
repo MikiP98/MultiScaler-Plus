@@ -13,7 +13,7 @@ def generate_markdown_for_supported_read_formats():
             print("---")
 
 
-def generate_markdown_for_example_images():
+def generate_markdown_for_example_images(split=True):
     algorithms = [
         "Original",
         "Nearest Neighbour", "Bilinear", "Bicubic", "Lanczos",
@@ -52,8 +52,16 @@ def generate_markdown_for_example_images():
     print(f"| {' | '.join([':---:'] * columns)} |")
     print(f"| {' | '.join([f'![{algorithm}]({link})' for algorithm, link in zip(algorithms[:columns], links[:columns])])} |")
     for i in range(columns, len(algorithms), columns):
-        print(f"| {' | '.join(algorithms[i:i + columns])} |")
-        print(f"| {' | '.join([f'![{algorithm}]({link})' for algorithm, link in zip(algorithms[i:i + columns], links[i:i + columns])])} |")
+        if not split:
+            print(f"| {' | '.join(algorithms[i:i + columns])} |")
+            print(f"| {' | '.join([f'![{algorithm}]({link})' for algorithm, link in zip(algorithms[i:i + columns], links[i:i + columns])])} |")
+        else:
+            if columns > len(algorithms) - i:
+                columns = len(algorithms) - i
+            print()
+            print(f"| {' | '.join(algorithms[i:i + columns])} |")
+            print(f"| {' | '.join([':---:'] * columns)} |")
+            print(f"| {' | '.join([f'![{algorithm}]({link})' for algorithm, link in zip(algorithms[i:i + columns], links[i:i + columns])])} |")
 
 
 if __name__ == "__main__":
