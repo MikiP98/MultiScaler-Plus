@@ -5,11 +5,11 @@ hqx
 numpy
 opencv-contrib-python
 pillow
+psutil
 python-multipart
 termcolor
 torch
 uvicorn[standard]
-psutil
 
 setuptools
 wheel
