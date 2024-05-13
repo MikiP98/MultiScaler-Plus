@@ -8,6 +8,7 @@ pillow
 psutil
 pyanime4k
 python-multipart
+super-image
 termcolor
 torch
 uvicorn[standard]
