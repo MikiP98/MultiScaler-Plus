@@ -54,34 +54,6 @@ Scaled down image *(40px)*:
 
 Results of up-scaling the image *(40px -> 160px)*:
 
-[//]: # (|                                                      Original                                                      |                                       Nearest Neighbour                                       |                                      Bilinear                                       |                                      Bicubic                                      |                                       Lanczos                                        |)
-
-[//]: # (|:------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|)
-
-[//]: # (| ![Original]&#40;https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png&#41; | ![Nearest Neighbour]&#40;./src/example_images/output/CV2_INTER_NEAREST_example_shell_40px_4x.png&#41; | ![Bilinear]&#40;./src/example_images/output/CV2_INTER_LINEAR_example_shell_40px_4x.png&#41; | ![Bicubic]&#40;./src/example_images/output/CV2_INTER_CUBIC_example_shell_40px_4x.png&#41; | ![Lanczos]&#40;./src/example_images/output/CV2_INTER_LANCZOS4_example_shell_40px_4x.png&#41; |)
-
-[//]: # ()
-[//]: # (|                                  EDSR                                   |                                   ESPCN                                   |                                   FSRCNN                                    |                                      FSRCNN-small                                       |                                   LapSRN                                    |                                   RealESRGAN                                    |)
-
-[//]: # (|:-----------------------------------------------------------------------:|:-------------------------------------------------------------------------:|:---------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------:|:-------------------------------------------------------------------------------:|)
-
-[//]: # (| ![EDSR]&#40;./src/example_images/output/CV2_EDSR_example_shell_40px_4x.png&#41; | ![ESPCN]&#40;./src/example_images/output/CV2_ESPCN_example_shell_40px_4x.png&#41; | ![FSRCNN]&#40;./src/example_images/output/CV2_FSRCNN_example_shell_40px_4x.png&#41; | ![FSRCNN-small]&#40;./src/example_images/output/CV2_FSRCNN_small_example_shell_40px_4x.png&#41; | ![LapSRN]&#40;./src/example_images/output/CV2_LapSRN_example_shell_40px_4x.png&#41; | ![RealESRGAN]&#40;./src/example_images/output/RealESRGAN_example_shell_40px_4x.png&#41; |)
-
-[//]: # ()
-[//]: # (|                                hqx                                |                      NEDI <sup>*&#40;m = 4&#41;*</sup>                      |                                   Super xBR                                   |                                xBRZ                                 |)
-
-[//]: # (|:-----------------------------------------------------------------:|:-------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|:-------------------------------------------------------------------:|)
-
-[//]: # (| ![hqx]&#40;./src/example_images/output/hqx_example_shell_40px_4x.png&#41; | ![NEDI]&#40;./src/example_images/output/NEDI_example_shell_40px_4x.png&#41; | ![Super xBR]&#40;./src/example_images/output/Super_xBR_example_shell_40px_4x.png&#41; | ![xBRZ]&#40;./src/example_images/output/xBRZ_example_shell_40px_4x.png&#41; |)
-
-[//]: # ()
-[//]: # (|                              FSR                               |               CAS <sup>*&#40;sharpness = 0.5&#41;*</sup>               |)
-
-[//]: # (|:--------------------------------------------------------------:|:--------------------------------------------------------------:|)
-
-[//]: # (| ![FSR]&#40;./src/example_images/output/example_shell_40px_FSR.png&#41; | ![CAS]&#40;./src/example_images/output/example_shell_40px_CAS.png&#41; |)
-
-
 | Original | Nearest Neighbour | Bilinear | Bicubic |
 | :---: | :---: | :---: | :---: |
 | ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](./src/example_images/output/CV2_INTER_NEAREST_example_shell_40px_4x.png) | ![Bilinear](./src/example_images/output/CV2_INTER_LINEAR_example_shell_40px_4x.png) | ![Bicubic](./src/example_images/output/CV2_INTER_CUBIC_example_shell_40px_4x.png) |
