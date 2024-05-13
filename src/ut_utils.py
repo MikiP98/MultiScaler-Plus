@@ -49,7 +49,7 @@ def generate_markdown_for_example_images():
     print("Example images:")
     print("```")
     print(f"| {' | '.join(algorithms[:columns])} |")
-    print(f"| {' | '.join(['---'] * columns)} |")
+    print(f"| {' | '.join([':---:'] * columns)} |")
     print(f"| {' | '.join([f'![{algorithm}]({link})' for algorithm, link in zip(algorithms[:columns], links[:columns])])} |")
     for i in range(columns, len(algorithms), columns):
         print(f"| {' | '.join(algorithms[i:i + columns])} |")
