@@ -9,7 +9,6 @@ import PIL.Image
 import subprocess
 import super_image
 import torch
-import torchvision
 
 import utils
 import xbrz  # See xBRZ scaling on Jira
