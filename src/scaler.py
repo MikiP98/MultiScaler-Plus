@@ -437,7 +437,7 @@ def scale_image_batch(
             for factor in factors:
                 current_factor = 1
                 # temp_factor = factor
-                scaled_image = image_object.images[0]
+                scaled_image = image_object.images[0].copy()
                 while current_factor < factor:
                     temp_factor = 4
                     if 3 in allowed_factors:
@@ -454,7 +454,7 @@ def scale_image_batch(
                     if algorithm == Algorithms.SI_a2n:
                         model = super_image.A2nModel.from_pretrained('eugenesiow/a2n', scale=temp_factor)
                     elif algorithm == Algorithms.SI_awsrn_bam:
-                        model = super_image.AwsrnModel.from_pretrained('eugenesiow/awsrn', scale=temp_factor)
+                        model = super_image.AwsrnModel.from_pretrained('eugenesiow/awsrn-bam', scale=temp_factor)
                     elif algorithm == Algorithms.SI_carn or algorithm == Algorithms.SI_carn_bam:
                         if algorithm == Algorithms.SI_carn:
                             model = super_image.CarnModel.from_pretrained('eugenesiow/carn', scale=temp_factor)
@@ -508,7 +508,7 @@ def scale_image_batch(
                         # super_image.ImageLoader.save_compare(preds, inputs, "../output/compare.png")
 
                 for i, frame in enumerate(scaled_image):
-                    # print(f"Curr factor: {current_factor}")
+                    print(f"Curr factor: {current_factor}")
                     scaled_image[i] = utils.cv2_to_pil(
                         cv2.resize(
                             utils.pil_to_cv2(frame),
@@ -518,6 +518,7 @@ def scale_image_batch(
                     )
 
                 new_image_object_list.append(scaled_image)
+                model = None
             scaled_images.append(utils.Image(new_image_object_list))
         return scaled_images
 
