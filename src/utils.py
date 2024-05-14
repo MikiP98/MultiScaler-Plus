@@ -41,9 +41,28 @@ class Algorithms(IntEnum):
     PIL_LANCZOS = 17  # less blur than bicubic, but artifacts may appear
     PIL_NEAREST_NEIGHBOR = 18
     RealESRGAN = 19
-    Super_xBR = 20
-    SUPIR = 21
-    xBRZ = 22
+
+    SI_drln_bam = 20
+    SI_edsr = 21
+    SI_msrn = 22
+    SI_mdsr = 23
+    SI_msrn_bam = 24
+    SI_edsr_base = 25
+    SI_mdsr_bam = 26
+    SI_awsrn_bam = 27
+    SI_a2n = 28
+    SI_carn = 29
+    SI_carn_bam = 30
+    SI_pan = 31
+    SI_pan_bam = 32
+
+    SI_drln = 33
+    SI_han = 34
+    SI_rcan_bam = 35
+
+    Super_xBR = 36
+    SUPIR = 37
+    xBRZ = 38
 
 
 class Filters(IntEnum):

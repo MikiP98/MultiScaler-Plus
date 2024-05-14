@@ -5,6 +5,7 @@ import hqx
 import numpy as np
 import PIL.Image
 import subprocess
+import super_image
 import torch
 import utils
 import xbrz  # See xBRZ scaling on Jira
@@ -103,6 +104,47 @@ pil_algorithms_ud = {
 
 cv2_ai_234 = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small}
 cv2_ai_248 = {Algorithms.CV2_LapSRN}
+
+# si_algorithms = {
+#     Algorithms.SI_drln_bam,
+#     Algorithms.SI_edsr,
+#     Algorithms.SI_msrn,
+#     Algorithms.SI_mdsr,
+#     Algorithms.SI_msrn_bam,
+#     Algorithms.SI_edsr_base,
+#     Algorithms.SI_mdsr_bam,
+#     Algorithms.SI_awsrn_bam,
+#     Algorithms.SI_a2n,
+#     Algorithms.SI_carn,
+#     Algorithms.SI_carn_bam,
+#     Algorithms.SI_pan,
+#     Algorithms.SI_pan_bam,
+#
+#     Algorithms.SI_drln,
+#     Algorithms.SI_han,
+#     Algorithms.SI_rcan_bam
+# }
+si_2x_3x_4x_algorithms = {
+    Algorithms.SI_drln_bam,
+    Algorithms.SI_edsr,
+    Algorithms.SI_msrn,
+    Algorithms.SI_mdsr,
+    Algorithms.SI_msrn_bam,
+    Algorithms.SI_edsr_base,
+    Algorithms.SI_mdsr_bam,
+    Algorithms.SI_awsrn_bam,
+    Algorithms.SI_a2n,
+    Algorithms.SI_carn,
+    Algorithms.SI_carn_bam,
+    Algorithms.SI_pan,
+    Algorithms.SI_pan_bam,
+}
+si_4x_algorithms = {
+    Algorithms.SI_drln,
+    Algorithms.SI_han,
+    Algorithms.SI_rcan_bam
+}
+si_algorithms = si_2x_3x_4x_algorithms.union(si_4x_algorithms)
 
 
 def scale_image_batch(
@@ -327,6 +369,27 @@ def scale_image_batch(
     # ---------------------------------------------------------------------------------------------------------
     # ---------------------------------------- Start of custom algorithms --------------------------------------
     # ---------------------------------------------------------------------------------------------------------
+
+    if algorithm in si_algorithms:
+        if algorithm in si_2x_3x_4x_algorithms:
+            allowed_factors = {2, 3, 4}
+        else:
+            # algorithm in si_4x_algorithms
+            allowed_factors = {4}
+
+        for image_object in images:
+            model = None
+
+            new_image_object_list = []
+            for factor in factors:
+                if factor not in allowed_factors:
+                    raise ValueError("SI does not support upscaling!")
+                else:
+                    scaled_image = []
+                    for frame in image_object.images[0]:
+                        raise NotImplementedError("Not implemented yet")
+
+
     match algorithm:
         case Algorithms.xBRZ:  # TODO: Use RGB mode if the image is not RGBA
             for image_object in images:
