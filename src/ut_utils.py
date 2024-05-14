@@ -1,3 +1,4 @@
+# coding=utf-8
 from utils import pil_fully_supported_formats, pil_read_only_formats
 
 
@@ -16,9 +17,19 @@ def generate_markdown_for_supported_read_formats():
 def generate_markdown_for_example_images(split=True):
     algorithms = [
         "Original",
+
         "Nearest Neighbour", "Bilinear", "Bicubic", "Lanczos",
-        "EDSR", "ESPCN", "FSRCNN", "FSRCNN-small", "LapSRN", "RealESRGAN", "Anime4K",
+
+        "EDSR *(CV2)*", "ESPCN *(CV2)*", "FSRCNN *(CV2)*", "FSRCNN-small *(CV2)*", "LapSRN *(CV2)*",
+
+        "A2N *(SI)*", "AWSRN-BAM *(SI)*", "CARN *(SI)*", "CARN-BAM *(SI)*", "DRLN *(SI)*", "DRLN-BAM *(SI)*",
+        "EDSR *(SI)*", "EDSR-base *(SI)*", "HAN *(SI)*", "MDSR *(SI)*", "MDSR-BAM *(SI)*", "MSRN *(SI)*",
+        "MSRN-BAM *(SI)*", "PAN *(SI)*", "PAN-BAM *(SI)*", "RCAN-BAM *(SI)*",
+        
+        "RealESRGAN", "Anime4K", "HSDBTRE",
+
         "hqx", "NEDI <sup>*(m = 4)*</sup>", "Super xBR", "xBRZ",
+
         "FSR", "CAS <sup>*(sharpness = 0.5)*</sup>"
     ]
     links = [
@@ -34,8 +45,27 @@ def generate_markdown_for_example_images(split=True):
         "./src/example_images/output/CV2_FSRCNN_example_shell_40px_4x.png",
         "./src/example_images/output/CV2_FSRCNN_small_example_shell_40px_4x.png",
         "./src/example_images/output/CV2_LapSRN_example_shell_40px_4x.png",
+
+        "./src/example_images/output/SI_a2n_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_awsrn_bam_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_carn_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_carn_bam_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_drln_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_drln_bam_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_edsr_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_edsr_base_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_han_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_mdsr_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_mdsr_bam_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_msrn_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_msrn_bam_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_pan_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_pan_bam_example_shell_40px_4x.png",
+        "./src/example_images/output/SI_rcan_bam_example_shell_40px_4x.png",
+
         "./src/example_images/output/RealESRGAN_example_shell_40px_4x.png",
         "./src/example_images/output/Anime4K_example_shell_40px_4x.png",
+        "./src/example_images/output/HSDBTRE_example_shell_40px_4x.png",
 
         "./src/example_images/output/hqx_example_shell_40px_4x.png",
         "./src/example_images/output/NEDI_example_shell_40px_4x.png",

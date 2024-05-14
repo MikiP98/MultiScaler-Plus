@@ -59,21 +59,37 @@ Results of up-scaling the image *(40px -> 160px)*:
 | :---: | :---: | :---: | :---: |
 | ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](./src/example_images/output/CV2_INTER_NEAREST_example_shell_40px_4x.png) | ![Bilinear](./src/example_images/output/CV2_INTER_LINEAR_example_shell_40px_4x.png) | ![Bicubic](./src/example_images/output/CV2_INTER_CUBIC_example_shell_40px_4x.png) |
 
-| Lanczos | EDSR | ESPCN | FSRCNN |
+| Lanczos | EDSR *(CV2)* | ESPCN *(CV2)* | FSRCNN *(CV2)* |
 | :---: | :---: | :---: | :---: |
-| ![Lanczos](./src/example_images/output/CV2_INTER_LANCZOS4_example_shell_40px_4x.png) | ![EDSR](./src/example_images/output/CV2_EDSR_example_shell_40px_4x.png) | ![ESPCN](./src/example_images/output/CV2_ESPCN_example_shell_40px_4x.png) | ![FSRCNN](./src/example_images/output/CV2_FSRCNN_example_shell_40px_4x.png) |
+| ![Lanczos](./src/example_images/output/CV2_INTER_LANCZOS4_example_shell_40px_4x.png) | ![EDSR *(CV2)*](./src/example_images/output/CV2_EDSR_example_shell_40px_4x.png) | ![ESPCN *(CV2)*](./src/example_images/output/CV2_ESPCN_example_shell_40px_4x.png) | ![FSRCNN *(CV2)*](./src/example_images/output/CV2_FSRCNN_example_shell_40px_4x.png) |
 
-| FSRCNN-small | LapSRN | RealESRGAN | Anime4K |
+| FSRCNN-small *(CV2)* | LapSRN *(CV2)* | A2N *(SI)* | AWSRN-BAM *(SI)* |
 | :---: | :---: | :---: | :---: |
-| ![FSRCNN-small](./src/example_images/output/CV2_FSRCNN_small_example_shell_40px_4x.png) | ![LapSRN](./src/example_images/output/CV2_LapSRN_example_shell_40px_4x.png) | ![RealESRGAN](./src/example_images/output/RealESRGAN_example_shell_40px_4x.png) | ![Anime4K](./src/example_images/output/Anime4K_example_shell_40px_4x.png) |
+| ![FSRCNN-small *(CV2)*](./src/example_images/output/CV2_FSRCNN_small_example_shell_40px_4x.png) | ![LapSRN *(CV2)*](./src/example_images/output/CV2_LapSRN_example_shell_40px_4x.png) | ![A2N *(SI)*](./src/example_images/output/SI_a2n_example_shell_40px_4x.png) | ![AWSRN-BAM *(SI)*](./src/example_images/output/SI_awsrn_bam_example_shell_40px_4x.png) |
 
-| hqx | NEDI <sup>*(m = 4)*</sup> | Super xBR | xBRZ |
+| CARN *(SI)* | CARN-BAM *(SI)* | DRLN *(SI)* | DRLN-BAM *(SI)* |
 | :---: | :---: | :---: | :---: |
-| ![hqx](./src/example_images/output/hqx_example_shell_40px_4x.png) | ![NEDI <sup>*(m = 4)*</sup>](./src/example_images/output/NEDI_example_shell_40px_4x.png) | ![Super xBR](./src/example_images/output/Super_xBR_example_shell_40px_4x.png) | ![xBRZ](./src/example_images/output/xBRZ_example_shell_40px_4x.png) |
+| ![CARN *(SI)*](./src/example_images/output/SI_carn_example_shell_40px_4x.png) | ![CARN-BAM *(SI)*](./src/example_images/output/SI_carn_bam_example_shell_40px_4x.png) | ![DRLN *(SI)*](./src/example_images/output/SI_drln_example_shell_40px_4x.png) | ![DRLN-BAM *(SI)*](./src/example_images/output/SI_drln_bam_example_shell_40px_4x.png) |
 
-| FSR | CAS <sup>*(sharpness = 0.5)*</sup> |
-| :---: | :---: |
-| ![FSR](./src/example_images/output/example_shell_40px_FSR.png) | ![CAS <sup>*(sharpness = 0.5)*</sup>](./src/example_images/output/example_shell_40px_CAS.png) |
+| EDSR *(SI)* | EDSR-base *(SI)* | HAN *(SI)* | MDSR *(SI)* |
+| :---: | :---: | :---: | :---: |
+| ![EDSR *(SI)*](./src/example_images/output/SI_edsr_example_shell_40px_4x.png) | ![EDSR-base *(SI)*](./src/example_images/output/SI_edsr_base_example_shell_40px_4x.png) | ![HAN *(SI)*](./src/example_images/output/SI_han_example_shell_40px_4x.png) | ![MDSR *(SI)*](./src/example_images/output/SI_mdsr_example_shell_40px_4x.png) |
+
+| MDSR-BAM *(SI)* | MSRN *(SI)* | MSRN-BAM *(SI)* | PAN *(SI)* |
+| :---: | :---: | :---: | :---: |
+| ![MDSR-BAM *(SI)*](./src/example_images/output/SI_mdsr_bam_example_shell_40px_4x.png) | ![MSRN *(SI)*](./src/example_images/output/SI_msrn_example_shell_40px_4x.png) | ![MSRN-BAM *(SI)*](./src/example_images/output/SI_msrn_bam_example_shell_40px_4x.png) | ![PAN *(SI)*](./src/example_images/output/SI_pan_example_shell_40px_4x.png) |
+
+| PAN-BAM *(SI)* | RCAN-BAM *(SI)* | RealESRGAN | Anime4K |
+| :---: | :---: | :---: | :---: |
+| ![PAN-BAM *(SI)*](./src/example_images/output/SI_pan_bam_example_shell_40px_4x.png) | ![RCAN-BAM *(SI)*](./src/example_images/output/SI_rcan_bam_example_shell_40px_4x.png) | ![RealESRGAN](./src/example_images/output/RealESRGAN_example_shell_40px_4x.png) | ![Anime4K](./src/example_images/output/Anime4K_example_shell_40px_4x.png) |
+
+| HSDBTRE | hqx | NEDI <sup>*(m = 4)*</sup> | Super xBR |
+| :---: | :---: | :---: | :---: |
+| ![HSDBTRE](./src/example_images/output/HSDBTRE_example_shell_40px_4x.png) | ![hqx](./src/example_images/output/hqx_example_shell_40px_4x.png) | ![NEDI <sup>*(m = 4)*</sup>](./src/example_images/output/NEDI_example_shell_40px_4x.png) | ![Super xBR](./src/example_images/output/Super_xBR_example_shell_40px_4x.png) |
+
+| xBRZ | FSR | CAS <sup>*(sharpness = 0.5)*</sup> |
+| :---: | :---: | :---: |
+| ![xBRZ](./src/example_images/output/xBRZ_example_shell_40px_4x.png) | ![FSR](./src/example_images/output/example_shell_40px_FSR.png) | ![CAS <sup>*(sharpness = 0.5)*</sup>](./src/example_images/output/example_shell_40px_CAS.png) |
 
 <br/>
 
@@ -148,7 +164,7 @@ Results of up-scaling the image *(40px -> 160px)*:
 <br/>
 
 ### Credits:
-- **WebUI** and **Scaling App** created by [***Mikołaj Pokora***](https://github.com/MikiP98)
+- **WebUI**, **Scaling App** and **HSDBTRE** AI hybrid created by [***Mikołaj Pokora***](https://github.com/MikiP98)
 - **API backend** and **xBRZ wheel** by [***Piotr Przetacki***](https://github.com/PiotrPrzetacki)
 - [**Anime4K**](https://github.com/TianZerL/pyanime4k) implementation by [TianZer (TianZerL)](https://github.com/TianZerL)
 - [**RealESRGAN**](https://github.com/ai-forever/Real-ESRGAN) implementation by [ai-forever](https://github.com/ai-forever)
@@ -158,7 +174,10 @@ Results of up-scaling the image *(40px -> 160px)*:
 - [**Super xBR**](https://github.com/MikiP98/py-super-xbr) implementation originally created by [Matt Schwartz (n0spaces)](https://github.com/n0spaces) corrected by [Mikołaj Pokora](https://github.com/MikiP98)
 - [**FSR**](https://gpuopen.com/fidelityfx-superresolution/) and [**CAS**](https://gpuopen.com/fidelityfx-cas/) are implemented using [FidelityFX-CLI](https://github.com/GPUOpen-Effects/FidelityFX-CLI) by [GPUOpen-Effects](https://github.com/GPUOpen-Effects) and [AMD](https://www.amd.com/) <sup>*(licence in "src/FidelityFX-CLI-v1.0.3")*</sup>
 - ***Area***, ***Bicubic***, ***Bilinear***, ***Lanchos*** and ***Nearest neighbor*** algorithms are implemented using [OpenCV](https://opencv.org)
+- ***EDSR***, ***ESPCN***, ***FSRCNN***, ***FSRCNN-small***, ***LapSRN*** AI algorithms are also implemented using [OpenCV](https://opencv.org)
 - ***Nearest neighbor***, ***Bilinear***, ***Bicubic*** and ***Lanchos*** algorithms are also implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
+- ***A2N***, ***AWSRN-BAM***, ***CARN***, ***CARN-BAM***, ***DRLN***, ***DRLN-BAM***, ***EDSR***, ***EDSR-base***, ***HAN***, ***MDSR***, ***MDSR-BAM***, .*..hyyy*
+- ***MSRN***, ***MSRN-BAM***, ***PAN***, ***PAN-BAM***, ***RCAN-BAM*** AI algorithms are implemented using [super-image](https://pypi.org/project/super-image/) by [eugenesiow (Eugene Siow)](https://pypi.org/user/eugenesiow/) and [Freed Wu](https://pypi.org/user/Freed-Wu/)
 
 <sup>
 

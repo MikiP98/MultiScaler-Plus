@@ -105,8 +105,6 @@ def scale_loop(
         config: dict,
         masks: list[list[list[PIL.Image]]] | None = None
 ) -> None:
-    print(f"Masks at beginning:\n{masks}")
-
     print("Starting scaling process")
 
     # print(f"Length of images: {len(images)}")
@@ -293,7 +291,7 @@ def algorithm_loop(
                 masks_for_scales.append(masks_for_frames)
             masks_for_images.append(masks_for_scales)
         print(colored("Masks generated!", 'green'))
-    print(f"Masks for images:\n{masks_for_images}")
+    # print(f"Masks for images:\n{masks_for_images}")
 
     processes = 0
     if 2 in config['multiprocessing_levels']:  # TODO: Complete this implementation
@@ -829,7 +827,28 @@ if __name__ == '__main__':
             'sharpness': 0.5,
             'NEDI_m': 4
         }
-        algorithms = [Algorithms.SI_drln_bam]
+        algorithms = [
+            Algorithms.SI_awsrn_bam,
+            Algorithms.SI_carn,
+            Algorithms.SI_carn_bam,
+            Algorithms.SI_drln,
+            Algorithms.SI_drln_bam,
+            Algorithms.SI_han,
+            Algorithms.SI_mdsr,
+            Algorithms.SI_mdsr_bam,
+            Algorithms.SI_msrn,
+            Algorithms.SI_msrn_bam,
+            Algorithms.SI_pan,
+            Algorithms.SI_pan_bam,
+            Algorithms.SI_rcan_bam,
+
+            Algorithms.HSDBTRE,
+        ]
+        # algorithms = [
+        #     Algorithms.CV2_EDSR,
+        #     Algorithms.SI_edsr,
+        #     Algorithms.SI_edsr_base,
+        # ]
         # algorithms = [Algorithms.CV2_INTER_AREA]
         # algorithms = [
         #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
@@ -844,7 +863,7 @@ if __name__ == '__main__':
         #     Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR,
         #     Algorithms.hqx, Algorithms.NEDI
         # ]
-        scales = [6]
+        scales = [4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
         algorithms, scales, sharpness, nedi_m, config = handle_user_input()
