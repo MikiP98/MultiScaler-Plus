@@ -1,4 +1,6 @@
 # coding=utf-8
+import io
+
 import pyanime4k.ac
 import cv2
 import hqx
@@ -7,6 +9,8 @@ import PIL.Image
 import subprocess
 import super_image
 import torch
+import torchvision
+
 import utils
 import xbrz  # See xBRZ scaling on Jira
 
@@ -370,6 +374,58 @@ def scale_image_batch(
     # ---------------------------------------- Start of custom algorithms --------------------------------------
     # ---------------------------------------------------------------------------------------------------------
 
+    if algorithm == Algorithms.HSDBTRE:
+        repeats = []
+        for factor in factors:
+            repeat = 1
+            while 4**repeat < factor:
+                repeat += 1
+            repeats.append(repeat)
+
+        new_factors = [4**repeat for repeat in repeats]
+        print(f"New factors: {new_factors}")
+        print(f"Repeats: {repeats}")
+
+        temporal_factors = new_factors.copy()
+        scaled_images = images
+        while any([factor > 1 for factor in temporal_factors]):
+            f_to_scale = []
+            for i, factor in enumerate(temporal_factors):
+                if factor > 1:
+                    f_to_scale.append(2)
+                    temporal_factors[i] //= 4
+                else:
+                    f_to_scale.append(1)
+
+            scaled_images = scale_image_batch(
+                Algorithms.SI_drln_bam, scaled_images, f_to_scale, fallback_algorithm=fallback_algorithm
+            )
+            scaled_images = scale_image_batch(
+                Algorithms.RealESRGAN, scaled_images, f_to_scale, fallback_algorithm=fallback_algorithm
+            )
+
+        for image_object in scaled_images:
+            # print(f"Images: {image_object.images}")
+            for i, scales in enumerate(image_object.images):
+                # print(f"Type of scales: {type(scales)}")
+                # print(f"Scales:\n{scales}")
+                for j in range(len(scales)):
+                    frame = scales[j]
+                    # print(f"new_factors[i] * factors[i] = {new_factors[i] * factors[i]}")
+                    # print(f"frame.size = {frame.size}")
+                    scales[j] = utils.cv2_to_pil(
+                        cv2.resize(
+                            utils.pil_to_cv2(frame),
+                            (
+                                frame.size[0] // new_factors[i] * factors[i],
+                                frame.size[1] // new_factors[i] * factors[i]
+                            ),
+                            interpolation=csatca(fallback_algorithm)
+                        )
+                    )
+
+        return scaled_images
+
     if algorithm in si_algorithms:
         if algorithm in si_2x_3x_4x_algorithms:
             allowed_factors = {2, 3, 4}
@@ -378,17 +434,73 @@ def scale_image_batch(
             allowed_factors = {4}
 
         for image_object in images:
-            model = None
+            # model = None
 
             new_image_object_list = []
             for factor in factors:
+                temp_factor = factor
                 if factor not in allowed_factors:
-                    raise ValueError("SI does not support upscaling!")
-                else:
-                    scaled_image = []
-                    for frame in image_object.images[0]:
-                        raise NotImplementedError("Not implemented yet")
+                    raise ValueError("SI does not support this factor!")
 
+                if algorithm == Algorithms.SI_a2n:
+                    model = super_image.A2nModel.from_pretrained('eugenesiow/a2n', scale=temp_factor)
+                elif algorithm == Algorithms.SI_awsrn_bam:
+                    model = super_image.AwsrnModel.from_pretrained('eugenesiow/awsrn', scale=temp_factor)
+                elif algorithm == Algorithms.SI_carn or algorithm == Algorithms.SI_carn_bam:
+                    if algorithm == Algorithms.SI_carn:
+                        model = super_image.CarnModel.from_pretrained('eugenesiow/carn', scale=temp_factor)
+                    else:
+                        model = super_image.CarnModel.from_pretrained('eugenesiow/carn-bam', scale=temp_factor)
+                elif algorithm == Algorithms.SI_drln or algorithm == Algorithms.SI_drln_bam:
+                    if algorithm == Algorithms.SI_drln:
+                        model = super_image.DrlnModel.from_pretrained('eugenesiow/drln', scale=temp_factor)
+                    else:
+                        model = super_image.DrlnModel.from_pretrained('eugenesiow/drln-bam', scale=temp_factor)
+                elif algorithm == Algorithms.SI_edsr or algorithm == Algorithms.SI_edsr_base:
+                    if algorithm == Algorithms.SI_edsr:
+                        model = super_image.EdsrModel.from_pretrained('eugenesiow/edsr', scale=temp_factor)
+                    else:
+                        model = super_image.EdsrModel.from_pretrained('eugenesiow/edsr-base', scale=temp_factor)
+                elif algorithm == Algorithms.SI_mdsr or algorithm == Algorithms.SI_mdsr_bam:
+                    if algorithm == Algorithms.SI_mdsr:
+                        model = super_image.MdsrModel.from_pretrained('eugenesiow/mdsr', scale=temp_factor)
+                    else:
+                        model = super_image.MdsrModel.from_pretrained('eugenesiow/mdsr-bam', scale=temp_factor)
+                elif algorithm == Algorithms.SI_msrn or algorithm == Algorithms.SI_msrn_bam:
+                    if algorithm == Algorithms.SI_msrn:
+                        model = super_image.MsrnModel.from_pretrained('eugenesiow/msrn', scale=temp_factor)
+                    else:
+                        model = super_image.MsrnModel.from_pretrained('eugenesiow/msrn-bam', scale=temp_factor)
+                elif algorithm == Algorithms.SI_pan or algorithm == Algorithms.SI_pan_bam:
+                    if algorithm == Algorithms.SI_pan:
+                        model = super_image.PanModel.from_pretrained('eugenesiow/pan', scale=temp_factor)
+                    else:
+                        model = super_image.PanModel.from_pretrained('eugenesiow/pan-bam', scale=temp_factor)
+                elif algorithm == Algorithms.SI_rcan_bam:
+                    model = super_image.RcanModel.from_pretrained('eugenesiow/rcan-bam', scale=temp_factor)
+                elif algorithm == Algorithms.SI_han:
+                    model = super_image.HanModel.from_pretrained('eugenesiow/han', scale=temp_factor)
+                else:
+                    raise ValueError("Unknown SI algorithm! I should get here... but the warning :/")
+
+                scaled_image = []
+                for frame in image_object.images[0]:
+                    inputs = super_image.ImageLoader.load_image(frame)
+                    preds = model(inputs)
+
+                    cv2_frame = super_image.ImageLoader._process_image_to_save(preds)
+
+                    frame_bytes = cv2.imencode('.png', cv2_frame)[1].tobytes()
+
+                    pil_frame = PIL.Image.open(io.BytesIO(frame_bytes))
+
+                    scaled_image.append(pil_frame)
+
+                    # super_image.ImageLoader.save_image(preds, "../input/frame.png")
+                    # super_image.ImageLoader.save_compare(preds, inputs, "../output/compare.png")
+                new_image_object_list.append(scaled_image)
+            scaled_images.append(utils.Image(new_image_object_list))
+        return scaled_images
 
     match algorithm:
         case Algorithms.xBRZ:  # TODO: Use RGB mode if the image is not RGBA

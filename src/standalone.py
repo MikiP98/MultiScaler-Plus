@@ -7,6 +7,8 @@ import os
 import PIL.Image
 import PIL.GifImagePlugin
 import psutil
+from termcolor._types import Color as TermColor
+
 import scaler
 import sys
 import shutil
@@ -755,7 +757,7 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
 
 
 def rainbowify(text: str) -> str:
-    colors = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
+    colors: list[TermColor] = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
     len_colors = len(colors)
     rainbow_text = ""
     i = 0
@@ -820,14 +822,14 @@ if __name__ == '__main__':
             'override_processes_count': False,
 
             'copy_mcmeta': True,
-            'texture_outbound_protection': True,
-            'texture_inbound_protection': True,
+            'texture_outbound_protection': False,
+            'texture_inbound_protection': False,
             'texture_mask_mode': ('alpha', 'black'),
 
             'sharpness': 0.5,
             'NEDI_m': 4
         }
-        algorithms = [Algorithms.xBRZ]
+        algorithms = [Algorithms.HSDBTRE]
         # algorithms = [Algorithms.CV2_INTER_AREA]
         # algorithms = [
         #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
@@ -842,7 +844,7 @@ if __name__ == '__main__':
         #     Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR,
         #     Algorithms.hqx, Algorithms.NEDI
         # ]
-        scales = [4]
+        scales = [6]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
         algorithms, scales, sharpness, nedi_m, config = handle_user_input()

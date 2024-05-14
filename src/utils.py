@@ -35,38 +35,42 @@ class Algorithms(IntEnum):
     CV2_LapSRN = 11  # Laplacian Super-Resolution Network
     FSR = 12  # FidelityFX Super Resolution
     hqx = 13  # high quality scale
-    NEDI = 14  # New Edge-Directed Interpolation
-    PIL_BICUBIC = 15  # less blur and artifacts than bilinear, but slower
-    PIL_BILINEAR = 16
-    PIL_LANCZOS = 17  # less blur than bicubic, but artifacts may appear
-    PIL_NEAREST_NEIGHBOR = 18
-    RealESRGAN = 19
 
-    SI_drln_bam = 20
-    SI_edsr = 21
-    SI_msrn = 22
-    SI_mdsr = 23
-    SI_msrn_bam = 24
-    SI_edsr_base = 25
-    SI_mdsr_bam = 26
-    SI_awsrn_bam = 27
-    SI_a2n = 28
-    SI_carn = 29
-    SI_carn_bam = 30
-    SI_pan = 31
-    SI_pan_bam = 32
+    HSDBTRE = 14
 
-    SI_drln = 33
-    SI_han = 34
-    SI_rcan_bam = 35
+    NEDI = 15  # New Edge-Directed Interpolation
+    PIL_BICUBIC = 16  # less blur and artifacts than bilinear, but slower
+    PIL_BILINEAR = 17
+    PIL_LANCZOS = 18  # less blur than bicubic, but artifacts may appear
+    PIL_NEAREST_NEIGHBOR = 19
+    RealESRGAN = 20
 
-    Super_xBR = 36
-    SUPIR = 37
-    xBRZ = 38
+    SI_drln_bam = 21
+    SI_edsr = 22
+    SI_msrn = 23
+    SI_mdsr = 24
+    SI_msrn_bam = 25
+    SI_edsr_base = 26
+    SI_mdsr_bam = 27
+    SI_awsrn_bam = 28
+    SI_a2n = 29
+    SI_carn = 30
+    SI_carn_bam = 31
+    SI_pan = 32
+    SI_pan_bam = 33
+
+    SI_drln = 34
+    SI_han = 35
+    SI_rcan_bam = 36
+
+    Super_xBR = 37
+    SUPIR = 38
+    xBRZ = 39
 
 
 class Filters(IntEnum):
     CAS = 0  # contrast adaptive sharpening
+    SI_TODO = 1  # TODO: Add filters
 
 
 cli_algorithms = {Algorithms.FSR, Algorithms.CAS, Algorithms.SUPIR, Algorithms.Super_xBR}
