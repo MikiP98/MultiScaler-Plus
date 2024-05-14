@@ -829,7 +829,7 @@ if __name__ == '__main__':
             'sharpness': 0.5,
             'NEDI_m': 4
         }
-        algorithms = [Algorithms.HSDBTRE]
+        algorithms = [Algorithms.SI_drln_bam]
         # algorithms = [Algorithms.CV2_INTER_AREA]
         # algorithms = [
         #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
