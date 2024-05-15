@@ -872,7 +872,7 @@ if __name__ == '__main__':
             'sort_by_image': False,
             'sort_by_scale': False,
 
-            'lossless_compression': False,
+            'lossless_compression': True,
 
             'multiprocessing_levels': {},
             'max_processes': (2, 2, 2),

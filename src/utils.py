@@ -306,6 +306,7 @@ def apply_lossless_compression(image: Union[PIL.Image, np.ndarray]) -> bytes:
     image.save(img_byte_arr, optimize=True, format='PNG')
 
     unique_colors_number = len(set(image.getdata()))
+    # print(f"Unique colors: {unique_colors_number}")
     if unique_colors_number <= 256:
         colors = 256
         if unique_colors_number <= 2:
@@ -316,13 +317,22 @@ def apply_lossless_compression(image: Union[PIL.Image, np.ndarray]) -> bytes:
             colors = 16
 
         img_temp_byte_arr = io.BytesIO()
-        image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)
-        image.save(img_temp_byte_arr, optimize=True, format='PNG')
+        temp_image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)  # sometimes deletes some data :/
 
-        # Check which one is smaller and keep it, remove the other one
-        # (if the palette is smaller remove '_P' from the name)
-        if len(img_temp_byte_arr.getvalue()) < len(img_byte_arr.getvalue()):
-            img_byte_arr = img_temp_byte_arr
+        # Additional check to see if PIL didn't fuck up
+        same = True
+        for data1, data2 in zip(image.getdata(), temp_image.getdata()):
+            if data1 != data2:
+                same = False
+                break
+        # if all([data1 == data2 for data1, data2 in zip(image.getdata(), temp_image.getdata())]):
+        if same:
+            temp_image.save(img_temp_byte_arr, optimize=True, format='PNG')
+
+            # Check which one is smaller and keep it, remove the other one
+            # (if the palette is smaller remove '_P' from the name)
+            if len(img_temp_byte_arr.getvalue()) < len(img_byte_arr.getvalue()):
+                img_byte_arr = img_temp_byte_arr
 
     return img_byte_arr.getvalue()
 
