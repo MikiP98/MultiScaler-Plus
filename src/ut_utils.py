@@ -25,7 +25,7 @@ def generate_markdown_for_example_images(split=True):
         "A2N *(SI)*", "AWSRN-BAM *(SI)*", "CARN *(SI)*", "CARN-BAM *(SI)*", "DRLN *(SI)*", "DRLN-BAM *(SI)*",
         "EDSR *(SI)*", "EDSR-base *(SI)*", "HAN *(SI)*", "MDSR *(SI)*", "MDSR-BAM *(SI)*", "MSRN *(SI)*",
         "MSRN-BAM *(SI)*", "PAN *(SI)*", "PAN-BAM *(SI)*", "RCAN-BAM *(SI)*",
-        
+
         "RealESRGAN", "Anime4K", "HSDBTRE",
 
         "hqx", "NEDI <sup>*(m = 4)*</sup>", "Super xBR", "xBRZ",

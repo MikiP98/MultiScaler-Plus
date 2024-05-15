@@ -306,6 +306,7 @@ def apply_lossless_compression(image: Union[PIL.Image, np.ndarray]) -> bytes:
     image.save(img_byte_arr, optimize=True, format='PNG')
 
     unique_colors_number = len(set(image.getdata()))
+    # print(f"Unique colors: {unique_colors_number}")
     if unique_colors_number <= 256:
         colors = 256
         if unique_colors_number <= 2:
@@ -316,13 +317,22 @@ def apply_lossless_compression(image: Union[PIL.Image, np.ndarray]) -> bytes:
             colors = 16
 
         img_temp_byte_arr = io.BytesIO()
-        image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)
-        image.save(img_temp_byte_arr, optimize=True, format='PNG')
+        temp_image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)  # sometimes deletes some data :/
 
-        # Check which one is smaller and keep it, remove the other one
-        # (if the palette is smaller remove '_P' from the name)
-        if len(img_temp_byte_arr.getvalue()) < len(img_byte_arr.getvalue()):
-            img_byte_arr = img_temp_byte_arr
+        # Additional check to see if PIL didn't fuck up
+        same = True
+        for data1, data2 in zip(image.getdata(), temp_image.getdata()):
+            if data1 != data2:
+                same = False
+                break
+        # if all([data1 == data2 for data1, data2 in zip(image.getdata(), temp_image.getdata())]):
+        if same:
+            temp_image.save(img_temp_byte_arr, optimize=True, format='PNG')
+
+            # Check which one is smaller and keep it, remove the other one
+            # (if the palette is smaller remove '_P' from the name)
+            if len(img_temp_byte_arr.getvalue()) < len(img_byte_arr.getvalue()):
+                img_byte_arr = img_temp_byte_arr
 
     return img_byte_arr.getvalue()
 
@@ -404,13 +414,13 @@ def generate_mask(image: PIL.Image, scale: float, mode: tuple) -> np.ndarray:
                 if sum(ndarray[i, j]) != 0:
                     mask_array[i, j] = 255
 
-        print(f"mask_array:\n{mask_array}")
+        # print(f"mask_array:\n{mask_array}")
         mask_image = cv2.resize(
             mask_array,
             (round(new_shape[1] * scale), round(new_shape[0] * scale)),
             interpolation=cv2.INTER_NEAREST
         )
-        print(f"mask_image:\n{mask_image}")
+        # print(f"mask_image:\n{mask_image}")
         return mask_image
 
 
@@ -426,7 +436,7 @@ def apply_mask(image: PIL.Image, mask: np.ndarray) -> PIL.Image:
     for i in range(image_array.shape[0]):
         for j in range(image_array.shape[1]):
             if mask_py[i][j] == 0:
-                print(f"Cleared pixel at ({i+1}, {j+1})")
+                # print(f"Cleared pixel at ({i+1}, {j+1})")
                 # print(f"Because mask value is {mask_py[j][i]}")
                 for k in range(image_array.shape[2]):
                     image_array[i, j, k] = 0

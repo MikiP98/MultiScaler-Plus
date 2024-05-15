@@ -103,7 +103,8 @@ def scale_loop(
         files: list[str],
         scales: list[float],
         config: dict,
-        masks: list[list[list[PIL.Image]]] | None = None
+        masks: list[list[list[PIL.Image]]] | None = None,
+        nearest_neighbour_for_masks: list[utils.Image] | None = None
 ) -> None:
     print("Starting scaling process")
 
@@ -150,42 +151,75 @@ def scale_loop(
         # print(f"Image objects: {image_objects}")
         # print(f"Masks: {masks}")
         for image_obj, masks_for_scales in zip(image_objects, masks):
-            print("First loop layer executed")
+            # print("First loop layer executed")
             # print(f"Image object: {image_obj}")
             # print(f"Masks for scales: {masks_for_scales}")
             scaled_images = []
             for scaled_image, masks_for_frames in zip(image_obj.images, masks_for_scales):
-                print("Second loop layer executed")
+                # print("Second loop layer executed")
                 new_image = []
                 for frame, mask in zip(scaled_image, masks_for_frames):
-                    print("Third loop layer executed")
+                    # print("Third loop layer executed")
                     new_frame = utils.apply_mask(frame, mask)
                     new_image.append(new_frame)
                 scaled_images.append(new_image)
             new_image_objects.append(utils.Image(scaled_images))
         image_objects = new_image_objects
-
-        # new_list = []
-        # print(f"Masks before: {masks}")
-        # for image_obj, mask in zip(image_objects, masks):
-        #     new_image = []
-        #     print(f"Image: {image_obj}")
-        #     print(f"Mask: {mask}")
-        #     for frame, frame_masks in zip(image_obj.images, mask):
-        #         new_frame = []
-        #         print(f"Frame: {frame}")
-        #         print(f"Frame masks: {frame_masks}")
-        #         for scaled_frame, masker in zip(frame, frame_masks):
-        #             print(f"Masker: {masker}")
-        #             print(f"Frame: {scaled_frame}")
-        #             scaled_frame = utils.apply_mask(scaled_frame, masker)
-        #             new_frame.append(scaled_frame)
-        #         new_image.append(new_frame)
-        #     new_list.append(new_image)
-        #     print(f"Masks after: {masks}")
-        #
-        # image_objects = new_list
         print(colored("Texture outbound protection done\n", 'green'))
+
+    if config['texture_inbound_protection']:
+        print("Applying texture inbound protection...")
+        # Got trough every pixel
+        # If pixel is in the mask:
+        #   If the pixel has transparency and nearest neighbour does not:
+        #       Remove the transparency (set alpha to 255)
+        #   If the pixel is empty ar has alpha 0:
+        #       Replace it with the nearest neighbour pixel
+        new_image_objects = []
+        for image_obj, masks_for_scales, nearest_neighbour_masks in zip(
+                image_objects, masks, nearest_neighbour_for_masks
+        ):
+            scaled_images = []
+            for scaled_image, masks_for_frames, nearest_neighbour_mask in zip(
+                    image_obj.images, masks_for_scales, nearest_neighbour_masks.images
+            ):
+                new_image = []
+                for frame, mask, nearest_neighbour in zip(scaled_image, masks_for_frames, nearest_neighbour_mask):
+                    # pixels = list(frame.getdata())
+                    frame_array = utils.pil_to_cv2(frame)
+                    dimensions = frame_array.shape
+                    # nearest_neighbour_pixels = list(nearest_neighbour.getdata())
+                    nearest_neighbour_array = utils.pil_to_cv2(nearest_neighbour)
+                    mask_py = list(mask)
+                    new_frame_array = frame_array.copy()
+
+                    if frame_array.shape[2] != 4:
+                        print("Frame has no alpha channel, skipping texture inbound protection")
+                        new_image.append(frame)
+                        continue
+
+                    for x in range(dimensions[0]):
+                        for y in range(dimensions[1]):
+                            if mask_py[x][y] == 255:
+                                if frame_array.shape[2] == 4:
+                                    if frame_array[x][y][3] == 0:
+                                        print(f"Filled empty pixel ({x+1, y+1})")
+                                        new_frame_array[x][y] = nearest_neighbour_array[x][y]
+                                        # new_frame_array[x][y][3] = 128
+                                    elif frame_array[x][y][3] != 255:
+                                        if nearest_neighbour_array.shape[2] == 4:
+                                            new_frame_array[x][y][3] = nearest_neighbour_array[x][y][3]
+                                            # if new_frame_array[x][y][3] != nearest_neighbour_array[x][y][3]:
+                                            #     print(f"Fixed transparency at pixel ({x+1, y+1})")
+                                            #     new_frame_array[x][y][3] = nearest_neighbour_array[x][y][3]
+                                            # if nearest_neighbour_array[x][y][3] == 255:
+                                            #     print(f"Removed transparency from pixel ({x+1, y+1})")
+                                            #     new_frame_array[x][y][3] = 255
+                    new_image.append(utils.cv2_to_pil(new_frame_array))
+                scaled_images.append(new_image)
+            new_image_objects.append(utils.Image(scaled_images))
+        image_objects = new_image_objects
+        print(colored("Texture inbound protection done\n", 'green'))
 
     if len(images) < len(scales):
         # raise ValueError("Images queue is empty")
@@ -278,6 +312,7 @@ def algorithm_loop(
 ) -> None:
 
     masks_for_images = None
+    nearest_neighbour_for_masks = None
     if config['texture_outbound_protection'] or config['texture_inbound_protection']:
         print(colored("Texture protection is enabled, generating masks...", 'yellow'))
         masks_for_images = []
@@ -291,6 +326,10 @@ def algorithm_loop(
                 masks_for_scales.append(masks_for_frames)
             masks_for_images.append(masks_for_scales)
         print(colored("Masks generated!", 'green'))
+
+        if config['texture_inbound_protection']:
+            print(colored("Texture Inbound Protection is enabled, generating NN masks...", 'yellow'))
+            nearest_neighbour_for_masks = scaler.scale_image_batch(Algorithms.CV2_INTER_NEAREST, images, scales)
     # print(f"Masks for images:\n{masks_for_images}")
 
     processes = 0
@@ -334,7 +373,9 @@ def algorithm_loop(
             # roots_chunk = [roots for _ in range(chunk_size)]
             # files_chunk = [files for _ in range(chunk_size)]
 
-            chunks.append((algorithms_chunk, images, roots, files, scales, config, masks_for_images))
+            chunks.append(
+                (algorithms_chunk, images, roots, files, scales, config, masks_for_images, nearest_neighbour_for_masks)
+            )
 
         if 3 not in config['multiprocessing_levels']:
             pool = multiprocessing.Pool(processes=processes)
@@ -347,7 +388,10 @@ def algorithm_loop(
 
     else:
         for algorithm in algorithms:
-            scale_loop(algorithm, images.copy(), roots.copy(), files.copy(), scales, config, masks_for_images)
+            scale_loop(
+                algorithm, images.copy(), roots.copy(), files.copy(), scales, config,
+                masks_for_images, nearest_neighbour_for_masks
+            )
 
 
 def fix_config(config: dict) -> dict:
@@ -820,35 +864,14 @@ if __name__ == '__main__':
             'override_processes_count': False,
 
             'copy_mcmeta': True,
-            'texture_outbound_protection': False,
-            'texture_inbound_protection': False,
+            'texture_outbound_protection': True,
+            'texture_inbound_protection': True,
             'texture_mask_mode': ('alpha', 'black'),
 
             'sharpness': 0.5,
             'NEDI_m': 4
         }
-        algorithms = [
-            Algorithms.SI_awsrn_bam,
-            Algorithms.SI_carn,
-            Algorithms.SI_carn_bam,
-            Algorithms.SI_drln,
-            Algorithms.SI_drln_bam,
-            Algorithms.SI_han,
-            Algorithms.SI_mdsr,
-            Algorithms.SI_mdsr_bam,
-            Algorithms.SI_msrn,
-            Algorithms.SI_msrn_bam,
-            Algorithms.SI_pan,
-            Algorithms.SI_pan_bam,
-            Algorithms.SI_rcan_bam,
-
-            Algorithms.HSDBTRE,
-        ]
-        # algorithms = [
-        #     Algorithms.CV2_EDSR,
-        #     Algorithms.SI_edsr,
-        #     Algorithms.SI_edsr_base,
-        # ]
+        algorithms = [Algorithms.xBRZ]
         # algorithms = [Algorithms.CV2_INTER_AREA]
         # algorithms = [
         #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
