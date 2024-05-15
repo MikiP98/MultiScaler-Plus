@@ -176,9 +176,13 @@ def scale_loop(
         #   If the pixel is empty ar has alpha 0:
         #       Replace it with the nearest neighbour pixel
         new_image_objects = []
-        for image_obj, masks_for_scales, nearest_neighbour_masks in zip(image_objects, masks, nearest_neighbour_for_masks):
+        for image_obj, masks_for_scales, nearest_neighbour_masks in zip(
+                image_objects, masks, nearest_neighbour_for_masks
+        ):
             scaled_images = []
-            for scaled_image, masks_for_frames, nearest_neighbour_mask in zip(image_obj.images, masks_for_scales, nearest_neighbour_masks.images):
+            for scaled_image, masks_for_frames, nearest_neighbour_mask in zip(
+                    image_obj.images, masks_for_scales, nearest_neighbour_masks.images
+            ):
                 new_image = []
                 for frame, mask, nearest_neighbour in zip(scaled_image, masks_for_frames, nearest_neighbour_mask):
                     # pixels = list(frame.getdata())
@@ -204,37 +208,13 @@ def scale_loop(
                                         # new_frame_array[x][y][3] = 128
                                     elif frame_array[x][y][3] != 255:
                                         if nearest_neighbour_array.shape[2] == 4:
-                                            if new_frame_array[x][y][3] != nearest_neighbour_array[x][y][3]:
-                                                # radius_check = 1
-                                                # found_edge = False
-                                                # for i in range(1 + radius_check * 2):
-                                                #     for j in range(1 + radius_check * 2):
-                                                #         if 0 <= x - radius_check + i < dimensions[0] and 0 <= y - radius_check + j < dimensions[1]:
-                                                #             if mask_py[x + i - radius_check][y + j - radius_check] == 0:
-                                                #                 found_edge = True
-                                                #                 break
-                                                # if found_edge:
-                                                #     print(f"Fixed transparency at pixel ({x + 1, y + 1})")
-                                                #     new_frame_array[x][y][3] = nearest_neighbour_array[x][y][3]
-                                                print(f"Fixed transparency at pixel ({x+1, y+1})")
-                                                new_frame_array[x][y][3] = nearest_neighbour_array[x][y][3]
+                                            new_frame_array[x][y][3] = nearest_neighbour_array[x][y][3]
+                                            # if new_frame_array[x][y][3] != nearest_neighbour_array[x][y][3]:
+                                            #     print(f"Fixed transparency at pixel ({x+1, y+1})")
+                                            #     new_frame_array[x][y][3] = nearest_neighbour_array[x][y][3]
                                             # if nearest_neighbour_array[x][y][3] == 255:
                                             #     print(f"Removed transparency from pixel ({x+1, y+1})")
                                             #     new_frame_array[x][y][3] = 255
-
-                    # for x in range(frame.size[0]):
-                    # for x in range(shape[0]):
-                    #     # for y in range(frame.size[1]):
-                    #     for y in range(shape[1]):
-                    #         if mask_py[x][y] == 255:
-                    #             if pixels[x + y * frame.size[0]][3] != 255 and nearest_neighbour_pixels[x + y * frame.size[0]][3] == 255:
-                    #                 frame.putpixel((x, y), (*pixels[x + y * frame.size[0]][:3], 255))
-                    #                 # frame.putpixel((x, y), (*pixels[x][y][:3], 255))
-                    #                 # pixels[x, y] = (*pixels[x, y][:3], 255)
-                    #             elif pixels[x + y * frame.size[0]][3] == 0:
-                    #                 frame.putpixel((x, y), nearest_neighbour_pixels[x + y * frame.size[0]])
-                    #                 # frame.putpixel((x, y), nearest_neighbour_pixels[x][y])
-                    #                 # pixels[x, y] = nearest_neighbour_pixels[x, y]
                     new_image.append(utils.cv2_to_pil(new_frame_array))
                 scaled_images.append(new_image)
             new_image_objects.append(utils.Image(scaled_images))
@@ -393,7 +373,9 @@ def algorithm_loop(
             # roots_chunk = [roots for _ in range(chunk_size)]
             # files_chunk = [files for _ in range(chunk_size)]
 
-            chunks.append((algorithms_chunk, images, roots, files, scales, config, masks_for_images, nearest_neighbour_for_masks))
+            chunks.append(
+                (algorithms_chunk, images, roots, files, scales, config, masks_for_images, nearest_neighbour_for_masks)
+            )
 
         if 3 not in config['multiprocessing_levels']:
             pool = multiprocessing.Pool(processes=processes)
@@ -406,7 +388,10 @@ def algorithm_loop(
 
     else:
         for algorithm in algorithms:
-            scale_loop(algorithm, images.copy(), roots.copy(), files.copy(), scales, config, masks_for_images, nearest_neighbour_for_masks)
+            scale_loop(
+                algorithm, images.copy(), roots.copy(), files.copy(), scales, config,
+                masks_for_images, nearest_neighbour_for_masks
+            )
 
 
 def fix_config(config: dict) -> dict:
