@@ -7,6 +7,8 @@ import os
 import PIL.Image
 import PIL.GifImagePlugin
 import psutil
+from termcolor._types import Color as TermColor
+
 import scaler
 import sys
 import shutil
@@ -16,7 +18,15 @@ import zipfile
 from fractions import Fraction
 from functools import lru_cache
 from termcolor import colored
-from utils import Algorithms, pil_fully_supported_formats_cache, pil_read_only_formats_cache, pil_write_only_formats_cache, pil_indentify_only_formats_cache, pngify
+from utils import (
+    Algorithms,
+    avg,
+    pil_fully_supported_formats_cache,
+    pil_read_only_formats_cache,
+    pil_write_only_formats_cache,
+    pil_indentify_only_formats_cache,
+    pngify
+)
 
 
 PIL.Image.MAX_IMAGE_PIXELS = 200000000
@@ -85,7 +95,17 @@ def save_images_chunk(args) -> None:
                 raise NotImplementedError("Animated (and stacked) output is not yet supported")
 
 
-def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str], files: list[str], scales: list[float], config: dict) -> None:
+def scale_loop(
+        algorithm:
+        Algorithms,
+        images: list[utils.Image],
+        roots: list[str],
+        files: list[str],
+        scales: list[float],
+        config: dict,
+        masks: list[list[list[PIL.Image]]] | None = None,
+        nearest_neighbour_for_masks: list[utils.Image] | None = None
+) -> None:
     print("Starting scaling process")
 
     # print(f"Length of images: {len(images)}")
@@ -108,8 +128,98 @@ def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str
     else:
         config_plus = None
 
+    # masks = []
+    # if config['texture_outbound_protection']:
+    #     print("Texture outbound protection is enabled, generating masks...")
+    #     for image in images:
+    #         image_masks = []
+    #         for frame in image.images[0]:
+    #             frame_masks = []
+    #             for scale in scales:
+    #                 mask = utils.generate_mask(frame, scale, config['texture_mask_mode'])
+    #                 frame_masks.append(mask)
+    #             image_masks.append(frame_masks)
+    #         masks.append(image_masks)
+
     image_objects = scaler.scale_image_batch(algorithm, images, scales, config_plus=config_plus)
     print(colored("Scaling done\n", 'green'))
+
+    if config['texture_outbound_protection']:
+        print("Applying texture outbound protection...")
+
+        new_image_objects = []
+        # print(f"Image objects: {image_objects}")
+        # print(f"Masks: {masks}")
+        for image_obj, masks_for_scales in zip(image_objects, masks):
+            # print("First loop layer executed")
+            # print(f"Image object: {image_obj}")
+            # print(f"Masks for scales: {masks_for_scales}")
+            scaled_images = []
+            for scaled_image, masks_for_frames in zip(image_obj.images, masks_for_scales):
+                # print("Second loop layer executed")
+                new_image = []
+                for frame, mask in zip(scaled_image, masks_for_frames):
+                    # print("Third loop layer executed")
+                    new_frame = utils.apply_mask(frame, mask)
+                    new_image.append(new_frame)
+                scaled_images.append(new_image)
+            new_image_objects.append(utils.Image(scaled_images))
+        image_objects = new_image_objects
+        print(colored("Texture outbound protection done\n", 'green'))
+
+    if config['texture_inbound_protection']:
+        print("Applying texture inbound protection...")
+        # Got trough every pixel
+        # If pixel is in the mask:
+        #   If the pixel has transparency and nearest neighbour does not:
+        #       Remove the transparency (set alpha to 255)
+        #   If the pixel is empty ar has alpha 0:
+        #       Replace it with the nearest neighbour pixel
+        new_image_objects = []
+        for image_obj, masks_for_scales, nearest_neighbour_masks in zip(
+                image_objects, masks, nearest_neighbour_for_masks
+        ):
+            scaled_images = []
+            for scaled_image, masks_for_frames, nearest_neighbour_mask in zip(
+                    image_obj.images, masks_for_scales, nearest_neighbour_masks.images
+            ):
+                new_image = []
+                for frame, mask, nearest_neighbour in zip(scaled_image, masks_for_frames, nearest_neighbour_mask):
+                    # pixels = list(frame.getdata())
+                    frame_array = utils.pil_to_cv2(frame)
+                    dimensions = frame_array.shape
+                    # nearest_neighbour_pixels = list(nearest_neighbour.getdata())
+                    nearest_neighbour_array = utils.pil_to_cv2(nearest_neighbour)
+                    mask_py = list(mask)
+                    new_frame_array = frame_array.copy()
+
+                    if frame_array.shape[2] != 4:
+                        print("Frame has no alpha channel, skipping texture inbound protection")
+                        new_image.append(frame)
+                        continue
+
+                    for x in range(dimensions[0]):
+                        for y in range(dimensions[1]):
+                            if mask_py[x][y] == 255:
+                                if frame_array.shape[2] == 4:
+                                    if frame_array[x][y][3] == 0:
+                                        print(f"Filled empty pixel ({x+1, y+1})")
+                                        new_frame_array[x][y] = nearest_neighbour_array[x][y]
+                                        # new_frame_array[x][y][3] = 128
+                                    elif frame_array[x][y][3] != 255:
+                                        if nearest_neighbour_array.shape[2] == 4:
+                                            new_frame_array[x][y][3] = nearest_neighbour_array[x][y][3]
+                                            # if new_frame_array[x][y][3] != nearest_neighbour_array[x][y][3]:
+                                            #     print(f"Fixed transparency at pixel ({x+1, y+1})")
+                                            #     new_frame_array[x][y][3] = nearest_neighbour_array[x][y][3]
+                                            # if nearest_neighbour_array[x][y][3] == 255:
+                                            #     print(f"Removed transparency from pixel ({x+1, y+1})")
+                                            #     new_frame_array[x][y][3] = 255
+                    new_image.append(utils.cv2_to_pil(new_frame_array))
+                scaled_images.append(new_image)
+            new_image_objects.append(utils.Image(scaled_images))
+        image_objects = new_image_objects
+        print(colored("Texture inbound protection done\n", 'green'))
 
     if len(images) < len(scales):
         # raise ValueError("Images queue is empty")
@@ -173,7 +283,7 @@ def scale_loop(algorithm: Algorithms, images: list[utils.Image], roots: list[str
 
     else:
         while image_objects:
-            image_object = image_objects.pop()
+            image_object: utils.Image = image_objects.pop()
             root = roots.pop()
             file = files.pop()
 
@@ -194,10 +304,34 @@ def scale_loop_chunk(args) -> None:
         scale_loop(algorithm, images.copy(), roots.copy(), files.copy(), scales, config)
 
 
-def algorithm_loop(algorithms: list[Algorithms],
-                   images: list[utils.Image],
-                   roots: list[str], files: list[str],
-                   scales: list[float], config: dict) -> None:
+def algorithm_loop(
+        algorithms: list[Algorithms],
+        images: list[utils.Image],
+        roots: list[str], files: list[str],
+        scales: list[float], config: dict
+) -> None:
+
+    masks_for_images = None
+    nearest_neighbour_for_masks = None
+    if config['texture_outbound_protection'] or config['texture_inbound_protection']:
+        print(colored("Texture protection is enabled, generating masks...", 'yellow'))
+        masks_for_images = []
+        for image in images:
+            masks_for_scales = []
+            for scale in scales:
+                masks_for_frames = []
+                for frame in image.images[0]:
+                    mask = utils.generate_mask(frame, scale, config['texture_mask_mode'])
+                    masks_for_frames.append(mask)
+                masks_for_scales.append(masks_for_frames)
+            masks_for_images.append(masks_for_scales)
+        print(colored("Masks generated!", 'green'))
+
+        if config['texture_inbound_protection']:
+            print(colored("Texture Inbound Protection is enabled, generating NN masks...", 'yellow'))
+            nearest_neighbour_for_masks = scaler.scale_image_batch(Algorithms.CV2_INTER_NEAREST, images, scales)
+    # print(f"Masks for images:\n{masks_for_images}")
+
     processes = 0
     if 2 in config['multiprocessing_levels']:  # TODO: Complete this implementation
         if config['override_processes_count']:
@@ -212,7 +346,7 @@ def algorithm_loop(algorithms: list[Algorithms],
                     size_sum += frame.size[0] * frame.size[1]
 
             performance_constant = 786_432  # 2^18 * 3
-            performance_processes = size_sum * utils.avg(scales)**2 * len(scales) * len(algorithms) / performance_constant
+            performance_processes = size_sum * avg(scales)**2 * len(scales) * len(algorithms) / performance_constant
 
             # performance_processes = utils.geo_avg(scales) / 8 * len(algorithms)
             # print(f"Performance processes: {performance_processes}")
@@ -239,8 +373,9 @@ def algorithm_loop(algorithms: list[Algorithms],
             # roots_chunk = [roots for _ in range(chunk_size)]
             # files_chunk = [files for _ in range(chunk_size)]
 
-            chunks.append((algorithms_chunk, images, roots, files, scales, config))
-            # chunks.append((algorithms_chunk, images_chunk, roots_chunk, files_chunk, scales, config))
+            chunks.append(
+                (algorithms_chunk, images, roots, files, scales, config, masks_for_images, nearest_neighbour_for_masks)
+            )
 
         if 3 not in config['multiprocessing_levels']:
             pool = multiprocessing.Pool(processes=processes)
@@ -253,7 +388,10 @@ def algorithm_loop(algorithms: list[Algorithms],
 
     else:
         for algorithm in algorithms:
-            scale_loop(algorithm, images.copy(), roots.copy(), files.copy(), scales, config)
+            scale_loop(
+                algorithm, images.copy(), roots.copy(), files.copy(), scales, config,
+                masks_for_images, nearest_neighbour_for_masks
+            )
 
 
 def fix_config(config: dict) -> dict:
@@ -357,12 +495,18 @@ def columnify(elements: tuple) -> str:
         terminal_columns = os.get_terminal_size().columns
         # print(f"Terminal columns: {terminal_columns}")
         columns = max_columns
-        while terminal_columns < len("\t".expandtabs(tab_spaces)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1 and columns > 1:
-            # print(f"Calculated row length: {len("\t".expandtabs(tab_spaces * 2)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1}")
+
+        def calc_row_length() -> int:
+            return len("\t".expandtabs(tab_spaces)) + (
+                    max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2
+            ) * columns - 1
+
+        while terminal_columns < calc_row_length() and columns > 1:
+            # print(f"Calculated row length: {calc_row_length()}")
             columns -= 1
     else:
         columns = 3
-    # print(f"Final row length: {len("\t".expandtabs(tab_spaces * 2)) + (max_length + len("\t".expandtabs(tab_spaces)) + margin_right + 1 + 2) * columns - 1}")
+    # print(f"Final row length: {calc_row_length()}")
     # print(f"Final column count: {columns}")
 
     overflow = len(elements) % columns
@@ -371,16 +515,56 @@ def columnify(elements: tuple) -> str:
     for i in range(0, full_count, columns):
         result += "\t".expandtabs(tab_spaces)
         if i < len(elements):
-            result += " | ".join([f"\t{elements[i + j]:<{max_length + margin_right}}".expandtabs(tab_spaces) for j in range(columns)])
+            result += " | ".join(
+                [f"\t{elements[i + j]:<{max_length + margin_right}}".expandtabs(tab_spaces) for j in range(columns)]
+            )
         result += "\n"
     result += "\t".expandtabs(tab_spaces)
-    result += " | ".join([f"\t{elements[k]:<{max_length + margin_right}}".expandtabs(tab_spaces) for k in range(full_count, overflow + full_count)])
+    result += " | ".join(
+        [
+            f"\t{elements[k]:<{max_length + margin_right}}"
+            .expandtabs(tab_spaces) for k in range(full_count, overflow + full_count)
+        ]
+    )
     result += "\n"
 
     return result
 
 
-def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, int | None]:
+def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, int | None, dict[str, any]]:
+    # multiprocessing_level:
+    # empty - no multiprocessing
+    # 2 - to process different algorithms in parallel, (Note that this level also splits every subsequent workflow)
+    # 3 - to save multiple images in parallel
+    default_config = {
+        'clear_output_directory': True,
+
+        'add_algorithm_name_to_output_files_names': True,
+        'add_factor_to_output_files_names': True,
+
+        'sort_by_algorithm': False,
+        'sort_by_image': False,  # TODO: Implement this
+        'sort_by_scale': False,  # TODO: Implement this
+
+        'lossless_compression': True,
+
+        'multiprocessing_levels': {},
+        'max_processes': (2, 2, 2),
+        'override_processes_count': False,
+        # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
+
+        'copy_mcmeta': True,
+        'texture_outbound_protection': False,
+        # prevents multi-face (in 1 image) textures to expand over current textures border
+        'texture_inbound_protection': False,
+        # TODO: Implement this, prevents multi-face (in 1 image) textures to not fully cover current textures border
+        'texture_mask_mode': ('alpha', 'black'),
+        # What should be used to make the mask, 1st is when alpha is present, 2nd when it is not  TODO: add more options
+
+        'sharpness': 0.5,
+        'NEDI_m': 4
+    }
+
     algorithms = []
     scales = []
 
@@ -446,7 +630,10 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
                     print("Sharpness must be a number")
         elif algorithm == Algorithms.NEDI:
             while True:
-                print("\nEnter the NEDI 'm' value (edge search radius) for the NEDI algorithm (must be a power of 2, >=1):")
+                print(
+                    "\n"
+                    "Enter the NEDI 'm' value (edge search radius) for the NEDI algorithm (must be a power of 2, >=1):"
+                )
                 nedi_m = input()
                 try:
                     nedi_m = int(nedi_m)
@@ -457,6 +644,34 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
                 except ValueError:
                     print("NEDI 'm' must be a number")
 
+    print("\nDo you wish to proceed with default configuration?")
+    print("Default configuration:")
+    print(colored("{\n\t".expandtabs(4), 'magenta'), end='')
+    print(
+        "\n\t".expandtabs(4).join(
+            f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in default_config.items()
+        )
+    )
+    print(colored('}', 'magenta'))
+    print("Y/N")
+    default_config_input = input()
+    if (
+            default_config_input.lower() == 'n' or
+            default_config_input.lower() == 'no' or
+            default_config_input.lower() == 'false' or
+            default_config_input.lower() == '0'
+    ):
+        print("Enter the configuration:")
+        config = {}
+        for key, value in default_config.items():
+            print(f"{key}:", end=' ')
+            config[key] = input()
+            print()
+        config = fix_config(config)
+    else:
+        config = default_config
+
+    print("\nSelected options:")
     print("Algorithms:")
     for algorithm in algorithms:
         print(f"\t{algorithm.value} - {algorithm.name}")
@@ -465,8 +680,16 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         print(f"\t{scale}")
     if sharpness is not None:
         print(f"Sharpness: {sharpness}")
+    if nedi_m is not None:
+        print(f"NEDI 'm': {nedi_m}")
 
-    return algorithms, scales, sharpness, nedi_m
+    print("Is this correct? Y/N")
+
+    correct = input()
+    if correct.lower() == 'n' or correct.lower() == 'no' or correct.lower() == 'false' or correct.lower() == '0':
+        return handle_user_input()
+    else:
+        return algorithms, scales, sharpness, nedi_m, config
 
 
 def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None:
@@ -499,7 +722,15 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
 
         for file in files:
             if backup_iterator >= files_number:
-                print(colored("\nBackup iterator reached the end of the files list, BREAKING LOOP!\nTHIS SHOULD HAVE NOT HAPPENED!!!\n", 'red'))
+                print(
+                    colored(
+                        "\n"
+                        "Backup iterator reached the end of the files list, BREAKING LOOP!"
+                        "\n"
+                        "THIS SHOULD HAVE NOT HAPPENED!!!"
+                        "\n", 'red'
+                    )
+                )
                 break
             backup_iterator += 1
 
@@ -567,36 +798,24 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
     algorithm_loop(algorithms, images, roots, file_names, scales, config)
 
 
+def rainbowify(text: str) -> str:
+    colors: list[TermColor] = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
+    len_colors = len(colors)
+    rainbow_text = ""
+    i = 0
+    for char in text:
+        if char == ' ':
+            rainbow_text += ' '
+        else:
+            rainbow_text += colored(char, colors[i % len_colors])
+            i += 1
+    return rainbow_text
+
+
 if __name__ == '__main__':
     # Create input and output directory if they don't exist
     if not os.path.exists("../input"):
         os.makedirs("../input")
-
-    safe_mode = False
-
-    # multiprocessing_level:
-    # empty - no multiprocessing
-    # 2 - to process different algorithms in parallel, (Note that this level also splits every subsequent workflow)
-    # 3 - to save multiple images in parallel
-    config = {
-        'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
-        'sort_by_algorithm': False,
-        'lossless_compression': True,
-        'multiprocessing_levels': {},
-        'max_processes': (2, 2, 2),
-        'override_processes_count': False,  # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
-        'copy_mcmeta': True,
-        'texture_outbound_protection': True,  # TODO: Implement this, prevents multi-face (in 1 image) textures to expand over current alpha (fully transparent) border
-        'texture_inbound_protection': True,  # TODO: Implement this, prevents multi-face (in 1 image) textures to not fully cover current alpha (fully transparent) border
-        'texture_mask_mode': ('alpha', 'black'),  # TODO: Implement this, What should be the mask made of, first is when image has alpha channel, second when it doesn't
-
-        'sharpness': 0.5,
-        'NEDI_m': 4
-    }
-    if safe_mode:
-        config = fix_config(config)
 
     parser = argparse.ArgumentParser(
         prog='ImageScaler',
@@ -615,7 +834,8 @@ if __name__ == '__main__':
             message = """
                 Some functionality of this application is designed to run on Python 3.12!
                 Please upgrade your Python version to 3.12 or higher!
-                If you still want to your current python version use flag '--override-python-version' or '-opv' to bypass this check
+                If you still want to force your current python version use flag
+                '--override-python-version' or '-opv' to bypass this check
                 (note that some functionality may not work properly and the application may crash!)
             """
             raise AssertionError(message)
@@ -627,25 +847,65 @@ if __name__ == '__main__':
             print(colored(message, 'yellow'))
 
     if args.test:
-        # algorithms = [Algorithms.NEDI]
+        config = {
+            'clear_output_directory': True,
+
+            'add_algorithm_name_to_output_files_names': True,
+            'add_factor_to_output_files_names': True,
+
+            'sort_by_algorithm': False,
+            'sort_by_image': False,
+            'sort_by_scale': False,
+
+            'lossless_compression': True,
+
+            'multiprocessing_levels': {},
+            'max_processes': (2, 2, 2),
+            'override_processes_count': False,
+
+            'copy_mcmeta': True,
+            'texture_outbound_protection': True,
+            'texture_inbound_protection': True,
+            'texture_mask_mode': ('alpha', 'black'),
+
+            'sharpness': 0.5,
+            'NEDI_m': 4
+        }
+        algorithms = [Algorithms.xBRZ]
         # algorithms = [Algorithms.CV2_INTER_AREA]
-        # algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
-        #               Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
-        algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4,
-                      Algorithms.CV2_ESPCN, Algorithms.CV2_EDSR, Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small, Algorithms.RealESRGAN,
-                      Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR, Algorithms.hqx, Algorithms.NEDI]
+        # algorithms = [
+        #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
+        #     Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx,
+        #     Algorithms.NEDI
+        # ]
+        # algorithms = [
+        #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_INTER_LINEAR,
+        #     Algorithms.CV2_INTER_CUBIC, Algorithms.CV2_INTER_LANCZOS4,
+        #     Algorithms.CV2_ESPCN, Algorithms.CV2_EDSR, Algorithms.CV2_FSRCNN,
+        #     Algorithms.CV2_FSRCNN_small, Algorithms.RealESRGAN,
+        #     Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR,
+        #     Algorithms.hqx, Algorithms.NEDI
+        # ]
         scales = [4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
-        algorithms, scales, sharpness, nedi_m = handle_user_input()
+        algorithms, scales, sharpness, nedi_m, config = handle_user_input()
         config['sharpness'] = sharpness
         config['NEDI_m'] = nedi_m
     print(f"Received algorithms: {colored(algorithms, 'blue')}")
     print(f"Received scales: {colored(scales, 'blue')}")
     print("Using config: ", end='')
     print(colored("{\n\t".expandtabs(4), 'magenta'), end='')
-    print("\n\t".expandtabs(4).join(f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in config.items()))
+    print(
+        "\n\t".expandtabs(4).join(
+            f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in config.items()
+        )
+    )
     print(colored('}', 'magenta'))
 
     run(algorithms, scales, config)
-    print(colored("ALL DONE!", 'green'))  # TODO: Rainbow-ify this message :)
+    rainbow_all_done = rainbowify("ALL NICE & DONE!")
+    print(rainbow_all_done)
+    thanks = rainbowify("Thanks for using this App!")
+    print(thanks)
+    # print(colored("ALL DONE!", 'green'))

@@ -1,14 +1,17 @@
 argparse
+coverage
 fastapi
 hqx
 numpy
 opencv-contrib-python
 pillow
+psutil
+pyanime4k
 python-multipart
+super-image
 termcolor
 torch
 uvicorn[standard]
-psutil
 
 setuptools
 wheel

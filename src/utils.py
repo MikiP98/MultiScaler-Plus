@@ -21,32 +21,56 @@ class Image:
 class Algorithms(IntEnum):
     CPP_DEBUG = -1
 
-    CAS = 0  # contrast adaptive sharpening
-    CV2_INTER_AREA = 1  # resampling using pixel area relation
-    CV2_INTER_CUBIC = 2  # bicubic interpolation over 4x4 pixel neighborhood
-    CV2_INTER_LANCZOS4 = 3  # Lanczos interpolation over 8x8 pixel neighborhood
-    CV2_INTER_LINEAR = 4  # bilinear interpolation
-    CV2_INTER_NEAREST = 5  # nearest-neighbor interpolation
-    CV2_EDSR = 6  # Enhanced Deep Super-Resolution
-    CV2_ESPCN = 7  # Efficient Sub-Pixel Convolutional Neural Network
-    CV2_FSRCNN = 8  # Fast Super-Resolution Convolutional Neural Network
-    CV2_FSRCNN_small = 9  # Fast Super-Resolution Convolutional Neural Network - Small
-    CV2_LapSRN = 10  # Laplacian Super-Resolution Network
-    FSR = 11  # FidelityFX Super Resolution
-    hqx = 12  # high quality scale
-    NEDI = 13  # New Edge-Directed Interpolation
-    PIL_BICUBIC = 14  # less blur and artifacts than bilinear, but slower
-    PIL_BILINEAR = 15
-    PIL_LANCZOS = 16  # less blur than bicubic, but artifacts may appear
-    PIL_NEAREST_NEIGHBOR = 17
-    RealESRGAN = 18
-    Super_xBR = 19
-    SUPIR = 20
-    xBRZ = 21
+    Anime4K = 0
+    CAS = 1  # contrast adaptive sharpening
+    CV2_INTER_AREA = 2  # resampling using pixel area relation
+    CV2_INTER_CUBIC = 3  # bicubic interpolation over 4x4 pixel neighborhood
+    CV2_INTER_LANCZOS4 = 4  # Lanczos interpolation over 8x8 pixel neighborhood
+    CV2_INTER_LINEAR = 5  # bilinear interpolation
+    CV2_INTER_NEAREST = 6  # nearest-neighbor interpolation
+    CV2_EDSR = 7  # Enhanced Deep Super-Resolution
+    CV2_ESPCN = 8  # Efficient Sub-Pixel Convolutional Neural Network
+    CV2_FSRCNN = 9  # Fast Super-Resolution Convolutional Neural Network
+    CV2_FSRCNN_small = 10  # Fast Super-Resolution Convolutional Neural Network - Small
+    CV2_LapSRN = 11  # Laplacian Super-Resolution Network
+    FSR = 12  # FidelityFX Super Resolution
+    hqx = 13  # high quality scale
+
+    HSDBTRE = 14
+
+    NEDI = 15  # New Edge-Directed Interpolation
+    PIL_BICUBIC = 16  # less blur and artifacts than bilinear, but slower
+    PIL_BILINEAR = 17
+    PIL_LANCZOS = 18  # less blur than bicubic, but artifacts may appear
+    PIL_NEAREST_NEIGHBOR = 19
+    RealESRGAN = 20
+
+    SI_drln_bam = 21
+    SI_edsr = 22
+    SI_msrn = 23
+    SI_mdsr = 24
+    SI_msrn_bam = 25
+    SI_edsr_base = 26
+    SI_mdsr_bam = 27
+    SI_awsrn_bam = 28
+    SI_a2n = 29
+    SI_carn = 30
+    SI_carn_bam = 31
+    SI_pan = 32
+    SI_pan_bam = 33
+
+    SI_drln = 34
+    SI_han = 35
+    SI_rcan_bam = 36
+
+    Super_xBR = 37
+    SUPIR = 38
+    xBRZ = 39
 
 
 class Filters(IntEnum):
     CAS = 0  # contrast adaptive sharpening
+    SI_TODO = 1  # TODO: Add filters
 
 
 cli_algorithms = {Algorithms.FSR, Algorithms.CAS, Algorithms.SUPIR, Algorithms.Super_xBR}
@@ -282,6 +306,7 @@ def apply_lossless_compression(image: Union[PIL.Image, np.ndarray]) -> bytes:
     image.save(img_byte_arr, optimize=True, format='PNG')
 
     unique_colors_number = len(set(image.getdata()))
+    # print(f"Unique colors: {unique_colors_number}")
     if unique_colors_number <= 256:
         colors = 256
         if unique_colors_number <= 2:
@@ -292,13 +317,22 @@ def apply_lossless_compression(image: Union[PIL.Image, np.ndarray]) -> bytes:
             colors = 16
 
         img_temp_byte_arr = io.BytesIO()
-        image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)
-        image.save(img_temp_byte_arr, optimize=True, format='PNG')
+        temp_image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)  # sometimes deletes some data :/
 
-        # Check which one is smaller and keep it, remove the other one
-        # (if the palette is smaller remove '_P' from the name)
-        if len(img_temp_byte_arr.getvalue()) < len(img_byte_arr.getvalue()):
-            img_byte_arr = img_temp_byte_arr
+        # Additional check to see if PIL didn't fuck up
+        same = True
+        for data1, data2 in zip(image.getdata(), temp_image.getdata()):
+            if data1 != data2:
+                same = False
+                break
+        # if all([data1 == data2 for data1, data2 in zip(image.getdata(), temp_image.getdata())]):
+        if same:
+            temp_image.save(img_temp_byte_arr, optimize=True, format='PNG')
+
+            # Check which one is smaller and keep it, remove the other one
+            # (if the palette is smaller remove '_P' from the name)
+            if len(img_temp_byte_arr.getvalue()) < len(img_byte_arr.getvalue()):
+                img_byte_arr = img_temp_byte_arr
 
     return img_byte_arr.getvalue()
 
@@ -309,7 +343,9 @@ def pngify(image: PIL.Image) -> Image:
         if image.is_animated:
             raise NotImplementedError("Animated images are not supported yet")
 
-        raise NotImplementedError(f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}")
+        raise NotImplementedError(
+            f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}"
+        )
 
     # check if is RGBA or RGB
     elif not (image.mode == "RGB" or image.mode == "RGBA"):
@@ -337,6 +373,78 @@ def int32_to_float(int_value):
 def hdr_to_sdr(hdr_image):
     # Convert HDR image to 4x SDR image
     raise NotImplementedError("HDR to SDR conversion is not implemented yet!")
+
+
+def generate_mask(image: PIL.Image, scale: float, mode: tuple) -> np.ndarray:
+    # Generate an outbound mask for the image
+    mask_mode = 'A'
+    if has_transparency(image):
+        mask_mode = mode[0]
+    else:
+        mask_mode = mode[1]
+
+    if mask_mode == 'alpha':
+        ndarray = pil_to_cv2(image)
+
+        # print(ndarray.shape)
+        new_shape = ndarray.shape[:2]
+        # print(new_shape)
+
+        mask_array = np.zeros(new_shape, dtype=np.uint8)
+        for i in range(ndarray.shape[0]):
+            for j in range(ndarray.shape[1]):
+                if ndarray[i, j, 3] == 255:
+                    mask_array[i, j] = 255
+
+        mask_image = cv2.resize(
+            mask_array,
+            (round(new_shape[1] * scale), round(new_shape[0] * scale)),
+            interpolation=cv2.INTER_NEAREST
+        )
+        return mask_image
+
+    elif mask_mode == 'black':
+        ndarray = pil_to_cv2(image)
+
+        new_shape = ndarray.shape[:2]
+
+        mask_array = np.zeros(new_shape, dtype=np.uint8)
+        for i in range(ndarray.shape[0]):
+            for j in range(ndarray.shape[1]):
+                if sum(ndarray[i, j]) != 0:
+                    mask_array[i, j] = 255
+
+        # print(f"mask_array:\n{mask_array}")
+        mask_image = cv2.resize(
+            mask_array,
+            (round(new_shape[1] * scale), round(new_shape[0] * scale)),
+            interpolation=cv2.INTER_NEAREST
+        )
+        # print(f"mask_image:\n{mask_image}")
+        return mask_image
+
+
+def apply_mask(image: PIL.Image, mask: np.ndarray) -> PIL.Image:
+    # Apply a mask to the image
+    image_array = pil_to_cv2(image)
+
+    mask_py = list(mask)
+    # print(f"mask_py:\n{mask_py}")
+    # print(f"image_array:\n{image_array}")
+    # print(f"mask shape: {mask.shape}")
+    # print(f"image shape: {image_array.shape}")
+    for i in range(image_array.shape[0]):
+        for j in range(image_array.shape[1]):
+            if mask_py[i][j] == 0:
+                # print(f"Cleared pixel at ({i+1}, {j+1})")
+                # print(f"Because mask value is {mask_py[j][i]}")
+                for k in range(image_array.shape[2]):
+                    image_array[i, j, k] = 0
+            # for k in range(image_array.shape[2]):
+            #     image_array[i, j, k] = mask_py[i][j]
+
+    # print(f"mask_py:\n{mask_py}")
+    return cv2_to_pil(image_array)
 
 
 def has_transparency(img: Union[PIL.Image, np.ndarray]) -> bool:

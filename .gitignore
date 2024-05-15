@@ -1,5 +1,7 @@
 # PROJECT SPECIFIC .GITIGNORE ENTRIES
 
+temp
+
 input/*
 input/**
 !input/example_shell_40px.png
