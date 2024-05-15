@@ -404,13 +404,13 @@ def generate_mask(image: PIL.Image, scale: float, mode: tuple) -> np.ndarray:
                 if sum(ndarray[i, j]) != 0:
                     mask_array[i, j] = 255
 
-        print(f"mask_array:\n{mask_array}")
+        # print(f"mask_array:\n{mask_array}")
         mask_image = cv2.resize(
             mask_array,
             (round(new_shape[1] * scale), round(new_shape[0] * scale)),
             interpolation=cv2.INTER_NEAREST
         )
-        print(f"mask_image:\n{mask_image}")
+        # print(f"mask_image:\n{mask_image}")
         return mask_image
 
 
@@ -426,7 +426,7 @@ def apply_mask(image: PIL.Image, mask: np.ndarray) -> PIL.Image:
     for i in range(image_array.shape[0]):
         for j in range(image_array.shape[1]):
             if mask_py[i][j] == 0:
-                print(f"Cleared pixel at ({i+1}, {j+1})")
+                # print(f"Cleared pixel at ({i+1}, {j+1})")
                 # print(f"Because mask value is {mask_py[j][i]}")
                 for k in range(image_array.shape[2]):
                     image_array[i, j, k] = 0
