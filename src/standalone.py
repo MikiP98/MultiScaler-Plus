@@ -646,27 +646,27 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         for key, value in default_config.items():
             type_of_value = type(value)
             print(f"{key}:", end=' ')
-            input = input()
+            input_value = input()
 
             if type_of_value == bool:
                 # config[key] = bool(input)
-                config[key] = input.lower() == 'true' or input.lower() == 't' or input.lower() == '1'
+                config[key] = input_value.lower() == 'true' or input_value.lower() == 't' or input_value.lower() == '1'
             elif type_of_value == int:
                 try:
-                    config[key] = int(input)
+                    config[key] = int(input_value)
                 except ValueError:
                     print(f"Value for '{key}' must be an integer")
                     config[key] = value
             elif type_of_value == float:
                 try:
-                    config[key] = float(input)
+                    config[key] = float(input_value)
                 except ValueError:
                     print(f"Value for '{key}' must be a float")
                     config[key] = value
             elif type_of_value == tuple:
-                config[key] = tuple(input.split(','))
+                config[key] = tuple(input_value.split(','))
             else:
-                config[key] = input
+                config[key] = input_value
 
             print()
 
