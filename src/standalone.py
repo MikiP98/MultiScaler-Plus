@@ -61,6 +61,16 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    if config['sort_by_scale']:
+        output_dir += f"/x{scale}"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+    if config['sort_by_image']:
+        output_dir += f"/{file}"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
     output_path = output_dir + root.lstrip("../input") + '/' + new_file_name
     print(output_path)
     # Create output directory if it doesn't exist
@@ -108,14 +118,7 @@ def scale_loop(
 ) -> None:
     print("Starting scaling process")
 
-    # print(f"Length of images: {len(images)}")
-    # print(f"Length of roots: {len(roots)}")
-    # print(f"Length of files: {len(files)}")
-    # print(f"Files: {files}")
-
     # TODO: Implement multiprocessing for this and bring back the config_plus!!!
-    # print(f"Scaling image: {config_plus['input_image_relative_path']}")
-    # print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
     if algorithm in utils.cli_algorithms:
         config_plus = {
             'sharpness': config['sharpness'],
@@ -127,19 +130,6 @@ def scale_loop(
         }
     else:
         config_plus = None
-
-    # masks = []
-    # if config['texture_outbound_protection']:
-    #     print("Texture outbound protection is enabled, generating masks...")
-    #     for image in images:
-    #         image_masks = []
-    #         for frame in image.images[0]:
-    #             frame_masks = []
-    #             for scale in scales:
-    #                 mask = utils.generate_mask(frame, scale, config['texture_mask_mode'])
-    #                 frame_masks.append(mask)
-    #             image_masks.append(frame_masks)
-    #         masks.append(image_masks)
 
     image_objects = scaler.scale_image_batch(algorithm, images, scales, config_plus=config_plus)
     print(colored("Scaling done\n", 'green'))
@@ -467,17 +457,6 @@ def fix_config(config: dict) -> dict:
     elif type(config['mcmeta_correction']) is not bool:
         config['mcmeta_correction'] = True
 
-    # config = {
-    #     'clear_output_directory': True,
-    #     'add_algorithm_name_to_output_files_names': True,
-    #     'add_factor_to_output_files_names': True,
-    #     'sort_by_algorithm': False,
-    #     'lossless_compression': True,
-    #     'multiprocessing_levels': {2},
-    #     'max_processes': (2, 4, 4),
-    #     'mcmeta_correction': True
-    # }
-
     return config
 
 
@@ -544,8 +523,8 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         'add_factor_to_output_files_names': True,
 
         'sort_by_algorithm': False,
-        'sort_by_image': False,  # TODO: Implement this
-        'sort_by_scale': False,  # TODO: Implement this
+        'sort_by_scale': False,
+        'sort_by_image': False,
 
         'lossless_compression': True,
 
@@ -855,8 +834,8 @@ if __name__ == '__main__':
             'add_factor_to_output_files_names': False,
 
             'sort_by_algorithm': False,
-            'sort_by_image': False,
             'sort_by_scale': False,
+            'sort_by_image': False,
 
             'lossless_compression': True,
 
@@ -865,8 +844,8 @@ if __name__ == '__main__':
             'override_processes_count': False,
 
             'copy_mcmeta': True,
-            'texture_outbound_protection': True,
-            'texture_inbound_protection': True,
+            'texture_outbound_protection': False,
+            'texture_inbound_protection': False,
             'texture_mask_mode': ('alpha', 'black'),
 
             'sharpness': 0.5,
@@ -887,7 +866,7 @@ if __name__ == '__main__':
         #     Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR,
         #     Algorithms.hqx, Algorithms.NEDI
         # ]
-        scales = [4]
+        scales = [4, 8, 6]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
         algorithms, scales, sharpness, nedi_m, config = handle_user_input()

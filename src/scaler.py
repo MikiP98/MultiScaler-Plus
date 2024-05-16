@@ -233,7 +233,7 @@ def scale_image_batch(
             path_prefix: str,
             name: str
     ) -> list[PIL.Image.Image]:
-        path = f"{path_prefix}_x{factor}.pb"
+        path = f"{path_prefix}_x{int(factor)}.pb"
         # print(f"Path: {path}")
 
         sr.readModel(path)
