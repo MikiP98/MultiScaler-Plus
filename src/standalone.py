@@ -644,9 +644,32 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         print("Enter the configuration:")
         config = {}
         for key, value in default_config.items():
+            type_of_value = type(value)
             print(f"{key}:", end=' ')
-            config[key] = input()
+            input = input()
+
+            if type_of_value == bool:
+                # config[key] = bool(input)
+                config[key] = input.lower() == 'true' or input.lower() == 't' or input.lower() == '1'
+            elif type_of_value == int:
+                try:
+                    config[key] = int(input)
+                except ValueError:
+                    print(f"Value for '{key}' must be an integer")
+                    config[key] = value
+            elif type_of_value == float:
+                try:
+                    config[key] = float(input)
+                except ValueError:
+                    print(f"Value for '{key}' must be a float")
+                    config[key] = value
+            elif type_of_value == tuple:
+                config[key] = tuple(input.split(','))
+            else:
+                config[key] = input
+
             print()
+
         config = fix_config(config)
     else:
         config = default_config
