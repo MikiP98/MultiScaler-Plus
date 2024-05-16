@@ -203,7 +203,7 @@ def scale_loop(
                             if mask_py[x][y] == 255:
                                 if frame_array.shape[2] == 4:
                                     if frame_array[x][y][3] == 0:
-                                        print(f"Filled empty pixel ({x+1, y+1})")
+                                        # print(f"Filled empty pixel ({x+1, y+1})")
                                         new_frame_array[x][y] = nearest_neighbour_array[x][y]
                                         # new_frame_array[x][y][3] = 128
                                     elif frame_array[x][y][3] != 255:
@@ -330,6 +330,7 @@ def algorithm_loop(
         if config['texture_inbound_protection']:
             print(colored("Texture Inbound Protection is enabled, generating NN masks...", 'yellow'))
             nearest_neighbour_for_masks = scaler.scale_image_batch(Algorithms.CV2_INTER_NEAREST, images, scales)
+            print(colored("NN masks generated!", 'green'))
     # print(f"Masks for images:\n{masks_for_images}")
 
     processes = 0
@@ -850,8 +851,8 @@ if __name__ == '__main__':
         config = {
             'clear_output_directory': True,
 
-            'add_algorithm_name_to_output_files_names': True,
-            'add_factor_to_output_files_names': True,
+            'add_algorithm_name_to_output_files_names': False,
+            'add_factor_to_output_files_names': False,
 
             'sort_by_algorithm': False,
             'sort_by_image': False,

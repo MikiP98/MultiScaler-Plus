@@ -393,7 +393,7 @@ def generate_mask(image: PIL.Image, scale: float, mode: tuple) -> np.ndarray:
         mask_array = np.zeros(new_shape, dtype=np.uint8)
         for i in range(ndarray.shape[0]):
             for j in range(ndarray.shape[1]):
-                if ndarray[i, j, 3] == 255:
+                if ndarray[i, j, 3] != 0:
                     mask_array[i, j] = 255
 
         mask_image = cv2.resize(
