@@ -16,8 +16,8 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
   - **AWSRN-BAM**
   - **CARN**
   - **CARN-BAM**
-  - **DRLN**
-  - **DRLN-BAM**,
+  - **DRLN** *(recommended)*
+  - **DRLN-BAM** *(recommended)*
   - **EDSR**
   - **EDSR-base**
   - **ESPCN**
@@ -31,9 +31,9 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
   - **PAN**
   - **PAN-BAM**
   - **RCAN-BAM**,
-  - **RealESRGAN** *(improved ESRGAN)*
-  - **Anime4K**
-  - **HSDBTRE** *(hybrid of DRLN and RealESRGAN AIs)*
+  - **RealESRGAN** *(improved ESRGAN)* *(recommended)*
+  - **Anime4K** *(recommended)*
+  - **HSDBTRE** *(hybrid of DRLN and RealESRGAN AIs)* *(recommended)*
 - **Edge Detection Algorithms** <sup>(Only up-scaling)</sup>:
   - **hqx** *(edge detection algorithm, simple, not so great)*
   - **NEDI** *(New Edge-Directed Interpolation, can be better than hqx, but probably won't)*
