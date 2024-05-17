@@ -200,6 +200,10 @@ Results of up-scaling the image *(40px -> 160px)*:
 - Rewrite and update the **WebUI**
 - Add support for **Waifu2x** and **Supir** AIs via **Docker**
 - Fix and improve standalone console application experience
+- Add support for stacked and animated images
+- Add image tracing scaling algorithm and support for **SVG** format
+- Add proper HDR support <sup> *(I think JPEG XL and WEBP may have some already)* </sup>
+- Add better image quality comparison
 
 <br/>
 
