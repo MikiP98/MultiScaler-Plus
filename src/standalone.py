@@ -157,9 +157,11 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
             if config['additional_lossless_compression']:
                 if not utils.uses_transparency(image):
                     image = image.convert('RGB')
-            image.save(output_path, lossless=True, quality=100, qmin=0, qmax=0, speed=0, subsampling="4:4:4")
+            image.save(
+                output_path, lossless=True, quality=100, qmin=0, qmax=0, speed=0, subsampling="4:4:4", range="full"
+            )
         else:
-            image.save(output_path, quality=config['quality'], speed=0)
+            image.save(output_path, quality=config['quality'], speed=0, range="full")
 
     print(colored(f"{output_path} Saved!", 'light_green'))
 
