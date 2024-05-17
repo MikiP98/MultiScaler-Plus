@@ -6,6 +6,7 @@ import numpy as np
 import os
 import PIL.Image
 import PIL.GifImagePlugin
+import pillow_avif  # This is a PIL plugin for AVIF, is must be imported, but isn't directly used
 import pillow_jxl  # This is a PIL plugin for JPEG XL, is must be imported, but isn't directly used
 import psutil
 import qoi
@@ -38,7 +39,8 @@ format_to_extension = {
     "JPEG_XL": "jxl",
     "PNG": "png",
     "QOI": "qoi",
-    "WEBP": "webp"
+    "WEBP": "webp",
+    "AVIF": "avif"
 }
 
 
@@ -149,6 +151,15 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
             image.save(output_path, lossless=True, method=6, optimize=True)
         else:
             image.save(output_path, quality=config['quality'], method=6)
+
+    elif config['file_format'] == "AVIF":
+        if config['lossless_compression']:
+            if config['additional_lossless_compression']:
+                if not utils.uses_transparency(image):
+                    image = image.convert('RGB')
+            image.save(output_path, lossless=True, quality=100, qmin=0, qmax=0, speed=0, subsampling="4:4:4")
+        else:
+            image.save(output_path, quality=config['quality'], speed=0)
 
     print(colored(f"{output_path} Saved!", 'light_green'))
 
@@ -591,10 +602,10 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         'sort_by_scale': False,
         'sort_by_image': False,
 
-        "file_format": "WEBP",
+        'file_format': "WEBP",
         'lossless_compression': True,
         'additional_lossless_compression': True,
-        "quality": 95,
+        'quality': 95,
 
         'multiprocessing_levels': {},
         'max_processes': (2, 2, 2),
@@ -928,18 +939,18 @@ if __name__ == '__main__':
             'sort_by_scale': False,
             'sort_by_image': False,
 
-            "file_format": "WEBP",
+            'file_format': "AVIF",
             'lossless_compression': True,
             'additional_lossless_compression': True,
-            "quality": 95,
+            'quality': 95,
 
             'multiprocessing_levels': {},
             'max_processes': (2, 2, 2),
             'override_processes_count': False,
 
             'copy_mcmeta': True,
-            'texture_outbound_protection': True,
-            'texture_inbound_protection': True,
+            'texture_outbound_protection': False,
+            'texture_inbound_protection': False,
             'texture_mask_mode': ('alpha', 'black'),
 
             'sharpness': 0.5,

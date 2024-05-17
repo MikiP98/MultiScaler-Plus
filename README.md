@@ -116,11 +116,14 @@ Results of up-scaling the image *(40px -> 160px)*:
   - **QOI** *(A bit worse compression then **PNG**, but a lot lot faster to save and load)*
   - **WEBP** *(Comparable, lossless and lossy compression, to **JPEG XL** (a bit worse on average), but with better overall support)*
   - **JPEG XL** *(New advanced compression format, better lossless compression compared to **PNG** and better lossy compared to **JPEG**)* <br> <sup>*(see [this plugin](https://github.com/saschanaz/jxl-winthumb) for Windows Support)*</sup>
+  - **AVIF** *(New advanced compression format, much much slower and with worse compression then **WEBP** and **JPEG XL**, currently no transparency because of a bug, pretty wide support)*
   - ***Benchmark result (size, lower is better):***
     - ***QOI:** 790 448 B*
     - ***PNG:** 675 397 B*
     - ***WEBP:** 444 538 B*
     - ***JPEG XL:** 450 085 B*
+    - ***AVIF**\*: 507 384 B*
+    - <sup> *AVIF does not have transparency for some unknown reason </sup>
 
 - **Read:**
   - **PNG** *(.png)*

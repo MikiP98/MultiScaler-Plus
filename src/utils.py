@@ -165,7 +165,10 @@ pil_fully_supported_formats = {
     "TGA": ("tga", "targa",),
     "TIFF": ("tif", "tiff", "tiff2",),
     "WebP": ("webp", "webp2",),
-    "XBM": ("xbm", "xbm2",)
+    "XBM": ("xbm", "xbm2",),
+
+    "AVIF": ("avif",),  # From outside plugin
+    "JPEG_XL": ("jxl",)  # From outside plugin
 }
 pil_fully_supported_formats_cache = frozenset(
     extension for extensions in pil_fully_supported_formats.values() for extension in extensions
