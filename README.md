@@ -188,6 +188,18 @@ Results of up-scaling the image *(40px -> 160px)*:
 
 <br/>
 
+### Roadmap:
+
+- Add ***Performance*** / ***Benchmarks*** section to the **README**
+- Add support for **WEBP2** format *(both reading and writing)*
+- Add support for **AVIF** format *(both reading and writing)*
+- Optimize the code, adn remove unnecessary parts and duplicates
+- Rewrite and update the **WebUI**
+- Add support for **Waifu2x** and **Supir** AIs via **Docker**
+- Fix and improve standalone console application experience
+
+<br/>
+
 ### Credits:
 - **WebUI**, **Scaling App** and **HSDBTRE** AI hybrid created by [***Mikołaj Pokora***](https://github.com/MikiP98)
 - **API backend** and **xBRZ wheel** by [***Piotr Przetacki***](https://github.com/PiotrPrzetacki)
