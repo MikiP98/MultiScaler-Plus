@@ -1,14 +1,14 @@
 # coding=utf-8
 import argparse
 import concurrent.futures
-# import math
 import multiprocessing
+import numpy as np
 import os
 import PIL.Image
 import PIL.GifImagePlugin
+import pillow_jxl  # This is a PIL plugin for JPEG XL, is must be imported, but isn't directly used
 import psutil
-from termcolor._types import Color as TermColor
-
+import qoi
 import scaler
 import sys
 import shutil
@@ -18,6 +18,7 @@ import zipfile
 from fractions import Fraction
 from functools import lru_cache
 from termcolor import colored
+from termcolor._types import Color as TermColor
 from utils import (
     Algorithms,
     avg,
@@ -31,6 +32,14 @@ from utils import (
 
 PIL.Image.MAX_IMAGE_PIXELS = 200000000
 PIL.GifImagePlugin.LOADING_STRATEGY = PIL.GifImagePlugin.LoadingStrategy.RGB_ALWAYS
+
+
+format_to_extension = {
+    "JPEG_XL": "jxl",
+    "PNG": "png",
+    "QOI": "qoi",
+    "WEBP": "webp"
+}
 
 
 def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config: dict) -> None:
@@ -71,19 +80,75 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-    output_path = output_dir + root.lstrip("../input") + '/' + new_file_name
-    print(output_path)
+    output_dir = output_dir + root.lstrip("../input")
     # Create output directory if it doesn't exist
-    if not os.path.exists(output_dir + root.lstrip("../input")):
-        os.makedirs(output_dir + root.lstrip("../input"))
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
-    output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
-    if not config['lossless_compression']:
-        image.save(output_path)
-    else:
-        img_byte_arr = utils.apply_lossless_compression(image)
+    new_file_name_parts = new_file_name.split('.')
+    new_file_name = '.'.join(new_file_name_parts[:-1]) + '.' + format_to_extension[config['file_format']]
+    # extension = new_file_name_parts[-1].lower()
+    output_path = output_dir + '/' + new_file_name
+    print(output_path)
+
+    # output_path = output_dir + root.lstrip("../input") + '/' + new_file_name
+    # print(output_path)
+    # # Create output directory if it doesn't exist
+    # if not os.path.exists(output_dir + root.lstrip("../input")):
+    #     os.makedirs(output_dir + root.lstrip("../input"))
+
+    if config['file_format'] == "PNG":
+        if not config['lossless_compression']:
+            print(
+                colored(
+                    "WARN: You CAN use lossy compression with PNG format, but this app does not support it :(\n"
+                    "Proceeding to use lossless compression", 'yellow'
+                )
+            )
+
+        # output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
+        if not config['additional_lossless_compression']:
+            image.save(output_path, optimize=True)
+        else:
+            img_byte_arr = utils.apply_lossless_compression(image)
+            with open(output_path, 'wb') as f:
+                f.write(img_byte_arr)
+
+    elif config['file_format'] == "QOI":
+        if not config['lossless_compression']:
+            print(
+                colored(
+                    "WARN: You CAN use lossy compression with QOI format, but this app does not support it :(\n"
+                    "Proceeding to use lossless compression", 'yellow'
+                )
+            )
+
+        if config['additional_lossless_compression']:
+            if not utils.uses_transparency(image):
+                image = image.convert('RGB')
+
+        image = np.array(image)
+        bytes = qoi.encode(image)
         with open(output_path, 'wb') as f:
-            f.write(img_byte_arr)
+            f.write(bytes)
+
+    elif config['file_format'] == "JPEG_XL":
+        if config['lossless_compression']:
+            if config['additional_lossless_compression']:
+                if not utils.uses_transparency(image):
+                    image = image.convert('RGB')
+            image.save(output_path, lossless=True, optimize=True)
+        else:
+            image.save(output_path, quality=config['quality'])
+
+    elif config['file_format'] == "WEBP":
+        if config['lossless_compression']:
+            if config['additional_lossless_compression']:
+                if not utils.uses_transparency(image):
+                    image = image.convert('RGB')
+            image.save(output_path, lossless=True, method=6, optimize=True)
+        else:
+            image.save(output_path, quality=config['quality'], method=6)
 
     print(colored(f"{output_path} Saved!", 'light_green'))
 
@@ -233,7 +298,7 @@ def scale_loop(
             # performance_processes = size_sum * utils.avg(scales) ** 2 * len(scales) / performance_constant
             # TODO: Create better algorithm, consider images sizes and frame count
             performance_processes = utils.geo_avg(scales) / 16
-            if not config['lossless_compression']:
+            if not config['additional_lossless_compression']:
                 performance_processes /= 32
 
             # print(f"Performance processes: {performance_processes}")
@@ -304,7 +369,7 @@ def algorithm_loop(
     masks_for_images = None
     nearest_neighbour_for_masks = None
     if config['texture_outbound_protection'] or config['texture_inbound_protection']:
-        print(colored("Texture protection is enabled, generating masks...", 'yellow'))
+        print("Texture protection is enabled, generating masks...")
         masks_for_images = []
         for image in images:
             masks_for_scales = []
@@ -318,7 +383,7 @@ def algorithm_loop(
         print(colored("Masks generated!", 'green'))
 
         if config['texture_inbound_protection']:
-            print(colored("Texture Inbound Protection is enabled, generating NN masks...", 'yellow'))
+            print("Texture Inbound Protection is enabled, generating NN masks...")
             nearest_neighbour_for_masks = scaler.scale_image_batch(Algorithms.CV2_INTER_NEAREST, images, scales)
             print(colored("NN masks generated!", 'green'))
     # print(f"Masks for images:\n{masks_for_images}")
@@ -526,7 +591,10 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         'sort_by_scale': False,
         'sort_by_image': False,
 
+        "file_format": "WEBP",
         'lossless_compression': True,
+        'additional_lossless_compression': True,
+        "quality": 95,
 
         'multiprocessing_levels': {},
         'max_processes': (2, 2, 2),
@@ -853,22 +921,25 @@ if __name__ == '__main__':
         config = {
             'clear_output_directory': True,
 
-            'add_algorithm_name_to_output_files_names': False,
-            'add_factor_to_output_files_names': False,
+            'add_algorithm_name_to_output_files_names': True,
+            'add_factor_to_output_files_names': True,
 
             'sort_by_algorithm': False,
             'sort_by_scale': False,
             'sort_by_image': False,
 
+            "file_format": "WEBP",
             'lossless_compression': True,
+            'additional_lossless_compression': True,
+            "quality": 95,
 
             'multiprocessing_levels': {},
             'max_processes': (2, 2, 2),
             'override_processes_count': False,
 
             'copy_mcmeta': True,
-            'texture_outbound_protection': False,
-            'texture_inbound_protection': False,
+            'texture_outbound_protection': True,
+            'texture_inbound_protection': True,
             'texture_mask_mode': ('alpha', 'black'),
 
             'sharpness': 0.5,
@@ -889,7 +960,7 @@ if __name__ == '__main__':
         #     Algorithms.xBRZ, Algorithms.FSR, Algorithms.CAS, Algorithms.Super_xBR,
         #     Algorithms.hqx, Algorithms.NEDI
         # ]
-        scales = [4, 8, 6]
+        scales = [4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
     else:
         algorithms, scales, sharpness, nedi_m, config = handle_user_input()

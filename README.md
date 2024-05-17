@@ -112,7 +112,16 @@ Results of up-scaling the image *(40px -> 160px)*:
 ### Supported file formats:
 **Tested working:**
 - **Write:**
-  - **PNG**
+  - **PNG** *(Widely used, popular, lossless format)*
+  - **QOI** *(A bit worse compression then **PNG**, but a lot lot faster to save and load)*
+  - **WEBP** *(Comparable, lossless and lossy compression, to **JPEG XL** (a bit worse on average), but with better overall support)*
+  - **JPEG XL** *(New advanced compression format, better lossless compression compared to **PNG** and better lossy compared to **JPEG**)* <br> <sup>*(see [this plugin](https://github.com/saschanaz/jxl-winthumb) for Windows Support)*</sup>
+  - ***Benchmark result (size, lower is better):***
+    - ***QOI:** 790 448 B*
+    - ***PNG:** 675 397 B*
+    - ***WEBP:** 444 538 B*
+    - ***JPEG XL:** 450 085 B*
+
 - **Read:**
   - **PNG** *(.png)*
   - **JPEG** *(.jpg, .jpeg)*
@@ -194,6 +203,8 @@ Results of up-scaling the image *(40px -> 160px)*:
 - ***Nearest neighbor***, ***Bilinear***, ***Bicubic*** and ***Lanchos*** algorithms are also implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
 - ***A2N***, ***AWSRN-BAM***, ***CARN***, ***CARN-BAM***, ***DRLN***, ***DRLN-BAM***, ***EDSR***, ***EDSR-base***, ***HAN***, ***MDSR***, *...gasssp...*
 - ***MDSR-BAM***, ***MSRN***, ***MSRN-BAM***, ***PAN***, ***PAN-BAM***, ***RCAN-BAM*** AI algorithms are implemented using [super-image](https://pypi.org/project/super-image/) by [eugenesiow (Eugene Siow)](https://pypi.org/user/eugenesiow/) and [Freed Wu](https://pypi.org/user/Freed-Wu/)
+- [**QOI file format support library**](https://github.com/kodonnell/qoi) by [***kodonnell***](https://github.com/kodonnell)
+- [**JPEG XL PIL plugin**](https://pypi.org/project/pillow-jxl-plugin/) by [***Isotr0py***](https://pypi.org/user/Isotr0py/)
 
 <sup>
 
