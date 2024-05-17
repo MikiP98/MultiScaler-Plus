@@ -1,14 +1,14 @@
 # coding=utf-8
 import argparse
 import concurrent.futures
-# import math
 import multiprocessing
+import numpy as np
 import os
 import PIL.Image
 import PIL.GifImagePlugin
+import pillow_jxl  # This is a PIL plugin for JPEG XL, is must be imported, but isn't directly used
 import psutil
-from termcolor._types import Color as TermColor
-
+import qoi
 import scaler
 import sys
 import shutil
@@ -18,6 +18,7 @@ import zipfile
 from fractions import Fraction
 from functools import lru_cache
 from termcolor import colored
+from termcolor._types import Color as TermColor
 from utils import (
     Algorithms,
     avg,
@@ -31,6 +32,14 @@ from utils import (
 
 PIL.Image.MAX_IMAGE_PIXELS = 200000000
 PIL.GifImagePlugin.LOADING_STRATEGY = PIL.GifImagePlugin.LoadingStrategy.RGB_ALWAYS
+
+
+format_to_extension = {
+    "JPEG_XL": "jxl",
+    "PNG": "png",
+    "QOI": "qoi",
+    "WEBP": "webp"
+}
 
 
 def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config: dict) -> None:
@@ -61,19 +70,85 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    output_path = output_dir + root.lstrip("../input") + '/' + new_file_name
-    print(output_path)
-    # Create output directory if it doesn't exist
-    if not os.path.exists(output_dir + root.lstrip("../input")):
-        os.makedirs(output_dir + root.lstrip("../input"))
+    if config['sort_by_scale']:
+        output_dir += f"/x{scale}"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
 
-    output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
-    if not config['lossless_compression']:
-        image.save(output_path)
-    else:
-        img_byte_arr = utils.apply_lossless_compression(image)
+    if config['sort_by_image']:
+        output_dir += f"/{file}"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+    output_dir = output_dir + root.lstrip("../input")
+    # Create output directory if it doesn't exist
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    new_file_name_parts = new_file_name.split('.')
+    new_file_name = '.'.join(new_file_name_parts[:-1]) + '.' + format_to_extension[config['file_format']]
+    # extension = new_file_name_parts[-1].lower()
+    output_path = output_dir + '/' + new_file_name
+    print(output_path)
+
+    # output_path = output_dir + root.lstrip("../input") + '/' + new_file_name
+    # print(output_path)
+    # # Create output directory if it doesn't exist
+    # if not os.path.exists(output_dir + root.lstrip("../input")):
+    #     os.makedirs(output_dir + root.lstrip("../input"))
+
+    if config['file_format'] == "PNG":
+        if not config['lossless_compression']:
+            print(
+                colored(
+                    "WARN: You CAN use lossy compression with PNG format, but this app does not support it :(\n"
+                    "Proceeding to use lossless compression", 'yellow'
+                )
+            )
+
+        # output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
+        if not config['additional_lossless_compression']:
+            image.save(output_path, optimize=True)
+        else:
+            img_byte_arr = utils.apply_lossless_compression(image)
+            with open(output_path, 'wb') as f:
+                f.write(img_byte_arr)
+
+    elif config['file_format'] == "QOI":
+        if not config['lossless_compression']:
+            print(
+                colored(
+                    "WARN: You CAN use lossy compression with QOI format, but this app does not support it :(\n"
+                    "Proceeding to use lossless compression", 'yellow'
+                )
+            )
+
+        if config['additional_lossless_compression']:
+            if not utils.uses_transparency(image):
+                image = image.convert('RGB')
+
+        image = np.array(image)
+        bytes = qoi.encode(image)
         with open(output_path, 'wb') as f:
-            f.write(img_byte_arr)
+            f.write(bytes)
+
+    elif config['file_format'] == "JPEG_XL":
+        if config['lossless_compression']:
+            if config['additional_lossless_compression']:
+                if not utils.uses_transparency(image):
+                    image = image.convert('RGB')
+            image.save(output_path, lossless=True, optimize=True)
+        else:
+            image.save(output_path, quality=config['quality'])
+
+    elif config['file_format'] == "WEBP":
+        if config['lossless_compression']:
+            if config['additional_lossless_compression']:
+                if not utils.uses_transparency(image):
+                    image = image.convert('RGB')
+            image.save(output_path, lossless=True, method=6, optimize=True)
+        else:
+            image.save(output_path, quality=config['quality'], method=6)
 
     print(colored(f"{output_path} Saved!", 'light_green'))
 
@@ -108,14 +183,7 @@ def scale_loop(
 ) -> None:
     print("Starting scaling process")
 
-    # print(f"Length of images: {len(images)}")
-    # print(f"Length of roots: {len(roots)}")
-    # print(f"Length of files: {len(files)}")
-    # print(f"Files: {files}")
-
     # TODO: Implement multiprocessing for this and bring back the config_plus!!!
-    # print(f"Scaling image: {config_plus['input_image_relative_path']}")
-    # print(f"Algorithm in scale_loop: {utils.algorithm_to_string(algorithm)}, {algorithm}")
     if algorithm in utils.cli_algorithms:
         config_plus = {
             'sharpness': config['sharpness'],
@@ -127,19 +195,6 @@ def scale_loop(
         }
     else:
         config_plus = None
-
-    # masks = []
-    # if config['texture_outbound_protection']:
-    #     print("Texture outbound protection is enabled, generating masks...")
-    #     for image in images:
-    #         image_masks = []
-    #         for frame in image.images[0]:
-    #             frame_masks = []
-    #             for scale in scales:
-    #                 mask = utils.generate_mask(frame, scale, config['texture_mask_mode'])
-    #                 frame_masks.append(mask)
-    #             image_masks.append(frame_masks)
-    #         masks.append(image_masks)
 
     image_objects = scaler.scale_image_batch(algorithm, images, scales, config_plus=config_plus)
     print(colored("Scaling done\n", 'green'))
@@ -203,7 +258,7 @@ def scale_loop(
                             if mask_py[x][y] == 255:
                                 if frame_array.shape[2] == 4:
                                     if frame_array[x][y][3] == 0:
-                                        print(f"Filled empty pixel ({x+1, y+1})")
+                                        # print(f"Filled empty pixel ({x+1, y+1})")
                                         new_frame_array[x][y] = nearest_neighbour_array[x][y]
                                         # new_frame_array[x][y][3] = 128
                                     elif frame_array[x][y][3] != 255:
@@ -243,7 +298,7 @@ def scale_loop(
             # performance_processes = size_sum * utils.avg(scales) ** 2 * len(scales) / performance_constant
             # TODO: Create better algorithm, consider images sizes and frame count
             performance_processes = utils.geo_avg(scales) / 16
-            if not config['lossless_compression']:
+            if not config['additional_lossless_compression']:
                 performance_processes /= 32
 
             # print(f"Performance processes: {performance_processes}")
@@ -314,7 +369,7 @@ def algorithm_loop(
     masks_for_images = None
     nearest_neighbour_for_masks = None
     if config['texture_outbound_protection'] or config['texture_inbound_protection']:
-        print(colored("Texture protection is enabled, generating masks...", 'yellow'))
+        print("Texture protection is enabled, generating masks...")
         masks_for_images = []
         for image in images:
             masks_for_scales = []
@@ -328,8 +383,9 @@ def algorithm_loop(
         print(colored("Masks generated!", 'green'))
 
         if config['texture_inbound_protection']:
-            print(colored("Texture Inbound Protection is enabled, generating NN masks...", 'yellow'))
+            print("Texture Inbound Protection is enabled, generating NN masks...")
             nearest_neighbour_for_masks = scaler.scale_image_batch(Algorithms.CV2_INTER_NEAREST, images, scales)
+            print(colored("NN masks generated!", 'green'))
     # print(f"Masks for images:\n{masks_for_images}")
 
     processes = 0
@@ -466,17 +522,6 @@ def fix_config(config: dict) -> dict:
     elif type(config['mcmeta_correction']) is not bool:
         config['mcmeta_correction'] = True
 
-    # config = {
-    #     'clear_output_directory': True,
-    #     'add_algorithm_name_to_output_files_names': True,
-    #     'add_factor_to_output_files_names': True,
-    #     'sort_by_algorithm': False,
-    #     'lossless_compression': True,
-    #     'multiprocessing_levels': {2},
-    #     'max_processes': (2, 4, 4),
-    #     'mcmeta_correction': True
-    # }
-
     return config
 
 
@@ -543,10 +588,13 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         'add_factor_to_output_files_names': True,
 
         'sort_by_algorithm': False,
-        'sort_by_image': False,  # TODO: Implement this
-        'sort_by_scale': False,  # TODO: Implement this
+        'sort_by_scale': False,
+        'sort_by_image': False,
 
+        "file_format": "WEBP",
         'lossless_compression': True,
+        'additional_lossless_compression': True,
+        "quality": 95,
 
         'multiprocessing_levels': {},
         'max_processes': (2, 2, 2),
@@ -664,9 +712,32 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         print("Enter the configuration:")
         config = {}
         for key, value in default_config.items():
+            type_of_value = type(value)
             print(f"{key}:", end=' ')
-            config[key] = input()
+            input_value = input()
+
+            if type_of_value == bool:
+                # config[key] = bool(input)
+                config[key] = input_value.lower() == 'true' or input_value.lower() == 't' or input_value.lower() == '1'
+            elif type_of_value == int:
+                try:
+                    config[key] = int(input_value)
+                except ValueError:
+                    print(f"Value for '{key}' must be an integer")
+                    config[key] = value
+            elif type_of_value == float:
+                try:
+                    config[key] = float(input_value)
+                except ValueError:
+                    print(f"Value for '{key}' must be a float")
+                    config[key] = value
+            elif type_of_value == tuple:
+                config[key] = tuple(input_value.split(','))
+            else:
+                config[key] = input_value
+
             print()
+
         config = fix_config(config)
     else:
         config = default_config
@@ -854,10 +925,13 @@ if __name__ == '__main__':
             'add_factor_to_output_files_names': True,
 
             'sort_by_algorithm': False,
-            'sort_by_image': False,
             'sort_by_scale': False,
+            'sort_by_image': False,
 
+            "file_format": "WEBP",
             'lossless_compression': True,
+            'additional_lossless_compression': True,
+            "quality": 95,
 
             'multiprocessing_levels': {},
             'max_processes': (2, 2, 2),

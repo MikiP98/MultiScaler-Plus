@@ -293,15 +293,13 @@ def image_to_byte_array(image: PIL.Image, additional_lossless_compression=True) 
     return img_byte_arr
 
 
-def apply_lossless_compression(image: Union[PIL.Image, np.ndarray]) -> bytes:
-    # if image is CV2, convert it to PIL
-    if isinstance(image, np.ndarray):
-        image = cv2_to_pil(image)
-
+def apply_lossless_compression(image: PIL.Image) -> bytes:
     img_byte_arr = io.BytesIO()
 
+    mode = 'RGBA'
     if not uses_transparency(image):
         image = image.convert('RGB')
+        mode = 'RGB'
 
     image.save(img_byte_arr, optimize=True, format='PNG')
 
@@ -321,8 +319,9 @@ def apply_lossless_compression(image: Union[PIL.Image, np.ndarray]) -> bytes:
 
         # Additional check to see if PIL didn't fuck up
         same = True
-        for data1, data2 in zip(image.getdata(), temp_image.getdata()):
+        for data1, data2 in zip(image.getdata(), temp_image.convert(mode).getdata()):
             if data1 != data2:
+                # print(f"{data1} != {data2}")
                 same = False
                 break
         # if all([data1 == data2 for data1, data2 in zip(image.getdata(), temp_image.getdata())]):
@@ -333,6 +332,7 @@ def apply_lossless_compression(image: Union[PIL.Image, np.ndarray]) -> bytes:
             # (if the palette is smaller remove '_P' from the name)
             if len(img_temp_byte_arr.getvalue()) < len(img_byte_arr.getvalue()):
                 img_byte_arr = img_temp_byte_arr
+                # print("Saving palette")
 
     return img_byte_arr.getvalue()
 
@@ -393,7 +393,7 @@ def generate_mask(image: PIL.Image, scale: float, mode: tuple) -> np.ndarray:
         mask_array = np.zeros(new_shape, dtype=np.uint8)
         for i in range(ndarray.shape[0]):
             for j in range(ndarray.shape[1]):
-                if ndarray[i, j, 3] == 255:
+                if ndarray[i, j, 3] != 0:
                     mask_array[i, j] = 255
 
         mask_image = cv2.resize(

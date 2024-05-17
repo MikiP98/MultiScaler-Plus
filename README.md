@@ -16,8 +16,8 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
   - **AWSRN-BAM**
   - **CARN**
   - **CARN-BAM**
-  - **DRLN**
-  - **DRLN-BAM**,
+  - **DRLN** *(recommended)*
+  - **DRLN-BAM** *(recommended)*
   - **EDSR**
   - **EDSR-base**
   - **ESPCN**
@@ -31,9 +31,9 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
   - **PAN**
   - **PAN-BAM**
   - **RCAN-BAM**,
-  - **RealESRGAN** *(improved ESRGAN)*
-  - **Anime4K**
-  - **HSDBTRE** *(hybrid of DRLN and RealESRGAN AIs)*
+  - **RealESRGAN** *(improved ESRGAN)* *(recommended)*
+  - **Anime4K** *(recommended)*
+  - **HSDBTRE** *(hybrid of DRLN and RealESRGAN AIs)* *(recommended)*
 - **Edge Detection Algorithms** <sup>(Only up-scaling)</sup>:
   - **hqx** *(edge detection algorithm, simple, not so great)*
   - **NEDI** *(New Edge-Directed Interpolation, can be better than hqx, but probably won't)*
@@ -112,7 +112,16 @@ Results of up-scaling the image *(40px -> 160px)*:
 ### Supported file formats:
 **Tested working:**
 - **Write:**
-  - **PNG**
+  - **PNG** *(Widely used, popular, lossless format)*
+  - **QOI** *(A bit worse compression then **PNG**, but a lot lot faster to save and load)*
+  - **WEBP** *(Comparable, lossless and lossy compression, to **JPEG XL** (a bit worse on average), but with better overall support)*
+  - **JPEG XL** *(New advanced compression format, better lossless compression compared to **PNG** and better lossy compared to **JPEG**)* <br> <sup>*(see [this plugin](https://github.com/saschanaz/jxl-winthumb) for Windows Support)*</sup>
+  - ***Benchmark result (size, lower is better):***
+    - ***QOI:** 790 448 B*
+    - ***PNG:** 675 397 B*
+    - ***WEBP:** 444 538 B*
+    - ***JPEG XL:** 450 085 B*
+
 - **Read:**
   - **PNG** *(.png)*
   - **JPEG** *(.jpg, .jpeg)*
@@ -179,6 +188,18 @@ Results of up-scaling the image *(40px -> 160px)*:
 
 <br/>
 
+### Roadmap:
+
+- Add ***Performance*** / ***Benchmarks*** section to the **README**
+- Add support for **WEBP2** format *(both reading and writing)*
+- Add support for **AVIF** format *(both reading and writing)*
+- Optimize the code, adn remove unnecessary parts and duplicates
+- Rewrite and update the **WebUI**
+- Add support for **Waifu2x** and **Supir** AIs via **Docker**
+- Fix and improve standalone console application experience
+
+<br/>
+
 ### Credits:
 - **WebUI**, **Scaling App** and **HSDBTRE** AI hybrid created by [***Mikołaj Pokora***](https://github.com/MikiP98)
 - **API backend** and **xBRZ wheel** by [***Piotr Przetacki***](https://github.com/PiotrPrzetacki)
@@ -192,8 +213,10 @@ Results of up-scaling the image *(40px -> 160px)*:
 - ***Area***, ***Bicubic***, ***Bilinear***, ***Lanchos*** and ***Nearest neighbor*** algorithms are implemented using [OpenCV](https://opencv.org)
 - ***EDSR***, ***ESPCN***, ***FSRCNN***, ***FSRCNN-small***, ***LapSRN*** AI algorithms are also implemented using [OpenCV](https://opencv.org)
 - ***Nearest neighbor***, ***Bilinear***, ***Bicubic*** and ***Lanchos*** algorithms are also implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
-- ***A2N***, ***AWSRN-BAM***, ***CARN***, ***CARN-BAM***, ***DRLN***, ***DRLN-BAM***, ***EDSR***, ***EDSR-base***, ***HAN***, ***MDSR***, ***MDSR-BAM***, .*..hyyy*
-- ***MSRN***, ***MSRN-BAM***, ***PAN***, ***PAN-BAM***, ***RCAN-BAM*** AI algorithms are implemented using [super-image](https://pypi.org/project/super-image/) by [eugenesiow (Eugene Siow)](https://pypi.org/user/eugenesiow/) and [Freed Wu](https://pypi.org/user/Freed-Wu/)
+- ***A2N***, ***AWSRN-BAM***, ***CARN***, ***CARN-BAM***, ***DRLN***, ***DRLN-BAM***, ***EDSR***, ***EDSR-base***, ***HAN***, ***MDSR***, *...gasssp...*
+- ***MDSR-BAM***, ***MSRN***, ***MSRN-BAM***, ***PAN***, ***PAN-BAM***, ***RCAN-BAM*** AI algorithms are implemented using [super-image](https://pypi.org/project/super-image/) by [eugenesiow (Eugene Siow)](https://pypi.org/user/eugenesiow/) and [Freed Wu](https://pypi.org/user/Freed-Wu/)
+- [**QOI file format support library**](https://github.com/kodonnell/qoi) by [***kodonnell***](https://github.com/kodonnell)
+- [**JPEG XL PIL plugin**](https://pypi.org/project/pillow-jxl-plugin/) by [***Isotr0py***](https://pypi.org/user/Isotr0py/)
 
 <sup>
 

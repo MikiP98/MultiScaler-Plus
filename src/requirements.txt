@@ -8,6 +8,7 @@ pillow
 psutil
 pyanime4k
 python-multipart
+qoi
 super-image
 termcolor
 torch
