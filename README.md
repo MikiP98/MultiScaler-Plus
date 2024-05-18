@@ -194,9 +194,7 @@ Results of up-scaling the image *(40px -> 160px)*:
 ### Roadmap:
 
 - Add ***Performance*** / ***Benchmarks*** section to the **README**
-- Add support for **WEBP2** format *(both reading and writing)*
-- Add support for **AVIF** format *(both reading and writing)*
-- Optimize the code, adn remove unnecessary parts and duplicates
+- Optimize the code, remove unnecessary parts and duplicates
 - Rewrite and update the **WebUI**
 - Add support for **Waifu2x** and **Supir** AIs via **Docker**
 - Fix and improve standalone console application experience
@@ -204,6 +202,12 @@ Results of up-scaling the image *(40px -> 160px)*:
 - Add image tracing scaling algorithm and support for **SVG** format
 - Add proper HDR support <sup> *(I think JPEG XL and WEBP may have some already)* </sup>
 - Add better image quality comparison
+- Create a c++ python extension for:
+  - More optimizations and better performance
+  - ScaleFx scaling algorithm
+  - NVIDIA DLSS and NIS support
+  - support for **WEBP2** format *(both reading and writing)*
+- Add support for ZIP and 7z archives as input and output
 
 <br/>
 

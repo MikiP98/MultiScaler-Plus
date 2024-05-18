@@ -65,105 +65,95 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
         new_file_name = f"{new_file_name[:-4]}_{scale}x{new_file_name[-4:]}"
     # print(new_file_name)
 
-    output_dir = "../output"
+    output_dir = ""
     if config['sort_by_algorithm']:
         output_dir += f"/{algorithm.name}"
 
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
     if config['sort_by_scale']:
         output_dir += f"/x{scale}"
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
 
     if config['sort_by_image']:
         output_dir += f"/{file}"
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
 
-    output_dir = output_dir + root.lstrip("../input")
-    # Create output directory if it doesn't exist
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    if type(config['file_formats']) is not set:
+        config['file_formats'] = {config['file_formats']}
+        if config['sort_by_file_extension'] == -1:
+            config['sort_by_file_extension'] = 0
+    else:
+        if config['sort_by_file_extension'] == -1:
+            config['sort_by_file_extension'] = 1
+
+    if config['additional_lossless_compression']:
+        if not utils.uses_transparency(image):
+            image = image.convert('RGB')
 
     new_file_name_parts = new_file_name.split('.')
-    new_file_name = '.'.join(new_file_name_parts[:-1]) + '.' + format_to_extension[config['file_format']]
-    # extension = new_file_name_parts[-1].lower()
-    output_path = output_dir + '/' + new_file_name
-    print(output_path)
 
-    # output_path = output_dir + root.lstrip("../input") + '/' + new_file_name
-    # print(output_path)
-    # # Create output directory if it doesn't exist
-    # if not os.path.exists(output_dir + root.lstrip("../input")):
-    #     os.makedirs(output_dir + root.lstrip("../input"))
+    for file_format in config['file_formats']:
+        new_file_name = '.'.join(new_file_name_parts[:-1]) + '.' + format_to_extension[file_format]
+        file_format_dir = ""
+        if config['sort_by_file_extension']:
+            file_format_dir = f"/{format_to_extension[file_format]}"
 
-    if config['file_format'] == "PNG":
-        if not config['lossless_compression']:
-            print(
-                colored(
-                    "WARN: You CAN use lossy compression with PNG format, but this app does not support it :(\n"
-                    "Proceeding to use lossless compression", 'yellow'
+        final_output_dir = "../output" + file_format_dir + output_dir + root.lstrip("../input")
+        # Create output directory if it doesn't exist
+        if not os.path.exists(final_output_dir):
+            os.makedirs(final_output_dir)
+
+        output_path = final_output_dir + '/' + new_file_name
+        print(output_path)
+
+        if "PNG" == file_format:
+            if not config['lossless_compression']:
+                print(
+                    colored(
+                        "WARN: You CAN use lossy compression with PNG format, but this app does not support it :(\n"
+                        "Proceeding to use lossless compression", 'yellow'
+                    )
                 )
-            )
 
-        # output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
-        if not config['additional_lossless_compression']:
-            image.save(output_path, optimize=True)
-        else:
-            img_byte_arr = utils.apply_lossless_compression(image)
+            # output_path = output_path.replace(".jpg", ".png").replace(".jpeg", ".png")
+            if not config['additional_lossless_compression']:
+                image.save(output_path, optimize=True)
+            else:
+                img_byte_arr = utils.apply_lossless_compression(image)
+                with open(output_path, 'wb') as f:
+                    f.write(img_byte_arr)
+
+        elif "QOI" == file_format:
+            if not config['lossless_compression']:
+                print(
+                    colored(
+                        "WARN: You CAN use lossy compression with QOI format, but this app does not support it :(\n"
+                        "Proceeding to use lossless compression", 'yellow'
+                    )
+                )
+
+            image_bytes = qoi.encode(np.array(image))
             with open(output_path, 'wb') as f:
-                f.write(img_byte_arr)
+                f.write(image_bytes)
 
-    elif config['file_format'] == "QOI":
-        if not config['lossless_compression']:
-            print(
-                colored(
-                    "WARN: You CAN use lossy compression with QOI format, but this app does not support it :(\n"
-                    "Proceeding to use lossless compression", 'yellow'
+        elif "JPEG_XL" == file_format:
+            if config['lossless_compression']:
+                image.save(output_path, lossless=True, optimize=True)
+            else:
+                image.save(output_path, quality=config['quality'])
+
+        elif "WEBP" == file_format:
+            if config['lossless_compression']:
+                image.save(output_path, lossless=True, method=6, optimize=True)
+            else:
+                image.save(output_path, quality=config['quality'], method=6)
+
+        elif "AVIF" == file_format:
+            if config['lossless_compression']:
+                image.save(
+                    output_path, lossless=True, quality=100, qmin=0, qmax=0, speed=0, subsampling="4:4:4", range="full"
                 )
-            )
+            else:
+                image.save(output_path, quality=config['quality'], speed=0, range="full")
 
-        if config['additional_lossless_compression']:
-            if not utils.uses_transparency(image):
-                image = image.convert('RGB')
-
-        image = np.array(image)
-        bytes = qoi.encode(image)
-        with open(output_path, 'wb') as f:
-            f.write(bytes)
-
-    elif config['file_format'] == "JPEG_XL":
-        if config['lossless_compression']:
-            if config['additional_lossless_compression']:
-                if not utils.uses_transparency(image):
-                    image = image.convert('RGB')
-            image.save(output_path, lossless=True, optimize=True)
-        else:
-            image.save(output_path, quality=config['quality'])
-
-    elif config['file_format'] == "WEBP":
-        if config['lossless_compression']:
-            if config['additional_lossless_compression']:
-                if not utils.uses_transparency(image):
-                    image = image.convert('RGB')
-            image.save(output_path, lossless=True, method=6, optimize=True)
-        else:
-            image.save(output_path, quality=config['quality'], method=6)
-
-    elif config['file_format'] == "AVIF":
-        if config['lossless_compression']:
-            if config['additional_lossless_compression']:
-                if not utils.uses_transparency(image):
-                    image = image.convert('RGB')
-            image.save(
-                output_path, lossless=True, quality=100, qmin=0, qmax=0, speed=0, subsampling="4:4:4", range="full"
-            )
-        else:
-            image.save(output_path, quality=config['quality'], speed=0, range="full")
-
-    print(colored(f"{output_path} Saved!", 'light_green'))
+        print(colored(f"{output_path} Saved!", 'light_green'))
 
 
 def save_images_chunk(args) -> None:
@@ -350,18 +340,19 @@ def scale_loop(
         pool.join()
 
     else:
-        while image_objects:
-            image_object: utils.Image = image_objects.pop()
-            root = roots.pop()
-            file = files.pop()
-
-            for scaled_image, scale in zip(image_object.images, scales):
-                if len(scaled_image) == 1:
-                    save_image(algorithm, scaled_image[0], root, file, scale, config)
-                else:
-                    # Compose an APNG image
-                    raise NotImplementedError("Animated (and stacked) output is not yet supported")
-            # iterator += 1
+        save_images_chunk((algorithm, image_objects, roots, files, scales, config))
+        # while image_objects:
+        #     image_object: utils.Image = image_objects.pop()
+        #     root = roots.pop()
+        #     file = files.pop()
+        #
+        #     for scaled_image, scale in zip(image_object.images, scales):
+        #         if len(scaled_image) == 1:
+        #             save_image(algorithm, scaled_image[0], root, file, scale, config)
+        #         else:
+        #             # Compose an APNG image
+        #             raise NotImplementedError("Animated (and stacked) output is not yet supported")
+        #     # iterator += 1
 
     print(colored("Saving done\n", 'green'))
 
@@ -589,6 +580,16 @@ def columnify(elements: tuple) -> str:
     return result
 
 
+def print_config(config: dict) -> None:
+    print(colored("{\n\t".expandtabs(4), 'magenta'), end='')
+    print(
+        "\n\t".expandtabs(4).join(
+            f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in config.items()
+        )
+    )
+    print(colored('}', 'magenta'))
+
+
 def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, int | None, dict[str, any]]:
     # multiprocessing_level:
     # empty - no multiprocessing
@@ -603,6 +604,7 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         'sort_by_algorithm': False,
         'sort_by_scale': False,
         'sort_by_image': False,
+        'sort_by_file_extension': -1,  # -1 - auto, 0 - no, 1 - yes
 
         'file_format': "WEBP",
         'lossless_compression': True,
@@ -707,13 +709,14 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
 
     print("\nDo you wish to proceed with default configuration?")
     print("Default configuration:")
-    print(colored("{\n\t".expandtabs(4), 'magenta'), end='')
-    print(
-        "\n\t".expandtabs(4).join(
-            f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in default_config.items()
-        )
-    )
-    print(colored('}', 'magenta'))
+    print_config(default_config)
+    # print(colored("{\n\t".expandtabs(4), 'magenta'), end='')
+    # print(
+    #     "\n\t".expandtabs(4).join(
+    #         f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in default_config.items()
+    #     )
+    # )
+    # print(colored('}', 'magenta'))
     print("Y/N")
     default_config_input = input()
     if (
@@ -822,7 +825,7 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
             extension = file.split('.')[-1].lower()
 
             if extension == "zip" or extension == "7z":
-                with zipfile.ZipFile(path, 'r') as zip_ref:
+                with zipfile.ZipFile(path) as zip_ref:
                     # Get a list of all files and directories inside the zip file
                     zip_contents = zip_ref.namelist()
 
@@ -831,10 +834,10 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
                         # Check if the current item is a file (not a directory)
                         if not file_name.endswith('/'):  # Directories end with '/'
                             # Read the content of the file
-                            with zip_ref.open(file_name) as file:
+                            with zip_ref.open(file_name) as zip_file:
                                 # Process the content of the file
                                 print(f"Contents of {file_name}:")
-                                print(file.read())  # You can perform any operation you want with the file content
+                                print(zip_file.read())  # You can perform any operation you want with the file content
                                 print("---------------")
 
                 raise NotImplementedError("Zip and 7z files are not supported yet")
@@ -940,8 +943,9 @@ if __name__ == '__main__':
             'sort_by_algorithm': False,
             'sort_by_scale': False,
             'sort_by_image': False,
+            'sort_by_file_extension': -1,
 
-            'file_format': "AVIF",
+            'file_formats': {"WEBP", "PNG"},
             'lossless_compression': True,
             'additional_lossless_compression': True,
             'quality': 95,
@@ -982,13 +986,14 @@ if __name__ == '__main__':
     print(f"Received algorithms: {colored(algorithms, 'blue')}")
     print(f"Received scales: {colored(scales, 'blue')}")
     print("Using config: ", end='')
-    print(colored("{\n\t".expandtabs(4), 'magenta'), end='')
-    print(
-        "\n\t".expandtabs(4).join(
-            f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in config.items()
-        )
-    )
-    print(colored('}', 'magenta'))
+    print_config(config)
+    # print(colored("{\n\t".expandtabs(4), 'magenta'), end='')
+    # print(
+    #     "\n\t".expandtabs(4).join(
+    #         f"{colored(k, 'magenta')}: {colored(v, 'light_blue')}" for k, v in config.items()
+    #     )
+    # )
+    # print(colored('}', 'magenta'))
 
     run(algorithms, scales, config)
     rainbow_all_done = rainbowify("ALL NICE & DONE!")
