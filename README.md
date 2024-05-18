@@ -2,9 +2,10 @@
 
 ## Universal app for scaling images
 
-AutoUpscale is a universal app for scaling images. It can be used as a command line tool, a web GUI, or a console application.
+AutoUpscale is a universal app for scaling images using various algorithms. <br>
+It can be used as a command line tool, a webUI, or as a console application.
 
-### Supported algorithms
+## Supported algorithms
 - **Classical Algorithms** <sup>(Up-scaling and downscaling)</sup>:
   - **Bicubic** *(Better than bilinear, less blur, more detail, higher contrast)*
   - **Bilinear** *(Second-simplest algorithm, most common and most blurry)*
@@ -45,14 +46,14 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
 
 <br/>
 
-### Installation:
+## Installation:
 1. Make sure you have installed on your system:
    - **Python 3.12**
    - **Node.js** *(16.0.0 or newer)*
 2. Clone this repository
 3. Run the included `install.bat` script
 
-### Usage:
+## Usage:
 - **Command line tool**:
   - Run the included `run_console.bat` script
   - Run the python script manually: `python src/standalone.py`
@@ -62,54 +63,53 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
 
 <br/>
 
-### Examples:
-**Example - Wiki Shell:**
+## Examples:
+### Example - Wiki Shell:
 
-Scaled down image *(40px)*:
-
+Scaled down image *(40px)*: <br>
 ![Wiki Example Shell - Small](./src/example_images/input/example_shell_40px.png)
 
 Results of up-scaling the image *(40px -> 160px)*:
 
-| Original | Nearest Neighbour | Bilinear | Bicubic |
-| :---: | :---: | :---: | :---: |
+|                                                      Original                                                      |                                       Nearest Neighbour                                       |                                      Bilinear                                       |                                      Bicubic                                      |
+|:------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------:|
 | ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](./src/example_images/output/CV2_INTER_NEAREST_example_shell_40px_4x.png) | ![Bilinear](./src/example_images/output/CV2_INTER_LINEAR_example_shell_40px_4x.png) | ![Bicubic](./src/example_images/output/CV2_INTER_CUBIC_example_shell_40px_4x.png) |
 
-| Lanczos | EDSR *(CV2)* | ESPCN *(CV2)* | FSRCNN *(CV2)* |
-| :---: | :---: | :---: | :---: |
+|                                       Lanczos                                        |                                  EDSR *(CV2)*                                   |                                   ESPCN *(CV2)*                                   |                                   FSRCNN *(CV2)*                                    |
+|:------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|
 | ![Lanczos](./src/example_images/output/CV2_INTER_LANCZOS4_example_shell_40px_4x.png) | ![EDSR *(CV2)*](./src/example_images/output/CV2_EDSR_example_shell_40px_4x.png) | ![ESPCN *(CV2)*](./src/example_images/output/CV2_ESPCN_example_shell_40px_4x.png) | ![FSRCNN *(CV2)*](./src/example_images/output/CV2_FSRCNN_example_shell_40px_4x.png) |
 
-| FSRCNN-small *(CV2)* | LapSRN *(CV2)* | A2N *(SI)* | AWSRN-BAM *(SI)* |
-| :---: | :---: | :---: | :---: |
+|                                      FSRCNN-small *(CV2)*                                       |                                   LapSRN *(CV2)*                                    |                                 A2N *(SI)*                                  |                                    AWSRN-BAM *(SI)*                                     |
+|:-----------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|:---------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|
 | ![FSRCNN-small *(CV2)*](./src/example_images/output/CV2_FSRCNN_small_example_shell_40px_4x.png) | ![LapSRN *(CV2)*](./src/example_images/output/CV2_LapSRN_example_shell_40px_4x.png) | ![A2N *(SI)*](./src/example_images/output/SI_a2n_example_shell_40px_4x.png) | ![AWSRN-BAM *(SI)*](./src/example_images/output/SI_awsrn_bam_example_shell_40px_4x.png) |
 
-| CARN *(SI)* | CARN-BAM *(SI)* | DRLN *(SI)* | DRLN-BAM *(SI)* |
-| :---: | :---: | :---: | :---: |
+|                                  CARN *(SI)*                                  |                                    CARN-BAM *(SI)*                                    |                                  DRLN *(SI)*                                  |                                    DRLN-BAM *(SI)*                                    |
+|:-----------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|
 | ![CARN *(SI)*](./src/example_images/output/SI_carn_example_shell_40px_4x.png) | ![CARN-BAM *(SI)*](./src/example_images/output/SI_carn_bam_example_shell_40px_4x.png) | ![DRLN *(SI)*](./src/example_images/output/SI_drln_example_shell_40px_4x.png) | ![DRLN-BAM *(SI)*](./src/example_images/output/SI_drln_bam_example_shell_40px_4x.png) |
 
-| EDSR *(SI)* | EDSR-base *(SI)* | HAN *(SI)* | MDSR *(SI)* |
-| :---: | :---: | :---: | :---: |
+|                                  EDSR *(SI)*                                  |                                    EDSR-base *(SI)*                                     |                                 HAN *(SI)*                                  |                                  MDSR *(SI)*                                  |
+|:-----------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|
 | ![EDSR *(SI)*](./src/example_images/output/SI_edsr_example_shell_40px_4x.png) | ![EDSR-base *(SI)*](./src/example_images/output/SI_edsr_base_example_shell_40px_4x.png) | ![HAN *(SI)*](./src/example_images/output/SI_han_example_shell_40px_4x.png) | ![MDSR *(SI)*](./src/example_images/output/SI_mdsr_example_shell_40px_4x.png) |
 
-| MDSR-BAM *(SI)* | MSRN *(SI)* | MSRN-BAM *(SI)* | PAN *(SI)* |
-| :---: | :---: | :---: | :---: |
+|                                    MDSR-BAM *(SI)*                                    |                                  MSRN *(SI)*                                  |                                    MSRN-BAM *(SI)*                                    |                                 PAN *(SI)*                                  |
+|:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------:|
 | ![MDSR-BAM *(SI)*](./src/example_images/output/SI_mdsr_bam_example_shell_40px_4x.png) | ![MSRN *(SI)*](./src/example_images/output/SI_msrn_example_shell_40px_4x.png) | ![MSRN-BAM *(SI)*](./src/example_images/output/SI_msrn_bam_example_shell_40px_4x.png) | ![PAN *(SI)*](./src/example_images/output/SI_pan_example_shell_40px_4x.png) |
 
-| PAN-BAM *(SI)* | RCAN-BAM *(SI)* | RealESRGAN | Anime4K |
-| :---: | :---: | :---: | :---: |
+|                                   PAN-BAM *(SI)*                                    |                                    RCAN-BAM *(SI)*                                    |                                   RealESRGAN                                    |                                  Anime4K                                  |
+|:-----------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------:|:-------------------------------------------------------------------------:|
 | ![PAN-BAM *(SI)*](./src/example_images/output/SI_pan_bam_example_shell_40px_4x.png) | ![RCAN-BAM *(SI)*](./src/example_images/output/SI_rcan_bam_example_shell_40px_4x.png) | ![RealESRGAN](./src/example_images/output/RealESRGAN_example_shell_40px_4x.png) | ![Anime4K](./src/example_images/output/Anime4K_example_shell_40px_4x.png) |
 
-| HSDBTRE | hqx | NEDI <sup>*(m = 4)*</sup> | Super xBR |
-| :---: | :---: | :---: | :---: |
+|                                  HSDBTRE                                  |                                hqx                                |                                NEDI <sup>*(m = 4)*</sup>                                 |                                   Super xBR                                   |
+|:-------------------------------------------------------------------------:|:-----------------------------------------------------------------:|:----------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|
 | ![HSDBTRE](./src/example_images/output/HSDBTRE_example_shell_40px_4x.png) | ![hqx](./src/example_images/output/hqx_example_shell_40px_4x.png) | ![NEDI <sup>*(m = 4)*</sup>](./src/example_images/output/NEDI_example_shell_40px_4x.png) | ![Super xBR](./src/example_images/output/Super_xBR_example_shell_40px_4x.png) |
 
-| xBRZ | FSR | CAS <sup>*(sharpness = 0.5)*</sup> |
-| :---: | :---: | :---: |
+|                                xBRZ                                 |                              FSR                               |                              CAS <sup>*(sharpness = 0.5)*</sup>                               |
+|:-------------------------------------------------------------------:|:--------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|
 | ![xBRZ](./src/example_images/output/xBRZ_example_shell_40px_4x.png) | ![FSR](./src/example_images/output/example_shell_40px_FSR.png) | ![CAS <sup>*(sharpness = 0.5)*</sup>](./src/example_images/output/example_shell_40px_CAS.png) |
 
 <br/>
 
-### Supported file formats:
+## Supported file formats:
 **Tested working:**
 - **Write:**
   - **PNG** *(Widely used, popular, lossless format)*
@@ -191,27 +191,27 @@ Results of up-scaling the image *(40px -> 160px)*:
 
 <br/>
 
-### Roadmap:
+## Roadmap:
 
 - Add ***Performance*** / ***Benchmarks*** section to the **README**
 - Optimize the code, remove unnecessary parts and duplicates
 - Rewrite and update the **WebUI**
 - Add support for **Waifu2x** and **Supir** AIs via **Docker**
-- Fix and improve standalone console application experience
+- Fix and improve standalone console application experience *(add console buttons?)*
 - Add support for stacked and animated images
 - Add image tracing scaling algorithm and support for **SVG** format
-- Add proper HDR support <sup> *(I think JPEG XL and WEBP may have some already)* </sup>
+- Add proper **HDR** support <sup> *(I think **JPEG XL**, **WEBP** and **AVIF** may have some already)* </sup>
 - Add better image quality comparison
-- Create a c++ python extension for:
+- Create a C++ python extension for:
   - More optimizations and better performance
-  - ScaleFx scaling algorithm
-  - NVIDIA DLSS and NIS support
+  - **ScaleFx** scaling shader
+  - NVIDIAs **DLSS** and **NIS** support
   - support for **WEBP2** format *(both reading and writing)*
 - Add support for ZIP and 7z archives as input and output
 
 <br/>
 
-### Credits:
+## Credits:
 - **WebUI**, **Scaling App** and **HSDBTRE** AI hybrid created by [***Mikołaj Pokora***](https://github.com/MikiP98)
 - **API backend** and **xBRZ wheel** by [***Piotr Przetacki***](https://github.com/PiotrPrzetacki)
 - [**Anime4K**](https://github.com/TianZerL/pyanime4k) implementation by [TianZer (TianZerL)](https://github.com/TianZerL)
@@ -226,8 +226,13 @@ Results of up-scaling the image *(40px -> 160px)*:
 - ***Nearest neighbor***, ***Bilinear***, ***Bicubic*** and ***Lanchos*** algorithms are also implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
 - ***A2N***, ***AWSRN-BAM***, ***CARN***, ***CARN-BAM***, ***DRLN***, ***DRLN-BAM***, ***EDSR***, ***EDSR-base***, ***HAN***, ***MDSR***, *...gasssp...*
 - ***MDSR-BAM***, ***MSRN***, ***MSRN-BAM***, ***PAN***, ***PAN-BAM***, ***RCAN-BAM*** AI algorithms are implemented using [super-image](https://pypi.org/project/super-image/) by [eugenesiow (Eugene Siow)](https://pypi.org/user/eugenesiow/) and [Freed Wu](https://pypi.org/user/Freed-Wu/)
-- [**QOI file format support library**](https://github.com/kodonnell/qoi) by [***kodonnell***](https://github.com/kodonnell)
-- [**JPEG XL PIL plugin**](https://pypi.org/project/pillow-jxl-plugin/) by [***Isotr0py***](https://pypi.org/user/Isotr0py/)
+- [**QOI file format support library**](https://github.com/kodonnell/qoi) by [kodonnell](https://github.com/kodonnell)
+- [**AVIF PIL plugin**](https://pypi.org/project/pillow-avif-plugin/) by [fdintino](https://pypi.org/user/fdintino/)
+- [**JPEG XL PIL plugin**](https://pypi.org/project/pillow-jxl-plugin/) by [Isotr0py](https://pypi.org/user/Isotr0py/)
+- **Example Shell** image: 
+  - [Green Sea Shell 160 thumbnail](https://commons.wikimedia.org/wiki/File:160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) by James Petts / shaddim and 
+  - [Green Sea Shell 40 thumbnail](https://commons.wikimedia.org/wiki/File:40_by_40_thumbnail_of_%27Green_Sea_Shell%27.png) by James Petts, 
+  - under: [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5), via Wikimedia Commons
 
 <sup>
 
