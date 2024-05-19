@@ -5,6 +5,11 @@
 AutoUpscale is a universal app for scaling images using various algorithms. <br>
 It can be used as a command line tool, a webUI, or as a console application.
 
+This app has 2 active versions [**Main (release)**]() and [**Dev (beta)**]() <br>
+If you use the **Main** branch and see on roadmap some feature you would like to use, <br>
+check the **Dev** branch to see if it's already implemented! <br>
+To switch between branches, use the `git checkout {main/dev}` command.
+
 ## Supported algorithms
 - **Classical Algorithms** <sup>(Up-scaling and downscaling)</sup>:
   - **Bicubic** *(Better than bilinear, less blur, more detail, higher contrast)*
@@ -110,7 +115,9 @@ Results of up-scaling the image *(40px -> 160px)*:
 <br/>
 
 ## Supported file formats:
-**Tested working:**
+
+### Tested working:
+
 - **Write:**
   - **PNG** *(Widely used, popular, lossless format)*
   - **QOI** *(A bit worse compression then **PNG**, but a lot lot faster to save and load)*
@@ -129,7 +136,8 @@ Results of up-scaling the image *(40px -> 160px)*:
   - **PNG** *(.png)*
   - **JPEG** *(.jpg, .jpeg)*
 
-**Should work:**
+### Should work:
+
 - **Read:**
   <table>
     <tr>
@@ -208,6 +216,8 @@ Results of up-scaling the image *(40px -> 160px)*:
   - NVIDIAs **DLSS** and **NIS** support
   - support for **WEBP2** format *(both reading and writing)*
 - Add support for ZIP and 7z archives as input and output
+- Add filters and effects support
+- Add basic cropping and rotating support
 
 <br/>
 
