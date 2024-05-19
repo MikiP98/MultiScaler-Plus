@@ -199,6 +199,21 @@ Results of up-scaling the image *(40px -> 160px)*:
 
 <br/>
 
+## Performance:
+
+File size and time needed to save the image using different formats. <br>
+Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
+
+| File format | Size (B) | Time (s) |
+|:------------|:---------|:---------|
+| **PNG**     | 675 397  | ---      |
+| **QOI**     | 790 448  | ---      |
+| **WEBP**    | 444 538  | ---      |
+| **JPEG XL** | 450 085  | ---      |
+| **AVIF**    | 507 384  | ---      |
+
+<br/>
+
 ## Roadmap:
 
 - Add ***Performance*** / ***Benchmarks*** section to the **README**
@@ -218,6 +233,7 @@ Results of up-scaling the image *(40px -> 160px)*:
 - Add support for ZIP and 7z archives as input and output
 - Add filters and effects support
 - Add basic cropping and rotating support
+- Add intelligent masking *(to e.g. not mask the minecraft bat wing on the edge, but in box)*
 
 <br/>
 

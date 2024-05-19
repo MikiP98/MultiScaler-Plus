@@ -81,7 +81,8 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
             config['sort_by_file_extension'] = 0
     else:
         if config['sort_by_file_extension'] == -1:
-            config['sort_by_file_extension'] = 1
+            if len(config['file_formats']) > 1:
+                config['sort_by_file_extension'] = 1
 
     if config['additional_lossless_compression']:
         if not utils.uses_transparency(image):
@@ -92,7 +93,7 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
     for file_format in config['file_formats']:
         new_file_name = '.'.join(new_file_name_parts[:-1]) + '.' + format_to_extension[file_format]
         file_format_dir = ""
-        if config['sort_by_file_extension']:
+        if config['sort_by_file_extension'] == 1:
             file_format_dir = f"/{format_to_extension[file_format]}"
 
         final_output_dir = "../output" + file_format_dir + output_dir + root.lstrip("../input")
@@ -937,15 +938,15 @@ if __name__ == '__main__':
         config = {
             'clear_output_directory': True,
 
-            'add_algorithm_name_to_output_files_names': True,
-            'add_factor_to_output_files_names': True,
+            'add_algorithm_name_to_output_files_names': False,
+            'add_factor_to_output_files_names': False,
 
             'sort_by_algorithm': False,
             'sort_by_scale': False,
             'sort_by_image': False,
             'sort_by_file_extension': -1,
 
-            'file_formats': {"WEBP", "PNG"},
+            'file_formats': {"PNG"},
             'lossless_compression': True,
             'additional_lossless_compression': True,
             'quality': 95,
