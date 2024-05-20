@@ -226,6 +226,34 @@ def scale_loop(
         image_objects = new_image_objects
         print(colored("Texture outbound protection done\n", 'green'))
 
+    if config['disallow_partial_transparency']:
+        print("Removing partial transparency...")
+        new_image_objects = []
+        for image_obj in image_objects:
+            scaled_images = []
+            for scaled_image in image_obj.images:
+                new_image = []
+                for frame in scaled_image:
+                    # new_frame = utils.disallow_partial_transparency(frame)
+                    frame_array = utils.pil_to_cv2(frame)
+                    dimensions = frame_array.shape
+                    if frame_array.shape[2] != 4:
+                        print("Frame has no alpha channel, skipping alpha correction")
+                        new_image.append(frame)
+                        continue
+
+                    new_frame_array = frame_array.copy()
+                    for x in range(dimensions[0]):
+                        for y in range(dimensions[1]):
+                            if new_frame_array[x][y][3] != 255 or new_frame_array[x][y][3] != 0:
+                                new_frame_array[x][y][3] = 255
+
+                    new_image.append(utils.cv2_to_pil(new_frame_array))
+                scaled_images.append(new_image)
+            new_image_objects.append(utils.Image(scaled_images))
+        image_objects = new_image_objects
+        print(colored("Removing partial transparency done\n", 'green'))
+
     if config['texture_inbound_protection']:
         print("Applying texture inbound protection...")
         # Got trough every pixel
@@ -624,6 +652,7 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         # TODO: Implement this, prevents multi-face (in 1 image) textures to not fully cover current textures border
         'texture_mask_mode': ('alpha', 'black'),
         # What should be used to make the mask, 1st is when alpha is present, 2nd when it is not  TODO: add more options
+        'disallow_partial_transparency': False,  # TODO: Implement this
 
         'sharpness': 0.5,
         'NEDI_m': 4
@@ -959,6 +988,7 @@ if __name__ == '__main__':
             'texture_outbound_protection': False,
             'texture_inbound_protection': False,
             'texture_mask_mode': ('alpha', 'black'),
+            'disallow_partial_transparency': False,
 
             'sharpness': 0.5,
             'NEDI_m': 4
