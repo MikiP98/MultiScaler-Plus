@@ -112,6 +112,8 @@ Results of up-scaling the image *(40px -> 160px)*:
 |:-------------------------------------------------------------------:|:--------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|
 | ![xBRZ](./src/example_images/output/xBRZ_example_shell_40px_4x.png) | ![FSR](./src/example_images/output/example_shell_40px_FSR.png) | ![CAS <sup>*(sharpness = 0.5)*</sup>](./src/example_images/output/example_shell_40px_CAS.png) |
 
+[More detailed comparisons](./src/quality_comparison/README.md)
+
 <br/>
 
 ## Supported file formats:
