@@ -230,7 +230,14 @@ Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
 - Add support for stacked and animated images
 - Add image tracing scaling algorithm and support for **SVG** format
 - Add proper **HDR** support <sup> *(I think **JPEG XL**, **WEBP** and **AVIF** may have some already)* </sup>
-- Add better image quality comparison
+- Add better image quality comparison:
+  - Replace the one in README with a summary one
+  - Create a separate subfolder with new comparison markdown page:
+    - Sorted by type of algorithm
+    - With all
+    - Summary
+    - Extended summary
+    - note with recommendations
 - Create a C++ python extension for:
   - More optimizations and better performance
   - **ScaleFX** scaling shader
