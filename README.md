@@ -222,13 +222,13 @@ Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
 - Rewrite and update the **WebUI**
 - Add support for **Waifu2x** and **Supir** AIs via **Docker**
   - Add lambda GPU *(or other)* connection support for **Supir** and others
-- Fix and improve standalone console application experience:
+- **Fix** and **improve** standalone console application experience:
   - Smarter Algorithms print with descriptions and categories
   - Smarter config editing with descriptions and incorrect input handling
-  - Saving user config settings *(multiple profiles?)*
-  - *(add console buttons?)*
-- Add support for stacked and animated images
-- Add image tracing scaling algorithm and support for **SVG** format
+  - Saving user config settings *(multiple **profiles**?)*
+  - *(add console **buttons**?)*
+- Add support for **stacked** and **animated** images
+- Add **image tracing** scaling algorithm and support for **SVG** format
 - Add proper **HDR** support <sup> *(I think **JPEG XL**, **WEBP** and **AVIF** may have some already)* </sup>
 - Add better image quality comparison:
   - Replace the one in README with a summary one
@@ -238,15 +238,15 @@ Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
     - Summary
     - Extended summary
     - note with recommendations
-- Create a C++ python extension for:
+- Create a **C++ python extension*** for:
   - More optimizations and better performance
   - **ScaleFX** scaling shader
   - NVIDIAs **DLSS** and **NIS** support
   - support for **WEBP2** format *(both reading and writing)*
-- Add support for ZIP and 7z archives as input and output
-- Add filters and effects support
-- Add basic cropping and rotating support
-- Add intelligent masking *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
+- Add support for **ZIP** and **7z** archives as input and output
+- Add **filters** and **effects** support
+- Add basic **cropping** and **rotating** support
+- Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
 
 <br/>
 
