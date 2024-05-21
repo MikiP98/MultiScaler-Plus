@@ -203,6 +203,7 @@ Results of up-scaling the image *(40px -> 160px)*:
 
 File size and time needed to save the image using different formats. <br>
 Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
+<br>*(data is currently correct but it is not what it says it is, TODO: finish this)*
 
 | File format | Size (B) | Time (s) |
 |:------------|:---------|:---------|
@@ -221,7 +222,11 @@ Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
 - Rewrite and update the **WebUI**
 - Add support for **Waifu2x** and **Supir** AIs via **Docker**
   - Add lambda GPU *(or other)* connection support for **Supir** and others
-- Fix and improve standalone console application experience *(add console buttons?)*
+- Fix and improve standalone console application experience:
+  - Smarter Algorithms print with descriptions and categories
+  - Smarter config editing with descriptions and incorrect input handling
+  - Saving user config settings *(multiple profiles?)*
+  - *(add console buttons?)*
 - Add support for stacked and animated images
 - Add image tracing scaling algorithm and support for **SVG** format
 - Add proper **HDR** support <sup> *(I think **JPEG XL**, **WEBP** and **AVIF** may have some already)* </sup>
