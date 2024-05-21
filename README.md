@@ -220,6 +220,7 @@ Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
 - Optimize the code, remove unnecessary parts and duplicates
 - Rewrite and update the **WebUI**
 - Add support for **Waifu2x** and **Supir** AIs via **Docker**
+  - Add lambda GPU *(or other)* connection support for **Supir** and others
 - Fix and improve standalone console application experience *(add console buttons?)*
 - Add support for stacked and animated images
 - Add image tracing scaling algorithm and support for **SVG** format
@@ -227,13 +228,13 @@ Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
 - Add better image quality comparison
 - Create a C++ python extension for:
   - More optimizations and better performance
-  - **ScaleFx** scaling shader
+  - **ScaleFX** scaling shader
   - NVIDIAs **DLSS** and **NIS** support
   - support for **WEBP2** format *(both reading and writing)*
 - Add support for ZIP and 7z archives as input and output
 - Add filters and effects support
 - Add basic cropping and rotating support
-- Add intelligent masking *(to e.g. not mask the minecraft bat wing on the edge, but in box)*
+- Add intelligent masking *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
 
 <br/>
 
