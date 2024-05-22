@@ -92,7 +92,7 @@ images coming soon
 |:------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------:|
 | ![xBRZ](../example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp) | ![FSR](../example_images/output/example_shell_40px/example_shell_40px_FSR.webp) | ![CAS <sup>*(sharpness = 0.5)*</sup>](../example_images/output/example_shell_40px/example_shell_40px_CAS.webp) |
 
-### Wiki example text:
+### Wiki example text *(40x109 -> 160x436)*:
 
 images coming soon
 

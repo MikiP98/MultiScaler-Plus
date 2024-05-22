@@ -2,12 +2,12 @@
 
 ## Universal app for scaling images
 
-AutoUpscale is a universal app for scaling images using various algorithms. <br>
+AutoUpscale is a universal app for scaling images using various algorithms.  
 It can be used as a command line tool, a webUI, or as a console application.
 
-This app has 2 active versions [**Main (release)**]() and [**Dev (beta)**]() <br>
-If you use the **Main** branch and see on roadmap some feature you would like to use, <br>
-check the **Dev** branch to see if it's already implemented! <br>
+This app has 2 active versions [**Main (release)**]() and [**Dev (beta)**]()  
+If you use the **Main** branch and see on roadmap some feature you would like to use,  
+check the **Dev** branch to see if it's already implemented!  
 To switch between branches, use the `git checkout {main/dev}` command.
 
 ## Supported algorithms
@@ -53,9 +53,9 @@ To switch between branches, use the `git checkout {main/dev}` command.
 
 ## Installation:
 1. Make sure you have installed on your system:
-   - **Python 3.12**
-   - **Node.js** *(16.0.0 or newer)*
-2. Clone this repository
+   - **[Python](https://www.python.org/downloads/) 3.12** <sup>(minor version does not matter)</sup>
+   - [**Node.js**](https://nodejs.org/en/download/prebuilt-installer) *(16.0.0 or newer)*
+2. Clone this repository `git clone "https://github.com/MikiP98/MultiScaler-Plus"`
 3. Run the included `install.bat` script
 
 ## Usage:
@@ -76,18 +76,18 @@ Scaled down image *(40px)*: <br>
 
 A summary of best and most unique results of up-scaling the image *(40px -> 160px)*:
 
-|                                                      Original                                                      |                                               Nearest Neighbour                                                |                                              Bicubic                                               |                                                Lanczos                                                |
-|:------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------:|
+|                                                      Original                                                      |                                                Nearest Neighbour                                                |                                               Bicubic                                               |                                                Lanczos                                                 |
+|:------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------:|
 | ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](src/example_images/output/example_shell_40px/CV2_INTER_NEAREST_example_shell_40px_4x.webp) | ![Bicubic](src/example_images/output/example_shell_40px/CV2_INTER_CUBIC_example_shell_40px_4x.webp) | ![Lanczos](src/example_images/output/example_shell_40px/CV2_INTER_LANCZOS4_example_shell_40px_4x.webp) |
 
 
-|                          DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                          |                                            RealESRGAN                                            |                                          Anime4K                                           |                                          HSDBTRE                                           |
-|:---------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------:|
+|                          DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                           |                                            RealESRGAN                                             |                                           Anime4K                                           |                                           HSDBTRE                                           |
+|:----------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
 | ![DRLN](src/example_images/output/example_shell_40px/SI_drln_example_shell_40px_4x.webp) | ![RealESRGAN](src/example_images/output/example_shell_40px/RealESRGAN_example_shell_40px_4x.webp) | ![Anime4K](src/example_images/output/example_shell_40px/Anime4K_example_shell_40px_4x.webp) | ![HSDBTRE](src/example_images/output/example_shell_40px/HSDBTRE_example_shell_40px_4x.webp) |
 
 
-|                              NEDI <sup>*(m = 4)*</sup>                               |                                           Super xBR                                            |                                         xBRZ                                         |                                    FSR *1.1*                                    |
-|:------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------:|
+|                               NEDI <sup>*(m = 4)*</sup>                               |                                            Super xBR                                            |                                         xBRZ                                          |                                    FSR *1.1*                                     |
+|:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------:|
 | ![NEDI](src/example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.webp) | ![Super xBR](src/example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.webp) | ![xBRZ](src/example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp) | ![FSR](src/example_images/output/example_shell_40px/example_shell_40px_FSR.webp) |
 
 ### [More detailed comparisons](./src/quality_comparison/README.md)
@@ -103,7 +103,7 @@ A summary of best and most unique results of up-scaling the image *(40px -> 160p
   - **QOI** *(A bit worse compression then **PNG**, but a lot lot faster to save and load)*
   - **WEBP** *(Comparable, lossless and lossy compression, to **JPEG XL** (a bit worse on average), but with better overall support)*
   - **JPEG XL** *(New advanced compression format, better lossless compression compared to **PNG** and better lossy compared to **JPEG**)* <br> <sup>*(see [this plugin](https://github.com/saschanaz/jxl-winthumb) for Windows Support)*</sup>
-  - **AVIF** *(New advanced compression format, much much slower and with worse compression then **WEBP** and **JPEG XL**, currently no transparency because of a bug, pretty wide support)*
+  - **AVIF** *(New advanced compression format, much much slower and with worse lossless compression then **WEBP** and **JPEG XL**, currently no transparency because of a bug, pretty wide support)*
   - ***Benchmark result (size, lower is better):***
     - ***QOI:** 790 448 B*
     - ***PNG:** 675 397 B*
@@ -181,7 +181,7 @@ A summary of best and most unique results of up-scaling the image *(40px -> 160p
 
 ## Performance:
 
-File size and time needed to save the image using different formats. <br>
+File size and time needed to save the image using different formats.  
 Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
 <br>*(data is currently correct but it is not what it says it is, TODO: finish this)*
 
@@ -227,6 +227,7 @@ Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
 - Add **filters** and **effects** support
 - Add basic **cropping** and **rotating** support
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
+- Make my own scaling algorithm or AI for fun :)
 
 <br/>
 
