@@ -182,17 +182,26 @@ A summary of best and most unique results of up-scaling the image *(40px -> 160p
 
 ## Performance:
 
-File size and time needed to save the image using different formats.  
-Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
-<br>*(data is currently correct but it is not what it says it is, TODO: finish this)*
+File size and time needed to save the image using different formats with lossless compression.  
+Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack + example shell:
 
-| File format | Size (B) | Time (s) |
-|:------------|:---------|:---------|
-| **PNG**     | 675 397  | ---      |
-| **QOI**     | 790 448  | ---      |
-| **WEBP**    | 444 538  | ---      |
-| **JPEG XL** | 450 085  | ---      |
-| **AVIF**    | 507 384  | ---      |
+| File format | Size *(B)*   | Time *(~s)* |
+|:------------|:-------------|:------------|
+| **PNG**     | *19 963 489* | *37.685-*   |
+| **QOI**     | *30 006 495* | *2.017-*    |
+| **WEBP**    | *11 396 360* | *19.904-*   |
+| **JPEG XL** | *11 947 953* | *56.468-*   |
+| **AVIF**    | *17 282 612* | *691.370+*  |
+
+Different test on random collection of smaller files:
+
+| File format | Size *(B)* |
+|:------------|:-----------|
+| **PNG**     | *675 397*  |
+| **QOI**     | *790 448*  |
+| **WEBP**    | *444 538*  |
+| **JPEG XL** | *450 085*  |
+| **AVIF**    | *507 384*  |
 
 <br/>
 
