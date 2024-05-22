@@ -1,14 +1,15 @@
-# AutoUpscale
+# MultiScaler Plus
 
 ## Universal app for scaling images
 
-AutoUpscale is a universal app for scaling images using various algorithms. <br>
+**MultiScaler Plus** is a universal app for scaling images using various algorithms.  
 It can be used as a command line tool, a webUI, or as a console application.
 
-This app has 2 active versions [**Main (release)**]() and [**Dev (beta)**]() <br>
-If you use the **Main** branch and see on roadmap some feature you would like to use, <br>
-check the **Dev** branch to see if it's already implemented! <br>
-To switch between branches, use the `git checkout {main/dev}` command.
+This app has **2** active versions [**Main (release)**]() and [**Dev (beta)**]()  
+If you use the **Main** branch and see on roadmap some feature you would like to use,  
+check the **Dev** branch to see if it's already implemented!  
+To switch between branches, use the `git checkout {main/dev}` command  
+If feature you are interested in is not in either branch's roadmap, feel free to create a **Feature Request** issue!
 
 ## Supported algorithms
 - **Classical Algorithms** <sup>(Up-scaling and downscaling)</sup>:
@@ -53,9 +54,9 @@ To switch between branches, use the `git checkout {main/dev}` command.
 
 ## Installation:
 1. Make sure you have installed on your system:
-   - **Python 3.12**
-   - **Node.js** *(16.0.0 or newer)*
-2. Clone this repository
+   - **[Python](https://www.python.org/downloads/) 3.12** <sup>(minor version does not matter)</sup>
+   - [**Node.js**](https://nodejs.org/en/download/prebuilt-installer) *(16.0.0 or newer)*
+2. Clone this repository `git clone "https://github.com/MikiP98/MultiScaler-Plus"`
 3. Run the included `install.bat` script
 
 ## Usage:
@@ -74,45 +75,23 @@ To switch between branches, use the `git checkout {main/dev}` command.
 Scaled down image *(40px)*: <br>
 ![Wiki Example Shell - Small](./src/example_images/input/example_shell_40px.png)
 
-Results of up-scaling the image *(40px -> 160px)*:
+A summary of best and most unique results of up-scaling the image *(40px -> 160px)*:
 
-|                                                      Original                                                      |                                       Nearest Neighbour                                       |                                      Bilinear                                       |                                      Bicubic                                      |
-|:------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------:|
-| ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](./src/example_images/output/CV2_INTER_NEAREST_example_shell_40px_4x.png) | ![Bilinear](./src/example_images/output/CV2_INTER_LINEAR_example_shell_40px_4x.png) | ![Bicubic](./src/example_images/output/CV2_INTER_CUBIC_example_shell_40px_4x.png) |
+|                                                      Original                                                      |                                                Nearest Neighbour                                                |                                               Bicubic                                               |                                                Lanczos                                                 |
+|:------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------:|
+| ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](src/example_images/output/example_shell_40px/CV2_INTER_NEAREST_example_shell_40px_4x.webp) | ![Bicubic](src/example_images/output/example_shell_40px/CV2_INTER_CUBIC_example_shell_40px_4x.webp) | ![Lanczos](src/example_images/output/example_shell_40px/CV2_INTER_LANCZOS4_example_shell_40px_4x.webp) |
 
-|                                       Lanczos                                        |                                  EDSR *(CV2)*                                   |                                   ESPCN *(CV2)*                                   |                                   FSRCNN *(CV2)*                                    |
-|:------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|
-| ![Lanczos](./src/example_images/output/CV2_INTER_LANCZOS4_example_shell_40px_4x.png) | ![EDSR *(CV2)*](./src/example_images/output/CV2_EDSR_example_shell_40px_4x.png) | ![ESPCN *(CV2)*](./src/example_images/output/CV2_ESPCN_example_shell_40px_4x.png) | ![FSRCNN *(CV2)*](./src/example_images/output/CV2_FSRCNN_example_shell_40px_4x.png) |
 
-|                                      FSRCNN-small *(CV2)*                                       |                                   LapSRN *(CV2)*                                    |                                 A2N *(SI)*                                  |                                    AWSRN-BAM *(SI)*                                     |
-|:-----------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|:---------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|
-| ![FSRCNN-small *(CV2)*](./src/example_images/output/CV2_FSRCNN_small_example_shell_40px_4x.png) | ![LapSRN *(CV2)*](./src/example_images/output/CV2_LapSRN_example_shell_40px_4x.png) | ![A2N *(SI)*](./src/example_images/output/SI_a2n_example_shell_40px_4x.png) | ![AWSRN-BAM *(SI)*](./src/example_images/output/SI_awsrn_bam_example_shell_40px_4x.png) |
+|                          DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                           |                                            RealESRGAN                                             |                                           Anime4K                                           |                                           HSDBTRE                                           |
+|:----------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
+| ![DRLN](src/example_images/output/example_shell_40px/SI_drln_example_shell_40px_4x.webp) | ![RealESRGAN](src/example_images/output/example_shell_40px/RealESRGAN_example_shell_40px_4x.webp) | ![Anime4K](src/example_images/output/example_shell_40px/Anime4K_example_shell_40px_4x.webp) | ![HSDBTRE](src/example_images/output/example_shell_40px/HSDBTRE_example_shell_40px_4x.webp) |
 
-|                                  CARN *(SI)*                                  |                                    CARN-BAM *(SI)*                                    |                                  DRLN *(SI)*                                  |                                    DRLN-BAM *(SI)*                                    |
-|:-----------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|
-| ![CARN *(SI)*](./src/example_images/output/SI_carn_example_shell_40px_4x.png) | ![CARN-BAM *(SI)*](./src/example_images/output/SI_carn_bam_example_shell_40px_4x.png) | ![DRLN *(SI)*](./src/example_images/output/SI_drln_example_shell_40px_4x.png) | ![DRLN-BAM *(SI)*](./src/example_images/output/SI_drln_bam_example_shell_40px_4x.png) |
 
-|                                  EDSR *(SI)*                                  |                                    EDSR-base *(SI)*                                     |                                 HAN *(SI)*                                  |                                  MDSR *(SI)*                                  |
-|:-----------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|
-| ![EDSR *(SI)*](./src/example_images/output/SI_edsr_example_shell_40px_4x.png) | ![EDSR-base *(SI)*](./src/example_images/output/SI_edsr_base_example_shell_40px_4x.png) | ![HAN *(SI)*](./src/example_images/output/SI_han_example_shell_40px_4x.png) | ![MDSR *(SI)*](./src/example_images/output/SI_mdsr_example_shell_40px_4x.png) |
+|                               NEDI <sup>*(m = 4)*</sup>                               |                                            Super xBR                                            |                                         xBRZ                                          |                                    FSR *1.1*                                     |
+|:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------:|
+| ![NEDI](src/example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.webp) | ![Super xBR](src/example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.webp) | ![xBRZ](src/example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp) | ![FSR](src/example_images/output/example_shell_40px/example_shell_40px_FSR.webp) |
 
-|                                    MDSR-BAM *(SI)*                                    |                                  MSRN *(SI)*                                  |                                    MSRN-BAM *(SI)*                                    |                                 PAN *(SI)*                                  |
-|:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------:|
-| ![MDSR-BAM *(SI)*](./src/example_images/output/SI_mdsr_bam_example_shell_40px_4x.png) | ![MSRN *(SI)*](./src/example_images/output/SI_msrn_example_shell_40px_4x.png) | ![MSRN-BAM *(SI)*](./src/example_images/output/SI_msrn_bam_example_shell_40px_4x.png) | ![PAN *(SI)*](./src/example_images/output/SI_pan_example_shell_40px_4x.png) |
-
-|                                   PAN-BAM *(SI)*                                    |                                    RCAN-BAM *(SI)*                                    |                                   RealESRGAN                                    |                                  Anime4K                                  |
-|:-----------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------:|:-------------------------------------------------------------------------:|
-| ![PAN-BAM *(SI)*](./src/example_images/output/SI_pan_bam_example_shell_40px_4x.png) | ![RCAN-BAM *(SI)*](./src/example_images/output/SI_rcan_bam_example_shell_40px_4x.png) | ![RealESRGAN](./src/example_images/output/RealESRGAN_example_shell_40px_4x.png) | ![Anime4K](./src/example_images/output/Anime4K_example_shell_40px_4x.png) |
-
-|                                  HSDBTRE                                  |                                hqx                                |                                NEDI <sup>*(m = 4)*</sup>                                 |                                   Super xBR                                   |
-|:-------------------------------------------------------------------------:|:-----------------------------------------------------------------:|:----------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|
-| ![HSDBTRE](./src/example_images/output/HSDBTRE_example_shell_40px_4x.png) | ![hqx](./src/example_images/output/hqx_example_shell_40px_4x.png) | ![NEDI <sup>*(m = 4)*</sup>](./src/example_images/output/NEDI_example_shell_40px_4x.png) | ![Super xBR](./src/example_images/output/Super_xBR_example_shell_40px_4x.png) |
-
-|                                xBRZ                                 |                              FSR                               |                              CAS <sup>*(sharpness = 0.5)*</sup>                               |
-|:-------------------------------------------------------------------:|:--------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|
-| ![xBRZ](./src/example_images/output/xBRZ_example_shell_40px_4x.png) | ![FSR](./src/example_images/output/example_shell_40px_FSR.png) | ![CAS <sup>*(sharpness = 0.5)*</sup>](./src/example_images/output/example_shell_40px_CAS.png) |
-
-[More detailed comparisons](./src/quality_comparison/README.md)
+### [More detailed comparisons](./src/quality_comparison/README.md)
 
 <br/>
 
@@ -125,7 +104,7 @@ Results of up-scaling the image *(40px -> 160px)*:
   - **QOI** *(A bit worse compression then **PNG**, but a lot lot faster to save and load)*
   - **WEBP** *(Comparable, lossless and lossy compression, to **JPEG XL** (a bit worse on average), but with better overall support)*
   - **JPEG XL** *(New advanced compression format, better lossless compression compared to **PNG** and better lossy compared to **JPEG**)* <br> <sup>*(see [this plugin](https://github.com/saschanaz/jxl-winthumb) for Windows Support)*</sup>
-  - **AVIF** *(New advanced compression format, much much slower and with worse compression then **WEBP** and **JPEG XL**, currently no transparency because of a bug, pretty wide support)*
+  - **AVIF** *(New advanced compression format, much much slower and with worse lossless compression then **WEBP** and **JPEG XL**, currently no transparency because of a bug, pretty wide support)*
   - ***Benchmark result (size, lower is better):***
     - ***QOI:** 790 448 B*
     - ***PNG:** 675 397 B*
@@ -203,7 +182,7 @@ Results of up-scaling the image *(40px -> 160px)*:
 
 ## Performance:
 
-File size and time needed to save the image using different formats. <br>
+File size and time needed to save the image using different formats.  
 Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
 <br>*(data is currently correct but it is not what it says it is, TODO: finish this)*
 
@@ -240,7 +219,7 @@ Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
     - Summary
     - Extended summary
     - note with recommendations
-- Create a **C++ python extension*** for:
+- Create a **C++ python extension** for:
   - More optimizations and better performance
   - **ScaleFX** scaling shader
   - NVIDIAs **DLSS** and **NIS** support
@@ -249,6 +228,7 @@ Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
 - Add **filters** and **effects** support
 - Add basic **cropping** and **rotating** support
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
+- Make my own scaling algorithm or AI for fun :)
 
 <br/>
 
