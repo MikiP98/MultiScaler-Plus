@@ -15,7 +15,7 @@
 
 |             DRLN *(SI)* <sup>*(DRLN-BAM for <4x)*<sup>              |                                  RealESRGAN                                  |                                Anime4K                                 |                                HSDBTRE                                 |
 |:-------------------------------------------------------------------:|:----------------------------------------------------------------------------:|:----------------------------------------------------------------------:|:----------------------------------------------------------------------:|
-| ![DRLN](../example_images/output/SI_DRLN_example_shell_40px_4x.png) | ![RealESRGAN](../example_images/output/RealESRGAN_example_shell_40px_4x.png) | ![Anime4K](../example_images/output/Anime4K_example_shell_40px_4x.png) | ![HSDBTRE](../example_images/output/HSDBTRE_example_shell_40px_4x.png) |
+| ![DRLN](../example_images/output/SI_drln_example_shell_40px_4x.png) | ![RealESRGAN](../example_images/output/RealESRGAN_example_shell_40px_4x.png) | ![Anime4K](../example_images/output/Anime4K_example_shell_40px_4x.png) | ![HSDBTRE](../example_images/output/HSDBTRE_example_shell_40px_4x.png) |
 
 
 |                    NEDI <sup>*(m = 4)*</sup>                     |                                 Super xBR                                  |                               xBRZ                               |                          FSR *1.1*                          |
