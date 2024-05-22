@@ -13,7 +13,7 @@
 | ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](../example_images/output/CV2_INTER_NEAREST_example_shell_40px_4x.png) | ![Bicubic](../example_images/output/CV2_INTER_CUBIC_example_shell_40px_4x.png) | ![Lanczos](../example_images/output/CV2_INTER_LANCZOS4_example_shell_40px_4x.png) |
 
 
-|              DRLN <sup>*(SI) (DRLN-BAM for <4x)*<sup>               |                                  RealESRGAN                                  |                                Anime4K                                 |                                HSDBTRE                                 |
+|                DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                |                                  RealESRGAN                                  |                                Anime4K                                 |                                HSDBTRE                                 |
 |:-------------------------------------------------------------------:|:----------------------------------------------------------------------------:|:----------------------------------------------------------------------:|:----------------------------------------------------------------------:|
 | ![DRLN](../example_images/output/SI_drln_example_shell_40px_4x.png) | ![RealESRGAN](../example_images/output/RealESRGAN_example_shell_40px_4x.png) | ![Anime4K](../example_images/output/Anime4K_example_shell_40px_4x.png) | ![HSDBTRE](../example_images/output/HSDBTRE_example_shell_40px_4x.png) |
 
