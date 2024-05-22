@@ -191,7 +191,7 @@ Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack + example shell
 | **QOI**     | *30 006 495* | *2.017-*    |
 | **WEBP**    | *11 396 360* | *19.904-*   |
 | **JPEG XL** | *11 947 953* | *56.468-*   |
-| **AVIF**    | *17 282 612* | *691.370+*  |
+| **AVIF***   | *17 282 612* | *691.370+*  |
 
 Different test on random collection of smaller files:
 
@@ -201,9 +201,11 @@ Different test on random collection of smaller files:
 | **QOI**     | *790 448*  |
 | **WEBP**    | *444 538*  |
 | **JPEG XL** | *450 085*  |
-| **AVIF**    | *507 384*  |
+| **AVIF***   | *507 384*  |
 
-<br/>
+<sup>*AVIF does not have transparency for some unknown reason</sup>
+
+[//]: # (<br/>)
 
 ## Roadmap:
 
