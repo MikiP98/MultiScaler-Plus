@@ -32,6 +32,14 @@
 |:----------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
 | ![Bicubic](../example_images/output/160_Sea_Shell/CV2_INTER_CUBIC_160_Sea_Shell_4x.webp) | ![Lanczos](../example_images/output/160_Sea_Shell/CV2_INTER_LANCZOS4_160_Sea_Shell_4x.webp) |
 
+|                     DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                     |                                       RealESRGAN                                       |
+|:-----------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------:|
+| ![DRLN](../example_images/output/160_Sea_Shell/SI_drln_160_Sea_Shell_4x.webp) | ![RealESRGAN](../example_images/output/160_Sea_Shell/RealESRGAN_160_Sea_Shell_4x.webp) |
+
+|                                     Anime4K                                      |                                     HSDBTRE                                      |
+|:--------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------:|
+| ![Anime4K](../example_images/output/160_Sea_Shell/Anime4K_160_Sea_Shell_4x.webp) | ![HSDBTRE](../example_images/output/160_Sea_Shell/HSDBTRE_160_Sea_Shell_4x.webp) |
+
 ### Wiki example text *(40x109 -> 160x436)*:
 
 images coming soon
