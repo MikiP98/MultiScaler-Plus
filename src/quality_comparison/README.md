@@ -36,6 +36,14 @@
 |:--------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------:|
 | ![Anime4K](../example_images/output/160_Sea_Shell/Anime4K_160_Sea_Shell_4x.webp) | ![HSDBTRE](../example_images/output/160_Sea_Shell/HSDBTRE_160_Sea_Shell_4x.webp) |
 
+|                         NEDI <sup>*(m = 4)*</sup>                          |                                      Super xBR                                       |
+|:--------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|
+| ![NEDI](../example_images/output/160_Sea_Shell/NEDI_160_Sea_Shell_4x.webp) | ![Super xBR](../example_images/output/160_Sea_Shell/Super_xBR_160_Sea_Shell_4x.webp) |
+
+|                                    xBRZ                                    |                                FSR *1.1*                                 |
+|:--------------------------------------------------------------------------:|:------------------------------------------------------------------------:|
+| ![xBRZ](../example_images/output/160_Sea_Shell/xBRZ_160_Sea_Shell_4x.webp) | ![FSR](../example_images/output/160_Sea_Shell/FSR_160_Sea_Shell_4x.webp) |
+
 ### Wiki example text *(40x109 -> 160x436)*:
 
 images coming soon
