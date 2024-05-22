@@ -245,7 +245,7 @@ def scale_loop(
                     new_frame_array = frame_array.copy()
                     for x in range(dimensions[0]):
                         for y in range(dimensions[1]):
-                            if new_frame_array[x][y][3] != 255 or new_frame_array[x][y][3] != 0:
+                            if new_frame_array[x][y][3] != 255 and new_frame_array[x][y][3] != 0:
                                 new_frame_array[x][y][3] = 255
 
                     new_image.append(utils.cv2_to_pil(new_frame_array))
@@ -988,7 +988,7 @@ if __name__ == '__main__':
             'texture_outbound_protection': False,
             'texture_inbound_protection': False,
             'texture_mask_mode': ('alpha', 'black'),
-            'disallow_partial_transparency': False,
+            'disallow_partial_transparency': True,
 
             'sharpness': 0.5,
             'NEDI_m': 4
