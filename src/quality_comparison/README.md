@@ -40,9 +40,9 @@
 |:--------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|
 | ![NEDI](../example_images/output/160_Sea_Shell/NEDI_160_Sea_Shell_4x.webp) | ![Super xBR](../example_images/output/160_Sea_Shell/Super_xBR_160_Sea_Shell_4x.webp) |
 
-|                                    xBRZ                                    |                                FSR *1.1*                                 |
-|:--------------------------------------------------------------------------:|:------------------------------------------------------------------------:|
-| ![xBRZ](../example_images/output/160_Sea_Shell/xBRZ_160_Sea_Shell_4x.webp) | ![FSR](../example_images/output/160_Sea_Shell/FSR_160_Sea_Shell_4x.webp) |
+|                                    xBRZ                                    |                               FSR *1.1*                               |
+|:--------------------------------------------------------------------------:|:---------------------------------------------------------------------:|
+| ![xBRZ](../example_images/output/160_Sea_Shell/xBRZ_160_Sea_Shell_4x.webp) | ![FSR](../example_images/output/160_Sea_Shell/160_Sea_Shell_FSR.webp) |
 
 ### Wiki example text *(40x109 -> 160x436)*:
 
