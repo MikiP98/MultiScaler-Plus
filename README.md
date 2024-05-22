@@ -1,8 +1,8 @@
-# AutoUpscale
+# MultiScaler Plus
 
 ## Universal app for scaling images
 
-AutoUpscale is a universal app for scaling images using various algorithms.  
+**MultiScaler Plus** is a universal app for scaling images using various algorithms.  
 It can be used as a command line tool, a webUI, or as a console application.
 
 This app has **2** active versions [**Main (release)**]() and [**Dev (beta)**]()  
