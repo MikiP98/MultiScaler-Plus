@@ -967,12 +967,12 @@ if __name__ == '__main__':
         config = {
             'clear_output_directory': True,
 
-            'add_algorithm_name_to_output_files_names': True,
-            'add_factor_to_output_files_names': True,
+            'add_algorithm_name_to_output_files_names': False,
+            'add_factor_to_output_files_names': False,
 
             'sort_by_algorithm': False,
             'sort_by_scale': False,
-            'sort_by_image': True,
+            'sort_by_image': False,
             'sort_by_file_extension': -1,
 
             'file_formats': {"WEBP"},
