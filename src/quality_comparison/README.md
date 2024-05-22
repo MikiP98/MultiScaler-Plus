@@ -24,13 +24,9 @@
 
 ### Wiki Example Shell *(160px -> 640px)*:
 
-|                                          Bilinear                                          |                                          Nearest Neighbour                                           |
-|:------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------:|
-| ![Bilinear](../example_images/output/160_Sea_Shell/CV2_INTER_LINEAR_160_Sea_Shell_4x.webp) | ![Nearest Neighbour](../example_images/output/160_Sea_Shell/CV2_INTER_NEAREST_160_Sea_Shell_4x.webp) |
-
-|                                         Bicubic                                          |                                           Lanczos                                           |
-|:----------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
-| ![Bicubic](../example_images/output/160_Sea_Shell/CV2_INTER_CUBIC_160_Sea_Shell_4x.webp) | ![Lanczos](../example_images/output/160_Sea_Shell/CV2_INTER_LANCZOS4_160_Sea_Shell_4x.webp) |
+|                                          Nearest Neighbour                                           |                                         Bicubic                                          |
+|:----------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------:|
+| ![Nearest Neighbour](../example_images/output/160_Sea_Shell/CV2_INTER_NEAREST_160_Sea_Shell_4x.webp) | ![Bicubic](../example_images/output/160_Sea_Shell/CV2_INTER_CUBIC_160_Sea_Shell_4x.webp) |
 
 |                     DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                     |                                       RealESRGAN                                       |
 |:-----------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------:|
