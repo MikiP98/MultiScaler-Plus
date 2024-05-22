@@ -5,7 +5,7 @@
 AutoUpscale is a universal app for scaling images using various algorithms.  
 It can be used as a command line tool, a webUI, or as a console application.
 
-This app has 2 active versions [**Main (release)**]() and [**Dev (beta)**]()  
+This app has **2** active versions [**Main (release)**]() and [**Dev (beta)**]()  
 If you use the **Main** branch and see on roadmap some feature you would like to use,  
 check the **Dev** branch to see if it's already implemented!  
 To switch between branches, use the `git checkout {main/dev}` command.
