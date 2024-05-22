@@ -8,7 +8,8 @@ It can be used as a command line tool, a webUI, or as a console application.
 This app has **2** active versions [**Main (release)**]() and [**Dev (beta)**]()  
 If you use the **Main** branch and see on roadmap some feature you would like to use,  
 check the **Dev** branch to see if it's already implemented!  
-To switch between branches, use the `git checkout {main/dev}` command.
+To switch between branches, use the `git checkout {main/dev}` command  
+If feature you are interested in is not in either branch's roadmap, feel free to create a **Feature Request** issue!
 
 ## Supported algorithms
 - **Classical Algorithms** <sup>(Up-scaling and downscaling)</sup>:
