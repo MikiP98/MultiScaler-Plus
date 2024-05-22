@@ -218,7 +218,7 @@ Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack
     - Summary
     - Extended summary
     - note with recommendations
-- Create a **C++ python extension*** for:
+- Create a **C++ python extension** for:
   - More optimizations and better performance
   - **ScaleFX** scaling shader
   - NVIDIAs **DLSS** and **NIS** support
