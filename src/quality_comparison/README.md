@@ -8,23 +8,29 @@
 
 ### Wiki Example Shell *(40px -> 160px)*:
 
-|                                                      Original                                                      |                                     Nearest Neighbour                                      |                                    Bicubic                                     |                                      Lanczos                                      |
-|:------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------:|
-| ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](../example_images/output/CV2_INTER_NEAREST_example_shell_40px_4x.png) | ![Bicubic](../example_images/output/CV2_INTER_CUBIC_example_shell_40px_4x.png) | ![Lanczos](../example_images/output/CV2_INTER_LANCZOS4_example_shell_40px_4x.png) |
+|                                                      Original                                                      |                                               Nearest Neighbour                                               |                                              Bicubic                                              |                                               Lanczos                                                |
+|:------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------:|
+| ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](../example_images/output/example_shell_40px/CV2_INTER_NEAREST_example_shell_40px_4x.png) | ![Bicubic](../example_images/output/example_shell_40px/CV2_INTER_CUBIC_example_shell_40px_4x.png) | ![Lanczos](../example_images/output/example_shell_40px/CV2_INTER_LANCZOS4_example_shell_40px_4x.png) |
 
 
-|                DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                |                                  RealESRGAN                                  |                                Anime4K                                 |                                HSDBTRE                                 |
-|:-------------------------------------------------------------------:|:----------------------------------------------------------------------------:|:----------------------------------------------------------------------:|:----------------------------------------------------------------------:|
-| ![DRLN](../example_images/output/SI_drln_example_shell_40px_4x.png) | ![RealESRGAN](../example_images/output/RealESRGAN_example_shell_40px_4x.png) | ![Anime4K](../example_images/output/Anime4K_example_shell_40px_4x.png) | ![HSDBTRE](../example_images/output/HSDBTRE_example_shell_40px_4x.png) |
+|                         DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                          |                                           RealESRGAN                                            |                                          Anime4K                                          |                                          HSDBTRE                                          |
+|:--------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------:|
+| ![DRLN](../example_images/output/example_shell_40px/SI_drln_example_shell_40px_4x.png) | ![RealESRGAN](../example_images/output/example_shell_40px/RealESRGAN_example_shell_40px_4x.png) | ![Anime4K](../example_images/output/example_shell_40px/Anime4K_example_shell_40px_4x.png) | ![HSDBTRE](../example_images/output/example_shell_40px/HSDBTRE_example_shell_40px_4x.png) |
 
 
-|                    NEDI <sup>*(m = 4)*</sup>                     |                                 Super xBR                                  |                               xBRZ                               |                          FSR *1.1*                          |
-|:----------------------------------------------------------------:|:--------------------------------------------------------------------------:|:----------------------------------------------------------------:|:-----------------------------------------------------------:|
-| ![NEDI](../example_images/output/NEDI_example_shell_40px_4x.png) | ![Super xBR](../example_images/output/Super_xBR_example_shell_40px_4x.png) | ![xBRZ](../example_images/output/xBRZ_example_shell_40px_4x.png) | ![FSR](../example_images/output/example_shell_40px_FSR.png) |
+|                              NEDI <sup>*(m = 4)*</sup>                              |                                           Super xBR                                           |                                        xBRZ                                         |                                   FSR *1.1*                                    |
+|:-----------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|:------------------------------------------------------------------------------:|
+| ![NEDI](../example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.png) | ![Super xBR](../example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.png) | ![xBRZ](../example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.png) | ![FSR](../example_images/output/example_shell_40px/example_shell_40px_FSR.png) |
 
 ### Wiki Example Shell *(160px -> 640px)*:
 
-images coming soon
+|                                          Bilinear                                          |                                          Nearest Neighbour                                           |
+|:------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------:|
+| ![Bilinear](../example_images/output/160_Sea_Shell/CV2_INTER_LINEAR_160_Sea_Shell_4x.webp) | ![Nearest Neighbour](../example_images/output/160_Sea_Shell/CV2_INTER_NEAREST_160_Sea_Shell_4x.webp) |
+
+|                                         Bicubic                                          |                                           Lanczos                                           |
+|:----------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
+| ![Bicubic](../example_images/output/160_Sea_Shell/CV2_INTER_CUBIC_160_Sea_Shell_4x.webp) | ![Lanczos](../example_images/output/160_Sea_Shell/CV2_INTER_LANCZOS4_160_Sea_Shell_4x.webp) |
 
 ### Wiki example text *(40x109 -> 160x436)*:
 
