@@ -64,8 +64,11 @@ class Algorithms(IntEnum):
     SI_rcan_bam = 36
 
     Super_xBR = 37
-    SUPIR = 38
-    xBRZ = 39
+    xBRZ = 38
+
+    # Docker start
+    SUPIR = 39
+    Waifu2x = 40
 
 
 class Filters(IntEnum):

@@ -16,6 +16,9 @@ termcolor
 torch
 uvicorn[standard]
 
+# Optional
+docker
+
 setuptools
 wheel
 
