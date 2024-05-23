@@ -2,6 +2,8 @@
 import argparse
 import concurrent.futures
 import multiprocessing
+import time
+
 import numpy as np
 import os
 import PIL.Image
@@ -44,7 +46,10 @@ format_to_extension = {
 }
 
 
+# time_of_file_extension = {}
 def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, scale, config: dict) -> None:
+    # global time_of_file_extension
+
     # print(f"Saving algorithm: {algorithm} {algorithm.name}, root: {root}, file: {file}, scale: {scale}")
     path = os.path.join(root, file)
 
@@ -91,6 +96,9 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
     new_file_name_parts = new_file_name.split('.')
 
     for file_format in config['file_formats']:
+        # Start timer
+        start_time = time.time()
+
         new_file_name = '.'.join(new_file_name_parts[:-1]) + '.' + format_to_extension[file_format]
         file_format_dir = ""
         if config['sort_by_file_extension'] == 1:
@@ -155,6 +163,19 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
                 image.save(output_path, quality=config['quality'], speed=0, range="full")
 
         print(colored(f"{output_path} Saved!", 'light_green'))
+
+        # # Stop timer
+        # end_time = time.time()
+        # difference = end_time - start_time
+        # if file_format not in time_of_file_extension:
+        #     time_of_file_extension[file_format] = difference
+        # else:
+        #     time_of_file_extension[file_format] += difference
+
+    # # save the time of each file extension to a file
+    # with open("../output/time_of_file_extension.txt", "w+") as f:
+    #     for key in time_of_file_extension:
+    #         f.write(f"{key}: {time_of_file_extension[key]}\n")
 
 
 def save_images_chunk(args) -> None:
@@ -245,7 +266,7 @@ def scale_loop(
                     new_frame_array = frame_array.copy()
                     for x in range(dimensions[0]):
                         for y in range(dimensions[1]):
-                            if new_frame_array[x][y][3] != 255 or new_frame_array[x][y][3] != 0:
+                            if new_frame_array[x][y][3] != 255 and new_frame_array[x][y][3] != 0:
                                 new_frame_array[x][y][3] = 255
 
                     new_image.append(utils.cv2_to_pil(new_frame_array))
@@ -975,7 +996,7 @@ if __name__ == '__main__':
             'sort_by_image': False,
             'sort_by_file_extension': -1,
 
-            'file_formats': {"WEBP"},
+            'file_formats': {"PNG", "WEBP", "JPEG_XL", "AVIF", "QOI"},
             'lossless_compression': True,
             'additional_lossless_compression': True,
             'quality': 95,
@@ -984,7 +1005,7 @@ if __name__ == '__main__':
             'max_processes': (2, 2, 2),
             'override_processes_count': False,
 
-            'copy_mcmeta': True,
+            'copy_mcmeta': False,
             'texture_outbound_protection': False,
             'texture_inbound_protection': False,
             'texture_mask_mode': ('alpha', 'black'),
