@@ -479,6 +479,13 @@ def scale_image_batch(
             scaled_images.append(utils.Image(new_image_object_list))
         return scaled_images
 
+    if algorithm == Algorithms.Waifu2x or Algorithms.SUPIR:
+        import docker
+        client = docker.from_env()
+        if algorithm == Algorithms.Waifu2x:
+            ...
+        raise NotImplementedError("Waifu2x and SUPIR are not implemented yet!")
+
     match algorithm:
         case Algorithms.xBRZ:  # TODO: Use RGB mode if the image is not RGBA
             for image_object in images:
@@ -620,9 +627,6 @@ def scale_image_batch(
                         )
                     new_image_object_list.append(scaled_image)
                 scaled_images.append(utils.Image(new_image_object_list))
-
-        case Algorithms.SUPIR:
-            raise NotImplementedError("Not implemented yet")
 
         case Algorithms.FSR:
             if config_plus is None:
