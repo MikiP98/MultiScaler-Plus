@@ -483,7 +483,28 @@ def scale_image_batch(
         import docker
         client = docker.from_env()
         if algorithm == Algorithms.Waifu2x:
-            ...
+            # Define the image name
+            image_name = 'waifu2x-python:3.11'
+
+            # Check if the image exists
+            try:
+                image = client.images.get(image_name)
+                print("Image exists")
+            except docker.errors.ImageNotFound:
+                tar_file_path = 'docker/images/waifu2x.tar'
+                try:
+                    with open(tar_file_path, 'rb') as file:
+                        client.images.load(file.read())
+                except FileNotFoundError:
+                    print("Image does not exist. Building it...")
+                    # Build the image
+                    client.images.build(path='docker/files/waifu2x', tag=image_name)
+
+                image = client.images.get(image_name)
+                print("Image exists")
+            except docker.errors.APIError as e:
+                print(f"An error occurred: {e}")
+
         raise NotImplementedError("Waifu2x and SUPIR are not implemented yet!")
 
     match algorithm:
