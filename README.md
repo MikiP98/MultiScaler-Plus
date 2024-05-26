@@ -231,6 +231,7 @@ Different test on random collection of smaller files:
 - Add basic **cropping** and **rotating** support
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
 - Make my own scaling algorithm or AI for fun :)
+- Add better tilable texture support (x4 and x9) (duplicate texture, scale, cut the middle)
 
 <br/>
 
