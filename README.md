@@ -177,7 +177,7 @@ A summary of best and most unique results of up-scaling the image *(40px -> 160p
 
 ## Performance:
 
-File size and time needed to save the image using different formats with lossless compression.  
+File size and time needed to save the image using different formats with lossless+ compression.  
 Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack + example shell:
 
 | File format | Size *(B)*   | Time *(~s)* |
