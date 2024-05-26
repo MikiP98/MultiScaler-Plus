@@ -231,7 +231,11 @@ Different test on random collection of smaller files:
 - Add basic **cropping** and **rotating** support
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
 - Make my own scaling algorithm or AI for fun :)
-- Add better tilable texture support (x4 and x9) (duplicate texture, scale, cut the middle)
+- Add better tileable texture support *(duplicate texture inside 3x3 grid then scale and cut the middle one for the output)*
+  - Add scaling by duplication
+    - Add an offset option for the duplication *(both X and Y)* *(from 0 to 1)*
+  - Add quality option for tileable texture support *(from 0 to 1)* *(1 being full 3x3 grid 0.5 being full middle and half of image for all side from there)*
+    - Add an option to specify quality in pixels instead of percentage
 
 <br/>
 
