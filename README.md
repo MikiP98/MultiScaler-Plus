@@ -236,6 +236,7 @@ Different test on random collection of smaller files:
     - Add an **offset option** for the duplication *(both X and Y)* *(from 0 to 1)*
   - Add **quality option** for **tileable texture support** *(from 0 to 1)* *(1 being full 3x3 grid 0.5 being full middle and half of image for all side from there)*
     - Add an **option** to specify quality in **pixels** instead of **percentage**
+- Add palette mode support for WEBP for additional lossless compression
 
 <br/>
 
