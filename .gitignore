@@ -32,6 +32,9 @@ src/weights/RealESRGAN_x8.pth
 .coverage
 src/.coverage
 
+# DC rich presence plugin
+.idea/discord.xml
+
 
 
 # FROM HERE ON, ALL THIGHS BELOW ARE FROM THE DEFAULT JETBRAINS .GITIGNORE FILE

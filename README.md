@@ -177,7 +177,7 @@ A summary of best and most unique results of up-scaling the image *(40px -> 160p
 
 ## Performance:
 
-File size and time needed to save the image using different formats with lossless compression.  
+File size and time needed to save the image using different formats with lossless+ compression.  
 Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack + example shell:
 
 | File format | Size *(B)*   | Time *(~s)* |
@@ -204,8 +204,6 @@ Different test on random collection of smaller files:
 
 ## Roadmap:
 
-- Add ***Performance*** / ***Benchmarks*** section to the **README**
-- Optimize the code, remove unnecessary parts and duplicates
 - Rewrite and update the **WebUI**
 - Add support for **Waifu2x** and **Supir** AIs via **Docker**
   - Add lambda GPU *(or other)* connection support for **Supir** and others
@@ -218,10 +216,8 @@ Different test on random collection of smaller files:
 - Add **image tracing** scaling algorithm and support for **SVG** format
 - Add proper **HDR** support <sup> *(I think **JPEG XL**, **WEBP** and **AVIF** may have some already)* </sup>
 - Add better image quality comparison:
-  - Replace the one in README with a summary one
   - Create a separate subfolder with new comparison markdown page:
     - Sorted by type of algorithm
-    - With all
     - Summary
     - Extended summary
     - note with recommendations
@@ -235,6 +231,12 @@ Different test on random collection of smaller files:
 - Add basic **cropping** and **rotating** support
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
 - Make my own scaling algorithm or AI for fun :)
+- Add better **tileable texture** support *(duplicate texture inside 3x3 grid then scale and cut the middle one for the output)*
+  - Add **scaling by duplication**
+    - Add an **offset option** for the duplication *(both X and Y)* *(from 0 to 1)*
+  - Add **quality option** for **tileable texture support** *(from 0 to 1)* *(1 being full 3x3 grid 0.5 being full middle and half of image for all side from there)*
+    - Add an **option** to specify quality in **pixels** instead of **percentage**
+- Add palette mode support for WEBP for additional lossless compression
 
 <br/>
 
