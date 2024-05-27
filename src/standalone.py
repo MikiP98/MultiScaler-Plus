@@ -218,11 +218,57 @@ def scale_loop(
         config_plus = {
             'NEDI_m': config['NEDI_m']
         }
+    elif algorithm == Algorithms.Repetition:
+        config_plus = {
+            'offset_x': config['offset_x'],
+            'offset_y': config['offset_y']
+        }
     else:
         config_plus = None
 
+    if config['try_to_fix_texture_tiling']:
+        print("Texture tiling fix is enabled, starting preparation...")
+        scale = 1 + 2 * config['tiling_fix_quality']
+        offset = 1 - config['tiling_fix_quality']
+        temp_config_plus = {
+            'offset_x': offset,
+            'offset_y': offset
+        }
+        images = scaler.scale_image_batch(Algorithms.Repetition, images, [scale], config_plus=temp_config_plus)
+        print(colored("Preparation done", 'green'))
+
     image_objects = scaler.scale_image_batch(algorithm, images, scales, config_plus=config_plus)
     print(colored("Scaling done\n", 'green'))
+
+    if config['try_to_fix_texture_tiling']:
+        print("Texture tiling fix is enabled, cutting texture...")
+        new_image_objects = []
+        for image_obj in image_objects:
+            scaled_images = []
+            for scaled_image in image_obj.images:
+                new_image = []
+                for frame in scaled_image:
+                    width, height = frame.size
+                    new_width = round(width / (1 + 2 * config['tiling_fix_quality']))
+                    new_height = round(height / (1 + 2 * config['tiling_fix_quality']))
+
+                    new_frame = PIL.Image.new(frame.mode, (new_width, new_height))
+                    for x in range(new_width):
+                        for y in range(new_height):
+                            new_frame.putpixel(
+                                (x, y),
+                                frame.getpixel(
+                                    (
+                                        x + new_width * config['tiling_fix_quality'],
+                                        y + new_height * config['tiling_fix_quality']
+                                    )
+                                )
+                            )
+
+                    new_image.append(new_frame)
+                scaled_images.append(new_image)
+            new_image_objects.append(utils.Image(scaled_images))
+        image_objects = new_image_objects
 
     if config['texture_outbound_protection']:
         print("Applying texture outbound protection...")
@@ -673,7 +719,9 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         # TODO: Implement this, prevents multi-face (in 1 image) textures to not fully cover current textures border
         'texture_mask_mode': ('alpha', 'black'),
         # What should be used to make the mask, 1st is when alpha is present, 2nd when it is not  TODO: add more options
-        'disallow_partial_transparency': False,  # TODO: Implement this
+        'disallow_partial_transparency': False,
+        'try_to_fix_texture_tiling': False,
+        'tiling_fix_quality': 1.0,
 
         'sharpness': 0.5,
         'NEDI_m': 4
@@ -988,15 +1036,15 @@ if __name__ == '__main__':
         config = {
             'clear_output_directory': True,
 
-            'add_algorithm_name_to_output_files_names': False,
-            'add_factor_to_output_files_names': False,
+            'add_algorithm_name_to_output_files_names': True,
+            'add_factor_to_output_files_names': True,
 
             'sort_by_algorithm': False,
             'sort_by_scale': False,
             'sort_by_image': False,
             'sort_by_file_extension': -1,
 
-            'file_formats': {"PNG", "WEBP", "JPEG_XL", "AVIF", "QOI"},
+            'file_formats': {"WEBP"},
             'lossless_compression': True,
             'additional_lossless_compression': True,
             'quality': 95,
@@ -1010,12 +1058,13 @@ if __name__ == '__main__':
             'texture_inbound_protection': False,
             'texture_mask_mode': ('alpha', 'black'),
             'disallow_partial_transparency': False,
+            'try_to_fix_texture_tiling': False,
+            'tiling_fix_quality': 1.0,
 
             'sharpness': 0.5,
             'NEDI_m': 4
         }
-        # algorithms = [Algorithms.xBRZ]
-        algorithms = [Algorithms.CV2_INTER_AREA]
+        algorithms = [Algorithms.Repetition]
         # algorithms = [
         #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
         #     Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx,
@@ -1039,13 +1088,17 @@ if __name__ == '__main__':
         #     Algorithms.NEDI, Algorithms.Super_xBR,
         #     Algorithms.xBRZ, Algorithms.FSR
         # ]
-        scales = [1]
+        scales = [3]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
         # config['NEDI_m'] = 4
+        config['offset_x'] = 0
+        config['offset_y'] = 0
     else:
         algorithms, scales, sharpness, nedi_m, config = handle_user_input()
         config['sharpness'] = sharpness
         config['NEDI_m'] = nedi_m
+        config['offset_x'] = 0.5
+        config['offset_y'] = 0.5
     print(f"Received algorithms: {colored(algorithms, 'blue')}")
     print(f"Received scales: {colored(scales, 'blue')}")
     print("Using config: ", end='')

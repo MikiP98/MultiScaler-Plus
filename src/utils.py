@@ -44,31 +44,32 @@ class Algorithms(IntEnum):
     PIL_LANCZOS = 18  # less blur than bicubic, but artifacts may appear
     PIL_NEAREST_NEIGHBOR = 19
     RealESRGAN = 20
+    Repetition = 21
 
-    SI_drln_bam = 21
-    SI_edsr = 22
-    SI_msrn = 23
-    SI_mdsr = 24
-    SI_msrn_bam = 25
-    SI_edsr_base = 26
-    SI_mdsr_bam = 27
-    SI_awsrn_bam = 28
-    SI_a2n = 29
-    SI_carn = 30
-    SI_carn_bam = 31
-    SI_pan = 32
-    SI_pan_bam = 33
+    SI_drln_bam = 22
+    SI_edsr = 23
+    SI_msrn = 24
+    SI_mdsr = 25
+    SI_msrn_bam = 26
+    SI_edsr_base = 27
+    SI_mdsr_bam = 28
+    SI_awsrn_bam = 29
+    SI_a2n = 30
+    SI_carn = 31
+    SI_carn_bam = 32
+    SI_pan = 33
+    SI_pan_bam = 34
 
-    SI_drln = 34
-    SI_han = 35
-    SI_rcan_bam = 36
+    SI_drln = 35
+    SI_han = 36
+    SI_rcan_bam = 37
 
-    Super_xBR = 37
-    xBRZ = 38
+    Super_xBR = 38
+    xBRZ = 39
 
     # Docker start
-    SUPIR = 39
-    Waifu2x = 40
+    SUPIR = 40
+    Waifu2x = 41
 
 
 class Filters(IntEnum):

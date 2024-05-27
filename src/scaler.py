@@ -479,6 +479,37 @@ def scale_image_batch(
             scaled_images.append(utils.Image(new_image_object_list))
         return scaled_images
 
+    if algorithm == Algorithms.Repetition:
+        if config_plus is None:
+            print(colored("config_plus is None! Creating empty config_plus!", 'yellow'))
+            config_plus = {}
+        if 'offset_x' not in config_plus:
+            print(colored("offset_x not in config_plus! Using default value: 0", 'yellow'))
+            config_plus['offset_x'] = 0
+        if 'offset_y' not in config_plus:
+            print(colored("offset_y not in config_plus! Using default value: 0", 'yellow'))
+            config_plus['offset_y'] = 0
+
+        for image_object in images:
+            new_image_object_list = []
+            for factor in factors:
+                scaled_image = []
+                for frame in image_object.images[0]:
+                    width, height = frame.size
+                    offset_x = round(config_plus['offset_x'] * width)
+                    offset_y = round(config_plus['offset_y'] * height)
+                    output_width, output_height = round(width * factor), round(height * factor)
+
+                    new_frame = PIL.Image.new(frame.mode, (output_width, output_height))
+                    for x in range(output_width):
+                        for y in range(output_height):
+                            new_frame.putpixel((x, y), frame.getpixel(((x + offset_x) % width, (y + offset_y) % height)))
+
+                    scaled_image.append(new_frame)
+                new_image_object_list.append(scaled_image)
+            scaled_images.append(utils.Image(new_image_object_list))
+        return scaled_images
+
     match algorithm:
         case Algorithms.xBRZ:  # TODO: Use RGB mode if the image is not RGBA
             for image_object in images:
