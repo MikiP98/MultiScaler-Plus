@@ -1036,15 +1036,15 @@ if __name__ == '__main__':
         config = {
             'clear_output_directory': True,
 
-            'add_algorithm_name_to_output_files_names': True,
-            'add_factor_to_output_files_names': True,
+            'add_algorithm_name_to_output_files_names': False,
+            'add_factor_to_output_files_names': False,
 
             'sort_by_algorithm': False,
             'sort_by_scale': False,
             'sort_by_image': False,
             'sort_by_file_extension': -1,
 
-            'file_formats': {"WEBP"},
+            'file_formats': {"PNG"},
             'lossless_compression': True,
             'additional_lossless_compression': True,
             'quality': 95,
@@ -1054,8 +1054,8 @@ if __name__ == '__main__':
             'override_processes_count': False,
 
             'copy_mcmeta': False,
-            'texture_outbound_protection': False,
-            'texture_inbound_protection': False,
+            'texture_outbound_protection': True,
+            'texture_inbound_protection': True,
             'texture_mask_mode': ('alpha', 'black'),
             'disallow_partial_transparency': False,
             'try_to_fix_texture_tiling': False,
@@ -1064,7 +1064,7 @@ if __name__ == '__main__':
             'sharpness': 0.5,
             'NEDI_m': 4
         }
-        algorithms = [Algorithms.Repetition]
+        algorithms = [Algorithms.xBRZ]
         # algorithms = [
         #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
         #     Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx,
@@ -1088,7 +1088,7 @@ if __name__ == '__main__':
         #     Algorithms.NEDI, Algorithms.Super_xBR,
         #     Algorithms.xBRZ, Algorithms.FSR
         # ]
-        scales = [3]
+        scales = [4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
         # config['NEDI_m'] = 4
         config['offset_x'] = 0
