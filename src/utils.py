@@ -6,7 +6,7 @@ import io
 import numpy as np
 import PIL.Image
 import struct
-from enum import IntEnum
+from enum import IntEnum, auto
 
 
 class Image:
@@ -21,51 +21,51 @@ class Image:
 class Algorithms(IntEnum):
     CPP_DEBUG = -1
 
-    Anime4K = 0
-    CAS = 1  # contrast adaptive sharpening
-    CV2_INTER_AREA = 2  # resampling using pixel area relation
-    CV2_INTER_CUBIC = 3  # bicubic interpolation over 4x4 pixel neighborhood
-    CV2_INTER_LANCZOS4 = 4  # Lanczos interpolation over 8x8 pixel neighborhood
-    CV2_INTER_LINEAR = 5  # bilinear interpolation
-    CV2_INTER_NEAREST = 6  # nearest-neighbor interpolation
-    CV2_EDSR = 7  # Enhanced Deep Super-Resolution
-    CV2_ESPCN = 8  # Efficient Sub-Pixel Convolutional Neural Network
-    CV2_FSRCNN = 9  # Fast Super-Resolution Convolutional Neural Network
-    CV2_FSRCNN_small = 10  # Fast Super-Resolution Convolutional Neural Network - Small
-    CV2_LapSRN = 11  # Laplacian Super-Resolution Network
-    FSR = 12  # FidelityFX Super Resolution
-    hqx = 13  # high quality scale
+    Anime4K = auto()
+    CAS = auto()  # contrast adaptive sharpening
+    CV2_INTER_AREA = auto()  # resampling using pixel area relation
+    CV2_INTER_CUBIC = auto()  # bicubic interpolation over 4x4 pixel neighborhood
+    CV2_INTER_LANCZOS4 = auto()  # Lanczos interpolation over 8x8 pixel neighborhood
+    CV2_INTER_LINEAR = auto()  # bilinear interpolation
+    CV2_INTER_NEAREST = auto()  # nearest-neighbor interpolation
+    CV2_EDSR = auto()  # Enhanced Deep Super-Resolution
+    CV2_ESPCN = auto()  # Efficient Sub-Pixel Convolutional Neural Network
+    CV2_FSRCNN = auto()  # Fast Super-Resolution Convolutional Neural Network
+    CV2_FSRCNN_small = auto()  # Fast Super-Resolution Convolutional Neural Network - Small
+    CV2_LapSRN = auto()  # Laplacian Super-Resolution Network
+    FSR = auto()  # FidelityFX Super Resolution
+    hqx = auto()  # high quality scale
 
-    HSDBTRE = 14
+    HSDBTRE = auto()
 
-    NEDI = 15  # New Edge-Directed Interpolation
-    PIL_BICUBIC = 16  # less blur and artifacts than bilinear, but slower
-    PIL_BILINEAR = 17
-    PIL_LANCZOS = 18  # less blur than bicubic, but artifacts may appear
-    PIL_NEAREST_NEIGHBOR = 19
-    RealESRGAN = 20
+    NEDI = auto()  # New Edge-Directed Interpolation
+    PIL_BICUBIC = auto()  # less blur and artifacts than bilinear, but slower
+    PIL_BILINEAR = auto()
+    PIL_LANCZOS = auto()  # less blur than bicubic, but artifacts may appear
+    PIL_NEAREST_NEIGHBOR = auto()
+    RealESRGAN = auto()
 
-    SI_drln_bam = 21
-    SI_edsr = 22
-    SI_msrn = 23
-    SI_mdsr = 24
-    SI_msrn_bam = 25
-    SI_edsr_base = 26
-    SI_mdsr_bam = 27
-    SI_awsrn_bam = 28
-    SI_a2n = 29
-    SI_carn = 30
-    SI_carn_bam = 31
-    SI_pan = 32
-    SI_pan_bam = 33
+    SI_drln_bam = auto()
+    SI_edsr = auto()
+    SI_msrn = auto()
+    SI_mdsr = auto()
+    SI_msrn_bam = auto()
+    SI_edsr_base = auto()
+    SI_mdsr_bam = auto()
+    SI_awsrn_bam = auto()
+    SI_a2n = auto()
+    SI_carn = auto()
+    SI_carn_bam = auto()
+    SI_pan = auto()
+    SI_pan_bam = auto()
 
-    SI_drln = 34
-    SI_han = 35
-    SI_rcan_bam = 36
+    SI_drln = auto()
+    SI_han = auto()
+    SI_rcan_bam = auto()
 
-    Super_xBR = 37
-    SUPIR = 38
-    xBRZ = 39
+    Super_xBR = auto()
+    SUPIR = auto()
+    xBRZ = auto()
 
 
 class Filters(IntEnum):
