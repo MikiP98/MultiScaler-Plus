@@ -1,10 +1,17 @@
-# AutoUpscale
+# MultiScaler Plus
 
 ## Universal app for scaling images
 
-AutoUpscale is a universal app for scaling images. It can be used as a command line tool, a web GUI, or a console application.
+**MultiScaler Plus** is a universal app for scaling images using various algorithms.  
+It can be used as a command line tool, a webUI, or as a console application.
 
-### Supported algorithms
+This app has **2** active versions [**Main (release)**]() and [**Dev (beta)**]()  
+If you use the **Main** branch and see on roadmap some feature you would like to use,  
+check the **Dev** branch to see if it's already implemented!  
+To switch between branches, use the `git checkout {main/dev}` command  
+If feature you are interested in is not in either branch's roadmap, feel free to create a **Feature Request** issue!
+
+## Supported algorithms
 - **Classical Algorithms** <sup>(Up-scaling and downscaling)</sup>:
   - **Bicubic** *(Better than bilinear, less blur, more detail, higher contrast)*
   - **Bilinear** *(Second-simplest algorithm, most common and most blurry)*
@@ -30,7 +37,7 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
   - **MSRN-BAM**
   - **PAN**
   - **PAN-BAM**
-  - **RCAN-BAM**,
+  - **RCAN-BAM**
   - **RealESRGAN** *(improved ESRGAN)* *(recommended)*
   - **Anime4K** *(recommended)*
   - **HSDBTRE** *(hybrid of DRLN and RealESRGAN AIs)* *(recommended)*
@@ -45,14 +52,15 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
 
 <br/>
 
-### Installation:
+## Installation:
 1. Make sure you have installed on your system:
-   - **Python 3.12**
-   - **Node.js** *(16.0.0 or newer)*
-2. Clone this repository
+   - **[Python](https://www.python.org/downloads/) 3.12** <sup>(minor version does not matter)</sup>
+   - [**Node.js**](https://nodejs.org/en/download/prebuilt-installer) *(16.0.0 or newer)*
+   - **[*OPTIONAL*] [Docker](https://docs.docker.com/get-docker/)** *(for **Waifu2x** & **Supir**)*
+2. Clone this repository `git clone "https://github.com/MikiP98/MultiScaler-Plus"`
 3. Run the included `install.bat` script
 
-### Usage:
+## Usage:
 - **Command line tool**:
   - Run the included `run_console.bat` script
   - Run the python script manually: `python src/standalone.py`
@@ -62,71 +70,50 @@ AutoUpscale is a universal app for scaling images. It can be used as a command l
 
 <br/>
 
-### Examples:
-**Example - Wiki Shell:**
+## Examples:
+### Example - Wiki Shell:
 
-Scaled down image *(40px)*:
-
+Scaled down image *(40px)*: <br>
 ![Wiki Example Shell - Small](./src/example_images/input/example_shell_40px.png)
 
-Results of up-scaling the image *(40px -> 160px)*:
+A summary of best and most unique results of up-scaling the image *(40px -> 160px)*:
 
-| Original | Nearest Neighbour | Bilinear | Bicubic |
-| :---: | :---: | :---: | :---: |
-| ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](./src/example_images/output/CV2_INTER_NEAREST_example_shell_40px_4x.png) | ![Bilinear](./src/example_images/output/CV2_INTER_LINEAR_example_shell_40px_4x.png) | ![Bicubic](./src/example_images/output/CV2_INTER_CUBIC_example_shell_40px_4x.png) |
+|                                                      Original                                                      |                                                Nearest Neighbour                                                |                                               Bicubic                                               |                                                Lanczos                                                 |
+|:------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------:|
+| ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](src/example_images/output/example_shell_40px/CV2_INTER_NEAREST_example_shell_40px_4x.webp) | ![Bicubic](src/example_images/output/example_shell_40px/CV2_INTER_CUBIC_example_shell_40px_4x.webp) | ![Lanczos](src/example_images/output/example_shell_40px/CV2_INTER_LANCZOS4_example_shell_40px_4x.webp) |
 
-| Lanczos | EDSR *(CV2)* | ESPCN *(CV2)* | FSRCNN *(CV2)* |
-| :---: | :---: | :---: | :---: |
-| ![Lanczos](./src/example_images/output/CV2_INTER_LANCZOS4_example_shell_40px_4x.png) | ![EDSR *(CV2)*](./src/example_images/output/CV2_EDSR_example_shell_40px_4x.png) | ![ESPCN *(CV2)*](./src/example_images/output/CV2_ESPCN_example_shell_40px_4x.png) | ![FSRCNN *(CV2)*](./src/example_images/output/CV2_FSRCNN_example_shell_40px_4x.png) |
 
-| FSRCNN-small *(CV2)* | LapSRN *(CV2)* | A2N *(SI)* | AWSRN-BAM *(SI)* |
-| :---: | :---: | :---: | :---: |
-| ![FSRCNN-small *(CV2)*](./src/example_images/output/CV2_FSRCNN_small_example_shell_40px_4x.png) | ![LapSRN *(CV2)*](./src/example_images/output/CV2_LapSRN_example_shell_40px_4x.png) | ![A2N *(SI)*](./src/example_images/output/SI_a2n_example_shell_40px_4x.png) | ![AWSRN-BAM *(SI)*](./src/example_images/output/SI_awsrn_bam_example_shell_40px_4x.png) |
+|                          DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                           |                                            RealESRGAN                                             |                                           Anime4K                                           |                                           HSDBTRE                                           |
+|:----------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
+| ![DRLN](src/example_images/output/example_shell_40px/SI_drln_example_shell_40px_4x.webp) | ![RealESRGAN](src/example_images/output/example_shell_40px/RealESRGAN_example_shell_40px_4x.webp) | ![Anime4K](src/example_images/output/example_shell_40px/Anime4K_example_shell_40px_4x.webp) | ![HSDBTRE](src/example_images/output/example_shell_40px/HSDBTRE_example_shell_40px_4x.webp) |
 
-| CARN *(SI)* | CARN-BAM *(SI)* | DRLN *(SI)* | DRLN-BAM *(SI)* |
-| :---: | :---: | :---: | :---: |
-| ![CARN *(SI)*](./src/example_images/output/SI_carn_example_shell_40px_4x.png) | ![CARN-BAM *(SI)*](./src/example_images/output/SI_carn_bam_example_shell_40px_4x.png) | ![DRLN *(SI)*](./src/example_images/output/SI_drln_example_shell_40px_4x.png) | ![DRLN-BAM *(SI)*](./src/example_images/output/SI_drln_bam_example_shell_40px_4x.png) |
 
-| EDSR *(SI)* | EDSR-base *(SI)* | HAN *(SI)* | MDSR *(SI)* |
-| :---: | :---: | :---: | :---: |
-| ![EDSR *(SI)*](./src/example_images/output/SI_edsr_example_shell_40px_4x.png) | ![EDSR-base *(SI)*](./src/example_images/output/SI_edsr_base_example_shell_40px_4x.png) | ![HAN *(SI)*](./src/example_images/output/SI_han_example_shell_40px_4x.png) | ![MDSR *(SI)*](./src/example_images/output/SI_mdsr_example_shell_40px_4x.png) |
+|                               NEDI <sup>*(m = 4)*</sup>                               |                                            Super xBR                                            |                                         xBRZ                                          |                                    FSR *1.1*                                     |
+|:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------:|
+| ![NEDI](src/example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.webp) | ![Super xBR](src/example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.webp) | ![xBRZ](src/example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp) | ![FSR](src/example_images/output/example_shell_40px/example_shell_40px_FSR.webp) |
 
-| MDSR-BAM *(SI)* | MSRN *(SI)* | MSRN-BAM *(SI)* | PAN *(SI)* |
-| :---: | :---: | :---: | :---: |
-| ![MDSR-BAM *(SI)*](./src/example_images/output/SI_mdsr_bam_example_shell_40px_4x.png) | ![MSRN *(SI)*](./src/example_images/output/SI_msrn_example_shell_40px_4x.png) | ![MSRN-BAM *(SI)*](./src/example_images/output/SI_msrn_bam_example_shell_40px_4x.png) | ![PAN *(SI)*](./src/example_images/output/SI_pan_example_shell_40px_4x.png) |
-
-| PAN-BAM *(SI)* | RCAN-BAM *(SI)* | RealESRGAN | Anime4K |
-| :---: | :---: | :---: | :---: |
-| ![PAN-BAM *(SI)*](./src/example_images/output/SI_pan_bam_example_shell_40px_4x.png) | ![RCAN-BAM *(SI)*](./src/example_images/output/SI_rcan_bam_example_shell_40px_4x.png) | ![RealESRGAN](./src/example_images/output/RealESRGAN_example_shell_40px_4x.png) | ![Anime4K](./src/example_images/output/Anime4K_example_shell_40px_4x.png) |
-
-| HSDBTRE | hqx | NEDI <sup>*(m = 4)*</sup> | Super xBR |
-| :---: | :---: | :---: | :---: |
-| ![HSDBTRE](./src/example_images/output/HSDBTRE_example_shell_40px_4x.png) | ![hqx](./src/example_images/output/hqx_example_shell_40px_4x.png) | ![NEDI <sup>*(m = 4)*</sup>](./src/example_images/output/NEDI_example_shell_40px_4x.png) | ![Super xBR](./src/example_images/output/Super_xBR_example_shell_40px_4x.png) |
-
-| xBRZ | FSR | CAS <sup>*(sharpness = 0.5)*</sup> |
-| :---: | :---: | :---: |
-| ![xBRZ](./src/example_images/output/xBRZ_example_shell_40px_4x.png) | ![FSR](./src/example_images/output/example_shell_40px_FSR.png) | ![CAS <sup>*(sharpness = 0.5)*</sup>](./src/example_images/output/example_shell_40px_CAS.png) |
+### [More detailed comparisons](./src/quality_comparison/README.md)
 
 <br/>
 
-### Supported file formats:
-**Tested working:**
+## Supported file formats:
+
+### Tested working:
+
 - **Write:**
   - **PNG** *(Widely used, popular, lossless format)*
   - **QOI** *(A bit worse compression then **PNG**, but a lot lot faster to save and load)*
   - **WEBP** *(Comparable, lossless and lossy compression, to **JPEG XL** (a bit worse on average), but with better overall support)*
   - **JPEG XL** *(New advanced compression format, better lossless compression compared to **PNG** and better lossy compared to **JPEG**)* <br> <sup>*(see [this plugin](https://github.com/saschanaz/jxl-winthumb) for Windows Support)*</sup>
-  - ***Benchmark result (size, lower is better):***
-    - ***QOI:** 790 448 B*
-    - ***PNG:** 675 397 B*
-    - ***WEBP:** 444 538 B*
-    - ***JPEG XL:** 450 085 B*
+  - **AVIF** *(New advanced compression format, much much slower and with worse lossless compression then **WEBP** and **JPEG XL**, currently no transparency because of a bug, pretty wide support)*
+  - *<sup> See benchmarks below for more detail </sup>*
 
 - **Read:**
   - **PNG** *(.png)*
   - **JPEG** *(.jpg, .jpeg)*
 
-**Should work:**
+### Should work:
+
 - **Read:**
   <table>
     <tr>
@@ -188,19 +175,68 @@ Results of up-scaling the image *(40px -> 160px)*:
 
 <br/>
 
-### Roadmap:
+## Performance:
 
-- Add ***Performance*** / ***Benchmarks*** section to the **README**
-- Add support for **WEBP2** format *(both reading and writing)*
-- Add support for **AVIF** format *(both reading and writing)*
-- Optimize the code, adn remove unnecessary parts and duplicates
+File size and time needed to save the image using different formats with lossless+ compression.  
+Tested on the [xBRZ Retexture v1.2 64x](https://modrinth.com/resourcepack/xbrz-retexture/version/1.2) Minecraft resourcepack + example shell:
+
+| File format | Size *(B)*   | Time *(~s)* |
+|:------------|:-------------|:------------|
+| **PNG**     | *19 963 489* | *37.685-*   |
+| **QOI**     | *30 006 495* | *2.017-*    |
+| **WEBP**    | *11 396 360* | *19.904-*   |
+| **JPEG XL** | *11 947 953* | *56.468-*   |
+| **AVIF***   | *17 282 612* | *691.370+*  |
+
+Different test on random collection of smaller files:
+
+| File format | Size *(B)* |
+|:------------|:-----------|
+| **PNG**     | *675 397*  |
+| **QOI**     | *790 448*  |
+| **WEBP**    | *444 538*  |
+| **JPEG XL** | *450 085*  |
+| **AVIF***   | *507 384*  |
+
+<sup>*AVIF does not have transparency for some unknown reason</sup>
+
+[//]: # (<br/>)
+
+## Roadmap:
+
 - Rewrite and update the **WebUI**
 - Add support for **Waifu2x** and **Supir** AIs via **Docker**
-- Fix and improve standalone console application experience
+  - Add lambda GPU *(or other)* connection support for **Supir** and others
+- **Fix** and **improve** standalone console application experience:
+  - Smarter Algorithms print with descriptions and categories
+  - Smarter config editing with descriptions and incorrect input handling
+  - Saving user config settings *(multiple **profiles**?)*
+  - *(add console **buttons**?)*
+- Add support for **stacked** and **animated** images
+- Add **image tracing** scaling algorithm and support for **SVG** format
+- Add proper **HDR** support <sup> *(I think **JPEG XL**, **WEBP** and **AVIF** may have some already)* </sup>
+- Add better image quality comparison:
+  - Create a separate subfolder with new comparison markdown page:
+    - Sorted by type of algorithm
+    - Summary
+    - Extended summary
+    - note with recommendations
+- Create a **C++ python extension** for:
+  - More optimizations and better performance
+  - **ScaleFX** scaling shader
+  - NVIDIAs **DLSS** and **NIS** support
+  - support for **WEBP2** format *(both reading and writing)*
+- Add support for **ZIP** and **7z** archives as input and output
+- Add **filters** and **effects** support
+- Add basic **cropping** and **rotating** support
+- Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
+- Make my own scaling algorithm or AI for fun :)
+- Add an option to blend all algorithms together instead of savin them separately
+- Add palette mode support for WEBP for additional lossless compression
 
 <br/>
 
-### Credits:
+## Credits:
 - **WebUI**, **Scaling App** and **HSDBTRE** AI hybrid created by [***Mikołaj Pokora***](https://github.com/MikiP98)
 - **API backend** and **xBRZ wheel** by [***Piotr Przetacki***](https://github.com/PiotrPrzetacki)
 - [**Anime4K**](https://github.com/TianZerL/pyanime4k) implementation by [TianZer (TianZerL)](https://github.com/TianZerL)
@@ -214,9 +250,15 @@ Results of up-scaling the image *(40px -> 160px)*:
 - ***EDSR***, ***ESPCN***, ***FSRCNN***, ***FSRCNN-small***, ***LapSRN*** AI algorithms are also implemented using [OpenCV](https://opencv.org)
 - ***Nearest neighbor***, ***Bilinear***, ***Bicubic*** and ***Lanchos*** algorithms are also implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
 - ***A2N***, ***AWSRN-BAM***, ***CARN***, ***CARN-BAM***, ***DRLN***, ***DRLN-BAM***, ***EDSR***, ***EDSR-base***, ***HAN***, ***MDSR***, *...gasssp...*
-- ***MDSR-BAM***, ***MSRN***, ***MSRN-BAM***, ***PAN***, ***PAN-BAM***, ***RCAN-BAM*** AI algorithms are implemented using [super-image](https://pypi.org/project/super-image/) by [eugenesiow (Eugene Siow)](https://pypi.org/user/eugenesiow/) and [Freed Wu](https://pypi.org/user/Freed-Wu/)
-- [**QOI file format support library**](https://github.com/kodonnell/qoi) by [***kodonnell***](https://github.com/kodonnell)
-- [**JPEG XL PIL plugin**](https://pypi.org/project/pillow-jxl-plugin/) by [***Isotr0py***](https://pypi.org/user/Isotr0py/)
+- ***MDSR-BAM***, ***MSRN***, ***MSRN-BAM***, ***PAN***, ***PAN-BAM***, ***RCAN-BAM*** AI algorithms are implemented using: 
+  - [super-image](https://pypi.org/project/super-image/) by [eugenesiow (Eugene Siow)](https://pypi.org/user/eugenesiow/) and [Freed Wu](https://pypi.org/user/Freed-Wu/)
+- [**QOI file format support library**](https://github.com/kodonnell/qoi) by [kodonnell](https://github.com/kodonnell)
+- [**AVIF PIL plugin**](https://pypi.org/project/pillow-avif-plugin/) by [fdintino](https://pypi.org/user/fdintino/)
+- [**JPEG XL PIL plugin**](https://pypi.org/project/pillow-jxl-plugin/) by [Isotr0py](https://pypi.org/user/Isotr0py/)
+- **Example Shell** image: 
+  - [Green Sea Shell 160 thumbnail](https://commons.wikimedia.org/wiki/File:160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) by James Petts / shaddim and 
+  - [Green Sea Shell 40 thumbnail](https://commons.wikimedia.org/wiki/File:40_by_40_thumbnail_of_%27Green_Sea_Shell%27.png) by James Petts, 
+  - under: [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5), via Wikimedia Commons
 
 <sup>
 

@@ -44,6 +44,7 @@ class Algorithms(IntEnum):
     PIL_LANCZOS = auto()  # less blur than bicubic, but artifacts may appear
     PIL_NEAREST_NEIGHBOR = auto()
     RealESRGAN = auto()
+    Repetition = auto()
 
     SI_drln_bam = auto()
     SI_edsr = auto()
@@ -64,8 +65,11 @@ class Algorithms(IntEnum):
     SI_rcan_bam = auto()
 
     Super_xBR = auto()
-    SUPIR = auto()
     xBRZ = auto()
+
+    # Docker start
+    SUPIR = 40
+    Waifu2x = 41
 
 
 class Filters(IntEnum):
@@ -165,7 +169,10 @@ pil_fully_supported_formats = {
     "TGA": ("tga", "targa",),
     "TIFF": ("tif", "tiff", "tiff2",),
     "WebP": ("webp", "webp2",),
-    "XBM": ("xbm", "xbm2",)
+    "XBM": ("xbm", "xbm2",),
+
+    "AVIF": ("avif",),  # From outside plugin
+    "JPEG_XL": ("jxl",)  # From outside plugin
 }
 pil_fully_supported_formats_cache = frozenset(
     extension for extensions in pil_fully_supported_formats.values() for extension in extensions

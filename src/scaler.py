@@ -108,25 +108,6 @@ pil_algorithms_ud = {
 cv2_ai_234 = {Algorithms.CV2_EDSR, Algorithms.CV2_ESPCN, Algorithms.CV2_FSRCNN, Algorithms.CV2_FSRCNN_small}
 cv2_ai_248 = {Algorithms.CV2_LapSRN}
 
-# si_algorithms = {
-#     Algorithms.SI_drln_bam,
-#     Algorithms.SI_edsr,
-#     Algorithms.SI_msrn,
-#     Algorithms.SI_mdsr,
-#     Algorithms.SI_msrn_bam,
-#     Algorithms.SI_edsr_base,
-#     Algorithms.SI_mdsr_bam,
-#     Algorithms.SI_awsrn_bam,
-#     Algorithms.SI_a2n,
-#     Algorithms.SI_carn,
-#     Algorithms.SI_carn_bam,
-#     Algorithms.SI_pan,
-#     Algorithms.SI_pan_bam,
-#
-#     Algorithms.SI_drln,
-#     Algorithms.SI_han,
-#     Algorithms.SI_rcan_bam
-# }
 si_2x_3x_4x_algorithms = {
     Algorithms.SI_drln_bam,
     Algorithms.SI_edsr,
@@ -168,46 +149,23 @@ def scale_image_batch(
     # ------------------------------------------------------------------------------------------------------------
     # ---------------------------------------- Start of OpenCV algorithms ----------------------------------------
     # ------------------------------------------------------------------------------------------------------------
-    if algorithm == Algorithms.CV2_INTER_AREA:
+    if algorithm == Algorithms.CV2_INTER_AREA or algorithm in cv2_algorithms_ud:
         algorithm = csatca(algorithm)
 
         for image_object in images:
             new_image_object_list = []
             for factor in factors:
-                if factor > 1:
-                    # raise ValueError("INTER_AREA does not support upscaling!")
-                    print(
-                        colored(
-                            "ERROR: INTER_AREA does not support upscaling! "
-                            f"Factor: {factor}; File names will be incorrect!", 'red'
+                if algorithm == cv2.INTER_AREA:
+                    if factor > 1:
+                        # raise ValueError("INTER_AREA does not support upscaling!")
+                        print(
+                            colored(
+                                "ERROR: INTER_AREA does not support upscaling! "
+                                f"Factor: {factor}; File names will be incorrect!", 'red'
+                            )
                         )
-                    )
-                    continue
+                        continue
 
-                scaled_image = []
-                for frame in image_object.images[0]:
-                    cv2_image = utils.pil_to_cv2(frame)
-                    width, height = frame.size
-
-                    output_width, output_height = round(width * factor), round(height * factor)
-
-                    scaled_image.append(
-                        utils.cv2_to_pil(
-                            cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)
-                        )
-                    )
-
-                new_image_object_list.append(scaled_image)
-            scaled_images.append(utils.Image(new_image_object_list))
-
-        return scaled_images
-
-    if algorithm in cv2_algorithms_ud:
-        algorithm = csatca(algorithm)
-
-        for image_object in images:
-            new_image_object_list = []
-            for factor in factors:
                 scaled_image = []
                 for frame in image_object.images[0]:
                     cv2_image = utils.pil_to_cv2(frame)
@@ -234,7 +192,6 @@ def scale_image_batch(
             name: str
     ) -> list[PIL.Image.Image]:
         path = f"{path_prefix}_x{int(factor)}.pb"
-        # print(f"Path: {path}")
 
         sr.readModel(path)
         sr.setModel(name.lower().split('_')[0], factor)
@@ -367,11 +324,11 @@ def scale_image_batch(
                 new_image_object_list.append(scaled_image)
             scaled_images.append(utils.Image(new_image_object_list))
         return scaled_images
-    # ---------------------------------------------------------------------------------------------------------
-    # ---------------------------------------- End of PIL algorithms ------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------
-    # ---------------------------------------- Start of custom algorithms --------------------------------------
-    # ---------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------- End of PIL algorithms ------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- Start of custom algorithms ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
 
     if algorithm == Algorithms.HSDBTRE:
         repeats = []
@@ -382,8 +339,8 @@ def scale_image_batch(
             repeats.append(repeat)
 
         new_factors = [4**repeat for repeat in repeats]
-        print(f"New factors: {new_factors}")
-        print(f"Repeats: {repeats}")
+        # print(f"New factors: {new_factors}")
+        # print(f"Repeats: {repeats}")
 
         temporal_factors = new_factors.copy()
         scaled_images = images
@@ -521,6 +478,65 @@ def scale_image_batch(
                 model = None
             scaled_images.append(utils.Image(new_image_object_list))
         return scaled_images
+
+    if algorithm == Algorithms.Repetition:
+        if config_plus is None:
+            print(colored("config_plus is None! Creating empty config_plus!", 'yellow'))
+            config_plus = {}
+        if 'offset_x' not in config_plus:
+            print(colored("offset_x not in config_plus! Using default value: 0", 'yellow'))
+            config_plus['offset_x'] = 0
+        if 'offset_y' not in config_plus:
+            print(colored("offset_y not in config_plus! Using default value: 0", 'yellow'))
+            config_plus['offset_y'] = 0
+
+        for image_object in images:
+            new_image_object_list = []
+            for factor in factors:
+                scaled_image = []
+                for frame in image_object.images[0]:
+                    width, height = frame.size
+                    offset_x = round(config_plus['offset_x'] * width)
+                    offset_y = round(config_plus['offset_y'] * height)
+                    output_width, output_height = round(width * factor), round(height * factor)
+
+                    new_frame = PIL.Image.new(frame.mode, (output_width, output_height))
+                    for x in range(output_width):
+                        for y in range(output_height):
+                            new_frame.putpixel((x, y), frame.getpixel(((x + offset_x) % width, (y + offset_y) % height)))
+
+                    scaled_image.append(new_frame)
+                new_image_object_list.append(scaled_image)
+            scaled_images.append(utils.Image(new_image_object_list))
+        return scaled_images
+
+    if algorithm == Algorithms.Waifu2x or algorithm == Algorithms.SUPIR:
+        # import docker
+        # client = docker.from_env()
+        # if algorithm == Algorithms.Waifu2x:
+        #     # Define the image name
+        #     image_name = 'waifu2x-python:3.11'
+        #
+        #     # Check if the image exists
+        #     try:
+        #         image = client.images.get(image_name)
+        #         print("Image exists")
+        #     except docker.errors.ImageNotFound:
+        #         tar_file_path = 'docker/images/waifu2x.tar'
+        #         try:
+        #             with open(tar_file_path, 'rb') as file:
+        #                 client.images.load(file.read())
+        #         except FileNotFoundError:
+        #             print("Image does not exist. Building it...")
+        #             # Build the image
+        #             client.images.build(path='docker/files/waifu2x', tag=image_name)
+        #
+        #         image = client.images.get(image_name)
+        #         print("Image exists")
+        #     except docker.errors.APIError as e:
+        #         print(f"An error occurred: {e}")
+
+        raise NotImplementedError("Waifu2x and SUPIR are not implemented yet!")
 
     match algorithm:
         case Algorithms.xBRZ:  # TODO: Use RGB mode if the image is not RGBA
