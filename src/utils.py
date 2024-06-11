@@ -68,13 +68,13 @@ class Algorithms(IntEnum):
     xBRZ = auto()
 
     # Docker start
-    SUPIR = 40
-    Waifu2x = 41
+    SUPIR = auto()
+    Waifu2x = auto()
 
 
 class Filters(IntEnum):
-    CAS = 0  # contrast adaptive sharpening
-    SI_TODO = 1  # TODO: Add filters
+    CAS = auto()  # contrast adaptive sharpening
+    SI_TODO = auto()  # TODO: Add filters
 
 
 cli_algorithms = {Algorithms.FSR, Algorithms.CAS, Algorithms.SUPIR, Algorithms.Super_xBR}
