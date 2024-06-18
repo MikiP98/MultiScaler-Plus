@@ -6,7 +6,7 @@ import io
 import numpy as np
 import PIL.Image
 import struct
-from enum import IntEnum, auto
+from enum import auto, IntEnum, unique
 
 
 class Image:
@@ -18,6 +18,7 @@ class Image:
 
 # Enum with all available algorithms
 # Ordered alphabetically
+@unique
 class Algorithms(IntEnum):
     CPP_DEBUG = -1
 
@@ -72,6 +73,7 @@ class Algorithms(IntEnum):
     Waifu2x = auto()
 
 
+@unique
 class Filters(IntEnum):
     CAS = auto()  # contrast adaptive sharpening
     SI_TODO = auto()  # TODO: Add filters
