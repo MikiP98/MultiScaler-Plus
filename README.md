@@ -227,12 +227,28 @@ Different test on random collection of smaller files:
   - NVIDIAs **DLSS** and **NIS** support
   - support for **WEBP2** format *(both reading and writing)*
 - Add support for **ZIP** and **7z** archives as input and output
-- Add **filters** and **effects** support
+- Add **filters** and **effects** support:
+  - Blur
+  - Sharpen
+  - Noise reduction
+  - Color correction
+  - Color grading
+  - Contrast
+  - Saturation
+  - Brightness
+  - Exposure
+  - Normal map strength
 - Add basic **cropping** and **rotating** support
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
 - Make my own scaling algorithm or AI for fun :)
 - Add an option to blend all algorithms together instead of savin them separately
 - Add palette mode support for WEBP for additional lossless compression
+- Add some other conversions:
+  - Old SEUS to labPBR 1.3
+  - Old Continuum to labPBR 1.3
+  - PPR+Emissive (old BSL) to labPBR 1.3
+  - Gray to labPBR 1.3 (most likely won't be great)
+  - More?
 
 <br/>
 
