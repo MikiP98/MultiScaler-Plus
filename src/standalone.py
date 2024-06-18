@@ -1044,7 +1044,7 @@ if __name__ == '__main__':
             'sort_by_image': False,
             'sort_by_file_extension': -1,
 
-            'file_formats': {"PNG"},
+            'file_formats': {"WEBP"},
             'lossless_compression': True,
             'additional_lossless_compression': True,
             'quality': 95,
@@ -1064,7 +1064,7 @@ if __name__ == '__main__':
             'sharpness': 0.5,
             'NEDI_m': 4
         }
-        algorithms = [Algorithms.xBRZ]
+        algorithms = [Algorithms.PIL_BICUBIC]
         # algorithms = [
         #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
         #     Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx,
@@ -1088,11 +1088,11 @@ if __name__ == '__main__':
         #     Algorithms.NEDI, Algorithms.Super_xBR,
         #     Algorithms.xBRZ, Algorithms.FSR
         # ]
-        scales = [4]
+        scales = [1]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
         # config['NEDI_m'] = 4
-        config['offset_x'] = 0
-        config['offset_y'] = 0
+        # config['offset_x'] = 0
+        # config['offset_y'] = 0
     else:
         algorithms, scales, sharpness, nedi_m, config = handle_user_input()
         config['sharpness'] = sharpness
