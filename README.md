@@ -216,11 +216,9 @@ Different test on random collection of smaller files:
 - Add **image tracing** scaling algorithm and support for **SVG** format
 - Add proper **HDR** support <sup> *(I think **JPEG XL**, **WEBP** and **AVIF** may have some already)* </sup>
 - Add better image quality comparison:
-  - Create a separate subfolder with new comparison markdown page:
-    - Sorted by type of algorithm
-    - Summary
-    - Extended summary
-    - note with recommendations
+  - Summary
+  - Extended summary
+  - note with recommendations
 - Create a **C++ python extension** for:
   - More optimizations and better performance
   - **ScaleFX** scaling shader
@@ -249,6 +247,7 @@ Different test on random collection of smaller files:
   - PPR+Emissive (old BSL) to labPBR 1.3
   - Gray to labPBR 1.3 (most likely won't be great)
   - More?
+- Add DP DSC image format?
 
 <br/>
 
