@@ -178,7 +178,7 @@ A summary of best and most unique results of up-scaling the image *(40px -> 160p
 ## Performance:
 
 File size and time needed to save the image using different formats with lossless+ compression.  
-Tested on the [xBRZ Retexture v1.2 64x]() Minecraft resourcepack + example shell:
+Tested on the [xBRZ Retexture v1.2 64x](https://modrinth.com/resourcepack/xbrz-retexture/version/1.2) Minecraft resourcepack + example shell:
 
 | File format | Size *(B)*   | Time *(~s)* |
 |:------------|:-------------|:------------|
@@ -216,23 +216,38 @@ Different test on random collection of smaller files:
 - Add **image tracing** scaling algorithm and support for **SVG** format
 - Add proper **HDR** support <sup> *(I think **JPEG XL**, **WEBP** and **AVIF** may have some already)* </sup>
 - Add better image quality comparison:
-  - Create a separate subfolder with new comparison markdown page:
-    - Sorted by type of algorithm
-    - Summary
-    - Extended summary
-    - note with recommendations
+  - Summary
+  - Extended summary
+  - note with recommendations
 - Create a **C++ python extension** for:
   - More optimizations and better performance
   - **ScaleFX** scaling shader
   - NVIDIAs **DLSS** and **NIS** support
   - support for **WEBP2** format *(both reading and writing)*
 - Add support for **ZIP** and **7z** archives as input and output
-- Add **filters** and **effects** support
+- Add **filters** and **effects** support:
+  - Blur
+  - Sharpen
+  - Noise reduction
+  - Color correction
+  - Color grading
+  - Contrast
+  - Saturation
+  - Brightness
+  - Exposure
+  - Normal map strength
 - Add basic **cropping** and **rotating** support
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
 - Make my own scaling algorithm or AI for fun :)
 - Add an option to blend all algorithms together instead of savin them separately
 - Add palette mode support for WEBP for additional lossless compression
+- Add some other conversions:
+  - Old SEUS to labPBR 1.3
+  - Old Continuum to labPBR 1.3
+  - PPR+Emissive (old BSL) to labPBR 1.3
+  - Gray to labPBR 1.3 (most likely won't be great)
+  - More?
+- Add DP DSC image format?
 
 <br/>
 
