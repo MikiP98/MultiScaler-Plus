@@ -1,5 +1,5 @@
 # coding=utf-8
-from typing import Union
+from typing import Optional, TypedDict, Union
 
 import cv2
 import io
@@ -14,6 +14,12 @@ class Image:
         self.images = images
         if is_animated:
             self.animationSpacing = animation_spacing
+
+
+class ImageDict(TypedDict):
+    images: list[list[PIL.Image]]
+    is_animated: Optional[bool]
+    animation_spacing: Optional[float]
 
 
 # Enum with all available algorithms
