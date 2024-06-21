@@ -248,6 +248,7 @@ Different test on random collection of smaller files:
   - Gray to labPBR 1.3 (most likely won't be great)
   - More?
 - Add DP DSC image format?
+- Covert classes into typed dictionaries to increase performance
 
 <br/>
 
