@@ -510,7 +510,7 @@ def scale_image_batch(
             scaled_images.append(utils.Image(new_image_object_list))
         return scaled_images
 
-    if algorithm == Algorithms.Waifu2x or algorithm == Algorithms.SUPIR:
+    if algorithm == Algorithms.Waifu2x or Algorithms.SUPIR:
         # import docker
         # client = docker.from_env()
         # if algorithm == Algorithms.Waifu2x:
@@ -535,6 +535,40 @@ def scale_image_batch(
         #         print("Image exists")
         #     except docker.errors.APIError as e:
         #         print(f"An error occurred: {e}")
+
+
+        image_name = "your-image-name"
+        dockerfile_location = "./docker/files"
+
+        command = f"docker build -t {image_name} {dockerfile_location}"
+        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+
+        if error:
+            print(f"An error occurred: {error}")
+        else:
+            print(f"Output: {output.decode('utf-8')}")
+
+
+        container_name = "your-container-name"
+
+        command = f"docker create --name {container_name} {image_name}"
+        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+
+        if error:
+            print(f"An error occurred: {error}")
+        else:
+            print(f"Output: {output.decode('utf-8')}")
+
+        command = f"docker start {container_name}"
+        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+
+        if error:
+            print(f"An error occurred: {error}")
+        else:
+            print(f"Output: {output.decode('utf-8')}")
 
         raise NotImplementedError("Waifu2x and SUPIR are not implemented yet!")
 
