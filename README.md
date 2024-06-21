@@ -249,6 +249,7 @@ Different test on random collection of smaller files:
   - More?
 - Add DP DSC image format?
 - Covert classes into typed dictionaries to increase performance
+- Add image merger: multiple images into one stacked or animated image
 
 <br/>
 
