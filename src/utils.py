@@ -17,7 +17,7 @@ class Image:
 
 
 class ImageDict(TypedDict):
-    images: list[list[PIL.Image]]
+    images: list[PIL.Image]  # List of image frames/layers
     is_animated: Optional[bool]
     animation_spacing: Optional[float]
 
