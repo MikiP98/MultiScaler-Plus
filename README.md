@@ -241,7 +241,7 @@ Different test on random collection of smaller files:
 - Make my own scaling algorithm or AI for fun :)
 - Add an option to blend all algorithms together instead of savin them separately
 - Add palette mode support for WEBP for additional lossless compression
-- Add some other conversions:
+- Add some conversions:
   - Old SEUS to labPBR 1.3
   - Old Continuum to labPBR 1.3
   - PPR+Emissive (old BSL) to labPBR 1.3
