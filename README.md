@@ -240,7 +240,6 @@ Different test on random collection of smaller files:
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
 - Make my own scaling algorithm or AI for fun :)
 - Add an option to blend all algorithms together instead of savin them separately
-- Add palette mode support for WEBP for additional lossless compression
 - Add some conversions:
   - Old SEUS to labPBR 1.3
   - Old Continuum to labPBR 1.3
