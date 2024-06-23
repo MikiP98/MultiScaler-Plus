@@ -817,12 +817,12 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
     # )
     # print(colored('}', 'magenta'))
     print("Y/N")
-    default_config_input = input()
+    default_config_input = input().lower()
     if (
-            default_config_input.lower() == 'n' or
-            default_config_input.lower() == 'no' or
-            default_config_input.lower() == 'false' or
-            default_config_input.lower() == '0'
+            default_config_input == 'n' or
+            default_config_input == 'no' or
+            default_config_input == 'false' or
+            default_config_input == '0'
     ):
         print("Enter the configuration:")
         config = {}
