@@ -21,7 +21,7 @@ import zipfile
 from fractions import Fraction
 from functools import lru_cache
 from termcolor import colored
-from termcolor._types import Color as TermColor
+from termcolor._types import Color as TermColor  # Ignore this, TODO: create an issue on the termcolor repo.
 from utils import (
     Algorithms,
     avg,
@@ -97,7 +97,7 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
 
     for file_format in config['file_formats']:
         # Start timer
-        start_time = time.time()
+        # start_time = time.time()
 
         new_file_name = '.'.join(new_file_name_parts[:-1]) + '.' + format_to_extension[file_format]
         file_format_dir = ""
@@ -125,7 +125,7 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
             if not config['additional_lossless_compression']:
                 image.save(output_path, optimize=True)
             else:
-                img_byte_arr = utils.apply_lossless_compression(image)
+                img_byte_arr = utils.apply_lossless_compression_png(image)
                 with open(output_path, 'wb') as f:
                     f.write(img_byte_arr)
 
@@ -150,9 +150,15 @@ def save_image(algorithm: Algorithms, image: PIL.Image, root: str, file: str, sc
 
         elif "WEBP" == file_format:
             if config['lossless_compression']:
-                image.save(output_path, lossless=True, method=6, optimize=True)
+                if not config['additional_lossless_compression']:
+                    image.save(output_path, lossless=True, method=6, optimize=True)
+                else:
+                    img_byte_arr = utils.apply_lossless_compression_webp(image)
+                    with open(output_path, 'wb') as f:
+                        f.write(img_byte_arr)
             else:
-                image.save(output_path, quality=config['quality'], method=6)
+                if not config['additional_lossless_compression']:
+                    image.save(output_path, quality=config['quality'], method=6)
 
         elif "AVIF" == file_format:
             if config['lossless_compression']:

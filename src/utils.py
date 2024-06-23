@@ -293,7 +293,7 @@ def cv2_to_pil(cv2_image: 'np.ndarray') -> PIL.Image:
 def image_to_byte_array(image: PIL.Image, additional_lossless_compression=True) -> bytes:
     # If additional_lossless_compression is True, apply lossless compression
     if additional_lossless_compression:
-        return apply_lossless_compression(image)
+        return apply_lossless_compression_png(image)
     # else, just convert the image to bytes
 
     # BytesIO is a file-like buffer stored in memory
@@ -308,12 +308,11 @@ def image_to_byte_array(image: PIL.Image, additional_lossless_compression=True) 
     return img_byte_arr
 
 
-def apply_lossless_compression(image: PIL.Image) -> bytes:
+def apply_lossless_compression_png(image: PIL.Image) -> bytes:
     img_byte_arr = io.BytesIO()
 
     mode = 'RGBA'
-    if not uses_transparency(image):
-        image = image.convert('RGB')
+    if not has_transparency(image):
         mode = 'RGB'
 
     image.save(img_byte_arr, optimize=True, format='PNG')
@@ -340,8 +339,53 @@ def apply_lossless_compression(image: PIL.Image) -> bytes:
                 same = False
                 break
         # if all([data1 == data2 for data1, data2 in zip(image.getdata(), temp_image.getdata())]):
+
         if same:
             temp_image.save(img_temp_byte_arr, optimize=True, format='PNG')
+
+            # Check which one is smaller and keep it, remove the other one
+            # (if the palette is smaller remove '_P' from the name)
+            if len(img_temp_byte_arr.getvalue()) < len(img_byte_arr.getvalue()):
+                img_byte_arr = img_temp_byte_arr
+                # print("Saving palette")
+
+    return img_byte_arr.getvalue()
+
+
+def apply_lossless_compression_webp(image: PIL.Image) -> bytes:
+    img_byte_arr = io.BytesIO()
+
+    mode = 'RGBA'
+    if not has_transparency(image):
+        mode = 'RGB'
+
+    image.save(img_byte_arr, lossless=True, method=6, optimize=True, format='WEBP')
+
+    unique_colors_number = len(set(image.getdata()))
+    # print(f"Unique colors: {unique_colors_number}")
+    if unique_colors_number <= 256:
+        colors = 256
+        if unique_colors_number <= 2:
+            colors = 2
+        elif unique_colors_number <= 4:
+            colors = 4
+        elif unique_colors_number <= 16:
+            colors = 16
+
+        img_temp_byte_arr = io.BytesIO()
+        temp_image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)  # sometimes deletes some data :/
+
+        # Additional check to see if PIL didn't fuck up
+        same = True
+        for data1, data2 in zip(image.getdata(), temp_image.convert(mode).getdata()):
+            if data1 != data2:
+                # print(f"{data1} != {data2}")
+                same = False
+                break
+        # if all([data1 == data2 for data1, data2 in zip(image.getdata(), temp_image.getdata())]):
+
+        if same:
+            temp_image.save(img_temp_byte_arr, lossless=True, method=6, optimize=True, format='WEBP')
 
             # Check which one is smaller and keep it, remove the other one
             # (if the palette is smaller remove '_P' from the name)
