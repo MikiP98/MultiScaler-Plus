@@ -8,6 +8,11 @@ git submodule update --init --recursive --remote
 
 pip uninstall opencv-python
 pip uninstall opencv-python
+pip uninstall opencv-contrib-python
+pip uninstall opencv-contrib-python
+
+pip install opencv-contrib-python
+pip install opencv-contrib-python
 
 @cd MultiScaler-Plus_Web_Server
 npm i

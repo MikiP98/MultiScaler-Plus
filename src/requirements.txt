@@ -2,7 +2,7 @@ argparse
 coverage
 fastapi
 hqx
-numpy
+numpy==1.26.4  # newest numpy version (2.0.0) is incompatible with `qoi`
 opencv-contrib-python
 pillow
 pillow-avif-plugin
