@@ -5,8 +5,8 @@ hqx
 numpy
 opencv-contrib-python
 pillow
-pillow_avif
-pillow_jxl
+pillow-avif-plugin
+pillow-jxl-plugin
 psutil
 pyanime4k
 python-multipart
