@@ -308,14 +308,14 @@ def image_to_byte_array(image: PIL.Image, additional_lossless_compression=True) 
     return img_byte_arr
 
 
-def apply_lossless_compression_png(image: PIL.Image) -> bytes:
+def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:
     img_byte_arr = io.BytesIO()
 
     mode = 'RGBA'
     if not has_transparency(image):
         mode = 'RGB'
 
-    image.save(img_byte_arr, optimize=True, format='PNG')
+    image.save(img_byte_arr, **optional_args)
 
     unique_colors_number = len(set(image.getdata()))
     # print(f"Unique colors: {unique_colors_number}")
@@ -341,7 +341,7 @@ def apply_lossless_compression_png(image: PIL.Image) -> bytes:
         # if all([data1 == data2 for data1, data2 in zip(image.getdata(), temp_image.getdata())]):
 
         if same:
-            temp_image.save(img_temp_byte_arr, optimize=True, format='PNG')
+            temp_image.save(img_temp_byte_arr, **optional_args)
 
             # Check which one is smaller and keep it, remove the other one
             # (if the palette is smaller remove '_P' from the name)
@@ -350,50 +350,24 @@ def apply_lossless_compression_png(image: PIL.Image) -> bytes:
                 # print("Saving palette")
 
     return img_byte_arr.getvalue()
+
+
+def apply_lossless_compression_png(image: PIL.Image) -> bytes:
+    optional_args = {
+        'optimize': True,
+        'format': 'PNG'
+    }
+    return apply_lossless_compression(image, optional_args)
 
 
 def apply_lossless_compression_webp(image: PIL.Image) -> bytes:
-    img_byte_arr = io.BytesIO()
-
-    mode = 'RGBA'
-    if not has_transparency(image):
-        mode = 'RGB'
-
-    image.save(img_byte_arr, lossless=True, method=6, optimize=True, format='WEBP')
-
-    unique_colors_number = len(set(image.getdata()))
-    # print(f"Unique colors: {unique_colors_number}")
-    if unique_colors_number <= 256:
-        colors = 256
-        if unique_colors_number <= 2:
-            colors = 2
-        elif unique_colors_number <= 4:
-            colors = 4
-        elif unique_colors_number <= 16:
-            colors = 16
-
-        img_temp_byte_arr = io.BytesIO()
-        temp_image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)  # sometimes deletes some data :/
-
-        # Additional check to see if PIL didn't fuck up
-        same = True
-        for data1, data2 in zip(image.getdata(), temp_image.convert(mode).getdata()):
-            if data1 != data2:
-                # print(f"{data1} != {data2}")
-                same = False
-                break
-        # if all([data1 == data2 for data1, data2 in zip(image.getdata(), temp_image.getdata())]):
-
-        if same:
-            temp_image.save(img_temp_byte_arr, lossless=True, method=6, optimize=True, format='WEBP')
-
-            # Check which one is smaller and keep it, remove the other one
-            # (if the palette is smaller remove '_P' from the name)
-            if len(img_temp_byte_arr.getvalue()) < len(img_byte_arr.getvalue()):
-                img_byte_arr = img_temp_byte_arr
-                # print("Saving palette")
-
-    return img_byte_arr.getvalue()
+    optional_args = {
+        'lossless': True,
+        'method': 6,
+        'optimize': True,
+        'format': 'WEBP'
+    }
+    return apply_lossless_compression(image, optional_args)
 
 
 def pngify(image: PIL.Image) -> Image:
