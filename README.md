@@ -250,6 +250,7 @@ Different test on random collection of smaller files:
 - Covert classes into typed dictionaries to increase performance
 - Add image merger: multiple images into one stacked or animated image
 - Add big 160px example shell image to example images
+- Librarify this app...
 
 <br/>
 
