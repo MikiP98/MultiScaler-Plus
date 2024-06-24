@@ -286,7 +286,7 @@ def scale_loop(
             # print(f"Image object: {image_obj}")
             # print(f"Masks for scales: {masks_for_scales}")
             scaled_images = []
-            for scaled_image, masks_for_frames in zip(image_obj.images, masks_for_scales):
+            for scaled_image, masks_for_frames in zip(image_obj['images'], masks_for_scales):
                 # print("Second loop layer executed")
                 new_image = []
                 for frame, mask in zip(scaled_image, masks_for_frames):
@@ -1086,8 +1086,9 @@ if __name__ == '__main__':
         #     Algorithms.NEDI, Algorithms.Super_xBR,
         #     Algorithms.xBRZ, Algorithms.FSR
         # ]
-        config = presets.FullUpscaleTest.config
-        algorithms = presets.FullUpscaleTest.algorithms
+        config = presets.SmartUpscaleTest.config
+        config['file_formats'] = {'QOI'}
+        algorithms = presets.SmartUpscaleTest.algorithms
         scales = [4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
         config['NEDI_m'] = 4

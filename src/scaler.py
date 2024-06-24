@@ -548,7 +548,6 @@ def scale_image_batch(
         #     except docker.errors.APIError as e:
         #         print(f"An error occurred: {e}")
 
-
         image_name = "your-image-name"
         dockerfile_location = "./docker/files"
 
@@ -560,7 +559,6 @@ def scale_image_batch(
             print(f"An error occurred: {error}")
         else:
             print(f"Output: {output.decode('utf-8')}")
-
 
         container_name = "your-container-name"
 

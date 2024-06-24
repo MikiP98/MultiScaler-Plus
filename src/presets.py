@@ -205,7 +205,7 @@ class SmartDownScalingTest(Preset):
 
 
 class TextureProtectionTest(Preset):
-    config = Preset.config
+    config = Preset.config.copy()
     config['texture_outbound_protection'] = True
     config['texture_inbound_protection'] = True
     algorithms = [
@@ -215,7 +215,7 @@ class TextureProtectionTest(Preset):
 
 
 class TilingsFixTest(Preset):
-    config = Preset.config
+    config = Preset.config.copy()
     config['try_to_fix_texture_tiling'] = True
     algorithms = [
         Algorithms.xBRZ
