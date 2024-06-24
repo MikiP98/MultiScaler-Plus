@@ -17,7 +17,7 @@ class Image:
 
 
 class ImageDict(TypedDict):
-    images: list[PIL.Image]  # List of image frames/layers
+    images: list[list[PIL.Image]]  # List of scaled lists of image frames/layers, only 1 entry on input
     is_animated: Optional[bool]
     animation_spacing: Optional[float]
 
@@ -370,7 +370,7 @@ def apply_lossless_compression_webp(image: PIL.Image) -> bytes:
     return apply_lossless_compression(image, optional_args)
 
 
-def pngify(image: PIL.Image) -> Image:
+def pngify_class(image: PIL.Image) -> Image:
     if image.format.lower() in pil_animated_formats_cache:
         # Extract all frames from the animated image as a list of images
         if image.is_animated:
@@ -388,6 +388,25 @@ def pngify(image: PIL.Image) -> Image:
 
     return Image([[image]])
     # return [image]  # Return an 'image' with single 'frame'
+
+
+def pngify(image: PIL.Image) -> ImageDict:
+    if image.format.lower() in pil_animated_formats_cache:
+        # Extract all frames from the animated image as a list of images
+        if image.is_animated:
+            raise NotImplementedError("Animated images are not supported yet")
+
+        raise NotImplementedError(
+            f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}"
+        )
+
+    # check if is RGBA or RGB
+    elif not (image.mode == "RGB" or image.mode == "RGBA"):
+        image = image.convert("RGBA")
+        if not uses_transparency(image):
+            image = image.convert("RGB")
+
+    return ImageDict(images=[[image]])
 
 
 @DeprecationWarning

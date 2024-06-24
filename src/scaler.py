@@ -15,7 +15,7 @@ import xbrz  # See xBRZ scaling on Jira
 
 from Edge_Directed_Interpolation.edi import EDI_upscale  # EDI_predict is wierd, EDI_Downscale is nearest neighbor...
 from RealESRGAN import RealESRGAN
-from superxbr import superxbr
+from superxbr import superxbr  # Ignore the error, it works fine
 from termcolor import colored
 from utils import Algorithms
 
@@ -80,7 +80,7 @@ def csatca(algorithm: Algorithms):
 
 def scale_image(
         algorithm: Algorithms,
-        image: utils.Image,
+        image: PIL.Image,
         factor: int,
         *,
         fallback_algorithm=Algorithms.CV2_INTER_AREA,
@@ -133,15 +133,15 @@ si_algorithms = si_2x_3x_4x_algorithms.union(si_4x_algorithms)
 
 def scale_image_batch(
         algorithm: Algorithms,
-        images: list[utils.Image],
+        images: list[utils.ImageDict],
         factors,
         *,
         fallback_algorithm=Algorithms.CV2_INTER_AREA,
         config_plus=None,
         main_checked=False
-) -> list[utils.Image]:
+) -> list[utils.ImageDict]:
 
-    scaled_images = []
+    scaled_images: list[utils.ImageDict] = []
     # scaled_images = queue.Queue()
 
     # width, height = image.size
@@ -167,7 +167,8 @@ def scale_image_batch(
                         continue
 
                 scaled_image = []
-                for frame in image_object.images[0]:
+                # for frame in image_object.images[0]:
+                for frame in image_object['images'][0]:
                     cv2_image = utils.pil_to_cv2(frame)
                     width, height = frame.size
 
@@ -180,12 +181,14 @@ def scale_image_batch(
                     )
 
                 new_image_object_list.append(scaled_image)
-            scaled_images.append(utils.Image(new_image_object_list))
+            scaled_images.append({
+                'images': new_image_object_list
+            })
 
         return scaled_images
 
     def cv2_ai_common_scale(
-            image_object: utils.Image,
+            image_object: utils.ImageDict,
             factor: int,
             sr: cv2.dnn_superres.DnnSuperResImpl,
             path_prefix: str,
@@ -197,7 +200,7 @@ def scale_image_batch(
         sr.setModel(name.lower().split('_')[0], factor)
 
         scaled_image = []
-        for frame in image_object.images[0]:
+        for frame in image_object['images'][0]:
             cv2_image = utils.pil_to_cv2(frame.convert('RGB'))
             width, height = frame.size
 
@@ -238,7 +241,7 @@ def scale_image_batch(
                             )
                         )
                         scaled_image = []
-                        for frame in image_object.images[0]:
+                        for frame in image_object['images'][0]:
                             cv2_image = utils.pil_to_cv2(frame)
                             width, height = frame.size
 
@@ -258,7 +261,7 @@ def scale_image_batch(
                     # min_allowed_factor = min(allowed_factors)
                     max_allowed_factor = max(allowed_factors)
                     scaled_image = []
-                    for frame in image_object.images[0]:
+                    for frame in image_object['images'][0]:
                         width, height = frame.size
                         result = utils.pil_to_cv2(frame.convert('RGB'))
                         current_factor = 1
@@ -291,7 +294,9 @@ def scale_image_batch(
 
                 else:
                     new_image_object_list.append(cv2_ai_common_scale(image_object, factor, sr, path_prefix, name))
-            scaled_images.append(utils.Image(new_image_object_list))
+            scaled_images.append({
+                'images': new_image_object_list
+            })
 
     if algorithm in cv2_ai_234:
         allowed_factors = {2, 3, 4}
@@ -316,13 +321,16 @@ def scale_image_batch(
             new_image_object_list = []
             for factor in factors:
                 scaled_image = []
-                for frame in image_object.images[0]:
+                # for frame in image_object.images[0]:
+                for frame in image_object['images'][0]:
                     width, height = frame.size
                     output_width, output_height = round(width * factor), round(height * factor)
 
                     scaled_image.append(frame.resize((output_width, output_height), algorithm))
                 new_image_object_list.append(scaled_image)
-            scaled_images.append(utils.Image(new_image_object_list))
+            scaled_images.append({
+                'images': new_image_object_list
+            })
         return scaled_images
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------- End of PIL algorithms ------------------------------------------
@@ -361,8 +369,8 @@ def scale_image_batch(
             )
 
         for image_object in scaled_images:
-            # print(f"Images: {image_object.images}")
-            for i, scales in enumerate(image_object.images):
+            # print(f"Images: {image_object['images']}")
+            for i, scales in enumerate(image_object['images']):
                 # print(f"Type of scales: {type(scales)}")
                 # print(f"Scales:\n{scales}")
                 for j in range(len(scales)):
@@ -394,7 +402,7 @@ def scale_image_batch(
             for factor in factors:
                 current_factor = 1
                 # temp_factor = factor
-                scaled_image = image_object.images[0].copy()
+                scaled_image = image_object['images'][0].copy()
                 while current_factor < factor:
                     temp_factor = 4
                     if 3 in allowed_factors:
@@ -476,7 +484,9 @@ def scale_image_batch(
 
                 new_image_object_list.append(scaled_image)
                 model = None
-            scaled_images.append(utils.Image(new_image_object_list))
+            scaled_images.append({
+                'images': new_image_object_list
+            })
         return scaled_images
 
     if algorithm == Algorithms.Repetition:
@@ -494,7 +504,7 @@ def scale_image_batch(
             new_image_object_list = []
             for factor in factors:
                 scaled_image = []
-                for frame in image_object.images[0]:
+                for frame in image_object['images'][0]:
                     width, height = frame.size
                     offset_x = round(config_plus['offset_x'] * width)
                     offset_y = round(config_plus['offset_y'] * height)
@@ -507,10 +517,12 @@ def scale_image_batch(
 
                     scaled_image.append(new_frame)
                 new_image_object_list.append(scaled_image)
-            scaled_images.append(utils.Image(new_image_object_list))
+            scaled_images.append({
+                'images': new_image_object_list
+            })
         return scaled_images
 
-    if algorithm == Algorithms.Waifu2x or Algorithms.SUPIR:
+    if algorithm == Algorithms.Waifu2x or algorithm == Algorithms.SUPIR:
         # import docker
         # client = docker.from_env()
         # if algorithm == Algorithms.Waifu2x:
@@ -586,7 +598,7 @@ def scale_image_batch(
                             )
                         )
                         scaled_image = []
-                        for frame in image_object.images[0]:
+                        for frame in image_object['images'][0]:
                             cv2_image = utils.pil_to_cv2(frame)
                             width, height = frame.size
 
@@ -615,7 +627,7 @@ def scale_image_batch(
                         )
 
                     scaled_image = []
-                    for frame in image_object.images[0]:
+                    for frame in image_object['images'][0]:
                         width, height = frame.size
 
                         frame = frame.convert('RGBA')
@@ -641,7 +653,9 @@ def scale_image_batch(
                             )
                         )
                     new_image_object_list.append(scaled_image)
-                scaled_images.append(utils.Image(new_image_object_list))
+                scaled_images.append({
+                    'images': new_image_object_list
+                })
 
         case Algorithms.RealESRGAN:
             for image_object in images:
@@ -657,7 +671,7 @@ def scale_image_batch(
                             )
                         )
 
-                        for frame in image_object.images[0]:
+                        for frame in image_object['images'][0]:
                             cv2_image = utils.pil_to_cv2(frame)
                             width, height = frame.size
 
@@ -674,7 +688,7 @@ def scale_image_batch(
                             )
                         new_image_object_list.append(scaled_image)
 
-                    for frame in image_object.images[0]:
+                    for frame in image_object['images'][0]:
                         width, height = frame.size
                         output_width, output_height = round(width * factor), round(height * factor)
                         frame = frame.convert('RGB')
@@ -712,7 +726,9 @@ def scale_image_batch(
                             )
                         )
                     new_image_object_list.append(scaled_image)
-                scaled_images.append(utils.Image(new_image_object_list))
+                scaled_images.append({
+                    'images': new_image_object_list
+                })
 
         case Algorithms.SUPIR:
             raise NotImplementedError("Not implemented yet")
@@ -860,7 +876,7 @@ def scale_image_batch(
                         power += 1
 
                     scaled_image = []
-                    for frame in image_object.images[0]:
+                    for frame in image_object['images'][0]:
                         width, height = frame.size
                         output_width, output_height = round(width * temp_factor), round(height * temp_factor)
 
@@ -876,7 +892,9 @@ def scale_image_batch(
                             )
                         )
                     new_image_object_list.append(scaled_image)
-                scaled_images.append(utils.Image(new_image_object_list))
+                scaled_images.append({
+                    'images': new_image_object_list
+                })
 
         case Algorithms.hqx:
             allowed_factors = {2, 3, 4}
@@ -893,7 +911,7 @@ def scale_image_batch(
                                 )
                             )
                             scaled_image = []
-                            for frame in image_object.images[0]:
+                            for frame in image_object['images'][0]:
                                 cv2_image = utils.pil_to_cv2(frame)
                                 width, height = frame.size
 
@@ -921,7 +939,7 @@ def scale_image_batch(
                     # min_allowed_factor = min(allowed_factors)
                     max_allowed_factor = max(allowed_factors)
                     scaled_image = []
-                    for frame in image_object.images[0]:
+                    for frame in image_object['images'][0]:
                         width, height = frame.size
                         result = frame.convert('RGB')
 
@@ -946,7 +964,9 @@ def scale_image_batch(
                             )
                         )
                     new_image_object_list.append(scaled_image)
-                scaled_images.append(utils.Image(new_image_object_list))
+                scaled_images.append({
+                    'images': new_image_object_list
+                })
 
         case Algorithms.NEDI:
             if 'NEDI_m' not in config_plus:
@@ -969,7 +989,7 @@ def scale_image_batch(
                             )
                         )
                         scaled_image = []
-                        for frame in image_object.images[0]:
+                        for frame in image_object['images'][0]:
                             cv2_image = utils.pil_to_cv2(frame)
                             width, height = frame.size
 
@@ -1001,7 +1021,7 @@ def scale_image_batch(
                         temp_factor_repeat += 1
 
                     scaled_image = []
-                    for frame in image_object.images[0]:
+                    for frame in image_object['images'][0]:
                         width, height = frame.size
 
                         # frame = frame.convert('RGBA')
@@ -1023,15 +1043,17 @@ def scale_image_batch(
                             )
                         )
                     new_image_object_list.append(scaled_image)
-                scaled_images.append(utils.Image(new_image_object_list))
+                scaled_images.append({
+                    'images': new_image_object_list
+                })
 
         case Algorithms.Anime4K:
-            scaled_images: list[utils.Image] = []
+            scaled_images: list[utils.ImageDict] = []
             for image_object in images:
                 image_object_list: list[list[PIL.Image.Image]] = []
                 for factor in factors:
                     scaled_frames: list[PIL.Image.Image] = []
-                    for frame in image_object.images[0]:
+                    for frame in image_object['images'][0]:
                         np_image = np.array(frame.convert('RGB'))
 
                         current_factor = 1
@@ -1066,7 +1088,7 @@ def scale_image_batch(
                             )
                         )
                     image_object_list.append(scaled_frames)
-                scaled_images.append(utils.Image(image_object_list))
+                scaled_images.append({'images': image_object_list})
 
         case _:
             if main_checked:
@@ -1076,7 +1098,7 @@ def scale_image_batch(
                     new_image_object_list = []
                     for factor in factors:
                         scaled_image = []
-                        for frame in image_object.images[0]:
+                        for frame in image_object['images'][0]:
                             width, height = frame.size
 
                             frame = utils.pil_to_cv2(frame.convert('RGBA'))
@@ -1119,7 +1141,9 @@ def scale_image_batch(
                             #         pixels[y][x] = pil_image.getpixel((x, y))
                             # return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
                         new_image_object_list.append(scaled_image)
-                    scaled_images.append(utils.Image(new_image_object_list))
+                    scaled_images.append({
+                        'images': new_image_object_list
+                    })
 
     return scaled_images
 

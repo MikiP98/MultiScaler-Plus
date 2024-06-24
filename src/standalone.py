@@ -2,8 +2,7 @@
 import argparse
 import concurrent.futures
 import multiprocessing
-import time
-
+# import time
 import numpy as np
 import os
 import PIL.Image
@@ -193,7 +192,7 @@ def save_images_chunk(args) -> None:
         root = roots_chunk.pop()
         file = file_chunk.pop()
 
-        for scaled_image, scale in zip(image_object.images, scales):
+        for scaled_image, scale in zip(image_object['images'], scales):
             if len(scaled_image) == 1:
                 save_image(algorithm, scaled_image[0], root, file, scale, config)
             else:
@@ -251,7 +250,7 @@ def scale_loop(
         new_image_objects = []
         for image_obj in image_objects:
             scaled_images = []
-            for scaled_image in image_obj.images:
+            for scaled_image in image_obj['images']:
                 new_image = []
                 for frame in scaled_image:
                     width, height = frame.size
@@ -273,7 +272,7 @@ def scale_loop(
 
                     new_image.append(new_frame)
                 scaled_images.append(new_image)
-            new_image_objects.append(utils.Image(scaled_images))
+            new_image_objects.append(utils.ImageDict(images=scaled_images))
         image_objects = new_image_objects
 
     if config['texture_outbound_protection']:
@@ -295,7 +294,7 @@ def scale_loop(
                     new_frame = utils.apply_mask(frame, mask)
                     new_image.append(new_frame)
                 scaled_images.append(new_image)
-            new_image_objects.append(utils.Image(scaled_images))
+            new_image_objects.append(utils.ImageDict(images=scaled_images))
         image_objects = new_image_objects
         print(colored("Texture outbound protection done\n", 'green'))
 
@@ -304,7 +303,7 @@ def scale_loop(
         new_image_objects = []
         for image_obj in image_objects:
             scaled_images = []
-            for scaled_image in image_obj.images:
+            for scaled_image in image_obj['images']:
                 new_image = []
                 for frame in scaled_image:
                     # new_frame = utils.disallow_partial_transparency(frame)
@@ -323,7 +322,7 @@ def scale_loop(
 
                     new_image.append(utils.cv2_to_pil(new_frame_array))
                 scaled_images.append(new_image)
-            new_image_objects.append(utils.Image(scaled_images))
+            new_image_objects.append(utils.ImageDict(images=scaled_images))
         image_objects = new_image_objects
         print(colored("Removing partial transparency done\n", 'green'))
 
@@ -341,7 +340,7 @@ def scale_loop(
         ):
             scaled_images = []
             for scaled_image, masks_for_frames, nearest_neighbour_mask in zip(
-                    image_obj.images, masks_for_scales, nearest_neighbour_masks.images
+                    image_obj['images'], masks_for_scales, nearest_neighbour_masks['images']
             ):
                 new_image = []
                 for frame, mask, nearest_neighbour in zip(scaled_image, masks_for_frames, nearest_neighbour_mask):
@@ -377,7 +376,7 @@ def scale_loop(
                                             #     new_frame_array[x][y][3] = 255
                     new_image.append(utils.cv2_to_pil(new_frame_array))
                 scaled_images.append(new_image)
-            new_image_objects.append(utils.Image(scaled_images))
+            new_image_objects.append(utils.ImageDict(images=scaled_images))
         image_objects = new_image_objects
         print(colored("Texture inbound protection done\n", 'green'))
 
@@ -443,18 +442,6 @@ def scale_loop(
 
     else:
         save_images_chunk((algorithm, image_objects, roots, files, scales, config))
-        # while image_objects:
-        #     image_object: utils.Image = image_objects.pop()
-        #     root = roots.pop()
-        #     file = files.pop()
-        #
-        #     for scaled_image, scale in zip(image_object.images, scales):
-        #         if len(scaled_image) == 1:
-        #             save_image(algorithm, scaled_image[0], root, file, scale, config)
-        #         else:
-        #             # Compose an APNG image
-        #             raise NotImplementedError("Animated (and stacked) output is not yet supported")
-        #     # iterator += 1
 
     print(colored("Saving done\n", 'green'))
 
@@ -467,7 +454,7 @@ def scale_loop_chunk(args) -> None:
 
 def algorithm_loop(
         algorithms: list[Algorithms],
-        images: list[utils.Image],
+        images: list[utils.ImageDict],
         roots: list[str], files: list[str],
         scales: list[float], config: dict
 ) -> None:
@@ -481,7 +468,8 @@ def algorithm_loop(
             masks_for_scales = []
             for scale in scales:
                 masks_for_frames = []
-                for frame in image.images[0]:
+                # for frame in image.images[0]:
+                for frame in image['images'][0]:
                     mask = utils.generate_mask(frame, scale, config['texture_mask_mode'])
                     masks_for_frames.append(mask)
                 masks_for_scales.append(masks_for_frames)
@@ -708,7 +696,7 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         'sort_by_image': False,
         'sort_by_file_extension': -1,  # -1 - auto, 0 - no, 1 - yes
 
-        'file_format': "WEBP",
+        'file_formats': {"WEBP"},
         'lossless_compression': True,
         'additional_lossless_compression': True,
         'quality': 95,
@@ -730,7 +718,9 @@ def handle_user_input() -> tuple[list[Algorithms], list[float], float | None, in
         'tiling_fix_quality': 1.0,
 
         'sharpness': 0.5,
-        'NEDI_m': 4
+        'NEDI_m': 4,
+        'offset_x': 0.5,
+        'offset_y': 0.5
     }
 
     algorithms = []
@@ -1039,38 +1029,40 @@ if __name__ == '__main__':
             print(colored(message, 'yellow'))
 
     if args.test:
-        config = {
-            'clear_output_directory': True,
+        import presets
 
-            'add_algorithm_name_to_output_files_names': False,
-            'add_factor_to_output_files_names': False,
-
-            'sort_by_algorithm': False,
-            'sort_by_scale': False,
-            'sort_by_image': False,
-            'sort_by_file_extension': -1,
-
-            'file_formats': {"WEBP"},
-            'lossless_compression': True,
-            'additional_lossless_compression': True,
-            'quality': 95,
-
-            'multiprocessing_levels': {},
-            'max_processes': (2, 2, 2),
-            'override_processes_count': False,
-
-            'copy_mcmeta': False,
-            'texture_outbound_protection': True,
-            'texture_inbound_protection': True,
-            'texture_mask_mode': ('alpha', 'black'),
-            'disallow_partial_transparency': False,
-            'try_to_fix_texture_tiling': False,
-            'tiling_fix_quality': 1.0,
-
-            'sharpness': 0.5,
-            'NEDI_m': 4
-        }
-        algorithms = [Algorithms.PIL_BICUBIC]
+        # config = {
+        #     'clear_output_directory': True,
+        #
+        #     'add_algorithm_name_to_output_files_names': True,
+        #     'add_factor_to_output_files_names': True,
+        #
+        #     'sort_by_algorithm': False,
+        #     'sort_by_scale': False,
+        #     'sort_by_image': False,
+        #     'sort_by_file_extension': -1,
+        #
+        #     'file_formats': {"WEBP"},
+        #     'lossless_compression': True,
+        #     'additional_lossless_compression': True,
+        #     'quality': 95,
+        #
+        #     'multiprocessing_levels': {},
+        #     'max_processes': (2, 2, 2),
+        #     'override_processes_count': False,
+        #
+        #     'copy_mcmeta': False,
+        #     'texture_outbound_protection': False,
+        #     'texture_inbound_protection': False,
+        #     'texture_mask_mode': ('alpha', 'black'),
+        #     'disallow_partial_transparency': False,
+        #     'try_to_fix_texture_tiling': False,
+        #     'tiling_fix_quality': 1.0,
+        #
+        #     'sharpness': 0.5,
+        #     'NEDI_m': 4
+        # }
+        # algorithms = [Algorithms.PIL_BICUBIC]
         # algorithms = [
         #     Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
         #     Algorithms.RealESRGAN, Algorithms.xBRZ, Algorithms.FSR, Algorithms.Super_xBR, Algorithms.hqx,
@@ -1094,11 +1086,14 @@ if __name__ == '__main__':
         #     Algorithms.NEDI, Algorithms.Super_xBR,
         #     Algorithms.xBRZ, Algorithms.FSR
         # ]
-        scales = [1]
+        config = presets.FullUpscaleTest.config
+        algorithms = presets.FullUpscaleTest.algorithms
+        scales = [4]
         # scales = [0.125, 0.25, 0.5, 0.666, 0.8]
-        # config['NEDI_m'] = 4
+        config['NEDI_m'] = 4
         # config['offset_x'] = 0
         # config['offset_y'] = 0
+        config['sharpness'] = 0.5
     else:
         algorithms, scales, sharpness, nedi_m, config = handle_user_input()
         config['sharpness'] = sharpness
