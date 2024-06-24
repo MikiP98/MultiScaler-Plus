@@ -2,7 +2,7 @@ argparse
 coverage
 fastapi
 hqx
-numpy==1.26.4  # newest numpy version (2.0.0) is incompatible with `qoi`
+numpy==1.26.4  # newest numpy version (2.0.0) is incompatible with `torch` and `py_super_xbr`
 opencv-contrib-python
 pillow
 pillow-avif-plugin
@@ -10,7 +10,7 @@ pillow-jxl-plugin
 psutil
 pyanime4k
 python-multipart
-qoi
+qoi>=0.7.0  # Required to support new NumPy 2.0.0
 super-image
 termcolor
 torch
