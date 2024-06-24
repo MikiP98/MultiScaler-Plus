@@ -513,7 +513,9 @@ def scale_image_batch(
                     new_frame = PIL.Image.new(frame.mode, (output_width, output_height))
                     for x in range(output_width):
                         for y in range(output_height):
-                            new_frame.putpixel((x, y), frame.getpixel(((x + offset_x) % width, (y + offset_y) % height)))
+                            new_frame.putpixel(
+                                (x, y), frame.getpixel(((x + offset_x) % width, (y + offset_y) % height))
+                            )
 
                     scaled_image.append(new_frame)
                 new_image_object_list.append(scaled_image)

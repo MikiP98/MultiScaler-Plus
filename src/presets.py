@@ -61,9 +61,9 @@ class FullAlgorithmsTest(Preset):
         Algorithms.CV2_LapSRN,  # Laplacian Super-Resolution Network
         Algorithms.FSR,  # FidelityFX Super Resolution
         Algorithms.hqx,  # high quality scale
-    
+
         Algorithms.HSDBTRE,
-    
+
         Algorithms.NEDI,  # New Edge-Directed Interpolation
         Algorithms.PIL_BICUBIC,  # less blur and artifacts than bilinear, but slower
         Algorithms.PIL_BILINEAR,
@@ -71,7 +71,7 @@ class FullAlgorithmsTest(Preset):
         Algorithms.PIL_NEAREST_NEIGHBOR,
         Algorithms.RealESRGAN,
         Algorithms.Repetition,
-    
+
         Algorithms.SI_drln_bam,
         Algorithms.SI_edsr,
         Algorithms.SI_msrn,
@@ -85,14 +85,14 @@ class FullAlgorithmsTest(Preset):
         Algorithms.SI_carn_bam,
         Algorithms.SI_pan,
         Algorithms.SI_pan_bam,
-    
+
         Algorithms.SI_drln,
         Algorithms.SI_han,
         Algorithms.SI_rcan_bam,
-    
+
         Algorithms.Super_xBR,
         Algorithms.xBRZ,
-    
+
         # Docker start
         Algorithms.SUPIR,
         Algorithms.Waifu2x,

@@ -9,11 +9,11 @@ import struct
 from enum import auto, IntEnum, unique
 
 
-class Image:
-    def __init__(self, images: list[list[PIL.Image]], *, is_animated=False, animation_spacing=(1000/30)):
-        self.images = images
-        if is_animated:
-            self.animationSpacing = animation_spacing
+# class Image:
+#     def __init__(self, images: list[list[PIL.Image]], *, is_animated=False, animation_spacing=(1000/30)):
+#         self.images = images
+#         if is_animated:
+#             self.animationSpacing = animation_spacing
 
 
 class ImageDict(TypedDict):
@@ -370,24 +370,24 @@ def apply_lossless_compression_webp(image: PIL.Image) -> bytes:
     return apply_lossless_compression(image, optional_args)
 
 
-def pngify_class(image: PIL.Image) -> Image:
-    if image.format.lower() in pil_animated_formats_cache:
-        # Extract all frames from the animated image as a list of images
-        if image.is_animated:
-            raise NotImplementedError("Animated images are not supported yet")
-
-        raise NotImplementedError(
-            f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}"
-        )
-
-    # check if is RGBA or RGB
-    elif not (image.mode == "RGB" or image.mode == "RGBA"):
-        image = image.convert("RGBA")
-        if not uses_transparency(image):
-            image = image.convert("RGB")
-
-    return Image([[image]])
-    # return [image]  # Return an 'image' with single 'frame'
+# def pngify_class(image: PIL.Image) -> Image:
+#     if image.format.lower() in pil_animated_formats_cache:
+#         # Extract all frames from the animated image as a list of images
+#         if image.is_animated:
+#             raise NotImplementedError("Animated images are not supported yet")
+#
+#         raise NotImplementedError(
+#             f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}"
+#         )
+#
+#     # check if is RGBA or RGB
+#     elif not (image.mode == "RGB" or image.mode == "RGBA"):
+#         image = image.convert("RGBA")
+#         if not uses_transparency(image):
+#             image = image.convert("RGB")
+#
+#     return Image([[image]])
+#     # return [image]  # Return an 'image' with single 'frame'
 
 
 def pngify(image: PIL.Image) -> ImageDict:
@@ -406,7 +406,7 @@ def pngify(image: PIL.Image) -> ImageDict:
         if not uses_transparency(image):
             image = image.convert("RGB")
 
-    return ImageDict(images=[[image]])
+    return {'images': [[image]]}
 
 
 @DeprecationWarning

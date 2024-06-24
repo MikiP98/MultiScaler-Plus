@@ -1,13 +1,12 @@
 # coding=utf-8
-# import json
+import os
 
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
-import os
 from PIL import Image
 from scaler import scale_image_batch
-from utils import image_to_byte_array, string_to_algorithm, cli_algorithms, pngify
+from utils import cli_algorithms, image_to_byte_array, pngify, string_to_algorithm
 
 app = FastAPI()
 # Allow requests from all origins
@@ -71,6 +70,6 @@ def main(content: UploadFile, algorithm: str = 'bicubic', factor: float = 2):
     if not scaled_image_list or len(scaled_image_list) == 0:
         scaled_image = Image.open("./web_temp_output/image.png")
     else:
-        scaled_image = scaled_image_list.pop().images[0][0]
+        scaled_image = scaled_image_list.pop()['images'][0][0]
 
     return Response(content=image_to_byte_array(scaled_image), media_type="image/png")
