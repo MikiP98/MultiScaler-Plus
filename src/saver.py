@@ -55,6 +55,23 @@ def save_image_with_png(image: PIL.Image, path: str, config: SimpleConfig):
             file_path = generate_file_path(path, compression, "png", config['add_compression_to_name'])
             with open(file_path, 'wb') as f:
                 f.write(img_byte_arr)
+#     if "PNG" in config['formats']:
+#         for compression in config['compressions']:
+#             if not compression['lossless']:  # if lossy
+#                 print(
+#                     colored(
+#                         "WARN: You CAN use lossy compression with PNG format, but this app does not support it :(\n"
+#                         "SKIPPING", 'yellow'
+#                     )
+#                 )
+#                 continue
+#                 # TODO: make a force palette as a lossy PNG compression for now
+#
+#             else:  # if additional lossless
+#                 img_byte_arr = utils.apply_lossless_compression_png(image)
+#
+#                 with open(file_path, 'wb') as f:
+#                     f.write(img_byte_arr)
 
 
 def save_image_with_qoi(image: PIL.Image, path: str, config: SimpleConfig):
@@ -71,6 +88,22 @@ def save_image_with_qoi(image: PIL.Image, path: str, config: SimpleConfig):
         file_path = generate_file_path(path, compression, "qoi", config['add_compression_to_name'])
         with open(file_path, 'wb') as f:
             f.write(image_bytes)
+#     if "QOI" in config['formats']:
+#         for compression in config['compressions']:
+#             if not compression['lossless']:
+#                 print(
+#                     colored(
+#                         "WARN: You CAN use lossy compression with QOI format, but this app does not support it :(\n"
+#                         "SKIPPING", 'yellow'
+#                     )
+#                 )
+#                 continue
+#
+#             image_bytes = qoi.encode(np.array(image), colorspace=QOIColorSpace.SRGB)
+#             # TODO: pass correct colorspace {LINEAR / SRGB}
+#
+#             with open(file_path, 'wb') as f:
+#                 f.write(image_bytes)
 
 
 def save_image_with_jpeg_xl(image: PIL.Image, path: str, config: SimpleConfig):
@@ -80,6 +113,12 @@ def save_image_with_jpeg_xl(image: PIL.Image, path: str, config: SimpleConfig):
             image.save(file_path, lossless=True, optimize=True)
         else:
             image.save(file_path, quality=compression['quality'])
+    #     if "JPEG_XL" in config['formats']:
+    #         for compression in config['compressions']:
+    #             if compression['lossless']:
+    #                 image.save(file_path, lossless=True, optimize=True)
+    #             else:
+    #                 image.save(file_path, quality=compression['quality'])
 
 
 def save_image_with_webp(image: PIL.Image, path: str, config: SimpleConfig):
@@ -95,6 +134,18 @@ def save_image_with_webp(image: PIL.Image, path: str, config: SimpleConfig):
         else:
             if not compression['additional_lossless']:
                 image.save(file_path, quality=compression['quality'], method=6)
+#     if "WEBP" in config['formats']:
+#         for compression in config['compressions']:
+#             if compression['lossless']:
+#                 if not compression['additional_lossless']:
+#                     image.save(file_path, lossless=True, method=6, optimize=True)
+#                 else:
+#                     img_byte_arr = utils.apply_lossless_compression_webp(image)
+#                     with open(file_path, 'wb') as f:
+#                         f.write(img_byte_arr)
+#             else:
+#                 if not compression['additional_lossless']:
+#                     image.save(file_path, quality=compression['quality'], method=6)
 
 
 def save_image_with_avif(image: PIL.Image, path: str, config: SimpleConfig):
@@ -106,6 +157,16 @@ def save_image_with_avif(image: PIL.Image, path: str, config: SimpleConfig):
             )
         else:
             image.save(file_path, quality=compression['quality'], speed=0, range="full")
+#     if "AVIF" in config['formats']:
+#         for compression in config['compressions']:
+#             if compression['lossless']:
+#                 image.save(
+#                     file_path, lossless=True, quality=100, qmin=0, qmax=0, speed=0, subsampling="4:4:4", range="full"
+#                 )
+#             else:
+#                 image.save(file_path, quality=compression['quality'], speed=0, range="full")
+#
+#     print(colored(f"{path} Fully Saved!", 'light_green'))
 
 
 # Global, allows for easy injection of another format
@@ -127,72 +188,5 @@ def save_image(image: PIL.Image, path: str, config: SimpleConfig) -> None:
     print(colored(f"{path} Fully Saved!", 'light_green'))
 
 
-#     if "PNG" in config['formats']:
-#         for compression in config['compressions']:
-#             if not compression['lossless']:  # if lossy
-#                 print(
-#                     colored(
-#                         "WARN: You CAN use lossy compression with PNG format, but this app does not support it :(\n"
-#                         "SKIPPING", 'yellow'
-#                     )
-#                 )
-#                 continue
-#                 # TODO: make a force palette as a lossy PNG compression for now
-#
-#             else:  # if additional lossless
-#                 img_byte_arr = utils.apply_lossless_compression_png(image)
-#
-#                 with open(file_path, 'wb') as f:
-#                     f.write(img_byte_arr)
-#
-#     if "QOI" in config['formats']:
-#         for compression in config['compressions']:
-#             if not compression['lossless']:
-#                 print(
-#                     colored(
-#                         "WARN: You CAN use lossy compression with QOI format, but this app does not support it :(\n"
-#                         "SKIPPING", 'yellow'
-#                     )
-#                 )
-#                 continue
-#
-#             image_bytes = qoi.encode(np.array(image), colorspace=QOIColorSpace.SRGB)
-#             # TODO: pass correct colorspace {LINEAR / SRGB}
-#
-#             with open(file_path, 'wb') as f:
-#                 f.write(image_bytes)
-#
-#     if "JPEG_XL" in config['formats']:
-#         for compression in config['compressions']:
-#             if compression['lossless']:
-#                 image.save(file_path, lossless=True, optimize=True)
-#             else:
-#                 image.save(file_path, quality=compression['quality'])
-#
-#     if "WEBP" in config['formats']:
-#         for compression in config['compressions']:
-#             if compression['lossless']:
-#                 if not compression['additional_lossless']:
-#                     image.save(file_path, lossless=True, method=6, optimize=True)
-#                 else:
-#                     img_byte_arr = utils.apply_lossless_compression_webp(image)
-#                     with open(file_path, 'wb') as f:
-#                         f.write(img_byte_arr)
-#             else:
-#                 if not compression['additional_lossless']:
-#                     image.save(file_path, quality=compression['quality'], method=6)
-#
-#     if "AVIF" in config['formats']:
-#         for compression in config['compressions']:
-#             if compression['lossless']:
-#                 image.save(
-#                     file_path, lossless=True, quality=100, qmin=0, qmax=0, speed=0, subsampling="4:4:4", range="full"
-#                 )
-#             else:
-#                 image.save(file_path, quality=compression['quality'], speed=0, range="full")
-#
-#     print(colored(f"{path} Fully Saved!", 'light_green'))
-
-
-def advanced_save_image(image: PIL.Image, output_path: str, file_name: str, config: AdvancedConfig) -> None:
+def save_image_pre_processor(image: PIL.Image, output_path: str, file_name: str, config: AdvancedConfig) -> None:
     save_image(image, f"{output_path}/{file_name}", config['simple_config'])
