@@ -1,6 +1,7 @@
 # coding=utf-8
 # File for future filter functions
 
+import numpy as np
 import utils
 import PIL.Image
 
@@ -8,15 +9,23 @@ from utils import Filters
 
 
 def normal_map_strength(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
-    for frame in frames:
-        for x in range(frame.width):
-            for y in range(frame.height):
-                r, g, b = frame.getpixel((x, y))
-                r = int(r * factor)
-                g = int(g * factor)
-                frame.putpixel((x, y), (r, g, b))
+    new_frames = []
 
-    return frames
+    for frame in frames:
+        image_data = np.asarray(frame)
+
+        if image_data.shape[2] == 4:
+            scaling_vector = np.array([factor, factor, 1, 1])
+        else:
+            scaling_vector = np.array([factor, factor, 1])
+
+        new_image_data = image_data * scaling_vector
+
+        new_frame = PIL.Image.fromarray(new_image_data.astype('uint8'))
+        new_frames.append(new_frame)
+
+    print(f"Applied normal map strength filter with factor {factor}")
+    return new_frames
 
 
 filter_functions = {
@@ -37,7 +46,7 @@ def filter_image_batch(
     return [
         {
             "images": filter_function(image["images"][0], factor),
-            "is_animated": image["is_animated"],
-            "animation_spacing": image["animation_spacing"],
+            "is_animated": image.get("is_animated"),
+            "animation_spacing": image.get("animation_spacing"),
         } for image in images for factor in factors
     ]
