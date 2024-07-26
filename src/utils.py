@@ -1,12 +1,15 @@
 # coding=utf-8
-from typing import Optional, TypedDict, Union
 
 import cv2
 import io
 import numpy as np
 import PIL.Image
 import struct
+
 from enum import auto, IntEnum, unique
+from termcolor import colored
+from termcolor._types import Color as TermColor  # Ignore this warning, TODO: create an issue on the termcolor repo.
+from typing import Optional, TypedDict, Union
 
 
 # class Image:
@@ -82,6 +85,11 @@ class Algorithms(IntEnum):
 @unique
 class Filters(IntEnum):
     CAS = auto()  # contrast adaptive sharpening
+
+    NORMAL_MAP_STRENGTH = auto()
+    AUTO_NORMAL_MAP = auto()
+    AUTO_SPECULAR_MAP = auto()
+
     SI_TODO = auto()  # TODO: Add filters
 
 
@@ -563,6 +571,20 @@ def geo_avg(iterable) -> float:
     :return:
     """
     return (np.prod(iterable)) ** (1 / len(iterable))
+
+
+def rainbowify(text: str) -> str:
+    colors: list[TermColor] = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
+    len_colors = len(colors)
+    rainbow_text = ""
+    i = 0
+    for char in text:
+        if char == ' ':
+            rainbow_text += ' '
+        else:
+            rainbow_text += colored(char, colors[i % len_colors])
+            i += 1
+    return rainbow_text
 
 
 if __name__ == "__main__":  # This is a test code

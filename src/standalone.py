@@ -20,7 +20,6 @@ import zipfile
 from fractions import Fraction
 from functools import lru_cache
 from termcolor import colored
-from termcolor._types import Color as TermColor  # Ignore this, TODO: create an issue on the termcolor repo.
 from utils import (
     Algorithms,
     avg,
@@ -28,7 +27,8 @@ from utils import (
     pil_read_only_formats_cache,
     pil_write_only_formats_cache,
     pil_indentify_only_formats_cache,
-    pngify
+    pngify,
+    rainbowify
 )
 
 
@@ -357,6 +357,7 @@ def scale_loop(
                         new_image.append(frame)
                         continue
 
+                    # TODO: Consider itertools.compress() for this
                     for x in range(dimensions[0]):
                         for y in range(dimensions[1]):
                             if mask_py[x][y] == 255:
@@ -978,20 +979,6 @@ def run(algorithms: list[Algorithms], scales: list[float], config: dict) -> None
 
     # After switching to list[list[image]] format, multiprocessing on this level became obsolete
     algorithm_loop(algorithms, images, roots, file_names, scales, config)
-
-
-def rainbowify(text: str) -> str:
-    colors: list[TermColor] = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
-    len_colors = len(colors)
-    rainbow_text = ""
-    i = 0
-    for char in text:
-        if char == ' ':
-            rainbow_text += ' '
-        else:
-            rainbow_text += colored(char, colors[i % len_colors])
-            i += 1
-    return rainbow_text
 
 
 if __name__ == '__main__':
