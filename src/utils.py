@@ -86,7 +86,9 @@ class Algorithms(IntEnum):
 class Filters(IntEnum):
     CAS = auto()  # contrast adaptive sharpening
 
-    NORMAL_MAP_STRENGTH = auto()
+    NORMAL_MAP_STRENGTH_LINEAR = auto()
+    NORMAL_MAP_STRENGTH_EXPONENTIAL = auto()
+
     AUTO_NORMAL_MAP = auto()
     AUTO_SPECULAR_MAP = auto()
 
@@ -316,6 +318,30 @@ def image_to_byte_array(image: PIL.Image, additional_lossless_compression=True) 
     return img_byte_arr
 
 
+def count_unique_colors_python_break_batched(image: PIL.Image) -> int:
+    # Get the image data as a list of pixels
+    pixels = list(image.getdata())
+
+    scanned_pixels = min(256, len(pixels))
+
+    # Create a set to store the unique colors
+    unique_colors = set(pixels[:scanned_pixels])
+
+    # Loop over the pixels and add them to the set
+    while len(unique_colors) <= 256:
+        # print(f"Iteration; scanned_pixels: {scanned_pixels}; unique_colors: {len(unique_colors)}")
+        new_scanned_pixels = min(scanned_pixels + 257 - len(unique_colors), len(pixels))
+        unique_colors.update(pixels[scanned_pixels:new_scanned_pixels])
+        if new_scanned_pixels == len(pixels):
+            break
+        scanned_pixels = new_scanned_pixels
+    else:  # no break happened, so len(unique_colors) > 256
+        return 320
+
+    # Return the number of unique colors
+    return len(unique_colors)
+
+
 def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:
     img_byte_arr = io.BytesIO()
 
@@ -325,34 +351,27 @@ def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:
 
     image.save(img_byte_arr, **optional_args)
 
-    unique_colors_number = len(set(image.getdata()))
+    # unique_colors_number = len(set(image.getdata()))
+    unique_colors_number = count_unique_colors_python_break_batched(image)
     # print(f"Unique colors: {unique_colors_number}")
     if unique_colors_number <= 256:
-        colors = 256
-        if unique_colors_number <= 2:
-            colors = 2
-        elif unique_colors_number <= 4:
-            colors = 4
-        elif unique_colors_number <= 16:
+
+        colors = 2  # benchmarked
+        if unique_colors_number > 16:
+            colors = 256
+        elif unique_colors_number > 4:
             colors = 16
+        elif unique_colors_number > 2:
+            colors = 4
 
         img_temp_byte_arr = io.BytesIO()
         temp_image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)  # sometimes deletes some data :/
 
-        # Additional check to see if PIL didn't fuck up
-        same = True
-        for data1, data2 in zip(image.getdata(), temp_image.convert(mode).getdata()):
-            if data1 != data2:
-                # print(f"{data1} != {data2}")
-                same = False
-                break
-        # if all([data1 == data2 for data1, data2 in zip(image.getdata(), temp_image.getdata())]):
-
-        if same:
+        # Additional check to see if PIL didn't fuck up, (it sometimes it wrong)
+        if image.getdata() == temp_image.convert(mode).getdata():  # benchmarked
             temp_image.save(img_temp_byte_arr, **optional_args)
 
             # Check which one is smaller and keep it, remove the other one
-            # (if the palette is smaller remove '_P' from the name)
             if len(img_temp_byte_arr.getvalue()) < len(img_byte_arr.getvalue()):
                 img_byte_arr = img_temp_byte_arr
                 # print("Saving palette")
@@ -573,7 +592,9 @@ def geo_avg(iterable) -> float:
     return (np.prod(iterable)) ** (1 / len(iterable))
 
 
-def rainbowify(text: str) -> str:
+def rainbowify(text: str, *, bold=False) -> str:
+    b = '\x1B[1m' if bold else ''
+
     colors: list[TermColor] = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
     len_colors = len(colors)
     rainbow_text = ""
@@ -582,7 +603,7 @@ def rainbowify(text: str) -> str:
         if char == ' ':
             rainbow_text += ' '
         else:
-            rainbow_text += colored(char, colors[i % len_colors])
+            rainbow_text += b + colored(char, colors[i % len_colors])
             i += 1
     return rainbow_text
 
