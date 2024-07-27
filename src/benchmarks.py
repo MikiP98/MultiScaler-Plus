@@ -1537,6 +1537,250 @@ def set_from_dict(n=1_000_000, k=10):
     # ------------------------------------------------------------------------------------------------------------------
 
 
+def count_unique_colors_numpy(image: Image) -> int:
+    # Convert the image to a NumPy array
+    image_data = np.asarray(image)
+
+    # Reshape the array to a 2D array where each row is a pixel
+    pixels = image_data.reshape(-1, image_data.shape[-1])
+
+    # Use np.unique to find the unique rows (colors)
+    unique_colors = np.unique(pixels, axis=0)
+
+    # Count the number of unique rows
+    unique_colors_number = unique_colors.shape[0]
+
+    return unique_colors_number
+
+
+def count_unique_colors_python_break(image: Image) -> int:
+    # Get the image data as a list of pixels
+    pixels = list(image.getdata())
+
+    # Create a set to store the unique colors
+    unique_colors = set(pixels[:256])
+
+    # Loop over the pixels and add them to the set
+    for pixel in pixels[256:]:
+        unique_colors.add(pixel)
+        if len(unique_colors) > 256:
+            return 320
+
+    # Return the number of unique colors
+    return len(unique_colors)
+
+
+def count_unique_colors_python_break_batched(image: Image) -> int:
+    # Get the image data as a list of pixels
+    pixels = list(image.getdata())
+
+    scanned_pixels = min(256, len(pixels))
+
+    # Create a set to store the unique colors
+    unique_colors = set(pixels[:scanned_pixels])
+
+    # Loop over the pixels and add them to the set
+    while len(unique_colors) <= 256:
+        # print(f"Iteration; scanned_pixels: {scanned_pixels}; unique_colors: {len(unique_colors)}")
+        new_scanned_pixels = min(scanned_pixels + 257 - len(unique_colors), len(pixels))
+        unique_colors.update(pixels[scanned_pixels:new_scanned_pixels])
+        if new_scanned_pixels == len(pixels):
+            break
+        scanned_pixels = new_scanned_pixels
+    else:
+        return 320
+
+    # Return the number of unique colors
+    return len(unique_colors)
+
+
+def count_unique_colors_python_simple_batched(image: Image) -> int:
+    # Get the image data as a list of pixels
+    pixels = list(image.getdata())
+
+    # Create a set to store the unique colors
+    unique_colors = set()
+
+    # Loop over the pixels in batches and add them to the set
+    for i in range(0, len(pixels), 256):
+        unique_colors.update(pixels[i:min(i + 256, len(pixels))])
+        if len(unique_colors) > 256:
+            return 320
+
+    # Return the number of unique colors
+    return len(unique_colors)
+
+
+def unique_colors_test(n=40_000, k=20):
+    # image = Image.open("example_images/input/example_shell_40px.png")
+    image = Image.open("example_images/input/wiki_example_text_40x109.png")
+
+    numpy_time = 0
+    python_time = 0
+    python_w_break_time = 0
+    python_w_break_batched_time = 0
+    python_simple_batched_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        numpy_time += timeit.timeit(lambda: count_unique_colors_numpy(image), number=n // k)
+        python_time += timeit.timeit(lambda: len(set(image.getdata())), number=n // k)
+        python_w_break_time += timeit.timeit(lambda: count_unique_colors_python_break(image), number=n // k)
+        python_w_break_batched_time += timeit.timeit(lambda: count_unique_colors_python_break_batched(image), number=n // k)
+        python_simple_batched_time += timeit.timeit(lambda: count_unique_colors_python_simple_batched(image), number=n // k)
+
+    numpy_time = round(numpy_time / k, 4)
+    python_time = round(python_time / k, 4)
+    python_w_break_time = round(python_w_break_time / k, 4)
+    python_w_break_batched_time = round(python_w_break_batched_time / k, 4)
+    python_simple_batched_time = round(python_simple_batched_time / k, 4)
+
+    print(f"NumPy time: {numpy_time}")
+    print(f"Python time: {python_time}")
+    print(f"Python with break time: {python_w_break_time}")
+    print(f"Python with break batched time: {python_w_break_batched_time}")
+    print(f"Python simple batched time: {python_simple_batched_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "uniqe_colors_test" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def all_compare(image: Image, image2: Image) -> bool:
+    return all(pixel1 == pixel2 for pixel1, pixel2 in zip(image.getdata(), image2.getdata()))
+
+
+def break_loop(image: Image, image2: Image) -> bool:
+    for pixel1, pixel2 in zip(image.getdata(), image2.getdata()):
+        if pixel1 != pixel2:
+            return False
+    return True
+
+
+def next_compare(image: Image, image2: Image) -> int:
+    return next((1 for pixel, pixel2 in zip(image.getdata(), image2.getdata()) if pixel == pixel2), 0)
+
+
+def equals_compare(image: Image, image2: Image) -> bool:
+    return image.getdata() == image2.getdata()
+
+
+def numpy_compare(image: Image, image2: Image) -> bool:
+    return np.asarray(image) == np.asarray(image2)
+
+
+def numpy_equals_compare(image: Image, image2: Image) -> bool:
+    return np.array_equal(np.asarray(image), np.asarray(image2))
+
+
+def image_compare_test(n=500_000, k=20):
+    image = Image.open("example_images/input/example_shell_40px.png")
+    image2 = Image.open("example_images/input/wiki_example_text_40x109.png")
+
+    # all_time = 0
+    # break_loop_time = 0
+    # next_time = 0
+    equals_time = 0
+    numpy_compare_time = 0
+    numpy_equals_compare_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        # all_time += timeit.timeit(lambda: all_compare(image, image), number=n // k)
+        # break_loop_time += timeit.timeit(lambda: break_loop(image, image), number=n // k)
+        # next_time += timeit.timeit(lambda: next_compare(image, image), number=n // k)
+        equals_time += timeit.timeit(lambda: equals_compare(image, image), number=n // k)
+        numpy_compare_time += timeit.timeit(lambda: numpy_compare(image, image), number=n // k)
+        numpy_equals_compare_time += timeit.timeit(lambda: numpy_equals_compare(image, image), number=n // k)
+
+    # all_time = round(all_time / k, 4)
+    # break_loop_time = round(break_loop_time / k, 4)
+    # next_time = round(next_time / k, 4)
+    equals_time = round(equals_time / k, 4)
+    numpy_compare_time = round(numpy_compare_time / k, 4)
+    numpy_equals_compare_time = round(numpy_equals_compare_time / k, 4)
+
+    # print(f"All time: {all_time}")
+    # print(f"Break loop time: {break_loop_time}")
+    # print(f"Next time: {next_time}")
+    print(f"Equals time: {equals_time}")
+    print(f"NumPy compare time: {numpy_compare_time}")
+    print(f"NumPy equals compare time: {numpy_equals_compare_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "image_compare_test" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def color_from_if(unique_colors: int) -> int:
+    colors = 256
+
+    if unique_colors <= 2:
+        colors = 2
+    elif unique_colors <= 4:
+        colors = 4
+    elif unique_colors <= 16:
+        colors = 16
+
+    return colors
+
+
+def color_from_inverted_if(unique_colors: int) -> int:
+    colors = 2
+
+    if unique_colors > 16:
+        colors = 256
+    elif unique_colors > 4:
+        colors = 16
+    elif unique_colors > 2:
+        colors = 4
+
+    return colors
+
+
+def color_from_tuple(unique_colors: int) -> int:
+    thresholds = [2, 4, 16, 256]
+    return next(threshold for threshold in thresholds if unique_colors <= threshold)
+
+
+def color_from_bit_power(unique_colors: int) -> int:
+    colors = 1 << (unique_colors - 1).bit_length()
+    if colors > 16:
+        colors = 256
+    elif colors > 4:
+        colors = 16
+    return max(colors, 2)
+
+
+def color_count_test(n=10_000_000, k=15):
+    # image = Image.open("example_images/input/example_shell_40px.png")
+    # unique_colors = count_unique_colors_python_break_batched(image)
+    unique_colors = 73
+
+    if_tree_time = 0
+    inverted_if_time = 0
+    tuple_time = 0
+    bit_power_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        if_tree_time += timeit.timeit(lambda: color_from_if(unique_colors), number=n // k)
+        inverted_if_time += timeit.timeit(lambda: color_from_inverted_if(unique_colors), number=n // k)
+        tuple_time += timeit.timeit(lambda: color_from_tuple(unique_colors), number=n // k)
+        bit_power_time += timeit.timeit(lambda: color_from_bit_power(unique_colors), number=n // k)
+
+    if_tree_time = round(if_tree_time / k, 4)
+    inverted_if_time = round(inverted_if_time / k, 4)
+    tuple_time = round(tuple_time / k, 4)
+    bit_power_time = round(bit_power_time / k, 4)
+
+    print(f"If tree time: {if_tree_time}")
+    print(f"Inverted if time: {inverted_if_time}")
+    print(f"Tuple time: {tuple_time}")
+    print(f"Bit power time: {bit_power_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "color_count_test" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
 def docstring_tests():
     print(scaler.csatpa.__doc__)
 
@@ -1564,7 +1808,7 @@ if __name__ == "__main__":
     # columnify_test()  # Broken
     # cached_tuple_vs_list_test()
     # endswith_tuple_vs_split_in_set()
-    single_vs_multi_3(n=2)
+    # single_vs_multi_3(n=2)
     # single_vs_multi_2(n=2)
     # single_vs_multi_2_3()
     # list_alike_test()
@@ -1572,6 +1816,9 @@ if __name__ == "__main__":
     # set_vs_frozenset_generation()
     # frozen_set_from_elements()
     # dict_with_list_vs_tuple_vs_set_vs_frozenset()
+    # unique_colors_test()
+    # image_compare_test()
+    color_count_test()
 
     # set_from_dict()
     # set_from_dick_w_tuples_simple()
@@ -1584,4 +1831,10 @@ if __name__ == "__main__":
     # print(frozenset(range(100)))
 
     # docstring_tests()
+
+    # unique_colors_numbers = [3, 16, 24, 156, 231, 1]
+    # for unique_colors_number in unique_colors_numbers:
+    #     colors = 1 << (unique_colors_number - 1).bit_length()
+    #     print(colors)
+
     ...
