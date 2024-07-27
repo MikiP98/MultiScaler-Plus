@@ -203,13 +203,13 @@ def save_images_chunk(args) -> None:
 def scale_loop(
         algorithm:
         Algorithms,
-        images: list[utils.Image],
+        images: list[utils.ImageDict],
         roots: list[str],
         files: list[str],
         scales: list[float],
         config: dict,
         masks: list[list[list[PIL.Image]]] | None = None,
-        nearest_neighbour_for_masks: list[utils.Image] | None = None
+        nearest_neighbour_for_masks: list[utils.ImageDict] | None = None
 ) -> None:
     print("Starting scaling process")
 
@@ -489,7 +489,7 @@ def algorithm_loop(
             processes = config['max_processes'][1]
         else:
             # Calc average image size
-            images_frames = [image.images[0] for image in images]
+            images_frames = [image["images"][0] for image in images]
             # print(f"Images frames: {images_frames}")
             size_sum = 0
             for frames in images_frames:
