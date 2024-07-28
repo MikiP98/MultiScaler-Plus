@@ -1,6 +1,6 @@
-from flask import Flask, request
-import io
-from PIL import Image
+from flask import Flask  # , request
+# import io
+# from PIL import Image
 
 
 app = Flask(__name__)
@@ -8,8 +8,8 @@ app = Flask(__name__)
 
 @app.route('/', methods=['POST'])
 def receive_image():
-    file = request.files['file']  # get the file
-    image = Image.open(io.BytesIO(file.read()))  # convert bytes to image
+    # file = request.files['file']  # get the file
+    # image = Image.open(io.BytesIO(file.read()))  # convert bytes to image
     # process your image here
     return 'Image received and processed', 200
 
