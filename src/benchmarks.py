@@ -11,7 +11,11 @@ import time
 import timeit
 import utils
 
+from aenum import IntEnum as AIntEnum
+from aenum import auto as aauto
+from aenum import unique as aunique
 from collections import deque
+from enum import auto, IntEnum, unique
 from functools import lru_cache
 from PIL import Image
 from pympler import asizeof
@@ -1781,6 +1785,190 @@ def color_count_test(n=10_000_000, k=15):
     # ------------------------------------------------------------------------------------------------------------------
 
 
+@unique
+class Algorithms(IntEnum):
+    CPP_DEBUG = -1
+
+    Anime4K = auto()
+    CAS = auto()  # contrast adaptive sharpening
+    CV2_INTER_AREA = auto()  # resampling using pixel area relation
+    CV2_INTER_CUBIC = auto()  # bicubic interpolation over 4x4 pixel neighborhood
+    CV2_INTER_LANCZOS4 = auto()  # Lanczos interpolation over 8x8 pixel neighborhood
+    CV2_INTER_LINEAR = auto()  # bilinear interpolation
+    CV2_INTER_NEAREST = auto()  # nearest-neighbor interpolation
+    CV2_EDSR = auto()  # Enhanced Deep Super-Resolution
+    CV2_ESPCN = auto()  # Efficient Sub-Pixel Convolutional Neural Network
+    CV2_FSRCNN = auto()  # Fast Super-Resolution Convolutional Neural Network
+    CV2_FSRCNN_small = auto()  # Fast Super-Resolution Convolutional Neural Network - Small
+    CV2_LapSRN = auto()  # Laplacian Super-Resolution Network
+    FSR = auto()  # FidelityFX Super Resolution
+    hqx = auto()  # high quality scale
+
+    HSDBTRE = auto()
+
+    NEDI = auto()  # New Edge-Directed Interpolation
+    PIL_BICUBIC = auto()  # less blur and artifacts than bilinear, but slower
+    PIL_BILINEAR = auto()
+    PIL_LANCZOS = auto()  # less blur than bicubic, but artifacts may appear
+    PIL_NEAREST_NEIGHBOR = auto()
+    RealESRGAN = auto()
+    Repetition = auto()
+
+    SI_drln_bam = auto()
+    SI_edsr = auto()
+    SI_msrn = auto()
+    SI_mdsr = auto()
+    SI_msrn_bam = auto()
+    SI_edsr_base = auto()
+    SI_mdsr_bam = auto()
+    SI_awsrn_bam = auto()
+    SI_a2n = auto()
+    SI_carn = auto()
+    SI_carn_bam = auto()
+    SI_pan = auto()
+    SI_pan_bam = auto()
+
+    SI_drln = auto()
+    SI_han = auto()
+    SI_rcan_bam = auto()
+
+    Super_xBR = auto()
+    xBRZ = auto()
+
+    # Docker start
+    SUPIR = auto()
+    Waifu2x = auto()
+
+enum_dict = {algo: i for i, algo in enumerate(Algorithms)}
+
+
+@aunique
+class AAlgorithms(AIntEnum):
+    CPP_DEBUG = -1
+
+    Anime4K = aauto()
+    CAS = aauto()  # contrast adaptive sharpening
+    CV2_INTER_AREA = aauto()  # resampling using pixel area relation
+    CV2_INTER_CUBIC = aauto()  # bicubic interpolation over 4x4 pixel neighborhood
+    CV2_INTER_LANCZOS4 = aauto()  # Lanczos interpolation over 8x8 pixel neighborhood
+    CV2_INTER_LINEAR = aauto()  # bilinear interpolation
+    CV2_INTER_NEAREST = aauto()  # nearest-neighbor interpolation
+    CV2_EDSR = aauto()  # Enhanced Deep Super-Resolution
+    CV2_ESPCN = aauto()  # Efficient Sub-Pixel Convolutional Neural Network
+    CV2_FSRCNN = aauto()  # Fast Super-Resolution Convolutional Neural Network
+    CV2_FSRCNN_small = aauto()  # Fast Super-Resolution Convolutional Neural Network - Small
+    CV2_LapSRN = aauto()  # Laplacian Super-Resolution Network
+    FSR = aauto()  # FidelityFX Super Resolution
+    hqx = aauto()  # high quality scale
+
+    HSDBTRE = aauto()
+
+    NEDI = aauto()  # New Edge-Directed Interpolation
+    PIL_BICUBIC = aauto()  # less blur and artifacts than bilinear, but slower
+    PIL_BILINEAR = aauto()
+    PIL_LANCZOS = aauto()  # less blur than bicubic, but artifacts may appear
+    PIL_NEAREST_NEIGHBOR = aauto()
+    RealESRGAN = aauto()
+    Repetition = aauto()
+
+    SI_drln_bam = aauto()
+    SI_edsr = aauto()
+    SI_msrn = aauto()
+    SI_mdsr = aauto()
+    SI_msrn_bam = aauto()
+    SI_edsr_base = aauto()
+    SI_mdsr_bam = aauto()
+    SI_awsrn_bam = aauto()
+    SI_a2n = aauto()
+    SI_carn = aauto()
+    SI_carn_bam = aauto()
+    SI_pan = aauto()
+    SI_pan_bam = aauto()
+
+    SI_drln = aauto()
+    SI_han = aauto()
+    SI_rcan_bam = aauto()
+
+    Super_xBR = aauto()
+    xBRZ = aauto()
+
+    # Docker start
+    SUPIR = aauto()
+    Waifu2x = aauto()
+
+aenum_dict = {algo: i for i, algo in enumerate(AAlgorithms)}
+
+
+literal = [
+    "CPP_DEBUG",
+
+    "Anime4K",
+    "CAS",
+    "CV2_INTER_AREA",
+    "CV2_INTER_CUBIC",
+    "CV2_INTER_LANCZOS4",
+    "CV2_INTER_LINEAR",
+    "CV2_INTER_NEAREST",
+    "CV2_EDSR",
+    "CV2_ESPCN",
+    "CV2_FSRCNN",
+    "CV2_FSRCNN_small",
+    "CV2_LapSRN",
+    "FSR",
+    "hqx",
+
+    "HSDBTRE",
+
+    "NEDI",
+    "PIL_BICUBIC",
+    "PIL_BILINEAR",
+    "PIL_LANCZOS",
+    "PIL_NEAREST_NEIGHBOR",
+    "RealESRGAN",
+    "Repetition",
+
+    "SI_drln_bam",
+    "SI_edsr",
+    "SI_msrn",
+    "SI_mdsr",
+    "SI_msrn_bam",
+    "SI_edsr_base",
+    "SI_mdsr_bam",
+    "SI_awsrn_bam",
+    "SI_a2n",
+    "SI_carn",
+    "SI_carn_bam",
+    "SI_pan",
+    "SI_pan_bam",
+]
+
+literal_dict = {algo: i for i, algo in enumerate(literal)}
+
+
+def aenum_test(n=45_000_000, k=15):
+    list_enum = list(Algorithms)
+    list_aenum = list(AAlgorithms)
+    list_literal = literal
+
+    enum_time = 0
+    aenum_time = 0
+    literal_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        enum_time += timeit.timeit(lambda: (enum_dict[enum] for enum in list_enum), number=n // k)
+        aenum_time += timeit.timeit(lambda: (aenum_dict[aenum] for aenum in list_aenum), number=n // k)
+        literal_time += timeit.timeit(lambda: (literal_dict[literal] for literal in list_literal), number=n // k)
+
+    enum_time = round(enum_time / k, 4)
+    aenum_time = round(aenum_time / k, 4)
+    literal_time = round(literal_time / k, 4)
+
+    print(f"Enum time: {enum_time}")
+    print(f"AEnum time: {aenum_time}")
+    print(f"Literal time: {literal_time}")
+
+
 def docstring_tests():
     print(scaler.csatpa.__doc__)
 
@@ -1818,7 +2006,8 @@ if __name__ == "__main__":
     # dict_with_list_vs_tuple_vs_set_vs_frozenset()
     # unique_colors_test()
     # image_compare_test()
-    color_count_test()
+    # color_count_test()
+    aenum_test()
 
     # set_from_dict()
     # set_from_dick_w_tuples_simple()
