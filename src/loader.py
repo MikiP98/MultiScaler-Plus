@@ -35,6 +35,10 @@ class LoaderConfig(TypedDict):
     extension_blacklist: Optional[str]  # not exact match TODO: implement
 
 
+nr = '\x1B[0m'
+b = '\x1B[1m'
+
+
 def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str], list[str]]:
     images = []
     roots = []
@@ -45,7 +49,7 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
         # print(f"Length of files: {len(file_names)}")
 
         files_number = len(files)
-        print(f"Checking {files_number} files in input directory")
+        print(f"\n{b}Checking {files_number} files in {root} directory{nr}")
 
         for file in files:
             path = os.path.join(root, file)
