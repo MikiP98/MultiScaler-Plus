@@ -6,7 +6,7 @@ import numpy as np
 import PIL.Image
 import struct
 
-from enum import auto, IntEnum, unique
+from aenum import auto, IntEnum, unique
 from termcolor import colored
 from termcolor._types import Color as TermColor  # Ignore this warning, TODO: create an issue on the termcolor repo.
 from typing import Optional, TypedDict, Union

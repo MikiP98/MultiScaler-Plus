@@ -1,11 +1,23 @@
 # coding=utf-8
 # File for future filter functions
 
+from aenum import auto, IntEnum, unique
 import numpy as np
 import utils
 import PIL.Image
 
-from utils import Filters
+
+@unique
+class Filters(IntEnum):
+    CAS = auto()  # contrast adaptive sharpening
+
+    NORMAL_MAP_STRENGTH_LINEAR = auto()
+    NORMAL_MAP_STRENGTH_EXPONENTIAL = auto()
+
+    AUTO_NORMAL_MAP = auto()
+    AUTO_SPECULAR_MAP = auto()
+
+    SI_TODO = auto()  # TODO: Add filters
 
 
 def normal_map_strength_linear(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
