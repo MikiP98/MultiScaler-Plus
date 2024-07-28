@@ -140,7 +140,7 @@ def apply_filters():
     print(f"\nApplying filter to {len(images)} images\n")
     factors = [0.5]
     filtered_images = filter.filter_image_batch(
-        filter.Filters.NORMAL_MAP_STRENGTH_LINEAR,
+        filter.Filters.NORMAL_MAP_STRENGTH_EXPONENTIAL,
         images,
         factors
     )

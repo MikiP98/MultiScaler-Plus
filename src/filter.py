@@ -36,18 +36,22 @@ def normal_map_strength_linear(frames: list[PIL.Image], factor: float) -> list[P
 
 
 def normal_map_strength_exponential(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
-    raise NotImplementedError("This function is not implemented yet")
     new_frames = []
 
     for frame in frames:
         image_data = np.asarray(frame)
 
-        # Apply the new normal map strength calculation only to the red and green channels
-        new_image_data = image_data.copy()
-        new_image_data[..., 0] = (image_data[..., 0] / 255) ** (1/factor) * 255  # Red channel
-        new_image_data[..., 1] = (image_data[..., 1] / 255) ** (1/factor) * 255  # Green channel
-        # new_image_data[..., 0] = 1/factor * image_data[..., 0] - 255  # Red channel
-        # new_image_data[..., 1] = 1/factor * image_data[..., 1] - 255  # Green channel
+        # Convert from 0-255 to -128 to 127
+        new_image_data = image_data.copy().astype('float32') / 255 * 2 - 1
+
+        # Apply the exponential transformation
+        new_image_data[..., 0] = (
+                np.sign(image_data[..., 0]) * np.abs(image_data[..., 0]) ** (1 / factor))  # Red channel
+        new_image_data[..., 1] = (
+                np.sign(image_data[..., 1]) * np.abs(image_data[..., 1]) ** (1 / factor))  # Green channel
+
+        # Convert back from -128 to 127 to 0-255
+        new_image_data = ((new_image_data + 1) / 2 * 255).astype('uint8')
 
         new_frame = PIL.Image.fromarray(new_image_data)
         new_frames.append(new_frame)
