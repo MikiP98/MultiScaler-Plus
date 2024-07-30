@@ -19,6 +19,7 @@ from enum import auto, IntEnum, unique
 from functools import lru_cache
 from PIL import Image
 from pympler import asizeof
+from typing import Union
 from utils import Algorithms
 from utils import algorithm_to_string_dict
 from utils import string_to_algorithm_dict
@@ -1967,6 +1968,146 @@ def aenum_test(n=45_000_000, k=15):
     print(f"Enum time: {enum_time}")
     print(f"AEnum time: {aenum_time}")
     print(f"Literal time: {literal_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "aenum_test" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def uses_transparency(img: Union[Image, np.ndarray]) -> bool:
+    if isinstance(img, np.ndarray):
+        # check if the image has an alpha channel
+        if img.shape[2] == 4:
+            # Check if the alpha channel is used
+            return np.any(img[:, :, 3] != 255)
+
+        return False
+
+    elif img.info.get("transparency", None) is not None:
+        return True
+
+    elif img.mode == "P":
+        transparent = img.info.get("transparency", -1)
+
+        for _, index in img.getcolors():  # TODO: Consider using ndarray
+            if index == transparent:
+                return True
+
+    elif img.mode == "RGBA":
+        cv2_image = utils.pil_to_cv2(img)
+        return np.any(cv2_image[:, :, 3] < 255)
+
+    return False
+
+
+def uses_transparency_simple(img: Union[Image, np.ndarray]) -> bool:
+    if isinstance(img, np.ndarray):
+        # check if the image has an alpha channel
+        if img.shape[2] == 4:
+            # Check if the alpha channel is used
+            return np.any(img[:, :, 3] != 255)
+
+        return False
+
+    else:
+        return img.convert("RGBA").getchannel("A").getextrema() != (255, 255)
+
+
+def uses_transparency_numpy(img: Union[Image, np.ndarray]) -> bool:
+    if not isinstance(img, np.ndarray):
+        img = utils.pil_to_cv2(img)
+
+    # check if the image has an alpha channel
+    if img.shape[2] == 4:
+        # Check if the alpha channel is used
+        return np.any(img[:, :, 3] != 255)
+
+    return False
+
+
+def transparency_use_test(n=1_000_000, k=10):
+    image = Image.open("example_images/input/example_shell_40px.png")
+    image2 = Image.open("example_images/input/wiki_example_text_40x109.png")
+
+    uses_transparency_time = 0
+    uses_transparency_simple_time = 0
+    uses_transparency_numpy_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        uses_transparency_time += timeit.timeit(lambda: uses_transparency(image), number=n // k)
+        uses_transparency_simple_time += timeit.timeit(lambda: uses_transparency_simple(image), number=n // k)
+        uses_transparency_numpy_time += timeit.timeit(lambda: uses_transparency_numpy(image), number=n // k)
+
+    uses_transparency_time = round(uses_transparency_time / k, 4)
+    uses_transparency_simple_time = round(uses_transparency_simple_time / k, 4)
+    uses_transparency_numpy_time = round(uses_transparency_numpy_time / k, 4)
+
+    print(f"Uses transparency time: {uses_transparency_time}")
+    print(f"Uses transparency simple time: {uses_transparency_simple_time}")
+    print(f"Uses transparency numpy time: {uses_transparency_numpy_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # -------------------------------- transparency_use_test ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def hybrid_split(image_data, factor):
+    new_image_data = image_data.copy().astype('int16') - 128
+    # print(new_image_data[..., 0])
+    new_image_data[..., 0] = new_image_data[..., 0] * factor  # Red channel
+    new_image_data[..., 1] = new_image_data[..., 1] * factor  # Green channel
+
+    new_image_data = new_image_data + 128
+    return new_image_data
+
+
+def all_in_one_split(image_data, factor):
+    new_image_data = image_data.copy().astype('int16')
+    # print(new_image_data[..., 0])
+    new_image_data[..., 0] = (new_image_data[..., 0] - 128) * factor + 128  # Red channel
+    new_image_data[..., 1] = (new_image_data[..., 1] - 128) * factor + 128  # Green channel
+    return new_image_data
+
+
+def vector(image_data, factor):
+    new_image_data = image_data.copy().astype('int16') - 128
+    if image_data.shape[2] == 4:
+        scaling_vector = np.array([factor, factor, 1, 1])
+    else:
+        scaling_vector = np.array([factor, factor, 1])
+    new_image_data = new_image_data * scaling_vector + 128
+    return new_image_data
+
+def vector_test(n=2_000, k=10):
+    image = Image.open("example_images/input/example_shell_40px.png").convert("RGBA")
+    image2 = Image.open("example_images/input/wiki_example_text_40x109.png").convert("RGBA")
+    image3 = Image.open("example_images/input/cobblestone_04_n.png").convert("RGBA")
+
+    image_data = np.asarray(image)
+    image_data2 = np.asarray(image2)
+    image_data3 = np.asarray(image3)
+
+    factor = 0.5
+
+    hybrid_split_time = 0
+    all_in_one_split_time = 0
+    # vector_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        hybrid_split_time += timeit.timeit(lambda: hybrid_split(image_data3, factor), number=n // k)
+        all_in_one_split_time += timeit.timeit(lambda: all_in_one_split(image_data3, factor), number=n // k)
+        # vector_time += timeit.timeit(lambda: vector(image_data3, factor), number=n // k)
+
+    hybrid_split_time = round(hybrid_split_time / k, 4)
+    all_in_one_split_time = round(all_in_one_split_time / k, 4)
+    # vector_time = round(vector_time / k, 4)
+
+    print(f"Hybrid split time: {hybrid_split_time}")
+    print(f"All-in-one split time: {all_in_one_split_time}")
+    # print(f"Vector time: {vector_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "vector_test" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
 
 
 def docstring_tests():
@@ -2007,7 +2148,9 @@ if __name__ == "__main__":
     # unique_colors_test()
     # image_compare_test()
     # color_count_test()
-    aenum_test()
+    # aenum_test()
+    # transparency_use_test()
+    vector_test()
 
     # set_from_dict()
     # set_from_dick_w_tuples_simple()
