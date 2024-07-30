@@ -20,6 +20,8 @@ from utils import (
 
 
 class LoaderConfig(TypedDict):
+    clear_output_dir: bool
+
     copy_mcmeta: bool
 
     prefix_filter: Optional[str]  # endswith TODO: implement
@@ -40,6 +42,10 @@ b = '\x1B[1m'
 
 
 def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str], list[str]]:
+    if config['clear_output_dir']:
+        print(f"{b}Clearing the output directory{nr}")
+        shutil.rmtree("../output", ignore_errors=True)
+
     images = []
     roots = []
     file_names = []
