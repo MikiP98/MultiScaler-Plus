@@ -200,8 +200,10 @@ def apply_filters():
             selected_filters_ids = (
                 int(filter_id) for filter_id in user_input.replace(',', ' ').replace("  ", ' ').split(" ")
             )
+            if any(filter_id not in filter.Filters for filter_id in selected_filters_ids):
+                raise ValueError("Invalid filter ID")
         except ValueError:
-            print(colored("Invalid input! Please try again.", "red"))
+            print(colored("Invalid input! IDs should be natural numbers from the list. Please try again.", "red"))
             continue
         else:
             break
@@ -212,7 +214,7 @@ def apply_filters():
                   "You can select multiple factors by separating them with a space or coma\n"
                   "(Factors should be floats)")
             user_input = input(colored(f"{it}Enter your choice: ", "light_grey")).strip()
-            factors = (float(factor) for factor in user_input.replace(',', ' ').replace("  ", ' ').split(" "))
+            factors = list(float(factor) for factor in user_input.replace(',', ' ').replace("  ", ' ').split(" "))
         except ValueError:
             print(colored("Invalid input! Please try again.", "red"))
             continue
@@ -227,7 +229,7 @@ def apply_filters():
     # print("Processing images...\n")
 
     print(f"\nApplying filter to {len(images)} images\n")
-    factors = [0.4]
+    # factors = [0.4]
     filtered_images = filter.filter_image_batch(
         filter.Filters.NORMAL_MAP_STRENGTH_LINEAR,
         images,
