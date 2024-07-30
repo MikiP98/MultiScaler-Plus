@@ -557,10 +557,10 @@ def uses_transparency(img: Union[PIL.Image, np.ndarray]) -> bool:
 
         return False
 
-    if img.info.get("transparency", None) is not None:
+    elif img.info.get("transparency", None) is not None:
         return True
 
-    if img.mode == "P":
+    elif img.mode == "P":
         transparent = img.info.get("transparency", -1)
 
         for _, index in img.getcolors():  # TODO: Consider using ndarray
