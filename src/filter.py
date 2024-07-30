@@ -1,5 +1,5 @@
 # coding=utf-8
-# File for future filter functions
+# File for filter functions
 
 from aenum import auto, IntEnum, unique
 import numpy as np
@@ -9,13 +9,30 @@ import PIL.Image
 
 @unique
 class Filters(IntEnum):
-    CAS = auto()  # contrast adaptive sharpening
+    # Lightness filters
+    BRIGHTNESS = auto()  # TODO: Implement
+    EXPOSURE = auto()  # TODO: Implement
+    CONTRAST = auto()  # TODO: Implement
+    GAMMA = auto()  # TODO: Implement
 
-    NORMAL_MAP_STRENGTH_LINEAR = auto()
+    # Color filters
+    SATURATION = auto()  # TODO: Implement
+    VIBRANCE = auto()  # TODO: Implement
+
+    # Other simple filters
+    CAS = auto()  # contrast adaptive sharpening  # TODO: Implement
+    SHARPNESS = auto()  # TODO: Implement
+
+    # HDR
+    AUTO_HDR = auto()  # TODO: Implement
+
+    # Auto textures
+    AUTO_NORMAL_MAP = auto()  # TODO: Implement
+    AUTO_SPECULAR_MAP = auto()  # TODO: Implement
+
+    # Texture filters
     NORMAL_MAP_STRENGTH_EXPONENTIAL = auto()
-
-    AUTO_NORMAL_MAP = auto()
-    AUTO_SPECULAR_MAP = auto()
+    NORMAL_MAP_STRENGTH_LINEAR = auto()
 
     SI_TODO = auto()  # TODO: Add filters
 
@@ -26,19 +43,12 @@ def normal_map_strength_linear(frames: list[PIL.Image], factor: float) -> list[P
     for frame in frames:
         image_data = np.asarray(frame)
 
-        new_image_data = image_data.copy().astype('int16') - 128
+        new_image_data = image_data.copy().astype('int16') - 128  # benchmarked
         # print(new_image_data[..., 0])
         new_image_data[..., 0] = new_image_data[..., 0] * factor  # Red channel
         new_image_data[..., 1] = new_image_data[..., 1] * factor  # Green channel
 
         new_image_data = new_image_data + 128
-
-        # if image_data.shape[2] == 4:
-        #     scaling_vector = np.array([factor, factor, 1, 1])
-        # else:
-        #     scaling_vector = np.array([factor, factor, 1])
-        #
-        # new_image_data = image_data * scaling_vector
 
         new_frame = PIL.Image.fromarray(new_image_data.astype('uint8'))
         new_frames.append(new_frame)
@@ -78,6 +88,7 @@ filter_functions = {
 }
 
 
+# TODO: Make it receive a list of filters instead of a single filter
 def filter_image_batch(
         img_filter: Filters,
         images: list[utils.ImageDict],
@@ -95,3 +106,11 @@ def filter_image_batch(
             "animation_spacing": image.get("animation_spacing"),
         } for image in images
     ]
+
+
+def filter_image(
+        img_filter: Filters,
+        image: utils.ImageDict,
+        factors: list[float]
+) -> utils.ImageDict:
+    return filter_image_batch(img_filter, [image], factors)[0]
