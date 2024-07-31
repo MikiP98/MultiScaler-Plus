@@ -1,4 +1,4 @@
-# PROJECT SPECIFIC .GITIGNORE ENTRIES
+# PROJECT SPECIFIC .GITIGNORE ENTRIES ----------------------------------------------------------------------------------
 
 temp
 
@@ -37,7 +37,7 @@ src/.coverage
 
 
 
-# FROM HERE ON, ALL THIGHS BELOW ARE FROM THE DEFAULT JETBRAINS .GITIGNORE FILE
+# FROM HERE ON, ALL THIGHS BELOW ARE FROM THE DEFAULT JETBRAINS .GITIGNORE FILE ----------------------------------------
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
@@ -118,7 +118,7 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 
-# FROM HERE ON, ALL THIGHS BELOW ARE FROM THE DEFAULT PYTHON .GITIGNORE FILE
+# FROM HERE ON, ALL THIGHS BELOW ARE FROM THE DEFAULT PYTHON .GITIGNORE FILE -------------------------------------------
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

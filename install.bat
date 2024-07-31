@@ -14,6 +14,7 @@ pip uninstall opencv-contrib-python
 pip install opencv-contrib-python
 pip install opencv-contrib-python
 
+@cd GUI
 @cd MultiScaler-Plus_Web_Server
 npm i
 npm i

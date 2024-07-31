@@ -4,7 +4,7 @@
 import config
 import loader
 import os
-import saver
+import saving.saver as saver
 import sys
 
 from functools import lru_cache
@@ -137,7 +137,7 @@ def main():
 
 
 def scale_images():
-    import scaler
+    import scaling.scaler_manager as scaler
 
     print("Scaling images!")
     # multiprocessing_level:
@@ -184,7 +184,7 @@ def scale_images():
 
 
 def apply_filters():
-    import filter
+    import filtering.filter_manager as filter_manager
 
     print("Applying filters!")
 
@@ -194,13 +194,13 @@ def apply_filters():
             print("\nChoose the filters you want to apply to the original images\n"
                   "You can select multiple filters by separating them with a space or coma\n"
                   "Available filters (select the IDs):")
-            available_filters = tuple(f"{filter.value} - {filter.name}" for filter in filter.Filters)
+            available_filters = tuple(f"{filter.value} - {filter.name}" for filter in filter_manager.Filters)
             print(columnify(available_filters))
             user_input = input(colored(f"{it}Enter your choice: ", "light_grey")).strip()
             selected_filters_ids = (
                 int(filter_id) for filter_id in user_input.replace(',', ' ').replace("  ", ' ').split(" ")
             )
-            if any(filter_id not in filter.Filters for filter_id in selected_filters_ids):
+            if any(filter_id not in filter_manager.Filters for filter_id in selected_filters_ids):
                 raise ValueError("Invalid filter ID")
         except ValueError:
             print(colored("Invalid input! IDs should be natural numbers from the list. Please try again.", "red"))
@@ -223,15 +223,15 @@ def apply_filters():
 
     # user input end ----------------
 
-    load_config = config.get_loader_config()
+    load_config, default = config.get_loader_config()
     images, roots, file_names = loader.load_images(load_config)
     # print(f"\nLoaded {len(images)} images")
     # print("Processing images...\n")
 
     print(f"\nApplying filter to {len(images)} images\n")
     # factors = [0.4]
-    filtered_images = filter.filter_image_batch(
-        filter.Filters.NORMAL_MAP_STRENGTH_LINEAR,
+    filtered_images = filter_manager.filter_image_batch(
+        filter_manager.Filters.NORMAL_MAP_STRENGTH_LINEAR,
         images,
         factors
     )
@@ -257,7 +257,9 @@ def apply_filters():
         "factors": factors
     }
 
-    for filtered_image, root, file_name in zip(filtered_images, roots, file_names):
+    bundle = zip(filtered_images, roots, file_names)
+
+    for filtered_image, root, file_name in bundle:
         saver.save_image_pre_processor(
             filtered_image,
             root[9:],

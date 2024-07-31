@@ -8,7 +8,7 @@ default_configs = {
     },
     "filter": {
         "simple_config": {
-            "formats": ["PNG"],
+            "formats": ["WEBP"],
             "compressions": [
                 {
                     "additional_lossless": True,
@@ -18,11 +18,11 @@ default_configs = {
             "add_compression_to_name": False
         },
 
-        "add_factor_to_name": False,
-        "sort_by_factor": True
+        "add_factor_to_name": True,
+        "sort_by_factor": False
     },
 }
 
 
-def get_loader_config() -> dict:
-    return default_configs["loader"]
+def get_loader_config() -> tuple[dict, bool]:
+    return default_configs["loader"], True
