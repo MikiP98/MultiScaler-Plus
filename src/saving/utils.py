@@ -15,7 +15,7 @@ class Compression(TypedDict):
 class SimpleConfig(TypedDict):
     formats: list[str]
     compressions: list[Compression]
-    add_compression_to_name: bool
+    add_compression_to_name: bool  # TODO: Add auto option
 
 
 class AdvancedConfig(TypedDict):
@@ -23,6 +23,14 @@ class AdvancedConfig(TypedDict):
 
     add_factor_to_name: bool
     sort_by_factor: bool
+
+    # A.K.A. algorithm or filter
+    add_processing_method_to_name: bool  # TODO: Implement this
+    sort_by_processing_method: bool  # TODO: Implement this
+
+    sort_by_image: bool
+    sort_by_file_extension: int  # -1 - auto, 0 - no, 1 - yes
+    # TODO: Add more auto options
 
     factors: list[float]
 

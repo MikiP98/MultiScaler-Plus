@@ -140,47 +140,8 @@ def scale_images():
     import scaling.scaler_manager as scaler
 
     print("Scaling images!")
-    # multiprocessing_level:
-    # empty - no multiprocessing
-    # 2 - to process different algorithms in parallel, (Note that this level also splits every subsequent workflow)
-    # 3 - to save multiple images in parallel
-    default_config = {
-        'clear_output_directory': True,
 
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
-
-        'sort_by_algorithm': False,
-        'sort_by_scale': False,
-        'sort_by_image': False,
-        'sort_by_file_extension': -1,  # -1 - auto, 0 - no, 1 - yes
-
-        'file_formats': {"WEBP"},
-        'lossless_compression': True,
-        'additional_lossless_compression': True,
-        'quality': 95,
-
-        'multiprocessing_levels': {},
-        'max_processes': (2, 2, 2),
-        'override_processes_count': False,
-        # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
-
-        'copy_mcmeta': True,
-        'texture_outbound_protection': False,
-        # prevents multi-face (in 1 image) textures to expand over current textures border
-        'texture_inbound_protection': False,
-        # TODO: Implement this, prevents multi-face (in 1 image) textures to not fully cover current textures border
-        'texture_mask_mode': ('alpha', 'black'),
-        # What should be used to make the mask, 1st is when alpha is present, 2nd when it is not  TODO: add more options
-        'disallow_partial_transparency': False,
-        'try_to_fix_texture_tiling': False,
-        'tiling_fix_quality': 1.0,
-
-        'sharpness': 0.5,
-        'NEDI_m': 4,
-        'offset_x': 0.5,
-        'offset_y': 0.5
-    }
+    scaler_config, _ = config.get_scaler_config()
 
 
 def apply_filters():
@@ -228,7 +189,7 @@ def apply_filters():
     # print(f"\nLoaded {len(images)} images")
     # print("Processing images...\n")
 
-    print(f"\nApplying filter to {len(images)} images\n")
+    print(f"\nApplying {len(selected_filters_ids)} filter{'s' if len(selected_filters_ids) > 1 else ''} to {len(images)} images\n")
     # factors = [0.4]
     filtered_images = filter_manager.filter_image_batch(
         selected_filters_ids,
@@ -236,28 +197,9 @@ def apply_filters():
         factors
     )
     print("Filtering is done!\n")
-    print(f"Filtered with {len(filtered_images)} filters")
-    # print(f"\nFiltered {len(filtered_images)} images")
-    # print(f"Filtered images have {len(filtered_images[0]['images'])} factors inside")
-    # print(f"We have {len(roots)} roots and {len(file_names)} file names")
 
-    saver_config = {
-        "simple_config": {
-            "formats": ["PNG"],
-            "compressions": [
-                {
-                    "additional_lossless": True,
-                    "lossless": True
-                }
-            ],
-            "add_compression_to_name": False
-        },
-
-        "add_factor_to_name": False,
-        "sort_by_factor": True,
-
-        "factors": factors
-    }
+    saver_config, _ = config.get_saver_config()
+    saver_config["factors"] = factors
 
     for filter_image_set in filtered_images:
         print("Iteration")
