@@ -28,11 +28,12 @@ class AdvancedConfig(TypedDict):
     add_processing_method_to_name: bool  # TODO: Implement this
     sort_by_processing_method: bool  # TODO: Implement this
 
-    sort_by_image: bool
-    sort_by_file_extension: int  # -1 - auto, 0 - no, 1 - yes
+    sort_by_image: bool  # TODO: Implement this
+    sort_by_file_extension: int  # -1 - auto, 0 - no, 1 - yes TODO: Implement this
     # TODO: Add more auto options
 
-    factors: list[float]
+    factors: Optional[list[float]]
+    processing_method: Optional[str]  # TODO: Implement this
 
 
 def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:
