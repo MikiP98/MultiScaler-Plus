@@ -1,7 +1,6 @@
 # coding=utf-8
 # File for saving images
 
-import io
 import os
 import PIL.Image
 import utils
