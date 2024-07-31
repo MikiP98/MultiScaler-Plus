@@ -1,7 +1,7 @@
 # coding=utf-8
 import PIL.Image
 
-from saving.saver import Compression
+from saving.utils import Compression
 
 
 def save(image: PIL.Image, path: str, compression: Compression):

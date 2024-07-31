@@ -1,8 +1,7 @@
 # coding=utf-8
 import PIL.Image
-import utils
 
-from saving.saver import Compression
+from saving.utils import Compression, apply_lossless_compression
 from termcolor import colored
 
 
@@ -20,6 +19,14 @@ def save(image: PIL.Image, path: str, compression: Compression):
     if not compression['additional_lossless']:
         image.save(file_path, optimize=True)
     else:  # if additional lossless
-        img_byte_arr = utils.apply_lossless_compression_png(image)
+        img_byte_arr = apply_additional_lossless_compression(image)
         with open(file_path, 'wb+') as f:
             f.write(img_byte_arr)
+
+
+def apply_additional_lossless_compression(image: PIL.Image) -> bytes:
+    optional_args = {
+        'optimize': True,
+        'format': 'PNG'
+    }
+    return apply_lossless_compression(image, optional_args)

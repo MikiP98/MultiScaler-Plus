@@ -45,6 +45,7 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
     if config['clear_output_dir']:
         print(f"{b}Clearing the output directory{nr}")
         shutil.rmtree("../output", ignore_errors=True)
+        os.makedirs("../output")
 
     images = []
     roots = []

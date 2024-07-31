@@ -1,9 +1,8 @@
 # coding=utf-8
 import io
 import PIL.Image
-import utils
 
-from saving.saver import Compression
+from saving.utils import Compression, apply_lossless_compression
 
 
 def save(image: PIL.Image, path: str, compression: Compression):
@@ -12,7 +11,7 @@ def save(image: PIL.Image, path: str, compression: Compression):
         if not compression['additional_lossless']:
             image.save(file_path, lossless=True, method=6, optimize=True)
         else:
-            img_byte_arr = utils.apply_lossless_compression_webp(image)
+            img_byte_arr = apply_additional_lossless_compression(image)
             with open(file_path, 'wb+') as f:
                 f.write(img_byte_arr)
     else:
@@ -21,7 +20,7 @@ def save(image: PIL.Image, path: str, compression: Compression):
         if not compression['additional_lossless']:
             image.save(file_path, quality=compression['quality'], method=6)
         else:  # if additional lossless
-            palette_img_byte_arr = utils.apply_lossless_compression_webp(image)
+            palette_img_byte_arr = apply_additional_lossless_compression(image)
 
             lossy_img_byte_arr = io.BytesIO()
             image.save(lossy_img_byte_arr, quality=compression['quality'], method=6)
@@ -32,3 +31,13 @@ def save(image: PIL.Image, path: str, compression: Compression):
 
             with open(file_path, 'wb+') as f:
                 f.write(final_img_byte_arr)
+
+
+def apply_additional_lossless_compression(image: PIL.Image) -> bytes:
+    optional_args = {
+        'lossless': True,
+        'method': 6,
+        'optimize': True,
+        'format': 'WEBP'
+    }
+    return apply_lossless_compression(image, optional_args)

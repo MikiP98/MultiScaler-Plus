@@ -1,38 +1,18 @@
 # coding=utf-8
 # File for saving images
 
+import io
 import os
 import PIL.Image
 import utils
 
-from file_formats.avif import save as save_avif
-from file_formats.jpeg_xl import save as save_jpeg_xl
-from file_formats.png import save as save_png
-from file_formats.qoi import save as save_qoi
-from file_formats.webp import save as save_webp
+from saving.file_formats.avif import save as save_avif
+from saving.file_formats.jpeg_xl import save as save_jpeg_xl
+from saving.file_formats.png import save as save_png
+from saving.file_formats.qoi import save as save_qoi
+from saving.file_formats.webp import save as save_webp
+from saving.utils import SimpleConfig, AdvancedConfig
 from termcolor import colored
-from typing import Optional, TypedDict
-
-
-class Compression(TypedDict):
-    additional_lossless: bool
-    lossless: bool
-    quality: Optional[int]
-
-
-class SimpleConfig(TypedDict):
-    formats: list[str]
-    compressions: list[Compression]
-    add_compression_to_name: bool
-
-
-class AdvancedConfig(TypedDict):
-    simple_config: SimpleConfig
-
-    add_factor_to_name: bool
-    sort_by_factor: bool
-
-    factors: list[float]
 
 
 # Global, allows for easy injection of another format via a plugin

@@ -43,7 +43,7 @@ def greetings():
 
 
 def goodbye():
-    print(colored("Goodbye! Have a nice day!\n", "green"))
+    print(colored("Goodbye!\nHave a nice day!\n", "green"))
     exit()
 
 
@@ -197,8 +197,8 @@ def apply_filters():
             available_filters = tuple(f"{filter.value} - {filter.name}" for filter in filter_manager.Filters)
             print(columnify(available_filters))
             user_input = input(colored(f"{it}Enter your choice: ", "light_grey")).strip()
-            selected_filters_ids = (
-                int(filter_id) for filter_id in user_input.replace(',', ' ').replace("  ", ' ').split(" ")
+            selected_filters_ids = list(
+                filter_manager.Filters(int(filter_id)) for filter_id in user_input.replace(',', ' ').replace("  ", ' ').split(" ")
             )
             if any(filter_id not in filter_manager.Filters for filter_id in selected_filters_ids):
                 raise ValueError("Invalid filter ID")
@@ -231,10 +231,12 @@ def apply_filters():
     print(f"\nApplying filter to {len(images)} images\n")
     # factors = [0.4]
     filtered_images = filter_manager.filter_image_batch(
-        filter_manager.Filters.NORMAL_MAP_STRENGTH_LINEAR,
+        selected_filters_ids,
         images,
         factors
     )
+    print("Filtering is done!\n")
+    print(f"Filtered with {len(filtered_images)} filters")
     # print(f"\nFiltered {len(filtered_images)} images")
     # print(f"Filtered images have {len(filtered_images[0]['images'])} factors inside")
     # print(f"We have {len(roots)} roots and {len(file_names)} file names")
@@ -257,15 +259,17 @@ def apply_filters():
         "factors": factors
     }
 
-    bundle = zip(filtered_images, roots, file_names)
+    for filter_image_set in filtered_images:
+        print("Iteration")
+        bundle = zip(filter_image_set, roots, file_names)
 
-    for filtered_image, root, file_name in bundle:
-        saver.save_image_pre_processor(
-            filtered_image,
-            root[9:],
-            file_name,
-            saver_config
-        )
+        for filtered_image, root, file_name in bundle:
+            saver.save_image_pre_processor(
+                filtered_image,
+                root[9:],
+                file_name,
+                saver_config
+            )
 
 
 def compress_images():

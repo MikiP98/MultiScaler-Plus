@@ -1,7 +1,8 @@
 # coding=utf-8
 import PIL.Image
 
-from saving.saver import Compression, format_savers
+from saving.saver import format_savers
+from saving.utils import Compression
 
 
 def plugin_save(image: PIL.Image, path: str, compression: Compression):

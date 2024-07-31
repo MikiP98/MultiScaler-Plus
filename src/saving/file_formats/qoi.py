@@ -3,7 +3,7 @@ import numpy as np
 import PIL.Image
 import qoi
 
-from saving.saver import Compression
+from saving.utils import Compression
 from termcolor import colored
 
 
