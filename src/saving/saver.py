@@ -1,10 +1,13 @@
 # coding=utf-8
 # File for saving images
 
+import itertools
 import os
 import PIL.Image
+import threading
 import utils
 
+from math import ceil
 from saving.file_formats.avif import save as save_avif
 from saving.file_formats.jpeg_xl import save as save_jpeg_xl
 from saving.file_formats.png import save as save_png
@@ -27,8 +30,11 @@ format_savers = {
 def save_image(image: PIL.Image, path: str, config: SimpleConfig) -> None:
     print(path)
 
-    if not os.path.exists(os.path.dirname(path)):
-        os.makedirs(os.path.dirname(path))
+    if not os.path.exists(os.path.dirname(path)):  # TODO: move this check higher
+        try:
+            os.makedirs(os.path.dirname(path))
+        except OSError as e:
+            print("Path created by another thread")
 
     if any([compression['additional_lossless'] for compression in config['compressions']]):  # TODO: finish this
         additional_lossless_image = image.convert("RGB") if not utils.uses_transparency(image) else image
@@ -57,6 +63,7 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
         print("Stacked and animated images are not supported yet :(")
         return
 
+    # TODO: Remove redundancy
     if config['sort_by_factor']:
         if config['add_factor_to_name']:
             for filtered_image, factor in zip(image["images"], config['factors']):
@@ -85,3 +92,42 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
     else:
         for filtered_image in image["images"]:
             save_image(filtered_image[0], os.path.join("..", "output", output_path, file_name), config['simple_config'])
+
+
+def save_img_list(bundle, saver_config):
+    for filtered_image, root, file_name in bundle:
+        save_image_pre_processor(
+            filtered_image,
+            root[9:],
+            file_name,
+            saver_config
+        )
+
+
+def save_img_list_multithreaded(processed_images, roots, file_names, saver_config, *, max_thread_count=4):
+    # processes_loop_threads = min(round(len(processed_images) / 2), max_thread_count)
+    # print(f"Using {processes_loop_threads} threads")
+    # bundle_split_threads = len(processed_images) // processes_loop_threads
+    # print(f"Splitting the bundle into {bundle_split_threads} parts")
+
+    bundle_split_threads = min(max(round(len(roots) / 4), 1), max_thread_count)
+    print(f"Splitting the bundle into {bundle_split_threads} parts")
+    batched_cache = ceil(len(roots) / bundle_split_threads)
+    print(f"Split the bundle into sizes of {batched_cache}\n")
+
+    for processed_image_set in processed_images:
+        bundle = zip(processed_image_set, roots, file_names)
+
+        bundle_splits = itertools.batched(bundle, batched_cache)
+        threads = []
+
+        for bundle_split in bundle_splits:
+            thread = threading.Thread(
+                target=save_img_list,
+                args=(bundle_split, saver_config)
+            )
+            thread.start()
+            threads.append(thread)
+
+        for thread in threads:
+            thread.join()

@@ -201,17 +201,7 @@ def apply_filters():
     saver_config, _ = config.get_saver_config()
     saver_config["factors"] = factors
 
-    for filter_image_set in filtered_images:
-        print("Iteration")
-        bundle = zip(filter_image_set, roots, file_names)
-
-        for filtered_image, root, file_name in bundle:
-            saver.save_image_pre_processor(
-                filtered_image,
-                root[9:],
-                file_name,
-                saver_config
-            )
+    saver.save_img_list_multithreaded(filtered_images, roots, file_names, saver_config)
 
 
 def compress_images():
