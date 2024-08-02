@@ -33,8 +33,8 @@ def save_image(image: PIL.Image, path: str, config: SimpleConfig) -> None:
     if not os.path.exists(os.path.dirname(path)):  # TODO: move this check higher
         try:
             os.makedirs(os.path.dirname(path))
-        except OSError as e:
-            print("Path created by another thread")
+        except OSError:
+            pass  # Path created by another thread
 
     if any([compression['additional_lossless'] for compression in config['compressions']]):  # TODO: finish this
         additional_lossless_image = image.convert("RGB") if not utils.uses_transparency(image) else image

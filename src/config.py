@@ -12,7 +12,8 @@ default_configs = {
             "compressions": [
                 {
                     "additional_lossless": True,
-                    "lossless": True
+                    "lossless": True,
+                    "quality": 95
                 }
             ],
             "add_compression_to_name": False
@@ -32,11 +33,6 @@ default_configs = {
         "factors": None
     },
     "scaler": {
-        'sort_by_image': False,
-        'sort_by_file_extension': -1,  # -1 - auto, 0 - no, 1 - yes
-
-        'quality': 95,
-
         # prevents multi-face (in 1 image) textures to expand over current textures border
         'texture_outbound_protection': False,
         # prevents multi-face (in 1 image) textures to not fully cover current textures border

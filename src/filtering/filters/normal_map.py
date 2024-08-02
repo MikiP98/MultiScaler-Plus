@@ -2,6 +2,7 @@
 import numpy as np
 import PIL.Image
 
+
 def strength_linear(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
     new_frames = []
 

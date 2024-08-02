@@ -11,7 +11,7 @@ import pillow_avif  # This is a PIL plugin for AVIF, is must be imported, but is
 import pillow_jxl  # This is a PIL plugin for JPEG XL, is must be imported, but isn't directly used
 import psutil
 import qoi
-import scaler
+import scaling.scaler_manager as scaler
 import sys
 import shutil
 import utils

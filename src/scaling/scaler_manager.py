@@ -13,7 +13,8 @@ import torch
 import utils
 import xbrz  # See xBRZ scaling on Jira
 
-from Edge_Directed_Interpolation.edi import EDI_upscale  # EDI_predict is wierd, EDI_Downscale is nearest neighbor...
+# EDI_predict is wierd, EDI_Downscale is nearest neighbor...
+from scaling.Edge_Directed_Interpolation.edi import EDI_upscale
 from RealESRGAN import RealESRGAN
 from superxbr import superxbr  # Ignore the error, it works fine
 from termcolor import colored
@@ -131,264 +132,231 @@ si_4x_algorithms = {
 si_algorithms = si_2x_3x_4x_algorithms.union(si_4x_algorithms)
 
 
+def cv2_inter_area_prefix(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
+    if factor > 1:
+        # raise ValueError("INTER_AREA does not support upscaling!")
+        print(colored(
+            f"ERROR: INTER_AREA does not support upscaling! Factor: {factor}; File names will be incorrect!", 'red'
+        ))
+        return []
+    else:
+        return cv2_non_ai_common(frames, factor, cv2.INTER_AREA)
+
+
+def cv2_non_ai_common(frames: list[PIL.Image], factor: float, algorithm: int) -> list[PIL.Image]:
+    scaled_frames = []
+    for frame in frames:
+        cv2_image = utils.pil_to_cv2(frame)
+        width, height = frame.size
+
+        output_width, output_height = round(width * factor), round(height * factor)
+
+        scaled_frames.append(
+            utils.cv2_to_pil(cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm))
+        )
+
+    return scaled_frames
+
+
+def cv2_ai_common_scale(
+        frames: list[PIL.Image],
+        factor: int,
+        sr: cv2.dnn_superres.DnnSuperResImpl,
+        path_prefix: str,
+        name: str
+) -> list[PIL.Image.Image]:
+    path = f"{path_prefix}_x{int(factor)}.pb"
+
+    sr.readModel(path)
+    sr.setModel(name.lower().split('_')[0], factor)
+
+    scaled_image = []
+    for frame in frames:
+        cv2_image = utils.pil_to_cv2(frame.convert('RGB'))
+        width, height = frame.size
+
+        result = sr.upsample(cv2_image)
+
+        scaled_image.append(
+            utils.cv2_to_pil(
+                cv2.resize(
+                    result, (width * factor, height * factor), interpolation=cv2.INTER_AREA)  # TODO: Replace with csatca(fallback_algorithm)
+            )
+        )
+
+    return scaled_image
+
+
+def cv2_ai_common(frames: list[PIL.Image], factor: float, name: str, allowed_factors) -> list[PIL.Image]:
+    if factor < 1:
+        print(
+            colored(
+                "ERROR: CV2 AIs do not support downscaling! "
+                f"Cannot perform any fixes! Skipping!",
+                'red'
+            )
+        )
+        return []
+
+    sr = cv2.dnn_superres.DnnSuperResImpl_create()  # Ignore the warning, works fine
+
+    # name = algorithm.name[4:]
+    path_prefix = f"./weights/{name}/{name}"
+
+    if factor not in allowed_factors:
+        # raise ValueError("INTER_AREA does not support upscaling!")
+        print(
+            colored(
+                f"Warning: CV2 AI 'CV2_{name}' does not support factor: {factor}! "
+                f"Allowed factors: {allowed_factors}; Result might be blurry!",
+                'yellow'
+            )
+        )
+
+        # min_allowed_factor = min(allowed_factors)
+        max_allowed_factor = max(allowed_factors)
+        scaled_frames = []
+        for frame in frames:
+            width, height = frame.size
+            result = utils.pil_to_cv2(frame.convert('RGB'))
+            current_factor = 1
+            while current_factor < factor:
+                temp_factor = max_allowed_factor
+                while current_factor * temp_factor >= factor:
+                    temp_factor -= 1
+                while temp_factor not in allowed_factors:
+                    temp_factor += 1
+
+                current_factor *= temp_factor
+
+                path = f"{path_prefix}_x{temp_factor}.pb"
+                # print(f"Path: {path}")
+
+                sr.readModel(path)
+                sr.setModel(name.lower(), temp_factor)
+
+                result = sr.upsample(result)
+
+            scaled_frames.append(
+                utils.cv2_to_pil(
+                    cv2.resize(
+                        # TODO: Replace with csatca(fallback_algorithm)
+                        result, (width * factor, height * factor), interpolation=cv2.INTER_AREA
+                    )
+                )
+            )
+
+        return scaled_frames
+
+    else:
+        return cv2_ai_common_scale(frames, int(factor), sr, path_prefix, name)
+
+
+def pil_scale(frames: list[PIL.Image], factor: float, algorithm: PIL.Image) -> list[PIL.Image]:
+    scaled_frames = []
+    for frame in frames:
+        width, height = frame.size
+        output_width, output_height = round(width * factor), round(height * factor)
+
+        scaled_frames.append(frame.resize((output_width, output_height), algorithm))
+
+    return scaled_frames
+
+
+def hsdbtre_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
+    if factor < 1:
+        print(
+            colored(
+                "ERROR: HSDBTRE is an AI algorithm and does not support downscaling! "
+                f"Cannot perform any fixes! Skipping!",
+                'red'
+            )
+        )
+        return []
+
+    repeat = 1
+    while 4 ** repeat < factor:
+        repeat += 1
+    # print(f"Repeats: {repeats}")
+
+    scaled_frames = frames.copy()
+    for _ in range(repeat):
+        # scaled_frames = scale_image_batch(
+        #     Algorithms.SI_drln_bam, scaled_frames, [2], fallback_algorithm=fallback_algorithm
+        # )
+        # scaled_frames = scale_image_batch(
+        #     Algorithms.RealESRGAN, scaled_frames, [2], fallback_algorithm=fallback_algorithm
+        # )
+        raise NotImplementedError("HSDBTRE is not implemented yet!")  # TODO: Go back after porting SI AIs and RealESRGAN
+
+    scaled_frames = [
+        utils.cv2_to_pil(
+            cv2.resize(
+                utils.pil_to_cv2(scaled_frame),
+                (
+                    round(frame.size[0] * factor),
+                    round(frame.size[1] * factor)
+                ),
+                interpolation=cv2.INTER_AREA  # TODO: Replace with csatca(fallback_algorithm)
+            )
+        )
+        for scaled_frame, frame in zip(scaled_frames, frames)
+    ]
+
+    return scaled_frames
+
+
+scaling_functions = {
+    Algorithms.CV2_INTER_AREA: cv2_inter_area_prefix,
+    Algorithms.CV2_INTER_CUBIC: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_CUBIC),
+    Algorithms.CV2_INTER_LANCZOS4: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_LANCZOS4),
+    Algorithms.CV2_INTER_LINEAR: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_LINEAR),
+    Algorithms.CV2_INTER_NEAREST: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_NEAREST),
+
+    Algorithms.CV2_EDSR: lambda frames, factor: cv2_ai_common(frames, factor, "EDSR", {2, 3, 4}),
+    Algorithms.CV2_ESPCN: lambda frames, factor: cv2_ai_common(frames, factor, "ESPCN", {2, 3, 4}),
+    Algorithms.CV2_FSRCNN: lambda frames, factor: cv2_ai_common(frames, factor, "FSRCNN", {2, 3, 4}),
+    Algorithms.CV2_FSRCNN_small: lambda frames, factor: cv2_ai_common(frames, factor, "FSRCNN_small", {2, 3, 4}),
+    Algorithms.CV2_LapSRN: lambda frames, factor: cv2_ai_common(frames, factor, "LapSRN", {2, 4, 8}),  # 248
+
+    Algorithms.PIL_NEAREST_NEIGHBOR: lambda frames, factor: pil_scale(frames, factor, PIL.Image.NEAREST),
+    Algorithms.PIL_BILINEAR: lambda frames, factor: pil_scale(frames, factor, PIL.Image.BILINEAR),
+    Algorithms.PIL_BICUBIC: lambda frames, factor: pil_scale(frames, factor, PIL.Image.BICUBIC),
+    Algorithms.PIL_LANCZOS: lambda frames, factor: pil_scale(frames, factor, PIL.Image.LANCZOS),
+
+    Algorithms.HSDBTRE: hsdbtre_scale,
+}
+
+
 def scale_image_batch(
-        algorithm: Algorithms,
+        algorithms: list[Algorithms],
         images: list[utils.ImageDict],
         factors,
         *,
         fallback_algorithm=Algorithms.CV2_INTER_AREA,
-        config_plus=None,
-        main_checked=False
-) -> list[utils.ImageDict]:
+        config_plus=None
+) -> list[list[utils.ImageDict]]:
 
-    scaled_images: list[utils.ImageDict] = []
-    # scaled_images = queue.Queue()
+    scaled_images: list[list[utils.ImageDict]] = []
 
-    # width, height = image.size
+    for algorithm in algorithms:
+        scaling_function = scaling_functions[algorithm]
+        if scaling_function is None:
+            raise ValueError(f"Filter {algorithm.name} (ID: {algorithm}) is not implemented")
 
-    # ------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------- Start of OpenCV algorithms ----------------------------------------
-    # ------------------------------------------------------------------------------------------------------------
-    if algorithm == Algorithms.CV2_INTER_AREA or algorithm in cv2_algorithms_ud:
-        algorithm = csatca(algorithm)
+        scaled_images.append([
+            {
+                "images": [scaling_function(image["images"][0], factor) for factor in factors],
+                "is_animated": image.get("is_animated"),
+                "animation_spacing": image.get("animation_spacing"),
+            } for image in images
+        ])
 
-        for image_object in images:
-            new_image_object_list = []
-            for factor in factors:
-                if algorithm == cv2.INTER_AREA:
-                    if factor > 1:
-                        # raise ValueError("INTER_AREA does not support upscaling!")
-                        print(
-                            colored(
-                                "ERROR: INTER_AREA does not support upscaling! "
-                                f"Factor: {factor}; File names will be incorrect!", 'red'
-                            )
-                        )
-                        continue
+    return scaled_images
 
-                scaled_image = []
-                # for frame in image_object.images[0]:
-                for frame in image_object['images'][0]:
-                    cv2_image = utils.pil_to_cv2(frame)
-                    width, height = frame.size
-
-                    output_width, output_height = round(width * factor), round(height * factor)
-
-                    scaled_image.append(
-                        utils.cv2_to_pil(
-                            cv2.resize(cv2_image, (output_width, output_height), interpolation=algorithm)
-                        )
-                    )
-
-                new_image_object_list.append(scaled_image)
-            scaled_images.append({
-                'images': new_image_object_list
-            })
-
-        return scaled_images
-
-    def cv2_ai_common_scale(
-            image_object: utils.ImageDict,
-            factor: int,
-            sr: cv2.dnn_superres.DnnSuperResImpl,
-            path_prefix: str,
-            name: str
-    ) -> list[PIL.Image.Image]:
-        path = f"{path_prefix}_x{int(factor)}.pb"
-
-        sr.readModel(path)
-        sr.setModel(name.lower().split('_')[0], factor)
-
-        scaled_image = []
-        for frame in image_object['images'][0]:
-            cv2_image = utils.pil_to_cv2(frame.convert('RGB'))
-            width, height = frame.size
-
-            result = sr.upsample(cv2_image)
-
-            scaled_image.append(
-                utils.cv2_to_pil(
-                    cv2.resize(result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm))
-                )
-            )
-
-        return scaled_image
-
-    def cv2_ai_common():
-        sr = cv2.dnn_superres.DnnSuperResImpl_create()  # Ignore the warning, works fine
-
-        name = algorithm.name[4:]
-        path_prefix = f"./weights/{name}/{name}"
-
-        for image_object in images:
-            new_image_object_list = []
-            for factor in factors:
-                if factor not in allowed_factors:
-                    # raise ValueError("INTER_AREA does not support upscaling!")
-                    print(
-                        colored(
-                            f"Warning: CV2 AI '{algorithm.name}' does not support factor: {factor}! "
-                            f"Allowed factors: {allowed_factors}; Result might be blurry!",
-                            'yellow'
-                        )
-                    )
-                    if factor < 1:
-                        print(
-                            colored(
-                                "ERROR: CV2 AIs do not support downscaling! "
-                                f"Cannot perform any fixes! Scaling with fallback algorithm: {fallback_algorithm.name}",
-                                'red'
-                            )
-                        )
-                        scaled_image = []
-                        for frame in image_object['images'][0]:
-                            cv2_image = utils.pil_to_cv2(frame)
-                            width, height = frame.size
-
-                            output_width, output_height = round(width * factor), round(height * factor)
-
-                            scaled_image.append(
-                                utils.cv2_to_pil(
-                                    cv2.resize(
-                                        cv2_image,
-                                        (output_width, output_height),
-                                        interpolation=csatca(fallback_algorithm)
-                                    )
-                                )
-                            )
-                        new_image_object_list.append(scaled_image)
-
-                    # min_allowed_factor = min(allowed_factors)
-                    max_allowed_factor = max(allowed_factors)
-                    scaled_image = []
-                    for frame in image_object['images'][0]:
-                        width, height = frame.size
-                        result = utils.pil_to_cv2(frame.convert('RGB'))
-                        current_factor = 1
-                        while current_factor < factor:
-                            temp_factor = max_allowed_factor
-                            while current_factor * temp_factor >= factor:
-                                temp_factor -= 1
-                            while temp_factor not in allowed_factors:
-                                temp_factor += 1
-
-                            current_factor *= temp_factor
-
-                            path = f"{path_prefix}_x{temp_factor}.pb"
-                            # print(f"Path: {path}")
-
-                            sr.readModel(path)
-                            sr.setModel(name.lower(), temp_factor)
-
-                            result = sr.upsample(result)
-
-                        scaled_image.append(
-                            utils.cv2_to_pil(
-                                cv2.resize(
-                                    result, (width * factor, height * factor), interpolation=csatca(fallback_algorithm)
-                                )
-                            )
-                        )
-
-                    new_image_object_list.append(scaled_image)
-
-                else:
-                    new_image_object_list.append(cv2_ai_common_scale(image_object, factor, sr, path_prefix, name))
-            scaled_images.append({
-                'images': new_image_object_list
-            })
-
-    if algorithm in cv2_ai_234:
-        allowed_factors = {2, 3, 4}
-        cv2_ai_common()
-
-        return scaled_images
-
-    if algorithm in cv2_ai_248:
-        allowed_factors = {2, 4, 8}
-        cv2_ai_common()
-
-        return scaled_images
-    # ----------------------------------------------------------------------------------------------------------
-    # ---------------------------------------- End of OpenCV algorithms ----------------------------------------
-    # ----------------------------------------------------------------------------------------------------------
-    # ---------------------------------------- Start of PIL algorithms -----------------------------------------
-    # ----------------------------------------------------------------------------------------------------------
-    if algorithm in pil_algorithms_ud:
-        algorithm = csatpa(algorithm)
-
-        for image_object in images:
-            new_image_object_list = []
-            for factor in factors:
-                scaled_image = []
-                # for frame in image_object.images[0]:
-                for frame in image_object['images'][0]:
-                    width, height = frame.size
-                    output_width, output_height = round(width * factor), round(height * factor)
-
-                    scaled_image.append(frame.resize((output_width, output_height), algorithm))
-                new_image_object_list.append(scaled_image)
-            scaled_images.append({
-                'images': new_image_object_list
-            })
-        return scaled_images
-    # ------------------------------------------------------------------------------------------------------------
-    # ------------------------------------------- End of PIL algorithms ------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     # ---------------------------------------- Start of custom algorithms ----------------------------------------
     # ------------------------------------------------------------------------------------------------------------
-
-    if algorithm == Algorithms.HSDBTRE:
-        repeats = []
-        for factor in factors:
-            repeat = 1
-            while 4**repeat < factor:
-                repeat += 1
-            repeats.append(repeat)
-
-        new_factors = [4**repeat for repeat in repeats]
-        # print(f"New factors: {new_factors}")
-        # print(f"Repeats: {repeats}")
-
-        temporal_factors = new_factors.copy()
-        scaled_images = images
-        while any([factor > 1 for factor in temporal_factors]):
-            f_to_scale = []
-            for i, factor in enumerate(temporal_factors):
-                if factor > 1:
-                    f_to_scale.append(2)
-                    temporal_factors[i] //= 4
-                else:
-                    f_to_scale.append(1)
-
-            scaled_images = scale_image_batch(
-                Algorithms.SI_drln_bam, scaled_images, f_to_scale, fallback_algorithm=fallback_algorithm
-            )
-            scaled_images = scale_image_batch(
-                Algorithms.RealESRGAN, scaled_images, f_to_scale, fallback_algorithm=fallback_algorithm
-            )
-
-        for image_object in scaled_images:
-            # print(f"Images: {image_object['images']}")
-            for i, scales in enumerate(image_object['images']):
-                # print(f"Type of scales: {type(scales)}")
-                # print(f"Scales:\n{scales}")
-                for j in range(len(scales)):
-                    frame = scales[j]
-                    # print(f"new_factors[i] * factors[i] = {new_factors[i] * factors[i]}")
-                    # print(f"frame.size = {frame.size}")
-                    scales[j] = utils.cv2_to_pil(
-                        cv2.resize(
-                            utils.pil_to_cv2(frame),
-                            (
-                                frame.size[0] // new_factors[i] * factors[i],
-                                frame.size[1] // new_factors[i] * factors[i]
-                            ),
-                            interpolation=csatca(fallback_algorithm)
-                        )
-                    )
-
-        return scaled_images
 
     if algorithm in si_algorithms:
         if algorithm in si_2x_3x_4x_algorithms:
@@ -491,13 +459,13 @@ def scale_image_batch(
 
     if algorithm == Algorithms.Repetition:
         if config_plus is None:
-            print(colored("config_plus is None! Creating empty config_plus!", 'yellow'))
+            print(colored("WARNING: config_plus is None! Creating empty config_plus!", 'yellow'))
             config_plus = {}
         if 'offset_x' not in config_plus:
-            print(colored("offset_x not in config_plus! Using default value: 0", 'yellow'))
+            print(colored("WARNING: offset_x not in config_plus! Using default value: 0", 'yellow'))
             config_plus['offset_x'] = 0
         if 'offset_y' not in config_plus:
-            print(colored("offset_y not in config_plus! Using default value: 0", 'yellow'))
+            print(colored("WARNING: offset_y not in config_plus! Using default value: 0", 'yellow'))
             config_plus['offset_y'] = 0
 
         for image_object in images:
@@ -1146,35 +1114,3 @@ def scale_image_batch(
                     })
 
     return scaled_images
-
-
-# Main function for C++ lib
-def scale_image_data(
-        algorithm,
-        pixels: [[[int]]],
-        factor,
-        *,
-        fallback_algorithm=Algorithms.PIL_BICUBIC,
-        main_checked=False
-) -> PIL.Image:
-
-    match algorithm:
-        # case Algorithms.CPP_DEBUG:
-        #     # new_pixels = scalercg.scale("cpp_debug", pixels, factor)
-        #     new_pixels = scalercg.scale(pixels, factor, "cpp_debug")
-        #     image = Image.new("RGBA", (len(new_pixels[0]), len(new_pixels)))
-        #     for y in range(len(new_pixels)):
-        #         for x in range(len(new_pixels[0])):
-        #             image.putpixel((x, y), new_pixels[y][x])
-        #     return image
-        case _:
-            if main_checked:
-                raise NotImplementedError("Not implemented yet")
-            else:
-                image = PIL.Image.new("RGBA", (len(pixels[0]) * factor, len(pixels) * factor))
-                for y in range(len(pixels)):
-                    for x in range(len(pixels[0])):
-                        image.putpixel((x * factor, y * factor), pixels[y][x])
-
-                return scale_image(algorithm, image, factor, fallback_algorithm=fallback_algorithm, main_checked=True)
-                # return scale_image(algorithm, image, factor, fallback_algorithm, main_checked=True)
