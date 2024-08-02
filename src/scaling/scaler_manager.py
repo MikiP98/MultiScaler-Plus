@@ -1,23 +1,24 @@
 # coding=utf-8
 import io
-
-import pyanime4k.ac
+import subprocess
+import PIL.Image
 import cv2
 import hqx
 import numpy as np
-import PIL.Image
-import subprocess
+import pyanime4k.ac
 import super_image
 import torch
-
-import utils
 import xbrz  # See xBRZ scaling on Jira
 
-# EDI_predict is wierd, EDI_Downscale is nearest neighbor...
-from scaling.Edge_Directed_Interpolation.edi import EDI_upscale
 from RealESRGAN import RealESRGAN
+from super_image.modeling_utils import PreTrainedModel as super_image_PreTrainedModel
 from superxbr import superxbr  # Ignore the error, it works fine
 from termcolor import colored
+from typing import Type
+
+import utils
+# EDI_predict is wierd, EDI_Downscale is nearest neighbor...
+from scaling.Edge_Directed_Interpolation.edi import EDI_upscale
 from utils import Algorithms
 
 # import scalercg
@@ -185,7 +186,7 @@ def cv2_ai_common_scale(
     return scaled_image
 
 
-def cv2_ai_common(frames: list[PIL.Image], factor: float, name: str, allowed_factors) -> list[PIL.Image]:
+def cv2_ai_common(frames: list[PIL.Image], factor: float, name: str, allowed_factors: set) -> list[PIL.Image]:
     if factor < 1:
         print(
             colored(
@@ -279,13 +280,14 @@ def hsdbtre_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
 
     scaled_frames = frames.copy()
     for _ in range(repeat):
+        scaled_frames = si_ai_scale(scaled_frames, 2, {2}, super_image.DrlnModel, "eugenesiow/drln-bam")
+        scaled_frames = real_esrgan_scale(scaled_frames, 2)
         # scaled_frames = scale_image_batch(
         #     Algorithms.SI_drln_bam, scaled_frames, [2], fallback_algorithm=fallback_algorithm
         # )
         # scaled_frames = scale_image_batch(
         #     Algorithms.RealESRGAN, scaled_frames, [2], fallback_algorithm=fallback_algorithm
         # )
-        raise NotImplementedError("HSDBTRE is not implemented yet!")  # TODO: Go back after porting SI AIs and RealESRGAN
 
     scaled_frames = [
         utils.cv2_to_pil(
@@ -304,25 +306,205 @@ def hsdbtre_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
     return scaled_frames
 
 
+def si_ai_scale(frames: list[PIL.Image], factor: float, allowed_factors: set, pretrained_model: Type[super_image_PreTrainedModel], pretrained_path: str) -> list[PIL.Image]:
+    current_factor = 1
+    # temp_factor = factor
+    scaled_frames = frames.copy()
+    while current_factor < factor:
+        temp_factor = 4
+        if 3 in allowed_factors:
+            temp_factor -= 1
+            while current_factor * temp_factor >= factor:
+                temp_factor -= 1
+            temp_factor += 1
+
+        current_factor *= temp_factor
+
+        # if factor not in allowed_factors:
+        #     raise ValueError("SI does not support this factor!")
+
+        model = pretrained_model.from_pretrained(pretrained_path, scale=temp_factor)
+
+        # if algorithm == Algorithms.SI_a2n:
+        #     model = super_image.A2nModel.from_pretrained('eugenesiow/a2n', scale=temp_factor)
+        # elif algorithm == Algorithms.SI_awsrn_bam:
+        #     model = super_image.AwsrnModel.from_pretrained('eugenesiow/awsrn-bam', scale=temp_factor)
+        # elif algorithm == Algorithms.SI_carn or algorithm == Algorithms.SI_carn_bam:
+        #     if algorithm == Algorithms.SI_carn:
+        #         model = super_image.CarnModel.from_pretrained('eugenesiow/carn', scale=temp_factor)
+        #     else:
+        #         model = super_image.CarnModel.from_pretrained('eugenesiow/carn-bam', scale=temp_factor)
+        # elif algorithm == Algorithms.SI_drln or algorithm == Algorithms.SI_drln_bam:
+        #     if algorithm == Algorithms.SI_drln:
+        #         model = super_image.DrlnModel.from_pretrained('eugenesiow/drln', scale=temp_factor)
+        #     else:
+        #         model = super_image.DrlnModel.from_pretrained('eugenesiow/drln-bam', scale=temp_factor)
+        # elif algorithm == Algorithms.SI_edsr or algorithm == Algorithms.SI_edsr_base:
+        #     if algorithm == Algorithms.SI_edsr:
+        #         model = super_image.EdsrModel.from_pretrained('eugenesiow/edsr', scale=temp_factor)
+        #     else:
+        #         model = super_image.EdsrModel.from_pretrained('eugenesiow/edsr-base', scale=temp_factor)
+        # elif algorithm == Algorithms.SI_mdsr or algorithm == Algorithms.SI_mdsr_bam:
+        #     if algorithm == Algorithms.SI_mdsr:
+        #         model = super_image.MdsrModel.from_pretrained('eugenesiow/mdsr', scale=temp_factor)
+        #     else:
+        #         model = super_image.MdsrModel.from_pretrained('eugenesiow/mdsr-bam', scale=temp_factor)
+        # elif algorithm == Algorithms.SI_msrn or algorithm == Algorithms.SI_msrn_bam:
+        #     if algorithm == Algorithms.SI_msrn:
+        #         model = super_image.MsrnModel.from_pretrained('eugenesiow/msrn', scale=temp_factor)
+        #     else:
+        #         model = super_image.MsrnModel.from_pretrained('eugenesiow/msrn-bam', scale=temp_factor)
+        # elif algorithm == Algorithms.SI_pan or algorithm == Algorithms.SI_pan_bam:
+        #     if algorithm == Algorithms.SI_pan:
+        #         model = super_image.PanModel.from_pretrained('eugenesiow/pan', scale=temp_factor)
+        #     else:
+        #         model = super_image.PanModel.from_pretrained('eugenesiow/pan-bam', scale=temp_factor)
+        # elif algorithm == Algorithms.SI_rcan_bam:
+        #     model = super_image.RcanModel.from_pretrained('eugenesiow/rcan-bam', scale=temp_factor)
+        # elif algorithm == Algorithms.SI_han:
+        #     model = super_image.HanModel.from_pretrained('eugenesiow/han', scale=temp_factor)
+        # else:
+        #     raise ValueError("Unknown SI algorithm! It should not get here... but the warning :/")
+
+        for i, frame in enumerate(scaled_frames):
+            inputs = super_image.ImageLoader.load_image(frame)
+            preds = model(inputs)
+
+            cv2_frame = super_image.ImageLoader._process_image_to_save(preds)
+
+            frame_bytes = cv2.imencode('.png', cv2_frame)[1].tobytes()
+
+            pil_frame = PIL.Image.open(io.BytesIO(frame_bytes))
+
+            scaled_frames[i] = pil_frame
+
+            # super_image.ImageLoader.save_image(preds, "../input/frame.png")
+            # super_image.ImageLoader.save_compare(preds, inputs, "../output/compare.png")
+
+    scaled_frames = [
+        utils.cv2_to_pil(
+            cv2.resize(
+                utils.pil_to_cv2(scaled_frame),
+                (
+                    round(frame.size[0] * factor),
+                    round(frame.size[1] * factor)
+                ),
+                interpolation=cv2.INTER_AREA  # TODO: Replace with csatca(fallback_algorithm)
+            )
+        )
+        for scaled_frame, frame in zip(scaled_frames, frames)
+    ]
+
+    # for i, frame in enumerate(scaled_frames):
+    #     print(f"Curr factor: {current_factor}")
+    #     scaled_frames[i] = utils.cv2_to_pil(
+    #         cv2.resize(
+    #             utils.pil_to_cv2(frame),
+    #             (frame.size[0] // current_factor * factor, frame.size[1] // current_factor * factor),
+    #             interpolation=csatca(fallback_algorithm)
+    #         )
+    #     )
+
+    model = None  # why it this here? Bug fix? Memory cleaning?
+    return scaled_frames
+
+
+def real_esrgan_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
+    if factor < 1:
+        print(
+            colored(
+                "RealESRGAN AI does not support downscaling!; "
+                "Skipping!",
+                'red'
+            )
+        )
+        return []
+
+    scaled_frames = []
+    for frame in frames:
+        width, height = frame.size
+        output_width, output_height = round(width * factor), round(height * factor)
+        frame = frame.convert('RGB')
+
+        # If factor is not a whole number or is greater than 6, print a warning
+        if factor not in (1, 2, 4, 8):
+            print(
+                colored(
+                    "WARNING: Scaling by RealESRGAN with factor {factor} is not supported, "
+                    "result might be blurry!",
+                    'yellow'
+                )
+            )
+
+        current_scale = 1
+        while current_scale < factor:
+            temp_factor = 8
+            while current_scale * temp_factor >= factor:
+                temp_factor //= 2
+            temp_factor = min(temp_factor * 2, 8)
+
+            model = RealESRGAN(device, scale=temp_factor)
+            model.load_weights(f'weights/RealESRGAN_x{temp_factor}.pth')  # , download=True
+            frame = model.predict(frame)
+
+            current_scale *= temp_factor
+
+        scaled_frames.append(
+            utils.cv2_to_pil(
+                cv2.resize(
+                    utils.pil_to_cv2(frame),
+                    (output_width, output_height),
+                    interpolation=cv2.INTER_AREA  # TODO: Replace with csatca(fallback_algorithm)
+                )
+            )
+        )
+    return scaled_frames
+
+
 scaling_functions = {
+    # CV2 classic algorithms
     Algorithms.CV2_INTER_AREA: cv2_inter_area_prefix,
     Algorithms.CV2_INTER_CUBIC: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_CUBIC),
     Algorithms.CV2_INTER_LANCZOS4: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_LANCZOS4),
     Algorithms.CV2_INTER_LINEAR: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_LINEAR),
     Algorithms.CV2_INTER_NEAREST: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_NEAREST),
 
+    # CV2 AI algorithms
     Algorithms.CV2_EDSR: lambda frames, factor: cv2_ai_common(frames, factor, "EDSR", {2, 3, 4}),
     Algorithms.CV2_ESPCN: lambda frames, factor: cv2_ai_common(frames, factor, "ESPCN", {2, 3, 4}),
     Algorithms.CV2_FSRCNN: lambda frames, factor: cv2_ai_common(frames, factor, "FSRCNN", {2, 3, 4}),
     Algorithms.CV2_FSRCNN_small: lambda frames, factor: cv2_ai_common(frames, factor, "FSRCNN_small", {2, 3, 4}),
     Algorithms.CV2_LapSRN: lambda frames, factor: cv2_ai_common(frames, factor, "LapSRN", {2, 4, 8}),  # 248
 
+    # PIL algorithms
     Algorithms.PIL_NEAREST_NEIGHBOR: lambda frames, factor: pil_scale(frames, factor, PIL.Image.NEAREST),
     Algorithms.PIL_BILINEAR: lambda frames, factor: pil_scale(frames, factor, PIL.Image.BILINEAR),
     Algorithms.PIL_BICUBIC: lambda frames, factor: pil_scale(frames, factor, PIL.Image.BICUBIC),
     Algorithms.PIL_LANCZOS: lambda frames, factor: pil_scale(frames, factor, PIL.Image.LANCZOS),
 
+    # Super Image AI algorithms
+    Algorithms.SI_a2n: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.A2nModel, "eugenesiow/a2n"),
+    Algorithms.SI_awsrn_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.AwsrnModel, "eugenesiow/awsrn-bam"),
+    Algorithms.SI_carn: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.CarnModel, "eugenesiow/carn"),
+    Algorithms.SI_carn_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.CarnModel, "eugenesiow/carn-bam"),
+    Algorithms.SI_drln: lambda frames, factor: si_ai_scale(frames, factor, {4}, super_image.DrlnModel, "eugenesiow/drln"),
+    Algorithms.SI_drln_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.DrlnModel, "eugenesiow/drln-bam"),
+    Algorithms.SI_edsr: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.EdsrModel, "eugenesiow/edsr"),
+    Algorithms.SI_edsr_base: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.EdsrModel, "eugenesiow/edsr-base"),
+    Algorithms.SI_han: lambda frames, factor: si_ai_scale(frames, factor, {4}, super_image.HanModel, "eugenesiow/han"),  # 4x only
+    Algorithms.SI_mdsr: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MdsrModel, "eugenesiow/mdsr"),
+    Algorithms.SI_mdsr_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MdsrModel, "eugenesiow/mdsr-bam"),
+    Algorithms.SI_msrn: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MsrnModel, "eugenesiow/msrn"),
+    Algorithms.SI_msrn_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MsrnModel, "eugenesiow/msrn-bam"),
+    Algorithms.SI_pan: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.PanModel, "eugenesiow/pan"),
+    Algorithms.SI_pan_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.PanModel, "eugenesiow/pan-bam"),
+    Algorithms.SI_rcan_bam: lambda frames, factor: si_ai_scale(frames, factor, {4}, super_image.RcanModel, "eugenesiow/rcan-bam"),  # 4x only
+
+    # Custom algorithms
     Algorithms.HSDBTRE: hsdbtre_scale,
+    Algorithms.RealESRGAN: real_esrgan_scale,
+    Algorithms.SUPIR: None,
+    Algorithms.Waifu2x: None,
 }
 
 
@@ -355,105 +537,6 @@ def scale_image_batch(
     # ------------------------------------------------------------------------------------------------------------
     # ---------------------------------------- Start of custom algorithms ----------------------------------------
     # ------------------------------------------------------------------------------------------------------------
-
-    if algorithm in si_algorithms:
-        if algorithm in si_2x_3x_4x_algorithms:
-            allowed_factors = {2, 3, 4}
-        else:
-            # algorithm in si_4x_algorithms
-            allowed_factors = {4}
-
-        for image_object in images:
-            new_image_object_list = []
-            for factor in factors:
-                current_factor = 1
-                # temp_factor = factor
-                scaled_image = image_object['images'][0].copy()
-                while current_factor < factor:
-                    temp_factor = 4
-                    if 3 in allowed_factors:
-                        temp_factor -= 1
-                        while current_factor * temp_factor >= factor:
-                            temp_factor -= 1
-                        temp_factor += 1
-
-                    current_factor *= temp_factor
-
-                    # if factor not in allowed_factors:
-                    #     raise ValueError("SI does not support this factor!")
-
-                    if algorithm == Algorithms.SI_a2n:
-                        model = super_image.A2nModel.from_pretrained('eugenesiow/a2n', scale=temp_factor)
-                    elif algorithm == Algorithms.SI_awsrn_bam:
-                        model = super_image.AwsrnModel.from_pretrained('eugenesiow/awsrn-bam', scale=temp_factor)
-                    elif algorithm == Algorithms.SI_carn or algorithm == Algorithms.SI_carn_bam:
-                        if algorithm == Algorithms.SI_carn:
-                            model = super_image.CarnModel.from_pretrained('eugenesiow/carn', scale=temp_factor)
-                        else:
-                            model = super_image.CarnModel.from_pretrained('eugenesiow/carn-bam', scale=temp_factor)
-                    elif algorithm == Algorithms.SI_drln or algorithm == Algorithms.SI_drln_bam:
-                        if algorithm == Algorithms.SI_drln:
-                            model = super_image.DrlnModel.from_pretrained('eugenesiow/drln', scale=temp_factor)
-                        else:
-                            model = super_image.DrlnModel.from_pretrained('eugenesiow/drln-bam', scale=temp_factor)
-                    elif algorithm == Algorithms.SI_edsr or algorithm == Algorithms.SI_edsr_base:
-                        if algorithm == Algorithms.SI_edsr:
-                            model = super_image.EdsrModel.from_pretrained('eugenesiow/edsr', scale=temp_factor)
-                        else:
-                            model = super_image.EdsrModel.from_pretrained('eugenesiow/edsr-base', scale=temp_factor)
-                    elif algorithm == Algorithms.SI_mdsr or algorithm == Algorithms.SI_mdsr_bam:
-                        if algorithm == Algorithms.SI_mdsr:
-                            model = super_image.MdsrModel.from_pretrained('eugenesiow/mdsr', scale=temp_factor)
-                        else:
-                            model = super_image.MdsrModel.from_pretrained('eugenesiow/mdsr-bam', scale=temp_factor)
-                    elif algorithm == Algorithms.SI_msrn or algorithm == Algorithms.SI_msrn_bam:
-                        if algorithm == Algorithms.SI_msrn:
-                            model = super_image.MsrnModel.from_pretrained('eugenesiow/msrn', scale=temp_factor)
-                        else:
-                            model = super_image.MsrnModel.from_pretrained('eugenesiow/msrn-bam', scale=temp_factor)
-                    elif algorithm == Algorithms.SI_pan or algorithm == Algorithms.SI_pan_bam:
-                        if algorithm == Algorithms.SI_pan:
-                            model = super_image.PanModel.from_pretrained('eugenesiow/pan', scale=temp_factor)
-                        else:
-                            model = super_image.PanModel.from_pretrained('eugenesiow/pan-bam', scale=temp_factor)
-                    elif algorithm == Algorithms.SI_rcan_bam:
-                        model = super_image.RcanModel.from_pretrained('eugenesiow/rcan-bam', scale=temp_factor)
-                    elif algorithm == Algorithms.SI_han:
-                        model = super_image.HanModel.from_pretrained('eugenesiow/han', scale=temp_factor)
-                    else:
-                        raise ValueError("Unknown SI algorithm! It should not get here... but the warning :/")
-
-                    for i, frame in enumerate(scaled_image):
-                        inputs = super_image.ImageLoader.load_image(frame)
-                        preds = model(inputs)
-
-                        cv2_frame = super_image.ImageLoader._process_image_to_save(preds)
-
-                        frame_bytes = cv2.imencode('.png', cv2_frame)[1].tobytes()
-
-                        pil_frame = PIL.Image.open(io.BytesIO(frame_bytes))
-
-                        scaled_image[i] = pil_frame
-
-                        # super_image.ImageLoader.save_image(preds, "../input/frame.png")
-                        # super_image.ImageLoader.save_compare(preds, inputs, "../output/compare.png")
-
-                for i, frame in enumerate(scaled_image):
-                    print(f"Curr factor: {current_factor}")
-                    scaled_image[i] = utils.cv2_to_pil(
-                        cv2.resize(
-                            utils.pil_to_cv2(frame),
-                            (frame.size[0] // current_factor * factor, frame.size[1] // current_factor * factor),
-                            interpolation=csatca(fallback_algorithm)
-                        )
-                    )
-
-                new_image_object_list.append(scaled_image)
-                model = None
-            scaled_images.append({
-                'images': new_image_object_list
-            })
-        return scaled_images
 
     if algorithm == Algorithms.Repetition:
         if config_plus is None:
@@ -622,82 +705,6 @@ def scale_image_batch(
                 scaled_images.append({
                     'images': new_image_object_list
                 })
-
-        case Algorithms.RealESRGAN:
-            for image_object in images:
-                new_image_object_list = []
-                for factor in factors:
-                    scaled_image = []
-                    if factor < 1:
-                        print(
-                            colored(
-                                "RealESRGAN AI does not support downscaling!; "
-                                "Defaulting to fallback algorithm: {fallback_algorithm.name}",
-                                'red'
-                            )
-                        )
-
-                        for frame in image_object['images'][0]:
-                            cv2_image = utils.pil_to_cv2(frame)
-                            width, height = frame.size
-
-                            output_width, output_height = round(width * factor), round(height * factor)
-
-                            scaled_image.append(
-                                utils.cv2_to_pil(
-                                    cv2.resize(
-                                        cv2_image,
-                                        (output_width, output_height),
-                                        interpolation=csatca(fallback_algorithm)
-                                    )
-                                )
-                            )
-                        new_image_object_list.append(scaled_image)
-
-                    for frame in image_object['images'][0]:
-                        width, height = frame.size
-                        output_width, output_height = round(width * factor), round(height * factor)
-                        frame = frame.convert('RGB')
-
-                        # If factor is not a whole number or is greater than 6, print a warning
-                        if factor not in (1, 2, 4, 8):
-                            print(
-                                colored(
-                                    "WARNING: Scaling by RealESRGAN with factor {factor} is not supported, "
-                                    "result might be blurry!",
-                                    'yellow'
-                                )
-                            )
-
-                        current_scale = 1
-                        while current_scale < factor:
-                            temp_factor = 8
-                            while current_scale * temp_factor >= factor:
-                                temp_factor //= 2
-                            temp_factor = min(temp_factor * 2, 8)
-
-                            model = RealESRGAN(device, scale=temp_factor)
-                            model.load_weights(f'weights/RealESRGAN_x{temp_factor}.pth')  # , download=True
-                            frame = model.predict(frame)
-
-                            current_scale *= temp_factor
-
-                        scaled_image.append(
-                            utils.cv2_to_pil(
-                                cv2.resize(
-                                    utils.pil_to_cv2(frame),
-                                    (output_width, output_height),
-                                    interpolation=csatca(fallback_algorithm)
-                                )
-                            )
-                        )
-                    new_image_object_list.append(scaled_image)
-                scaled_images.append({
-                    'images': new_image_object_list
-                })
-
-        case Algorithms.SUPIR:
-            raise NotImplementedError("Not implemented yet")
 
         case Algorithms.FSR:
             if config_plus is None:
@@ -1055,60 +1062,3 @@ def scale_image_batch(
                         )
                     image_object_list.append(scaled_frames)
                 scaled_images.append({'images': image_object_list})
-
-        case _:
-            if main_checked:
-                raise NotImplementedError("Not implemented yet")
-            else:
-                for image_object in images:
-                    new_image_object_list = []
-                    for factor in factors:
-                        scaled_image = []
-                        for frame in image_object['images'][0]:
-                            width, height = frame.size
-
-                            frame = utils.pil_to_cv2(frame.convert('RGBA'))
-
-                            # Convert image to RGBA format
-                            cv2_image_rgba = cv2.cvtColor(frame, cv2.COLOR_BGRA2RGBA)
-                            # Convert 'cv2_image_rgba' numpy array to python list
-                            python_array_image = cv2_image_rgba.tolist()
-
-                            python_array_image = scale_image_data(
-                                algorithm,
-                                python_array_image,
-                                factor,
-                                fallback_algorithm=fallback_algorithm,
-                                main_checked=True
-                            )
-
-                            # Convert python list to 'cv2_image_rgba' numpy array
-                            cv2_image_rgba = np.array(python_array_image, dtype=np.uint8)
-                            # Convert 'cv2_image_rgba' numpy array to 'cv2_image' numpy array
-                            cv2_image = cv2.cvtColor(cv2_image_rgba, cv2.COLOR_RGBA2BGRA)
-
-                            scaled_image.append(
-                                utils.cv2_to_pil(
-                                    cv2.resize(
-                                        cv2_image,
-                                        (width * factor, height * factor),
-                                        interpolation=csatca(fallback_algorithm)
-                                    )
-                                )
-                            )
-
-                            # raise NotImplementedError("Not implemented yet")
-
-                            # width, height = pil_image.size
-                            # # pixels = [[[int]]]
-                            # pixels = [[[0, 0, 0, 0] for _ in range(width)] for _ in range(height)]
-                            # for y in range(height):
-                            #     for x in range(width):
-                            #         pixels[y][x] = pil_image.getpixel((x, y))
-                            # return scale_image_data(algorithm, pixels, factor, fallback_algorithm, True)
-                        new_image_object_list.append(scaled_image)
-                    scaled_images.append({
-                        'images': new_image_object_list
-                    })
-
-    return scaled_images
