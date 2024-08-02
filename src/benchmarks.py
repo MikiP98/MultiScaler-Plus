@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import os
 import queue
-import scaler
+import scaling.scaler_manager as scaler
 import standalone
 # import sys
 import time
@@ -16,7 +16,7 @@ from aenum import auto as aauto
 from aenum import unique as aunique
 from collections import deque
 from enum import auto, IntEnum, unique
-from functools import lru_cache
+from functools import lru_cache, partial
 from PIL import Image
 from pympler import asizeof
 from typing import Union
@@ -2110,6 +2110,37 @@ def vector_test(n=2_000, k=10):
     # ------------------------------------------------------------------------------------------------------------------
 
 
+def function_test(a, b, c):
+    return a * 2 + b * 3 + c
+
+
+test_tuple = (
+    partial(function_test, 1, c=3),  # partial_func
+    lambda b: function_test(1, b, 3)  # lambda_func
+)
+
+
+def partial_vs_lambda_test(n=60_000_000, k=15):
+    partial_time = 0
+    lambda_time = 0
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        partial_time += timeit.timeit(lambda: test_tuple[0](2), number=n // k)
+        lambda_time += timeit.timeit(lambda: test_tuple[1](2), number=n // k)
+        # print(f"Partial result: {test_tuple[0](2)}")
+        # print(f"Lambda result: {test_tuple[1](2)}")
+
+    partial_time = round(partial_time / k, 4)
+    lambda_time = round(lambda_time / k, 4)
+
+    print(f"Partial time: {partial_time}")
+    print(f"Lambda time: {lambda_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "partial_vs_lambda_test" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
 def docstring_tests():
     print(scaler.csatpa.__doc__)
 
@@ -2150,7 +2181,8 @@ if __name__ == "__main__":
     # color_count_test()
     # aenum_test()
     # transparency_use_test()
-    vector_test()
+    # vector_test()
+    partial_vs_lambda_test()
 
     # set_from_dict()
     # set_from_dick_w_tuples_simple()
@@ -2168,5 +2200,7 @@ if __name__ == "__main__":
     # for unique_colors_number in unique_colors_numbers:
     #     colors = 1 << (unique_colors_number - 1).bit_length()
     #     print(colors)
+
+    # print(type(cv2.INTER_AREA))
 
     ...
