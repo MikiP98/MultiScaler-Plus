@@ -85,16 +85,14 @@ def scale_image(
         factor: int,
         *,
         fallback_algorithm=Algorithms.CV2_INTER_AREA,
-        config_plus=None,
-        main_checked=False
+        config_plus=None
 ) -> PIL.Image:
     return scale_image_batch(
         algorithm,
         [image],
         [factor],
         fallback_algorithm=fallback_algorithm,
-        config_plus=config_plus,
-        main_checked=main_checked
+        config_plus=config_plus
     ).pop()
 
 
