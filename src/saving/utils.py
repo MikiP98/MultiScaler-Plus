@@ -3,6 +3,7 @@ import io
 import PIL.Image
 import utils
 
+from aenum import IntEnum
 from typing import Optional, TypedDict
 
 
@@ -33,7 +34,7 @@ class AdvancedConfig(TypedDict):
     # TODO: Add more auto options
 
     factors: Optional[list[float]]
-    processing_method: Optional[str]  # TODO: Implement this
+    processing_method: Optional[IntEnum]  # TODO: Implement this
 
 
 def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:

@@ -30,7 +30,8 @@ default_configs = {
         "sort_by_file_extension": -1,  # -1 - auto, 0 - no, 1 - yes
         # TODO: Add more auto options
 
-        "factors": None
+        "factors": None,
+        "processing_methods": None
     },
     "scaler": {
         # prevents multi-face (in 1 image) textures to expand over current textures border

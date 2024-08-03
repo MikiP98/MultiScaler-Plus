@@ -63,35 +63,60 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
         print("Stacked and animated images are not supported yet :(")
         return
 
-    # TODO: Remove redundancy
-    if config['sort_by_factor']:
+    output_path_parts: list[str] = ["..", "output"]
+    file_name_part: list[str] = [file_name]
+
+    for filtered_image, factor in zip(image["images"], config['factors']):
+        # TODO: Tweak the order
+        if config['sort_by_factor']:
+            output_path_parts.append(str(factor))
+        if config['sort_by_processing_method']:  # TODO: fix
+            output_path_parts.append(config['processing_method'].name)
+
         if config['add_factor_to_name']:
-            for filtered_image, factor in zip(image["images"], config['factors']):
-                save_image(
-                    filtered_image[0],
-                    os.path.join("..", "output", str(factor), output_path, f"{file_name}_{factor}"),
-                    config['simple_config']
-                )
+            file_name_part.append(str(factor))
+        if config['add_processing_method_to_name']:
+            file_name_part.append(config['processing_method'].name)
 
-        else:
-            for filtered_image, factor in zip(image["images"], config['factors']):
-                save_image(
-                    filtered_image[0],
-                    os.path.join("..", "output", str(factor), output_path, file_name),
-                    config['simple_config']
-                )
+        new_file_name = "_".join(file_name_part)
 
-    elif config['add_factor_to_name']:
-        for filtered_image, factor in zip(image["images"], config['factors']):
-            save_image(
-                filtered_image[0],
-                os.path.join("..", "output", output_path, f"{file_name}_{factor}"),
-                config['simple_config']
-            )
+        full_output_path = os.path.join(*output_path_parts, output_path, new_file_name)
 
-    else:
-        for filtered_image in image["images"]:
-            save_image(filtered_image[0], os.path.join("..", "output", output_path, file_name), config['simple_config'])
+        save_image(
+            filtered_image[0],
+            full_output_path,
+            config['simple_config']
+        )
+
+    # # TODO: Remove redundancy
+    # if config['sort_by_factor']:
+    #     if config['add_factor_to_name']:
+    #         for filtered_image, factor in zip(image["images"], config['factors']):
+    #             save_image(
+    #                 filtered_image[0],
+    #                 os.path.join("..", "output", str(factor), output_path, f"{file_name}_{factor}"),
+    #                 config['simple_config']
+    #             )
+    #
+    #     else:
+    #         for filtered_image, factor in zip(image["images"], config['factors']):
+    #             save_image(
+    #                 filtered_image[0],
+    #                 os.path.join("..", "output", str(factor), output_path, file_name),
+    #                 config['simple_config']
+    #             )
+    #
+    # elif config['add_factor_to_name']:
+    #     for filtered_image, factor in zip(image["images"], config['factors']):
+    #         save_image(
+    #             filtered_image[0],
+    #             os.path.join("..", "output", output_path, f"{file_name}_{factor}"),
+    #             config['simple_config']
+    #         )
+    #
+    # else:
+    #     for filtered_image in image["images"]:
+    #         save_image(filtered_image[0], os.path.join("..", "output", output_path, file_name), config['simple_config'])
 
 
 def save_img_list(bundle, saver_config):
@@ -104,7 +129,7 @@ def save_img_list(bundle, saver_config):
         )
 
 
-def save_img_list_multithreaded(processed_images, roots, file_names, saver_config, *, max_thread_count=4):
+def save_img_list_multithreaded(processed_images: list[list[utils.ImageDict]], roots, file_names, saver_config, processing_methods, *, max_thread_count=4):
     # processes_loop_threads = min(round(len(processed_images) / 2), max_thread_count)
     # print(f"Using {processes_loop_threads} threads")
     # bundle_split_threads = len(processed_images) // processes_loop_threads
@@ -115,7 +140,10 @@ def save_img_list_multithreaded(processed_images, roots, file_names, saver_confi
     batched_cache = ceil(len(roots) / bundle_split_threads)
     print(f"Split the bundle into sizes of {batched_cache}\n")
 
-    for processed_image_set in processed_images:
+    for processed_image_set, processing_method in zip(processed_images, processing_methods):
+        current_saver_config = saver_config.copy()
+        current_saver_config['processing_method'] = processing_method
+
         bundle = zip(processed_image_set, roots, file_names)
 
         bundle_splits = itertools.batched(bundle, batched_cache)
@@ -124,7 +152,7 @@ def save_img_list_multithreaded(processed_images, roots, file_names, saver_confi
         for bundle_split in bundle_splits:
             thread = threading.Thread(
                 target=save_img_list,
-                args=(bundle_split, saver_config)
+                args=(bundle_split, current_saver_config)
             )
             thread.start()
             threads.append(thread)
