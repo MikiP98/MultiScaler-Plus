@@ -178,6 +178,7 @@ class SmartUpscaleTest(Preset):
 class FullDownScalingTest(Preset):
     config = Preset.config
     algorithms = [
+        Algorithms.CV2_INTER_AREA,  # resampling using pixel area relation
         Algorithms.CV2_INTER_CUBIC,  # bicubic interpolation over 4x4 pixel neighborhood
         Algorithms.CV2_INTER_LANCZOS4,  # Lanczos interpolation over 8x8 pixel neighborhood
         Algorithms.CV2_INTER_LINEAR,  # bilinear interpolation
