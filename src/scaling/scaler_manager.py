@@ -131,7 +131,7 @@ si_4x_algorithms = {
 si_algorithms = si_2x_3x_4x_algorithms.union(si_4x_algorithms)
 
 
-def cv2_inter_area_prefix(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
+def cv2_inter_area_prefix(frames: list[PIL.Image], factor: float, _) -> list[PIL.Image]:
     if factor > 1:
         # raise ValueError("INTER_AREA does not support upscaling!")
         print(colored(
@@ -956,45 +956,45 @@ def anime4k_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image.Imag
 
 scaling_functions = {
     # PIL classic algorithms
-    Algorithms.PIL_NEAREST_NEIGHBOR: lambda frames, factor: pil_scale(frames, factor, PIL.Image.NEAREST),
-    Algorithms.PIL_BILINEAR: lambda frames, factor: pil_scale(frames, factor, PIL.Image.BILINEAR),
-    Algorithms.PIL_BICUBIC: lambda frames, factor: pil_scale(frames, factor, PIL.Image.BICUBIC),
-    Algorithms.PIL_LANCZOS: lambda frames, factor: pil_scale(frames, factor, PIL.Image.LANCZOS),
+    Algorithms.PIL_NEAREST_NEIGHBOR: lambda frames, factor, _: pil_scale(frames, factor, PIL.Image.NEAREST),
+    Algorithms.PIL_BILINEAR: lambda frames, factor, _: pil_scale(frames, factor, PIL.Image.BILINEAR),
+    Algorithms.PIL_BICUBIC: lambda frames, factor, _: pil_scale(frames, factor, PIL.Image.BICUBIC),
+    Algorithms.PIL_LANCZOS: lambda frames, factor, _: pil_scale(frames, factor, PIL.Image.LANCZOS),
 
     # CV2 classic algorithms
     Algorithms.CV2_INTER_AREA: cv2_inter_area_prefix,
-    Algorithms.CV2_INTER_CUBIC: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_CUBIC),
-    Algorithms.CV2_INTER_LANCZOS4: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_LANCZOS4),
-    Algorithms.CV2_INTER_LINEAR: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_LINEAR),
-    Algorithms.CV2_INTER_NEAREST: lambda frames, factor: cv2_non_ai_common(frames, factor, cv2.INTER_NEAREST),
+    Algorithms.CV2_INTER_CUBIC: lambda frames, factor, _: cv2_non_ai_common(frames, factor, cv2.INTER_CUBIC),
+    Algorithms.CV2_INTER_LANCZOS4: lambda frames, factor, _: cv2_non_ai_common(frames, factor, cv2.INTER_LANCZOS4),
+    Algorithms.CV2_INTER_LINEAR: lambda frames, factor, _: cv2_non_ai_common(frames, factor, cv2.INTER_LINEAR),
+    Algorithms.CV2_INTER_NEAREST: lambda frames, factor, _: cv2_non_ai_common(frames, factor, cv2.INTER_NEAREST),
 
     # CV2 AI algorithms
-    Algorithms.CV2_EDSR: lambda frames, factor: cv2_ai_common(frames, factor, "EDSR", {2, 3, 4}),
-    Algorithms.CV2_ESPCN: lambda frames, factor: cv2_ai_common(frames, factor, "ESPCN", {2, 3, 4}),
-    Algorithms.CV2_FSRCNN: lambda frames, factor: cv2_ai_common(frames, factor, "FSRCNN", {2, 3, 4}),
-    Algorithms.CV2_FSRCNN_small: lambda frames, factor: cv2_ai_common(frames, factor, "FSRCNN_small", {2, 3, 4}),
-    Algorithms.CV2_LapSRN: lambda frames, factor: cv2_ai_common(frames, factor, "LapSRN", {2, 4, 8}),  # 248
+    Algorithms.CV2_EDSR: lambda frames, factor, _: cv2_ai_common(frames, factor, "EDSR", {2, 3, 4}),
+    Algorithms.CV2_ESPCN: lambda frames, factor, _: cv2_ai_common(frames, factor, "ESPCN", {2, 3, 4}),
+    Algorithms.CV2_FSRCNN: lambda frames, factor, _: cv2_ai_common(frames, factor, "FSRCNN", {2, 3, 4}),
+    Algorithms.CV2_FSRCNN_small: lambda frames, _, factor: cv2_ai_common(frames, factor, "FSRCNN_small", {2, 3, 4}),
+    Algorithms.CV2_LapSRN: lambda frames, factor, _: cv2_ai_common(frames, factor, "LapSRN", {2, 4, 8}),  # 248
 
     # Super Image AI algorithms
-    Algorithms.SI_a2n: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.A2nModel, "eugenesiow/a2n"),
-    Algorithms.SI_awsrn_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.AwsrnModel, "eugenesiow/awsrn-bam"),
-    Algorithms.SI_carn: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.CarnModel, "eugenesiow/carn"),
-    Algorithms.SI_carn_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.CarnModel, "eugenesiow/carn-bam"),
-    Algorithms.SI_drln: lambda frames, factor: si_ai_scale(frames, factor, {4}, super_image.DrlnModel, "eugenesiow/drln"),
-    Algorithms.SI_drln_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.DrlnModel, "eugenesiow/drln-bam"),
-    Algorithms.SI_edsr: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.EdsrModel, "eugenesiow/edsr"),
-    Algorithms.SI_edsr_base: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.EdsrModel, "eugenesiow/edsr-base"),
-    Algorithms.SI_han: lambda frames, factor: si_ai_scale(frames, factor, {4}, super_image.HanModel, "eugenesiow/han"),  # 4x only
-    Algorithms.SI_mdsr: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MdsrModel, "eugenesiow/mdsr"),
-    Algorithms.SI_mdsr_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MdsrModel, "eugenesiow/mdsr-bam"),
-    Algorithms.SI_msrn: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MsrnModel, "eugenesiow/msrn"),
-    Algorithms.SI_msrn_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MsrnModel, "eugenesiow/msrn-bam"),
-    Algorithms.SI_pan: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.PanModel, "eugenesiow/pan"),
-    Algorithms.SI_pan_bam: lambda frames, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.PanModel, "eugenesiow/pan-bam"),
-    Algorithms.SI_rcan_bam: lambda frames, factor: si_ai_scale(frames, factor, {4}, super_image.RcanModel, "eugenesiow/rcan-bam"),  # 4x only
+    Algorithms.SI_a2n: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.A2nModel, "eugenesiow/a2n"),
+    Algorithms.SI_awsrn_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.AwsrnModel, "eugenesiow/awsrn-bam"),
+    Algorithms.SI_carn: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.CarnModel, "eugenesiow/carn"),
+    Algorithms.SI_carn_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.CarnModel, "eugenesiow/carn-bam"),
+    Algorithms.SI_drln: lambda frames, factor, _: si_ai_scale(frames, factor, {4}, super_image.DrlnModel, "eugenesiow/drln"),
+    Algorithms.SI_drln_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.DrlnModel, "eugenesiow/drln-bam"),
+    Algorithms.SI_edsr: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.EdsrModel, "eugenesiow/edsr"),
+    Algorithms.SI_edsr_base: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.EdsrModel, "eugenesiow/edsr-base"),
+    Algorithms.SI_han: lambda frames, factor, _: si_ai_scale(frames, factor, {4}, super_image.HanModel, "eugenesiow/han"),  # 4x only
+    Algorithms.SI_mdsr: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MdsrModel, "eugenesiow/mdsr"),
+    Algorithms.SI_mdsr_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MdsrModel, "eugenesiow/mdsr-bam"),
+    Algorithms.SI_msrn: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MsrnModel, "eugenesiow/msrn"),
+    Algorithms.SI_msrn_bam: lambda frames, _, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MsrnModel, "eugenesiow/msrn-bam"),
+    Algorithms.SI_pan: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.PanModel, "eugenesiow/pan"),
+    Algorithms.SI_pan_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.PanModel, "eugenesiow/pan-bam"),
+    Algorithms.SI_rcan_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {4}, super_image.RcanModel, "eugenesiow/rcan-bam"),  # 4x only
 
     # Other AI algorithms
-    Algorithms.Anime4K: None,
+    Algorithms.Anime4K: anime4k_scale,
     Algorithms.HSDBTRE: hsdbtre_scale,  # hybrid
     Algorithms.RealESRGAN: real_esrgan_scale,
     Algorithms.SUPIR: docker_scale,  # docker
@@ -1015,6 +1015,7 @@ scaling_functions = {
 }
 
 
+# TODO: Replace all images generated with CV2 with PIL images if there are no duplicates, as PIL algorithms seem to be higher quality (but slower)
 def scale_image_batch(
         algorithms: list[Algorithms],
         images: list[utils.ImageDict],
@@ -1033,7 +1034,7 @@ def scale_image_batch(
 
         scaled_images.append([
             {
-                "images": [scaling_function(image["images"][0], factor) for factor in factors],
+                "images": [scaling_function(image["images"][0], factor, config_plus) for factor in factors],
                 "is_animated": image.get("is_animated"),
                 "animation_spacing": image.get("animation_spacing"),
             } for image in images

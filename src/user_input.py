@@ -4,6 +4,7 @@
 import config
 import loader
 import os
+import presets
 import saving.saver as saver
 import sys
 
@@ -142,6 +143,28 @@ def scale_images():
     print("Scaling images!")
 
     scaler_config, _ = config.get_scaler_config()
+
+    load_config, _ = config.get_loader_config()
+
+    algorithms = presets.FullDownScalingTest.algorithms
+    factors = presets.FullDownScalingTest.scales
+
+    images, roots, file_names = loader.load_images(load_config)
+    print(f"\nLoaded {len(images)} images")
+
+    print("Processing images...\n")
+    scaled_images = scaler.scale_image_batch(
+        algorithms,
+        images,
+        factors,
+        config_plus=scaler_config
+    )
+
+    saver_config, _ = config.get_saver_config()
+    saver_config["factors"] = factors
+    # saver_config["processing_methods"] = algorithms
+
+    saver.save_img_list_multithreaded(scaled_images, roots, file_names, saver_config, algorithms)
 
 
 def apply_filters():
