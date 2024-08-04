@@ -263,7 +263,7 @@ def pil_scale(frames: list[PIL.Image], factor: float, algorithm: PIL.Image) -> l
     return scaled_frames
 
 
-def hsdbtre_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
+def hsdbtre_scale(frames: list[PIL.Image], factor: float, _) -> list[PIL.Image]:
     if factor < 1:
         print(
             colored(
@@ -416,7 +416,7 @@ def si_ai_scale(
     return scaled_frames
 
 
-def real_esrgan_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
+def real_esrgan_scale(frames: list[PIL.Image], factor: float, _) -> list[PIL.Image]:
     if factor < 1:
         print(
             colored(
@@ -915,7 +915,7 @@ def nedi_scale(frames: list[PIL.Image], factor: float, config_plus: dict) -> lis
 
 
 # TODO: replace almost all `PIL.Image` with `PIL.Image.Image`
-def anime4k_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image.Image]:
+def anime4k_scale(frames: list[PIL.Image], factor: float, _) -> list[PIL.Image.Image]:
     scaled_frames: list[PIL.Image.Image] = []
     for frame in frames:
         np_image = np.array(frame.convert('RGB'))

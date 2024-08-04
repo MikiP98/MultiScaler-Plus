@@ -146,8 +146,11 @@ def scale_images():
 
     load_config, _ = config.get_loader_config()
 
-    algorithms = presets.FullDownScalingTest.algorithms
-    factors = presets.FullDownScalingTest.scales
+    # algorithms = presets.FullDownScalingTest.algorithms
+    # factors = presets.FullDownScalingTest.scales
+
+    algorithms = presets.FullUpscaleTest.algorithms
+    factors = presets.FullUpscaleTest.scales
 
     images, roots, file_names = loader.load_images(load_config)
     print(f"\nLoaded {len(images)} images")
