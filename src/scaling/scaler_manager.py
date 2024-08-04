@@ -131,7 +131,7 @@ si_4x_algorithms = {
 si_algorithms = si_2x_3x_4x_algorithms.union(si_4x_algorithms)
 
 
-def cv2_inter_area_prefix(frames: list[PIL.Image], factor: float, _) -> list[PIL.Image]:
+def cv2_inter_area_prefix(frames: list[PIL.Image], factor: float, _: dict) -> list[PIL.Image]:
     if factor > 1:
         # raise ValueError("INTER_AREA does not support upscaling!")
         print(colored(
@@ -263,7 +263,7 @@ def pil_scale(frames: list[PIL.Image], factor: float, algorithm: PIL.Image) -> l
     return scaled_frames
 
 
-def hsdbtre_scale(frames: list[PIL.Image], factor: float, _) -> list[PIL.Image]:
+def hsdbtre_scale(frames: list[PIL.Image], factor: float, _: dict) -> list[PIL.Image]:
     if factor < 1:
         print(
             colored(
@@ -416,7 +416,7 @@ def si_ai_scale(
     return scaled_frames
 
 
-def real_esrgan_scale(frames: list[PIL.Image], factor: float, _) -> list[PIL.Image]:
+def real_esrgan_scale(frames: list[PIL.Image], factor: float, _: dict) -> list[PIL.Image]:
     if factor < 1:
         print(
             colored(
@@ -468,7 +468,7 @@ def real_esrgan_scale(frames: list[PIL.Image], factor: float, _) -> list[PIL.Ima
     return scaled_frames
 
 
-def repetition_scale(frames: list[PIL.Image], factor: float, config_plus) -> list[PIL.Image]:
+def repetition_scale(frames: list[PIL.Image], factor: float, config_plus: dict) -> list[PIL.Image]:
     if config_plus is None:
         print(colored("WARNING: config_plus is None! Creating empty config_plus!", 'yellow'))
         config_plus = {}
@@ -583,7 +583,7 @@ def docker_scale(frames: list[PIL.Image], factor: float, algorithm: str) -> list
 
 
 # TODO: Use RGB mode if the image is not RGBA
-def xbrz_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
+def xbrz_scale(frames: list[PIL.Image], factor: float, _: dict) -> list[PIL.Image]:
     if factor < 1:
         print(
             colored(
@@ -645,7 +645,7 @@ def xbrz_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
     # return scaled_frames
 
 
-def fsr_scale(frames: list[PIL.Image], factor: float, config_plus: dict) -> list[PIL.Image]:
+def fsr_scale(_: list[PIL.Image], factor: float, config_plus: dict) -> list[PIL.Image]:
     if config_plus is None:
         raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")
     else:
@@ -700,7 +700,7 @@ def fsr_scale(frames: list[PIL.Image], factor: float, config_plus: dict) -> list
     return []
 
 
-def cas_scale(frames: list[PIL.Image], factor: float, config_plus: dict) -> list[PIL.Image]:
+def cas_scale(_: list[PIL.Image], factor: float, config_plus: dict) -> list[PIL.Image]:
     if config_plus is None:
         raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")
     else:
@@ -756,7 +756,7 @@ def cas_scale(frames: list[PIL.Image], factor: float, config_plus: dict) -> list
     return []
 
 
-def super_xbr_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
+def super_xbr_scale(frames: list[PIL.Image], factor: float, _: dict) -> list[PIL.Image]:
     if factor < 2:
         print(
             colored(
@@ -806,7 +806,7 @@ def super_xbr_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
     return scaled_frames
 
 
-def hqx_scale(frames: list[PIL.Image], factor: float) -> list[PIL.Image]:
+def hqx_scale(frames: list[PIL.Image], factor: float, _: dict) -> list[PIL.Image]:
     allowed_factors = {2, 3, 4}
     if factor not in allowed_factors:
         if factor < 1:
@@ -915,7 +915,7 @@ def nedi_scale(frames: list[PIL.Image], factor: float, config_plus: dict) -> lis
 
 
 # TODO: replace almost all `PIL.Image` with `PIL.Image.Image`
-def anime4k_scale(frames: list[PIL.Image], factor: float, _) -> list[PIL.Image.Image]:
+def anime4k_scale(frames: list[PIL.Image], factor: float, _: dict) -> list[PIL.Image.Image]:
     scaled_frames: list[PIL.Image.Image] = []
     for frame in frames:
         np_image = np.array(frame.convert('RGB'))
