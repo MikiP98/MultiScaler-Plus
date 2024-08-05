@@ -3,17 +3,8 @@ import cv2
 import PIL.Image
 import utils
 
+from scaling.utils import ConfigPlus, correct_frame_from_cv2
 from termcolor import colored
-
-
-def cv2_inter_area_prefix(frames: list[PIL.Image], factor: float, _: dict) -> list[PIL.Image]:
-    if factor > 1:
-        print(colored(
-            f"ERROR: INTER_AREA does not support upscaling! Factor: {factor}; File names will be incorrect!", 'red'
-        ))
-        return []
-    else:
-        return cv2_non_ai_common(frames, factor, cv2.INTER_AREA)
 
 
 def cv2_non_ai_common(frames: list[PIL.Image], factor: float, algorithm: int) -> list[PIL.Image]:
@@ -31,9 +22,36 @@ def cv2_non_ai_common(frames: list[PIL.Image], factor: float, algorithm: int) ->
     return scaled_frames
 
 
+def scale_inter_area(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+    if factor > 1:
+        print(colored(
+            f"ERROR: INTER_AREA does not support upscaling! Factor: {factor}; File names will be incorrect!", 'red'
+        ))
+        return []
+    else:
+        return cv2_non_ai_common(frames, factor, cv2.INTER_AREA)
+
+
+def scale_inter_cubic(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+    return cv2_non_ai_common(frames, factor, cv2.INTER_CUBIC)
+
+
+def scale_inter_lanczos4(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+    return cv2_non_ai_common(frames, factor, cv2.INTER_LANCZOS4)
+
+
+def scale_inter_linear(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+    return cv2_non_ai_common(frames, factor, cv2.INTER_LINEAR)
+
+
+def scale_inter_nearest(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+    return cv2_non_ai_common(frames, factor, cv2.INTER_NEAREST)
+
+
 def cv2_ai_common_scale(
         frames: list[PIL.Image],
         factor: int,
+        high_quality_scale_back: bool,
         sr: cv2.dnn_superres.DnnSuperResImpl,
         path_prefix: str,
         name: str
@@ -46,22 +64,18 @@ def cv2_ai_common_scale(
     scaled_image = []
     for frame in frames:
         cv2_image = utils.pil_to_cv2(frame.convert('RGB'))
-        width, height = frame.size
+        original_size = frame.size
 
         result = sr.upsample(cv2_image)
 
         scaled_image.append(
-            utils.cv2_to_pil(
-                cv2.resize(
-                    result, (width * factor, height * factor), interpolation=cv2.INTER_AREA
-                )  # TODO: Replace with csatca(fallback_algorithm)
-            )
+            correct_frame_from_cv2(result, original_size, factor, high_quality_scale_back)
         )
 
     return scaled_image
 
 
-def cv2_ai_common(frames: list[PIL.Image], factor: float, name: str, allowed_factors: set) -> list[PIL.Image]:
+def cv2_ai_common(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus, name: str, allowed_factors: set) -> list[PIL.Image]:
     if factor < 1:
         print(
             colored(
@@ -123,4 +137,32 @@ def cv2_ai_common(frames: list[PIL.Image], factor: float, name: str, allowed_fac
         return scaled_frames
 
     else:
-        return cv2_ai_common_scale(frames, int(factor), sr, path_prefix, name)
+        return cv2_ai_common_scale(frames, int(factor), config_plus['high_quality_scale_back'], sr, path_prefix, name)
+
+
+# # CV2 AI algorithms
+# Algorithms.CV2_EDSR: lambda frames, factor, _: cv2_ai_common(frames, factor, "EDSR", {2, 3, 4}),
+# Algorithms.CV2_ESPCN: lambda frames, factor, _: cv2_ai_common(frames, factor, "ESPCN", {2, 3, 4}),
+# Algorithms.CV2_FSRCNN: lambda frames, factor, _: cv2_ai_common(frames, factor, "FSRCNN", {2, 3, 4}),
+# Algorithms.CV2_FSRCNN_small: lambda frames, _, factor: cv2_ai_common(frames, factor, "FSRCNN_small", {2, 3, 4}),
+# Algorithms.CV2_LapSRN: lambda frames, factor, _: cv2_ai_common(frames, factor, "LapSRN", {2, 4, 8}),  # 248
+
+
+def ai_scale_edsr(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+    return cv2_ai_common(frames, factor, config_plus, "EDSR", {2, 3, 4})
+
+
+def ai_scale_espcn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+    return cv2_ai_common(frames, factor, config_plus, "ESPCN", {2, 3, 4})
+
+
+def ai_scale_fsrcnn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+    return cv2_ai_common(frames, factor, config_plus, "FSRCNN", {2, 3, 4})
+
+
+def ai_scale_fsrcnn_small(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+    return cv2_ai_common(frames, factor, config_plus, "FSRCNN_small", {2, 3, 4})
+
+
+def ai_scale_lapsrn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+    return cv2_ai_common(frames, factor, config_plus, "LapSRN", {2, 4, 8})

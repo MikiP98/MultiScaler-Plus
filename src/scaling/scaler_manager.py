@@ -1,13 +1,19 @@
 # coding=utf-8
-import cv2
 import PIL.Image
 import utils
 
-from scaling.alghoritms.anime4k import scale as anime4k_scale
-from scaling.alghoritms.cv2 import (
-    cv2_ai_common,
-    cv2_inter_area_prefix,
-    cv2_non_ai_common
+from scaling.alghoritms.Anime4K import scale as anime4k_scale
+from scaling.alghoritms.CV2 import (
+    ai_scale_edsr,
+    ai_scale_espcn,
+    ai_scale_fsrcnn,
+    ai_scale_fsrcnn_small,
+    ai_scale_lapsrn,
+    scale_inter_area as cv2_inter_area,
+    scale_inter_cubic as cv2_inter_cubic,
+    scale_inter_lanczos4 as cv2_inter_lanczos4,
+    scale_inter_linear as cv2_inter_linear,
+    scale_inter_nearest as cv2_inter_nearest,
 )
 from scaling.alghoritms.docker import scale as docker_scale
 from scaling.alghoritms.FidelityFX_CLI import (
@@ -17,7 +23,7 @@ from scaling.alghoritms.FidelityFX_CLI import (
 from scaling.alghoritms.hqx import scale as hqx_scale
 from scaling.alghoritms.HSDBTRE import scale as hsdbtre_scale
 from scaling.alghoritms.NEDI import scale as nedi_scale
-from scaling.alghoritms.pil import (
+from scaling.alghoritms.PIL import (
     pil_scale_bicubic,
     pil_scale_bilinear,
     pil_scale_lanczos,
@@ -56,18 +62,18 @@ scaling_functions = {
     Algorithms.PIL_NEAREST_NEIGHBOR: pil_scale_nearest_neighbor,
 
     # CV2 classic algorithms
-    Algorithms.CV2_INTER_AREA: cv2_inter_area_prefix,
-    Algorithms.CV2_INTER_CUBIC: lambda frames, factor, _: cv2_non_ai_common(frames, factor, cv2.INTER_CUBIC),
-    Algorithms.CV2_INTER_LANCZOS4: lambda frames, factor, _: cv2_non_ai_common(frames, factor, cv2.INTER_LANCZOS4),
-    Algorithms.CV2_INTER_LINEAR: lambda frames, factor, _: cv2_non_ai_common(frames, factor, cv2.INTER_LINEAR),
-    Algorithms.CV2_INTER_NEAREST: lambda frames, factor, _: cv2_non_ai_common(frames, factor, cv2.INTER_NEAREST),
+    Algorithms.CV2_INTER_AREA: cv2_inter_area,
+    Algorithms.CV2_INTER_CUBIC: cv2_inter_cubic,
+    Algorithms.CV2_INTER_LANCZOS4: cv2_inter_lanczos4,
+    Algorithms.CV2_INTER_LINEAR: cv2_inter_linear,
+    Algorithms.CV2_INTER_NEAREST: cv2_inter_nearest,
 
     # CV2 AI algorithms
-    Algorithms.CV2_EDSR: lambda frames, factor, _: cv2_ai_common(frames, factor, "EDSR", {2, 3, 4}),
-    Algorithms.CV2_ESPCN: lambda frames, factor, _: cv2_ai_common(frames, factor, "ESPCN", {2, 3, 4}),
-    Algorithms.CV2_FSRCNN: lambda frames, factor, _: cv2_ai_common(frames, factor, "FSRCNN", {2, 3, 4}),
-    Algorithms.CV2_FSRCNN_small: lambda frames, _, factor: cv2_ai_common(frames, factor, "FSRCNN_small", {2, 3, 4}),
-    Algorithms.CV2_LapSRN: lambda frames, factor, _: cv2_ai_common(frames, factor, "LapSRN", {2, 4, 8}),  # 248
+    Algorithms.CV2_EDSR: ai_scale_edsr,
+    Algorithms.CV2_ESPCN: ai_scale_espcn,
+    Algorithms.CV2_FSRCNN: ai_scale_fsrcnn,
+    Algorithms.CV2_FSRCNN_small: ai_scale_fsrcnn_small,
+    Algorithms.CV2_LapSRN: ai_scale_lapsrn,  # allowed factors: 2, 4, 8
 
     # Super Image AI algorithms
     Algorithms.SI_a2n: si_scale_a2n,
@@ -115,7 +121,6 @@ def scale_image_batch(
         images: list[utils.ImageDict],
         factors,
         *,
-        fallback_algorithm=Algorithms.CV2_INTER_AREA,
         config_plus=None
 ) -> list[list[utils.ImageDict]]:
 
@@ -142,13 +147,11 @@ def scale_image(
         image: PIL.Image,
         factor: int,
         *,
-        fallback_algorithm=Algorithms.CV2_INTER_AREA,
         config_plus=None
 ) -> utils.ImageDict:
     return scale_image_batch(
         [algorithm],
         [image],
         [factor],
-        fallback_algorithm=fallback_algorithm,
         config_plus=config_plus
     )[0][0]
