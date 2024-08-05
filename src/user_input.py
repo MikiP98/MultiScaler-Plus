@@ -153,17 +153,17 @@ def scale_images():
 
     load_config, _ = config.get_loader_config()
 
-    # algorithms = presets.FullDownScalingTest.algorithms  # Test passed
+    # algorithms = presets.FullDownScalingTest.algorithms  # Test passed :)
     # factors = presets.FullDownScalingTest.scales
 
-    # algorithms = presets.UpscaleNoCLITest.algorithms  # Test passed
+    # algorithms = presets.UpscaleNoCLITest.algorithms  # Test passed :)
     # factors = presets.UpscaleNoCLITest.scales
 
-    # Skip test
+    # Skip test; Test passed :)
     algorithms = [Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC]
     factors = [2]
 
-    # algorithms = presets.FullUpscaleTest.algorithms  # Test failed! (CAS, FSR)
+    # algorithms = presets.FullUpscaleTest.algorithms  # Test failed! (CAS, FSR) :o
     # factors = presets.FullUpscaleTest.scales
 
     images, roots, file_names = loader.load_images(load_config)
