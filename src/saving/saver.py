@@ -68,6 +68,7 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
         return
 
     output_path_parts: list[str] = ["..", "output"]
+    file_name_prefix: list[str] = []
     file_name_part: list[str] = [file_name]
 
     for filtered_image, factor in zip(image["images"], config['factors']):
@@ -77,12 +78,13 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
         if config['sort_by_processing_method']:  # TODO: fix
             output_path_parts.append(config['processing_method'].name)
 
+        if config['add_processing_method_to_name']:
+            file_name_prefix.append(config['processing_method'].name)
+
         if config['add_factor_to_name']:
             file_name_part.append(str(factor))
-        if config['add_processing_method_to_name']:
-            file_name_part.append(config['processing_method'].name)
 
-        new_file_name = "_".join(file_name_part)
+        new_file_name = "_".join([*file_name_prefix, *file_name_part])
 
         full_output_path = os.path.join(*output_path_parts, output_path, new_file_name)
 
