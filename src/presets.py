@@ -175,6 +175,55 @@ class SmartUpscaleTest(Preset):
     scales = [4]
 
 
+class UpscaleNoCLITest(Preset):
+    config = Preset.config
+    algorithms = [
+        Algorithms.Anime4K,
+        Algorithms.CV2_INTER_CUBIC,  # bicubic interpolation over 4x4 pixel neighborhood
+        Algorithms.CV2_INTER_LANCZOS4,  # Lanczos interpolation over 8x8 pixel neighborhood
+        Algorithms.CV2_INTER_LINEAR,  # bilinear interpolation
+        Algorithms.CV2_INTER_NEAREST,  # nearest-neighbor interpolation
+        Algorithms.CV2_EDSR,  # Enhanced Deep Super-Resolution
+        Algorithms.CV2_ESPCN,  # Efficient Sub-Pixel Convolutional Neural Network
+        Algorithms.CV2_FSRCNN,  # Fast Super-Resolution Convolutional Neural Network
+        Algorithms.CV2_FSRCNN_small,  # Fast Super-Resolution Convolutional Neural Network - Small
+        Algorithms.CV2_LapSRN,  # Laplacian Super-Resolution Network
+        Algorithms.hqx,  # high quality scale
+
+        Algorithms.HSDBTRE,
+
+        Algorithms.NEDI,  # New Edge-Directed Interpolation
+        Algorithms.PIL_BICUBIC,  # less blur and artifacts than bilinear, but slower
+        Algorithms.PIL_BILINEAR,
+        Algorithms.PIL_LANCZOS,  # less blur than bicubic, but artifacts may appear
+        Algorithms.PIL_NEAREST_NEIGHBOR,
+        Algorithms.RealESRGAN,
+        Algorithms.Repetition,
+
+        Algorithms.SI_drln_bam,
+        Algorithms.SI_edsr,
+        Algorithms.SI_msrn,
+        Algorithms.SI_mdsr,
+        Algorithms.SI_msrn_bam,
+        Algorithms.SI_edsr_base,
+        Algorithms.SI_mdsr_bam,
+        Algorithms.SI_awsrn_bam,
+        Algorithms.SI_a2n,
+        Algorithms.SI_carn,
+        Algorithms.SI_carn_bam,
+        Algorithms.SI_pan,
+        Algorithms.SI_pan_bam,
+
+        Algorithms.SI_drln,
+        Algorithms.SI_han,
+        Algorithms.SI_rcan_bam,
+
+        Algorithms.Super_xBR,
+        Algorithms.xBRZ
+    ]
+    scales = [4]
+
+
 class FullDownScalingTest(Preset):
     config = Preset.config
     algorithms = [

@@ -4,6 +4,8 @@
 import config
 import loader
 import os
+import PIL.Image
+import PIL.GifImagePlugin
 import presets
 import saving.saver as saver
 import sys
@@ -16,6 +18,10 @@ from utils import rainbowify
 it = '\x1B[3m'
 nr = '\x1B[0m'
 # b = '\x1B[1m'
+
+
+PIL.Image.MAX_IMAGE_PIXELS = 4_294_967_296  # 2^16 squared, a.k.a. 65536x65536 pixels or 4 GigaPixels
+PIL.GifImagePlugin.LOADING_STRATEGY = PIL.GifImagePlugin.LoadingStrategy.RGB_ALWAYS
 
 
 def greetings():
@@ -146,10 +152,13 @@ def scale_images():
 
     load_config, _ = config.get_loader_config()
 
-    algorithms = presets.FullDownScalingTest.algorithms
-    factors = presets.FullDownScalingTest.scales
+    # algorithms = presets.FullDownScalingTest.algorithms  # Test passed
+    # factors = presets.FullDownScalingTest.scales
 
-    # algorithms = presets.FullUpscaleTest.algorithms
+    algorithms = presets.UpscaleNoCLITest.algorithms  # Test passed
+    factors = presets.UpscaleNoCLITest.scales
+
+    # algorithms = presets.FullUpscaleTest.algorithms  # Test failed! (CAS, FSR)
     # factors = presets.FullUpscaleTest.scales
 
     images, roots, file_names = loader.load_images(load_config)
