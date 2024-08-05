@@ -6,6 +6,10 @@ from scaling.utils import ConfigPlus
 from termcolor import colored
 
 
+cli_supported_formats = {"BMP", "PNG", "ICO", "JPG", "TIF", "GIF"}
+
+
+# TODO: Create a temporal RAM storage drive to properly support all image formats and the saver
 def fsr_scale(_: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
     if config_plus is None:
         raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")

@@ -1,0 +1,96 @@
+# coding=utf-8
+
+# WINDOWS --- --- --- --- --- --- --- --- ---
+import os
+import shutil
+import subprocess
+
+
+def create_ram_disk_windows(size_mb, drive_letter):
+    # Create the RAM disk using ImDisk
+    command = f'imdisk -a -s {size_mb}M -m {drive_letter}: -p "/fs:NTFS /q /y"'
+    subprocess.run(command, shell=True)
+
+
+def remove_ram_disk_windows(drive_letter):
+    # Remove the RAM disk using ImDisk
+    command = f'imdisk -D -m {drive_letter}:'
+    subprocess.run(command, shell=True)
+
+
+def main():
+    # Define the RAM disk size and drive letter
+    ram_disk_size_mb = 100
+    ram_disk_drive_letter = "R"
+
+    # Create the RAM disk
+    create_ram_disk_windows(ram_disk_size_mb, ram_disk_drive_letter)
+
+    # Paths for source and destination files
+    source_file = "C:\\path\\to\\source\\image.jpg"
+    destination_file = f"{ram_disk_drive_letter}:\\image.jpg"
+
+    # Move the file to the RAM disk
+    shutil.copy(source_file, destination_file)
+    print(f"Copied {source_file} to {destination_file}")
+
+    # Verify the file is in the RAM disk
+    if os.path.exists(destination_file):
+        print(f"File exists in RAM disk: {destination_file}")
+
+    # Define the new destination path to move back the file
+    new_destination = "C:\\path\\to\\destination\\image.jpg"
+    shutil.copy(destination_file, new_destination)
+    print(f"Copied {destination_file} to {new_destination}")
+
+    # Remove the RAM disk
+    remove_ram_disk_windows(ram_disk_drive_letter)
+    print(f"Removed RAM disk at {ram_disk_drive_letter}:")
+
+
+if __name__ == "__main__":
+    main()
+
+
+# # LINUX --- --- --- --- --- --- --- --- ---
+# import os
+# import shutil
+#
+# def create_ram_disk_linux(size_mb, mount_point):
+#     os.makedirs(mount_point, exist_ok=True)
+#     os.system(f"sudo mount -t tmpfs -o size={size_mb}m tmpfs {mount_point}")
+#
+# def remove_ram_disk_linux(mount_point):
+#     os.system(f"sudo umount {mount_point}")
+#     os.rmdir(mount_point)
+#
+# def main():
+#     ram_disk_path = "/mnt/ramdisk"
+#     ram_disk_size_mb = 100
+#
+#     # Create the RAM disk
+#     create_ram_disk_linux(ram_disk_size_mb, ram_disk_path)
+#
+#     # Paths for source and destination files
+#     source_file = "/path/to/source/image.jpg"
+#     destination_file = os.path.join(ram_disk_path, "image.jpg")
+#
+#     # Move the file to the RAM disk
+#     shutil.copy(source_file, destination_file)
+#     print(f"Copied {source_file} to {destination_file}")
+#
+#     # Verify the file is in the RAM disk
+#     if os.path.exists(destination_file):
+#         print(f"File exists in RAM disk: {destination_file}")
+#
+#     # Define the new destination path to move back the file
+#     new_destination = "/path/to/destination/image.jpg"
+#     shutil.copy(destination_file, new_destination)
+#     print(f"Copied {destination_file} to {new_destination}")
+#
+#     # Remove the RAM disk
+#     remove_ram_disk_linux(ram_disk_path)
+#     print(f"Removed RAM disk at {ram_disk_path}")
+#
+# if __name__ == "__main__":
+#     main()

@@ -15,7 +15,7 @@ class Algorithms(IntEnum):
     CPP_DEBUG = -1
 
     Anime4K = auto()
-    CAS = auto()  # contrast adaptive sharpening
+    CAS = auto()  # contrast adaptive sharpening TODO: fix and move to virtual RAM drive
     CV2_INTER_AREA = auto()  # resampling using pixel area relation
     CV2_INTER_CUBIC = auto()  # bicubic interpolation over 4x4 pixel neighborhood
     CV2_INTER_LANCZOS4 = auto()  # Lanczos interpolation over 8x8 pixel neighborhood
@@ -26,7 +26,7 @@ class Algorithms(IntEnum):
     CV2_FSRCNN = auto()  # Fast Super-Resolution Convolutional Neural Network
     CV2_FSRCNN_small = auto()  # Fast Super-Resolution Convolutional Neural Network - Small
     CV2_LapSRN = auto()  # Laplacian Super-Resolution Network
-    FSR = auto()  # FidelityFX Super Resolution
+    FSR = auto()  # FidelityFX Super Resolution TODO: fix and move to virtual RAM drive
     hqx = auto()  # high quality scale
 
     HSDBTRE = auto()
