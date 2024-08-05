@@ -6,7 +6,6 @@ import numpy as np
 import PIL.Image
 import struct
 
-from aenum import auto, IntEnum, unique
 from termcolor import colored
 from termcolor._types import Color as TermColor  # Ignore this warning, TODO: create an issue on the termcolor repo.
 from typing import Optional, TypedDict, Union
@@ -25,142 +24,72 @@ class ImageDict(TypedDict):
     animation_spacing: Optional[float]
 
 
-# Enum with all available algorithms
-# Ordered alphabetically
-@unique
-class Algorithms(IntEnum):
-    CPP_DEBUG = -1
-
-    Anime4K = auto()
-    CAS = auto()  # contrast adaptive sharpening
-    CV2_INTER_AREA = auto()  # resampling using pixel area relation
-    CV2_INTER_CUBIC = auto()  # bicubic interpolation over 4x4 pixel neighborhood
-    CV2_INTER_LANCZOS4 = auto()  # Lanczos interpolation over 8x8 pixel neighborhood
-    CV2_INTER_LINEAR = auto()  # bilinear interpolation
-    CV2_INTER_NEAREST = auto()  # nearest-neighbor interpolation
-    CV2_EDSR = auto()  # Enhanced Deep Super-Resolution
-    CV2_ESPCN = auto()  # Efficient Sub-Pixel Convolutional Neural Network
-    CV2_FSRCNN = auto()  # Fast Super-Resolution Convolutional Neural Network
-    CV2_FSRCNN_small = auto()  # Fast Super-Resolution Convolutional Neural Network - Small
-    CV2_LapSRN = auto()  # Laplacian Super-Resolution Network
-    FSR = auto()  # FidelityFX Super Resolution
-    hqx = auto()  # high quality scale
-
-    HSDBTRE = auto()
-
-    NEDI = auto()  # New Edge-Directed Interpolation
-    PIL_BICUBIC = auto()  # less blur and artifacts than bilinear, but slower
-    PIL_BILINEAR = auto()
-    PIL_LANCZOS = auto()  # less blur than bicubic, but artifacts may appear
-    PIL_NEAREST_NEIGHBOR = auto()
-    RealESRGAN = auto()
-    Repetition = auto()
-
-    SI_drln_bam = auto()
-    SI_edsr = auto()
-    SI_msrn = auto()
-    SI_mdsr = auto()
-    SI_msrn_bam = auto()
-    SI_edsr_base = auto()
-    SI_mdsr_bam = auto()
-    SI_awsrn_bam = auto()
-    SI_a2n = auto()
-    SI_carn = auto()
-    SI_carn_bam = auto()
-    SI_pan = auto()
-    SI_pan_bam = auto()
-
-    SI_drln = auto()
-    SI_han = auto()
-    SI_rcan_bam = auto()
-
-    Super_xBR = auto()
-    xBRZ = auto()
-
-    # Docker start
-    SUPIR = auto()
-    Waifu2x = auto()
-
-
-@unique
-class Filters(IntEnum):
-    CAS = auto()  # contrast adaptive sharpening
-
-    NORMAL_MAP_STRENGTH_LINEAR = auto()
-    NORMAL_MAP_STRENGTH_EXPONENTIAL = auto()
-
-    AUTO_NORMAL_MAP = auto()
-    AUTO_SPECULAR_MAP = auto()
-
-    SI_TODO = auto()  # TODO: Add filters
-
-
-cli_algorithms = {Algorithms.FSR, Algorithms.CAS, Algorithms.SUPIR, Algorithms.Super_xBR}
-
-
-string_to_algorithm_dict = {
-    "cv2_area": Algorithms.CV2_INTER_AREA,
-    "cv2_bicubic": Algorithms.CV2_INTER_CUBIC,
-    "cv2_bilinear": Algorithms.CV2_INTER_LINEAR,
-    "cv2_lanczos": Algorithms.CV2_INTER_LANCZOS4,
-    "cv2_nearest": Algorithms.CV2_INTER_NEAREST,
-
-    "cv2_edsr": Algorithms.CV2_EDSR,
-    "cv2_espcn": Algorithms.CV2_ESPCN,
-    "cv2_fsrcnn": Algorithms.CV2_FSRCNN,
-    "cv2_fsrcnn_small": Algorithms.CV2_FSRCNN_small,
-    "cv2_lapsrn": Algorithms.CV2_LapSRN,
-
-    "pil_bicubic": Algorithms.PIL_BICUBIC,
-    "pil_bilinear": Algorithms.PIL_BILINEAR,
-    "pil_lanczos": Algorithms.PIL_LANCZOS,
-    "pil_nearest": Algorithms.PIL_NEAREST_NEIGHBOR,
-    "nedi": Algorithms.NEDI,
-    "cas": Algorithms.CAS,
-    "fsr": Algorithms.FSR,
-    "hqx": Algorithms.hqx,  # "hq2x", "hq3x", "hq4x"
-    "real_esrgan": Algorithms.RealESRGAN,
-    "super_xbr": Algorithms.Super_xBR,
-    "supir": Algorithms.SUPIR,
-    "xbrz": Algorithms.xBRZ
-}
-
-
-def string_to_algorithm(string: str) -> Algorithms:
-    return string_to_algorithm_dict[string.lower()]
-
-
-algorithm_to_string_dict = {
-    Algorithms.CV2_INTER_AREA: "cv2_area",
-    Algorithms.CV2_INTER_CUBIC: "cv2_bicubic",
-    Algorithms.CV2_INTER_LINEAR: "cv2_bilinear",
-    Algorithms.CV2_INTER_LANCZOS4: "cv2_lanczos",
-    Algorithms.CV2_INTER_NEAREST: "cv2_nearest",
-
-    Algorithms.CV2_EDSR: "cv2_edsr",
-    Algorithms.CV2_ESPCN: "cv2_espcn",
-    Algorithms.CV2_FSRCNN: "cv2_fsrcnn",
-    Algorithms.CV2_FSRCNN_small: "cv2_fsrcnn_small",
-    Algorithms.CV2_LapSRN: "cv2_lapsrn",
-
-    Algorithms.PIL_BICUBIC: "pil_bicubic",
-    Algorithms.PIL_BILINEAR: "pil_bilinear",
-    Algorithms.PIL_LANCZOS: "pil_lanczos",
-    Algorithms.PIL_NEAREST_NEIGHBOR: "pil_nearest",
-
-    Algorithms.CAS: "cas",
-    Algorithms.FSR: "fsr",
-    Algorithms.hqx: "hqx",
-    Algorithms.NEDI: "nedi",
-    Algorithms.RealESRGAN: "real_esrgan",
-    Algorithms.Super_xBR: "super_xbr",
-    Algorithms.SUPIR: "supir",
-    Algorithms.xBRZ: "xbrz"
-}
-
-
-def algorithm_to_string(algorithm: Algorithms) -> str:
-    return algorithm_to_string_dict[algorithm]
+# cli_algorithms = {Algorithms.FSR, Algorithms.CAS, Algorithms.SUPIR, Algorithms.Super_xBR}
+#
+#
+# string_to_algorithm_dict = {
+#     "cv2_area": Algorithms.CV2_INTER_AREA,
+#     "cv2_bicubic": Algorithms.CV2_INTER_CUBIC,
+#     "cv2_bilinear": Algorithms.CV2_INTER_LINEAR,
+#     "cv2_lanczos": Algorithms.CV2_INTER_LANCZOS4,
+#     "cv2_nearest": Algorithms.CV2_INTER_NEAREST,
+#
+#     "cv2_edsr": Algorithms.CV2_EDSR,
+#     "cv2_espcn": Algorithms.CV2_ESPCN,
+#     "cv2_fsrcnn": Algorithms.CV2_FSRCNN,
+#     "cv2_fsrcnn_small": Algorithms.CV2_FSRCNN_small,
+#     "cv2_lapsrn": Algorithms.CV2_LapSRN,
+#
+#     "pil_bicubic": Algorithms.PIL_BICUBIC,
+#     "pil_bilinear": Algorithms.PIL_BILINEAR,
+#     "pil_lanczos": Algorithms.PIL_LANCZOS,
+#     "pil_nearest": Algorithms.PIL_NEAREST_NEIGHBOR,
+#     "nedi": Algorithms.NEDI,
+#     "cas": Algorithms.CAS,
+#     "fsr": Algorithms.FSR,
+#     "hqx": Algorithms.hqx,  # "hq2x", "hq3x", "hq4x"
+#     "real_esrgan": Algorithms.RealESRGAN,
+#     "super_xbr": Algorithms.Super_xBR,
+#     "supir": Algorithms.SUPIR,
+#     "xbrz": Algorithms.xBRZ
+# }
+#
+#
+# def string_to_algorithm(string: str) -> Algorithms:
+#     return string_to_algorithm_dict[string.lower()]
+#
+#
+# algorithm_to_string_dict = {
+#     Algorithms.CV2_INTER_AREA: "cv2_area",
+#     Algorithms.CV2_INTER_CUBIC: "cv2_bicubic",
+#     Algorithms.CV2_INTER_LINEAR: "cv2_bilinear",
+#     Algorithms.CV2_INTER_LANCZOS4: "cv2_lanczos",
+#     Algorithms.CV2_INTER_NEAREST: "cv2_nearest",
+#
+#     Algorithms.CV2_EDSR: "cv2_edsr",
+#     Algorithms.CV2_ESPCN: "cv2_espcn",
+#     Algorithms.CV2_FSRCNN: "cv2_fsrcnn",
+#     Algorithms.CV2_FSRCNN_small: "cv2_fsrcnn_small",
+#     Algorithms.CV2_LapSRN: "cv2_lapsrn",
+#
+#     Algorithms.PIL_BICUBIC: "pil_bicubic",
+#     Algorithms.PIL_BILINEAR: "pil_bilinear",
+#     Algorithms.PIL_LANCZOS: "pil_lanczos",
+#     Algorithms.PIL_NEAREST_NEIGHBOR: "pil_nearest",
+#
+#     Algorithms.CAS: "cas",
+#     Algorithms.FSR: "fsr",
+#     Algorithms.hqx: "hqx",
+#     Algorithms.NEDI: "nedi",
+#     Algorithms.RealESRGAN: "real_esrgan",
+#     Algorithms.Super_xBR: "super_xbr",
+#     Algorithms.SUPIR: "supir",
+#     Algorithms.xBRZ: "xbrz"
+# }
+#
+#
+# def algorithm_to_string(algorithm: Algorithms) -> str:
+#     return algorithm_to_string_dict[algorithm]
 
 
 # TODO: Think about frozen sets
@@ -300,10 +229,12 @@ def cv2_to_pil(cv2_image: 'np.ndarray') -> PIL.Image:
         return PIL.Image.fromarray(numpy_array)
 
 
+@DeprecationWarning
 def image_to_byte_array(image: PIL.Image, additional_lossless_compression=True) -> bytes:
     # If additional_lossless_compression is True, apply lossless compression
     if additional_lossless_compression:
-        return apply_lossless_compression_png(image)
+        # return apply_lossless_compression_png(image)
+        return None
     # else, just convert the image to bytes
 
     # BytesIO is a file-like buffer stored in memory
@@ -340,61 +271,6 @@ def count_unique_colors_python_break_batched(image: PIL.Image) -> int:
 
     # Return the number of unique colors
     return len(unique_colors)
-
-
-def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:
-    img_byte_arr = io.BytesIO()
-
-    mode = 'RGBA'
-    if not has_transparency(image):
-        mode = 'RGB'
-
-    image.save(img_byte_arr, **optional_args)
-
-    # unique_colors_number = len(set(image.getdata()))
-    unique_colors_number = count_unique_colors_python_break_batched(image)
-    # print(f"Unique colors: {unique_colors_number}")
-    if unique_colors_number <= 256:
-
-        colors = 2  # benchmarked
-        if unique_colors_number > 16:
-            colors = 256
-        elif unique_colors_number > 4:
-            colors = 16
-        elif unique_colors_number > 2:
-            colors = 4
-
-        img_temp_byte_arr = io.BytesIO()
-        temp_image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)  # sometimes deletes some data :/
-
-        # Additional check to see if PIL didn't fuck up, (it sometimes it wrong)
-        if image.getdata() == temp_image.convert(mode).getdata():  # benchmarked
-            temp_image.save(img_temp_byte_arr, **optional_args)
-
-            # Check which one is smaller and keep it, remove the other one
-            if len(img_temp_byte_arr.getvalue()) < len(img_byte_arr.getvalue()):
-                img_byte_arr = img_temp_byte_arr
-                # print("Saving palette")
-
-    return img_byte_arr.getvalue()
-
-
-def apply_lossless_compression_png(image: PIL.Image) -> bytes:
-    optional_args = {
-        'optimize': True,
-        'format': 'PNG'
-    }
-    return apply_lossless_compression(image, optional_args)
-
-
-def apply_lossless_compression_webp(image: PIL.Image) -> bytes:
-    optional_args = {
-        'lossless': True,
-        'method': 6,
-        'optimize': True,
-        'format': 'WEBP'
-    }
-    return apply_lossless_compression(image, optional_args)
 
 
 # def pngify_class(image: PIL.Image) -> Image:
@@ -434,11 +310,6 @@ def pngify(image: PIL.Image) -> ImageDict:
             image = image.convert("RGB")
 
     return {'images': [[image]]}
-
-
-@DeprecationWarning
-def string_to_scaling_algorithm(string: str) -> Algorithms:
-    return string_to_algorithm(string)
 
 
 def float_to_int32(float_value):

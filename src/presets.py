@@ -1,5 +1,5 @@
 from abc import ABC
-from utils import Algorithms
+from scaling.utils import Algorithms
 
 
 class Preset(ABC):

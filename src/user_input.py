@@ -146,11 +146,11 @@ def scale_images():
 
     load_config, _ = config.get_loader_config()
 
-    # algorithms = presets.FullDownScalingTest.algorithms
-    # factors = presets.FullDownScalingTest.scales
+    algorithms = presets.FullDownScalingTest.algorithms
+    factors = presets.FullDownScalingTest.scales
 
-    algorithms = presets.FullUpscaleTest.algorithms
-    factors = presets.FullUpscaleTest.scales
+    # algorithms = presets.FullUpscaleTest.algorithms
+    # factors = presets.FullUpscaleTest.scales
 
     images, roots, file_names = loader.load_images(load_config)
     print(f"\nLoaded {len(images)} images")
@@ -181,7 +181,7 @@ def apply_filters():
             print("\nChoose the filters you want to apply to the original images\n"
                   "You can select multiple filters by separating them with a space or coma\n"
                   "Available filters (select the IDs):")
-            available_filters = tuple(f"{filter.value} - {filter.name}" for filter in filter_manager.Filters)
+            available_filters = tuple(f"{filter.value} - {filter.name}" for filter in filter_manager.Filters)  # Ignore the warning
             print(columnify(available_filters))
             user_input = input(colored(f"{it}Enter your choice: ", "light_grey")).strip()
             selected_filters_ids = list(
@@ -215,19 +215,19 @@ def apply_filters():
     # print(f"\nLoaded {len(images)} images")
     # print("Processing images...\n")
 
-    print(f"\nApplying {len(selected_filters_ids)} filter{'s' if len(selected_filters_ids) > 1 else ''} to {len(images)} images\n")
+    print(f"\nApplying {len(selected_filters_ids)} filter{'s' if len(selected_filters_ids) > 1 else ''} to {len(images)} images\n")  # No, it can't
     # factors = [0.4]
     filtered_images = filter_manager.filter_image_batch(
         selected_filters_ids,
         images,
-        factors
+        factors  # No, it can't
     )
     print("Filtering is done!\n")
 
     saver_config, _ = config.get_saver_config()
     saver_config["factors"] = factors
 
-    saver.save_img_list_multithreaded(filtered_images, roots, file_names, saver_config)
+    saver.save_img_list_multithreaded(filtered_images, roots, file_names, saver_config, selected_filters_ids)
 
 
 def compress_images():

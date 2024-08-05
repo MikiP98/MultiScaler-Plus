@@ -34,6 +34,9 @@ default_configs = {
         "processing_methods": None
     },
     "scaler": {
+        "high_quality_scale_back": True,
+        "fallback_algorithm": None,  # TODO: Implement this
+
         # prevents multi-face (in 1 image) textures to expand over current textures border
         'texture_outbound_protection': False,
         # prevents multi-face (in 1 image) textures to not fully cover current textures border
