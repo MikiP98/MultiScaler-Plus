@@ -2,12 +2,16 @@
 
 # WINDOWS --- --- --- --- --- --- --- --- ---
 import os
+import PIL.Image
 import psutil
 import string
 import shutil
 import subprocess
 
+from scaling.utils import ConfigPlus
 
+
+# TODO: If the images can't fit in the RAM disk, we should split them into smaller chunks and process them one by one.
 def calculate_ram_disk_size(total_img_size, save_margin=0.1, offset=0.1, min_offset=2*1024**3, max_offset=8*1024**3):
     """
     Calculate the size of the RAM disk needed and check if there is enough available memory.
@@ -68,6 +72,10 @@ def remove_ram_disk_windows(drive_letter):
     # Remove the RAM disk using ImDisk
     command = f'imdisk -D -m {drive_letter}:'
     subprocess.run(command, shell=True)
+
+
+# def ignite_the_drive(list[utils.I], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+#     images_in_bytes = []
 
 
 def main():
