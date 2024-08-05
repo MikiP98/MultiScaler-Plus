@@ -36,7 +36,7 @@ def save_image(image: PIL.Image, path: str, config: SimpleConfig) -> None:
         except OSError:
             pass  # Path created by another thread
 
-    if any([compression['additional_lossless'] for compression in config['compressions']]):  # TODO: finish this
+    if any([compression['additional_lossless'] for compression in config['compressions']]):  # TODO: benchmark this
         additional_lossless_image = image.convert("RGB") if not utils.uses_transparency(image) else image
 
     for compression in config['compressions']:
