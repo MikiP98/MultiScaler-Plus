@@ -25,7 +25,7 @@ def cv2_non_ai_common(frames: list[PIL.Image], factor: float, algorithm: int) ->
 def scale_inter_area(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
     if factor > 1:
         print(colored(
-            f"ERROR: INTER_AREA does not support upscaling! Factor: {factor}; File names will be incorrect!", 'red'
+            f"WARNING: INTER_AREA does not support upscaling! Factor: {factor}; Skipping!", 'yellow'
         ))
         return []
     else:

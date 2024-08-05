@@ -59,6 +59,10 @@ def save_image(image: PIL.Image, path: str, config: SimpleConfig) -> None:
 
 
 def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name: str, config: AdvancedConfig) -> None:
+    if len(image["images"][0]) == 0:
+        print(colored("WARNING: Empty (probably skipped by processing method) image", "yellow"))
+        return
+
     if len(image["images"][0]) > 1:
         print("Stacked and animated images are not supported yet :(")
         return
@@ -88,36 +92,6 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
             config['simple_config']
         )
 
-    # # TODO: Remove redundancy
-    # if config['sort_by_factor']:
-    #     if config['add_factor_to_name']:
-    #         for filtered_image, factor in zip(image["images"], config['factors']):
-    #             save_image(
-    #                 filtered_image[0],
-    #                 os.path.join("..", "output", str(factor), output_path, f"{file_name}_{factor}"),
-    #                 config['simple_config']
-    #             )
-    #
-    #     else:
-    #         for filtered_image, factor in zip(image["images"], config['factors']):
-    #             save_image(
-    #                 filtered_image[0],
-    #                 os.path.join("..", "output", str(factor), output_path, file_name),
-    #                 config['simple_config']
-    #             )
-    #
-    # elif config['add_factor_to_name']:
-    #     for filtered_image, factor in zip(image["images"], config['factors']):
-    #         save_image(
-    #             filtered_image[0],
-    #             os.path.join("..", "output", output_path, f"{file_name}_{factor}"),
-    #             config['simple_config']
-    #         )
-    #
-    # else:
-    #     for filtered_image in image["images"]:
-    #         save_image(filtered_image[0], os.path.join("..", "output", output_path, file_name), config['simple_config'])
-
 
 def save_img_list(bundle, saver_config):
     for filtered_image, root, file_name in bundle:
@@ -136,9 +110,9 @@ def save_img_list_multithreaded(processed_images: list[list[utils.ImageDict]], r
     # print(f"Splitting the bundle into {bundle_split_threads} parts")
 
     bundle_split_threads = min(max(round(len(roots) / 4), 1), max_thread_count)
-    print(f"Splitting the bundle into {bundle_split_threads} parts")
+    # print(f"Splitting the bundle into {bundle_split_threads} parts")
     batched_cache = ceil(len(roots) / bundle_split_threads)
-    print(f"Split the bundle into sizes of {batched_cache}\n")
+    # print(f"Split the bundle into sizes of {batched_cache}\n")
 
     for processed_image_set, processing_method in zip(processed_images, processing_methods):
         current_saver_config = saver_config.copy()

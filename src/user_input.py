@@ -11,6 +11,7 @@ import saving.saver as saver
 import sys
 
 from functools import lru_cache
+from scaling.utils import Algorithms
 from termcolor import colored
 from utils import rainbowify
 
@@ -155,8 +156,12 @@ def scale_images():
     # algorithms = presets.FullDownScalingTest.algorithms  # Test passed
     # factors = presets.FullDownScalingTest.scales
 
-    algorithms = presets.UpscaleNoCLITest.algorithms  # Test passed
-    factors = presets.UpscaleNoCLITest.scales
+    # algorithms = presets.UpscaleNoCLITest.algorithms  # Test passed
+    # factors = presets.UpscaleNoCLITest.scales
+
+    # Skip test
+    algorithms = [Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC]
+    factors = [2]
 
     # algorithms = presets.FullUpscaleTest.algorithms  # Test failed! (CAS, FSR)
     # factors = presets.FullUpscaleTest.scales
