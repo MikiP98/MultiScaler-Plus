@@ -2,9 +2,45 @@
 
 # WINDOWS --- --- --- --- --- --- --- --- ---
 import os
+import psutil
 import string
 import shutil
 import subprocess
+
+
+def calculate_ram_disk_size(total_img_size, save_margin=0.1, offset=0.1, min_offset=2*1024**3, max_offset=8*1024**3):
+    """
+    Calculate the size of the RAM disk needed and check if there is enough available memory.
+
+    Parameters:
+    total_img_size (int): Total size of images in bytes.
+    save_margin (float, optional): Margin to account for potential increase in file size (default is 0.1, or 10%).
+    offset (int or float, optional): Margin to leave free in system memory, in bytes if int, or percentage if float (default is 10%).
+    min_offset (int, optional): Minimum offset to leave free in system memory in bytes (default is 2 GB).
+    max_offset (int, optional): Maximum offset to leave free in system memory in bytes (default is 8 GB).
+
+    Returns:
+    int: Size of the RAM disk needed in bytes if enough memory is available.
+    None: If not enough memory is available.
+    """
+    # Calculate the size needed for the RAM disk
+    required_size = int(total_img_size * (1 + save_margin))
+
+    # Get the total system memory and the currently available memory
+    total_memory = psutil.virtual_memory().total
+    available_memory = psutil.virtual_memory().available
+
+    # Calculate the memory to be left free (offset) if offset is a float
+    if isinstance(offset, float) and 0 < offset < 1:
+        offset = total_memory * offset
+
+    offset = min(max(min_offset, offset), max_offset)
+
+    # Check if there is enough available memory
+    if available_memory > required_size + offset:
+        return required_size
+    else:
+        return None
 
 
 def is_drive_letter_available(drive_letter):
