@@ -204,7 +204,7 @@ Different test on random collection of smaller files:
 
 ## Roadmap:
 
-- Rewrite and update the **WebUI**
+- Rewrite and update the **WebUI** *(in progress...)*
 - Add support for **Waifu2x** and **Supir** AIs via **Docker**
   - Add lambda GPU *(or other)* connection support for **Supir** and others
 - **Fix** and **improve** standalone console application experience:
@@ -216,7 +216,7 @@ Different test on random collection of smaller files:
 - Add **image tracing** scaling algorithm and support for **SVG** format
 - Add proper **HDR** support <sup> *(I think **JPEG XL**, **WEBP** and **AVIF** may have some already)* </sup>
 - Add better image quality comparison:
-  - Summary
+  - ~~Summary~~
   - Extended summary
   - note with recommendations
 - Create a **C++ python extension** for:
@@ -235,11 +235,11 @@ Different test on random collection of smaller files:
   - Saturation
   - Brightness
   - Exposure
-  - Normal map strength
+  - ~~Normal map strength~~
 - Add basic **cropping** and **rotating** support
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
 - Make my own scaling algorithm or AI for fun :)
-- Add an option to blend all algorithms together instead of savin them separately
+- Add an option to blend all algorithms together instead of saving them separately
 - Add some conversions:
   - Old SEUS to labPBR 1.3
   - Old Continuum to labPBR 1.3
@@ -247,9 +247,9 @@ Different test on random collection of smaller files:
   - Gray to labPBR 1.3 (most likely won't be great)
   - More?
 - Add DP DSC image format?
-- Covert classes into typed dictionaries to increase performance
+- ~~Covert classes into typed dictionaries to increase performance~~
 - Add image merger: multiple images into one stacked or animated image
-- Add big 160px example shell image to example images
+- ~~Add big 160px example shell image to example images~~
 - Librarify this app...
 
 <br/>
