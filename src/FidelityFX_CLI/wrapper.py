@@ -1,8 +1,9 @@
 # coding=utf-8
 
 # WINDOWS --- --- --- --- --- --- --- --- ---
+import math
 import os
-# import PIL.Image
+import PIL.Image
 import psutil
 import string
 import shutil
@@ -75,8 +76,26 @@ def remove_ram_disk_windows(drive_letter):
     subprocess.run(command, shell=True)
 
 
-# def ignite_the_drive(list[utils.I], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-#     images_in_bytes = []
+def ignite_the_drive(images_bytes: list[bytes], max_factor: float) -> list[PIL.Image]:
+    # Define the RAM disk size
+    images_bytes_sizes = [len(image_bytes) for image_bytes in images_bytes]
+    total_img_size = sum(images_bytes_sizes)
+    needed_size = total_img_size + max(images_bytes_sizes) * max_factor**2 * 2
+
+    ram_disk_size_bytes = calculate_ram_disk_size(needed_size)
+    ram_disk_size_mb = math.ceil(ram_disk_size_bytes / 1024**2)
+
+    # Find an available drive letter starting from 'R'
+    try:
+        ram_disk_drive_letter = find_available_drive_letter('R')
+    except RuntimeError as e:
+        print(e)
+        return []
+
+    print(f"Using drive letter: {ram_disk_drive_letter}")
+
+    # Create the RAM disk
+    create_ram_disk_windows(ram_disk_size_mb, ram_disk_drive_letter)
 
 
 def main():
