@@ -8,6 +8,7 @@ import os
 import saving.saver as saver
 import sys
 
+from FidelityFX_CLI.wrapper import extinguish_the_drive, ignite_the_drive
 from functools import lru_cache
 from scaling.utils import Algorithms
 from termcolor import colored
@@ -164,12 +165,25 @@ def scale_images():
     print(f"\nLoaded {len(images)} images")
 
     print("Processing images...\n")
-    scaled_images = scaler.scale_image_batch(
-        algorithms,
-        images,
-        factors,
-        config_plus=scaler_config
-    )
+    if Algorithms.FSR in algorithms or Algorithms.CAS in algorithms:
+        max_pixel_count = max(sum(frame.size[0] * frame.size[0] for frame in image["images"][0]) for image in images)
+        try:
+            ignite_the_drive(max_pixel_count, max(factors))
+            scaled_images = scaler.scale_image_batch(
+                algorithms,
+                images,
+                factors,
+                config_plus=scaler_config
+            )
+        finally:
+            extinguish_the_drive()
+    else:
+        scaled_images = scaler.scale_image_batch(
+            algorithms,
+            images,
+            factors,
+            config_plus=scaler_config
+        )
 
     saver_config, _ = config.get_saver_config()
     saver_config["factors"] = factors

@@ -76,26 +76,49 @@ def remove_ram_disk_windows(drive_letter):
     subprocess.run(command, shell=True)
 
 
-def ignite_the_drive(images_bytes: list[bytes], max_factor: float) -> list[PIL.Image]:
-    # Define the RAM disk size
-    images_bytes_sizes = [len(image_bytes) for image_bytes in images_bytes]
-    total_img_size = sum(images_bytes_sizes)
-    needed_size = total_img_size + max(images_bytes_sizes) * max_factor**2 * 2
+is_virtual_drive_on: bool = False
+virtual_drive_letter: str | None = None
 
-    ram_disk_size_bytes = calculate_ram_disk_size(needed_size)
-    ram_disk_size_mb = math.ceil(ram_disk_size_bytes / 1024**2)
 
-    # Find an available drive letter starting from 'R'
-    try:
-        ram_disk_drive_letter = find_available_drive_letter('R')
-    except RuntimeError as e:
-        print(e)
-        return []
+def ignite_the_drive(max_pixel_count: int, max_factor: float) -> list[PIL.Image]:
+    global is_virtual_drive_on, virtual_drive_letter
 
-    print(f"Using drive letter: {ram_disk_drive_letter}")
+    if not is_virtual_drive_on:
+        # Define the RAM disk size
+        max_channels = 4
+        bit_depth = 12
+        max_needed_space = math.ceil(max_pixel_count * max_channels * bit_depth / 8)
+        needed_size = max_needed_space * (max_factor ** 2 * 2 + 1)
 
-    # Create the RAM disk
-    create_ram_disk_windows(ram_disk_size_mb, ram_disk_drive_letter)
+        ram_disk_size_bytes = calculate_ram_disk_size(needed_size)
+        ram_disk_size_mb = math.ceil(ram_disk_size_bytes / 1024**2)
+
+        # Find an available drive letter starting from 'R'
+        try:
+            ram_disk_drive_letter = find_available_drive_letter('R')
+        except RuntimeError as e:
+            print(e)
+            return []
+
+        print(f"Using drive letter: {ram_disk_drive_letter}")
+
+        # Create the RAM disk
+        create_ram_disk_windows(ram_disk_size_mb, ram_disk_drive_letter)
+
+        virtual_drive_letter = ram_disk_drive_letter
+        is_virtual_drive_on = True
+
+
+def extinguish_the_drive():
+    global is_virtual_drive_on, virtual_drive_letter
+
+    if is_virtual_drive_on:
+        is_virtual_drive_on = False
+        virtual_drive_letter = None
+
+        # Remove the RAM disk
+        remove_ram_disk_windows(virtual_drive_letter)
+        print(f"Removed RAM disk at {virtual_drive_letter}:")
 
 
 def main():
