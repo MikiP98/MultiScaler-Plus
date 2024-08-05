@@ -29,7 +29,7 @@ def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> li
 
             np_image = a.save_image_to_numpy()
 
-            a = None  # REQUIRED, DO NOT DELETE! Else raises a GPU error!
+            a = None  # REQUIRED, DO NOT DELETE! Else raises a GPU error! TODO: Make a GitHub issue
 
         new_frame = PIL.Image.fromarray(np_image)
 

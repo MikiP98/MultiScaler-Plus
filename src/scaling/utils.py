@@ -115,54 +115,54 @@ def correct_frame_from_cv2(frame: np.array, original_size: tuple, factor: float,
         )
 
 
-# scaler_algorithm_to_pillow_algorithm_dictionary
-satpad = {
-    Algorithms.PIL_BICUBIC: PIL.Image.BICUBIC,
-    Algorithms.PIL_BILINEAR: PIL.Image.BILINEAR,
-    Algorithms.PIL_LANCZOS: PIL.Image.LANCZOS,
-    Algorithms.PIL_NEAREST_NEIGHBOR: PIL.Image.NEAREST
-}
-
-
-# convert_scaler_algorithm_to_pillow_algorithm
-def csatpa(algorithm: Algorithms):
-    """
-    ConvertScalerAlgorithmToPillowAlgorithm()\n
-    Converts a scaler algorithm to a PIL algorithm using a dictionary (satpad)
-    :param algorithm: The Scaler algorithm to convert
-    :return: The corresponding PIL algorithm
-    :raises AttributeError: If the algorithm is not supported by PIL
-    """
-    pillow_algorithm = satpad.get(algorithm)
-    if pillow_algorithm is not None:
-        return pillow_algorithm
-    else:
-        raise AttributeError("Algorithm not supported by PIL")
-
-
-# scaler_algorithm_to_cv2_algorithm_dictionary
-satcad = {
-    Algorithms.CV2_INTER_AREA: cv2.INTER_AREA,
-    Algorithms.CV2_INTER_CUBIC: cv2.INTER_CUBIC,
-    Algorithms.CV2_INTER_LANCZOS4: cv2.INTER_LANCZOS4,
-    Algorithms.CV2_INTER_LINEAR: cv2.INTER_LINEAR,
-    Algorithms.CV2_INTER_NEAREST: cv2.INTER_NEAREST
-}
-
-
-# convert_scaler_algorithm_to_cv2_algorithm
-def csatca(algorithm: Algorithms):
-    """
-    ConvertScalerAlgorithmToCV2Algorithm()\n
-    Converts a scaler algorithm to a OpenCV algorithm using a dictionary (satcad)
-    :param algorithm: The Scaler algorithm to convert
-    :return: The corresponding OpenCV algorithm
-    :raises AttributeError: If the algorithm is not supported by OpenCV
-    """
-    algorithm_cv2 = satcad.get(algorithm)
-    if algorithm_cv2 is not None:
-        return algorithm_cv2
-    else:
-        raise AttributeError(
-            f"Algorithm not supported by OpenCV: {utils.algorithm_to_string(algorithm)},  id: {algorithm}"
-        )
+# # scaler_algorithm_to_pillow_algorithm_dictionary
+# satpad = {
+#     Algorithms.PIL_BICUBIC: PIL.Image.BICUBIC,
+#     Algorithms.PIL_BILINEAR: PIL.Image.BILINEAR,
+#     Algorithms.PIL_LANCZOS: PIL.Image.LANCZOS,
+#     Algorithms.PIL_NEAREST_NEIGHBOR: PIL.Image.NEAREST
+# }
+#
+#
+# # convert_scaler_algorithm_to_pillow_algorithm
+# def csatpa(algorithm: Algorithms):
+#     """
+#     ConvertScalerAlgorithmToPillowAlgorithm()\n
+#     Converts a scaler algorithm to a PIL algorithm using a dictionary (satpad)
+#     :param algorithm: The Scaler algorithm to convert
+#     :return: The corresponding PIL algorithm
+#     :raises AttributeError: If the algorithm is not supported by PIL
+#     """
+#     pillow_algorithm = satpad.get(algorithm)
+#     if pillow_algorithm is not None:
+#         return pillow_algorithm
+#     else:
+#         raise AttributeError("Algorithm not supported by PIL")
+#
+#
+# # scaler_algorithm_to_cv2_algorithm_dictionary
+# satcad = {
+#     Algorithms.CV2_INTER_AREA: cv2.INTER_AREA,
+#     Algorithms.CV2_INTER_CUBIC: cv2.INTER_CUBIC,
+#     Algorithms.CV2_INTER_LANCZOS4: cv2.INTER_LANCZOS4,
+#     Algorithms.CV2_INTER_LINEAR: cv2.INTER_LINEAR,
+#     Algorithms.CV2_INTER_NEAREST: cv2.INTER_NEAREST
+# }
+#
+#
+# # convert_scaler_algorithm_to_cv2_algorithm
+# def csatca(algorithm: Algorithms):
+#     """
+#     ConvertScalerAlgorithmToCV2Algorithm()\n
+#     Converts a scaler algorithm to a OpenCV algorithm using a dictionary (satcad)
+#     :param algorithm: The Scaler algorithm to convert
+#     :return: The corresponding OpenCV algorithm
+#     :raises AttributeError: If the algorithm is not supported by OpenCV
+#     """
+#     algorithm_cv2 = satcad.get(algorithm)
+#     if algorithm_cv2 is not None:
+#         return algorithm_cv2
+#     else:
+#         raise AttributeError(
+#             f"Algorithm not supported by OpenCV: {utils.algorithm_to_string(algorithm)},  id: {algorithm}"
+#         )
