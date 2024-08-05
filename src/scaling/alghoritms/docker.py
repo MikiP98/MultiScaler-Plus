@@ -61,4 +61,3 @@ def scale(frames: list[PIL.Image], factor: float, algorithm: str) -> list[PIL.Im
     #     print(f"Output: {output.decode('utf-8')}")
 
     raise NotImplementedError("Waifu2x and SUPIR are not implemented yet!")
-

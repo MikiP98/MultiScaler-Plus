@@ -115,7 +115,8 @@ scaling_functions = {
 }
 
 
-# TODO: Replace all images generated with CV2 with PIL images if there are no duplicates, as PIL algorithms seem to be higher quality (but slower)
+# TODO: Replace all images generated with CV2 with PIL images if there are no duplicates,
+#  as PIL algorithms seem to be higher quality (but slower)
 def scale_image_batch(
         algorithms: list[Algorithms],
         images: list[utils.ImageDict],

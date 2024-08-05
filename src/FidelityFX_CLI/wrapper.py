@@ -2,13 +2,13 @@
 
 # WINDOWS --- --- --- --- --- --- --- --- ---
 import os
-import PIL.Image
+# import PIL.Image
 import psutil
 import string
 import shutil
 import subprocess
 
-from scaling.utils import ConfigPlus
+# from scaling.utils import ConfigPlus
 
 
 # TODO: If the images can't fit in the RAM disk, we should split them into smaller chunks and process them one by one.
@@ -19,7 +19,8 @@ def calculate_ram_disk_size(total_img_size, save_margin=0.1, offset=0.1, min_off
     Parameters:
     total_img_size (int): Total size of images in bytes.
     save_margin (float, optional): Margin to account for potential increase in file size (default is 0.1, or 10%).
-    offset (int or float, optional): Margin to leave free in system memory, in bytes if int, or percentage if float (default is 10%).
+    offset (int or float, optional): Margin to leave free in system memory,
+        in bytes if int, or percentage if float (default is 10%).
     min_offset (int, optional): Minimum offset to leave free in system memory in bytes (default is 2 GB).
     max_offset (int, optional): Maximum offset to leave free in system memory in bytes (default is 8 GB).
 
@@ -167,4 +168,3 @@ def remove_ram_disk_linux(mount_point):
 #     # Remove the RAM disk
 #     remove_ram_disk_linux(ram_disk_path)
 #     print(f"Removed RAM disk at {ram_disk_path}")
-

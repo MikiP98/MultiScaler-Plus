@@ -14,5 +14,6 @@ per-file-ignores =
     __init__.py: F401
     standalone.py: F401
     loader.py: F401
+    .template.py: F401
 
 max-line-length = 120

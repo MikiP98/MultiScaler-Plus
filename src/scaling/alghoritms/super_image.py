@@ -44,9 +44,6 @@ def ai_scale(
 
             scaled_frames[i] = pil_frame
 
-            # super_image.ImageLoader.save_image(preds, "../input/frame.png")
-            # super_image.ImageLoader.save_compare(preds, inputs, "../output/compare.png")
-
     scaled_frames = [
         correct_frame(scaled_frame, frame.size, factor, high_quality_scale_back)
         for scaled_frame, frame in zip(scaled_frames, frames)
@@ -56,83 +53,177 @@ def ai_scale(
     return scaled_frames
 
 
-# Algorithms.SI_a2n: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.A2nModel, "eugenesiow/a2n"),
-# Algorithms.SI_awsrn_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.AwsrnModel, "eugenesiow/awsrn-bam"),
-# Algorithms.SI_carn: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.CarnModel, "eugenesiow/carn"),
-# Algorithms.SI_carn_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.CarnModel, "eugenesiow/carn-bam"),
-# Algorithms.SI_drln: lambda frames, factor, _: si_ai_scale(frames, factor, {4}, super_image.DrlnModel, "eugenesiow/drln"),
-# Algorithms.SI_drln_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.DrlnModel, "eugenesiow/drln-bam"),
-# Algorithms.SI_edsr: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.EdsrModel, "eugenesiow/edsr"),
-# Algorithms.SI_edsr_base: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.EdsrModel, "eugenesiow/edsr-base"),
-# Algorithms.SI_han: lambda frames, factor, _: si_ai_scale(frames, factor, {4}, super_image.HanModel, "eugenesiow/han"),  # 4x only
-# Algorithms.SI_mdsr: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MdsrModel, "eugenesiow/mdsr"),
-# Algorithms.SI_mdsr_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MdsrModel, "eugenesiow/mdsr-bam"),
-# Algorithms.SI_msrn: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MsrnModel, "eugenesiow/msrn"),
-# Algorithms.SI_msrn_bam: lambda frames, _, factor: si_ai_scale(frames, factor, {2, 3, 4}, super_image.MsrnModel, "eugenesiow/msrn-bam"),
-# Algorithms.SI_pan: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.PanModel, "eugenesiow/pan"),
-# Algorithms.SI_pan_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {2, 3, 4}, super_image.PanModel, "eugenesiow/pan-bam"),
-# Algorithms.SI_rcan_bam: lambda frames, factor, _: si_ai_scale(frames, factor, {4}, super_image.RcanModel, "eugenesiow/rcan-bam"),  # 4x only
-
-
 def scale_a2n(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.A2nModel, "eugenesiow/a2n")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.A2nModel,
+        "eugenesiow/a2n"
+    )
 
 
 def scale_awsrn_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.AwsrnModel, "eugenesiow/awsrn-bam")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.AwsrnModel,
+        "eugenesiow/awsrn-bam"
+    )
 
 
 def scale_carn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.CarnModel, "eugenesiow/carn")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.CarnModel,
+        "eugenesiow/carn"
+    )
 
 
 def scale_carn_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.CarnModel, "eugenesiow/carn-bam")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.CarnModel,
+        "eugenesiow/carn-bam"
+    )
 
 
 def scale_drln(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {4}, super_image.DrlnModel, "eugenesiow/drln")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {4},
+        super_image.DrlnModel,
+        "eugenesiow/drln"
+    )
 
 
 def scale_drln_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.DrlnModel, "eugenesiow/drln-bam")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.DrlnModel,
+        "eugenesiow/drln-bam"
+    )
 
 
 def scale_edsr(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.EdsrModel, "eugenesiow/edsr")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.EdsrModel,
+        "eugenesiow/edsr"
+    )
 
 
 def scale_edsr_base(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.EdsrModel, "eugenesiow/edsr-base")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.EdsrModel,
+        "eugenesiow/edsr-base"
+    )
 
 
 def scale_han(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {4}, super_image.HanModel, "eugenesiow/han")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {4},
+        super_image.HanModel,
+        "eugenesiow/han"
+    )
 
 
 def scale_mdsr(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.MdsrModel, "eugenesiow/mdsr")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.MdsrModel,
+        "eugenesiow/mdsr"
+    )
 
 
 def scale_mdsr_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.MdsrModel, "eugenesiow/mdsr-bam")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.MdsrModel,
+        "eugenesiow/mdsr-bam"
+    )
 
 
 def scale_msrn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.MsrnModel, "eugenesiow/msrn")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.MsrnModel,
+        "eugenesiow/msrn"
+    )
 
 
 def scale_msrn_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.MsrnModel, "eugenesiow/msrn-bam")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.MsrnModel,
+        "eugenesiow/msrn-bam"
+    )
 
 
 def scale_pan(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.PanModel, "eugenesiow/pan")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.PanModel,
+        "eugenesiow/pan"
+    )
 
 
 def scale_pan_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {2, 3, 4}, super_image.PanModel, "eugenesiow/pan-bam")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {2, 3, 4},
+        super_image.PanModel,
+        "eugenesiow/pan-bam"
+    )
 
 
 def scale_rcan_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return ai_scale(frames, factor, config_plus['high_quality_scale_back'], {4}, super_image.RcanModel, "eugenesiow/rcan-bam")
+    return ai_scale(
+        frames,
+        factor,
+        config_plus['high_quality_scale_back'],
+        {4},
+        super_image.RcanModel,
+        "eugenesiow/rcan-bam"
+    )

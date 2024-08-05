@@ -12,9 +12,8 @@ def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> li
     if factor < 1:
         print(
             colored(
-                "ERROR: HSDBTRE is an AI algorithm and does not support downscaling! "
-                f"Cannot perform any fixes! Skipping!",
-                'red'
+                "WARNING: HSDBTRE is an AI algorithm and does not support downscaling! Skipping!",
+                'yellow'
             )
         )
         return []

@@ -4,9 +4,7 @@
 import config
 import loader
 import os
-import PIL.Image
-import PIL.GifImagePlugin
-import presets
+# import presets
 import saving.saver as saver
 import sys
 
@@ -19,10 +17,6 @@ from utils import rainbowify
 it = '\x1B[3m'
 nr = '\x1B[0m'
 # b = '\x1B[1m'
-
-
-PIL.Image.MAX_IMAGE_PIXELS = 4_294_967_296  # 2^16 squared, a.k.a. 65536x65536 pixels or 4 GigaPixels
-PIL.GifImagePlugin.LOADING_STRATEGY = PIL.GifImagePlugin.LoadingStrategy.RGB_ALWAYS
 
 
 def greetings():
@@ -195,11 +189,14 @@ def apply_filters():
             print("\nChoose the filters you want to apply to the original images\n"
                   "You can select multiple filters by separating them with a space or coma\n"
                   "Available filters (select the IDs):")
-            available_filters = tuple(f"{filter.value} - {filter.name}" for filter in filter_manager.Filters)  # Ignore the warning
+            # Ignore the warning
+            available_filters = tuple(f"{filter.value} - {filter.name}" for filter in filter_manager.Filters)
             print(columnify(available_filters))
             user_input = input(colored(f"{it}Enter your choice: ", "light_grey")).strip()
             selected_filters_ids = list(
-                filter_manager.Filters(int(filter_id)) for filter_id in user_input.replace(',', ' ').replace("  ", ' ').split(" ")
+                filter_manager.Filters(
+                    int(filter_id)
+                ) for filter_id in user_input.replace(',', ' ').replace("  ", ' ').split(' ')
             )
             if any(filter_id not in filter_manager.Filters for filter_id in selected_filters_ids):
                 raise ValueError("Invalid filter ID")
@@ -229,7 +226,11 @@ def apply_filters():
     # print(f"\nLoaded {len(images)} images")
     # print("Processing images...\n")
 
-    print(f"\nApplying {len(selected_filters_ids)} filter{'s' if len(selected_filters_ids) > 1 else ''} to {len(images)} images\n")  # No, it can't
+    # No, it can't
+    print(
+        f"\nApplying {len(selected_filters_ids)} filter{'s' if len(selected_filters_ids) > 1 else ''} "
+        f"to {len(images)} images\n"
+    )
     # factors = [0.4]
     filtered_images = filter_manager.filter_image_batch(
         selected_filters_ids,

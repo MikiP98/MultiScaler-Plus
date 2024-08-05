@@ -1,13 +1,18 @@
 # coding=utf-8
 import os
-import saving.encoder
+# import saving.encoder
 
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from PIL import Image
 from scaling.scaler_manager import scale_image_batch
-from utils import cli_algorithms, image_to_byte_array, pngify, string_to_algorithm
+from utils import image_to_byte_array, pngify  # , string_to_algorithm
+
+
+string_to_algorithm = {}  # temporal error shutupper
+cli_algorithms = set()  # temporal error shutupper
+
 
 app = FastAPI()
 # Allow requests from all origins

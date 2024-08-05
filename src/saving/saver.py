@@ -93,7 +93,7 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
         )
 
 
-def save_img_list(bundle, saver_config):
+def save_img_list(bundle, saver_config: AdvancedConfig):
     for filtered_image, root, file_name in bundle:
         save_image_pre_processor(
             filtered_image,
@@ -103,7 +103,15 @@ def save_img_list(bundle, saver_config):
         )
 
 
-def save_img_list_multithreaded(processed_images: list[list[utils.ImageDict]], roots, file_names, saver_config, processing_methods, *, max_thread_count=4):
+def save_img_list_multithreaded(
+        processed_images: list[list[utils.ImageDict]],
+        roots,
+        file_names,
+        saver_config: AdvancedConfig,
+        processing_methods,
+        *,
+        max_thread_count=4
+):
     # processes_loop_threads = min(round(len(processed_images) / 2), max_thread_count)
     # print(f"Using {processes_loop_threads} threads")
     # bundle_split_threads = len(processed_images) // processes_loop_threads

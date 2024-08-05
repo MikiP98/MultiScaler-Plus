@@ -75,13 +75,18 @@ def cv2_ai_common_scale(
     return scaled_image
 
 
-def cv2_ai_common(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus, name: str, allowed_factors: set) -> list[PIL.Image]:
+def cv2_ai_common(
+        frames: list[PIL.Image],
+        factor: float,
+        config_plus: ConfigPlus,
+        name: str,
+        allowed_factors: set
+) -> list[PIL.Image]:
     if factor < 1:
         print(
             colored(
-                "ERROR: CV2 AIs do not support downscaling! "
-                f"Cannot perform any fixes! Skipping!",
-                'red'
+                "WARNING: CV2 AIs do not support downscaling! Skipping!",
+                'yellow'
             )
         )
         return []

@@ -19,6 +19,10 @@ from utils import (
 )
 
 
+PIL.Image.MAX_IMAGE_PIXELS = 4_294_967_296  # 2^16 squared, a.k.a. 65536x65536 pixels or 4 GigaPixels
+PIL.GifImagePlugin.LOADING_STRATEGY = PIL.GifImagePlugin.LoadingStrategy.RGB_ALWAYS
+
+
 class LoaderConfig(TypedDict):
     clear_output_dir: bool
 

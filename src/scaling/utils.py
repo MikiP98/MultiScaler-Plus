@@ -101,9 +101,14 @@ def correct_frame(frame: PIL.Image, original_size: tuple, factor: float, high_qu
         )
 
 
-def correct_frame_from_cv2(frame: np.array, original_size: tuple, factor: float, high_quality_scaleback: bool) -> PIL.Image:
+def correct_frame_from_cv2(
+        frame: np.array,
+        original_size: tuple,
+        factor: float,
+        high_quality_scale_back: bool
+) -> PIL.Image:
     correct_size = (round(original_size[0] * factor), round(original_size[1] * factor))
-    if high_quality_scaleback:
+    if high_quality_scale_back:
         return utils.cv2_to_pil(frame).resize(correct_size, PIL.Image.LANCZOS)
     else:
         return utils.cv2_to_pil(
