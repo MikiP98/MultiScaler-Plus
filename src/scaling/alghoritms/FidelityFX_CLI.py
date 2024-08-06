@@ -2,6 +2,7 @@
 # import saving.saver as saver
 import subprocess
 import PIL.Image
+import time
 
 from FidelityFX_CLI.wrapper import get_virtual_drive_letter
 from scaling.utils import ConfigPlus
@@ -14,6 +15,9 @@ cli_supported_formats = {"BMP", "PNG", "ICO", "JPG", "TIF", "GIF"}
 # TODO: Create a temporal RAM storage drive to properly support all image formats and the saver
 def fsr_scale(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
     print(f"Virtual drive letter: {get_virtual_drive_letter()}")
+    print("Waiting 5s")
+    time.sleep(5)
+    print("Done")
     if factor > 2:
         print(
             colored(

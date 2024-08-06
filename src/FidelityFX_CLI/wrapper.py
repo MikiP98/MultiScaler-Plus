@@ -30,7 +30,8 @@ def calculate_ram_disk_size(total_img_size, save_margin=0.1, offset=0.1, min_off
     None: If not enough memory is available.
     """
     # Calculate the size needed for the RAM disk
-    required_size = int(total_img_size * (1 + save_margin))
+    # NTFS minimal volume size is 10 MB
+    required_size = max(int(total_img_size * (1 + save_margin)), 10 * 1024 ** 2)
 
     # Get the total system memory and the currently available memory
     total_memory = psutil.virtual_memory().total
@@ -68,49 +69,55 @@ def find_available_drive_letter(start_letter='R'):
     raise RuntimeError("No available drive letters found.")
 
 
-# def create_ram_disk_windows(size_mb, drive_letter):
-#     # Create the RAM disk using ImDisk
-#     command = f'imdisk -a -s {size_mb}M -m {drive_letter}: -p "/fs:NTFS /q /y"'
-#     subprocess.run(command, shell=True)
-
-
 def create_ram_disk_windows(size_mb, drive_letter):
     try:
-        # PowerShell script to create a RAM disk
-        ps_script = f"""
-        $size = {size_mb}MB
-        $letter = '{drive_letter}'
-        $ramdisk = New-VirtualDisk -Size $size -FriendlyName "RAMDisk" -MediaType "SSD"
-        Initialize-Disk -Number $ramdisk.Number -PartitionStyle MBR
-        New-Partition -DiskNumber $ramdisk.Number -DriveLetter $letter -UseMaximumSize | Format-Volume -FileSystem NTFS -NewFileSystemLabel "RAMDisk" -Force
-        """
-        command = ["powershell", "-Command", ps_script]
-        subprocess.run(command, check=True, shell=True)
+        # Create the RAM disk using ImDisk
+        command = f'imdisk -a -s {size_mb}M -m {drive_letter}: -p "/fs:NTFS /q /y"'
+        # subprocess.run(command, shell=True, check=True)
+        # elevated_command = f'powershell -Command "Start-Process -Verb runAs cmd -ArgumentList \'/c {command}\'"'
+        elevator_command = f'launcher.exe %ComSpec% /c "{command}"'
+        subprocess.run(elevator_command, shell=True, check=True)
     except subprocess.CalledProcessError as e:
         print(f"Failed to create RAM disk: {e}")
-    except FileNotFoundError:
-        print("PowerShell not found. Ensure you have PowerShell installed and accessible.")
+        raise e
 
-
-# def remove_ram_disk_windows(drive_letter):
-#     # Remove the RAM disk using ImDisk
-#     command = f'imdisk -D -m {drive_letter}:'
-#     subprocess.run(command, shell=True)
+# def create_ram_disk_windows(size_mb, drive_letter):
+#     try:
+#         # PowerShell script to create a RAM disk
+#         ps_script = f"""
+#         $size = {size_mb}MB
+#         $letter = '{drive_letter}'
+#         $ramdisk = New-VirtualDisk -Size $size -FriendlyName "RAMDisk" -MediaType "SSD"
+#         Initialize-Disk -Number $ramdisk.Number -PartitionStyle MBR
+#         New-Partition -DiskNumber $ramdisk.Number -DriveLetter $letter -UseMaximumSize | Format-Volume -FileSystem NTFS -NewFileSystemLabel "RAMDisk" -Force
+#         """
+#         command = ["powershell", "-Command", ps_script]
+#         subprocess.run(command, check=True, shell=True)
+#     except subprocess.CalledProcessError as e:
+#         print(f"Failed to create RAM disk: {e}")
+#     except FileNotFoundError:
+#         print("PowerShell not found. Ensure you have PowerShell installed and accessible.")
 
 
 def remove_ram_disk_windows(drive_letter):
-    try:
-        # PowerShell script to remove the RAM disk
-        ps_script = f"""
-        $letter = '{drive_letter}:'
-        $partition = Get-Partition -DriveLetter $letter
-        Remove-Partition -PartitionNumber $partition.PartitionNumber -DiskNumber $partition.DiskNumber -Confirm:$false
-        Remove-VirtualDisk -FriendlyName "RAMDisk" -Confirm:$false
-        """
-        command = ["powershell", "-Command", ps_script]
-        subprocess.run(command, check=True, shell=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to remove RAM disk: {e}")
+    # Remove the RAM disk using ImDisk
+    command = f'imdisk -D -m {drive_letter}:'
+    subprocess.run(command, shell=True, check=True)
+
+
+# def remove_ram_disk_windows(drive_letter):
+#     try:
+#         # PowerShell script to remove the RAM disk
+#         ps_script = f"""
+#         $letter = '{drive_letter}:'
+#         $partition = Get-Partition -DriveLetter $letter
+#         Remove-Partition -PartitionNumber $partition.PartitionNumber -DiskNumber $partition.DiskNumber -Confirm:$false
+#         Remove-VirtualDisk -FriendlyName "RAMDisk" -Confirm:$false
+#         """
+#         command = ["powershell", "-Command", ps_script]
+#         subprocess.run(command, check=True, shell=True)
+#     except subprocess.CalledProcessError as e:
+#         print(f"Failed to remove RAM disk: {e}")
 
 
 is_virtual_drive_on: bool = False
@@ -134,7 +141,8 @@ def ignite_the_drive(max_pixel_count: int, max_factor: float) -> None:
         ram_disk_size_bytes = calculate_ram_disk_size(needed_size)
         if ram_disk_size_bytes is None:
             return
-        ram_disk_size_mb = math.ceil(ram_disk_size_bytes / 1024**20)
+        ram_disk_size_mb = math.ceil(ram_disk_size_bytes / 1024**2)
+        print(f"RAM disk size: {ram_disk_size_mb} MB")
 
         # Find an available drive letter starting from 'R'
         try:
@@ -146,9 +154,10 @@ def ignite_the_drive(max_pixel_count: int, max_factor: float) -> None:
         print(f"Using drive letter: {ram_disk_drive_letter}")
 
         # Create the RAM disk
+        virtual_drive_letter = ram_disk_drive_letter
+
         create_ram_disk_windows(ram_disk_size_mb, ram_disk_drive_letter)
 
-        virtual_drive_letter = ram_disk_drive_letter
         is_virtual_drive_on = True
 
         print(f"Created RAM disk at {ram_disk_drive_letter}:")
@@ -160,10 +169,11 @@ def extinguish_the_drive():
     if is_virtual_drive_on:
         print(f"Removing RAM disk at {virtual_drive_letter}:")
         is_virtual_drive_on = False
-        virtual_drive_letter = None
 
         # Remove the RAM disk
         remove_ram_disk_windows(virtual_drive_letter)
+
+        virtual_drive_letter = None
 
 
 def main():
