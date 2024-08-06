@@ -4,7 +4,7 @@
 import config
 import loader
 import os
-# import presets
+import presets
 import saving.saver as saver
 import sys
 
@@ -158,11 +158,12 @@ def scale_images():
     # algorithms = [Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_AREA, Algorithms.CV2_INTER_CUBIC]
     # factors = [2]
 
-    # algorithms = presets.FullUpscaleTest.algorithms  # Test failed! (CAS, FSR) :o
-    # factors = presets.FullUpscaleTest.scales
+    algorithms = presets.FullUpscaleTest.algorithms  # Test passed :)
+    factors = presets.FullUpscaleTest.scales
 
-    algorithms = [Algorithms.FSR, Algorithms.CAS]
-    factors = [2]
+    # CLI test; Test passed :)
+    # algorithms = [Algorithms.FSR, Algorithms.CAS]
+    # factors = [2]
 
     images, roots, file_names = loader.load_images(load_config)
     print(f"\nLoaded {len(images)} images")
