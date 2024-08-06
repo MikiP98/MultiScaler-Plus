@@ -161,7 +161,7 @@ def scale_images():
     # algorithms = presets.FullUpscaleTest.algorithms  # Test failed! (CAS, FSR) :o
     # factors = presets.FullUpscaleTest.scales
 
-    algorithms = [Algorithms.FSR]
+    algorithms = [Algorithms.FSR, Algorithms.CAS]
     factors = [2]
 
     images, roots, file_names = loader.load_images(load_config)

@@ -30,8 +30,8 @@ def calculate_ram_disk_size(total_img_size, save_margin=0.1, offset=0.1, min_off
     None: If not enough memory is available.
     """
     # Calculate the size needed for the RAM disk
-    # NTFS minimal volume size is 10 MB
-    required_size = max(int(total_img_size * (1 + save_margin)), 10 * 1024 ** 2)
+    # NTFS minimal volume size is 10 MB, it has around 12.5% metadata overhead
+    required_size = max(int(total_img_size * (1 + save_margin + 0.125)), 10 * 1024 ** 2)
 
     # Get the total system memory and the currently available memory
     total_memory = psutil.virtual_memory().total
