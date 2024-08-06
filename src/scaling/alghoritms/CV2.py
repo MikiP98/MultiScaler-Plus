@@ -145,14 +145,6 @@ def cv2_ai_common(
         return cv2_ai_common_scale(frames, int(factor), config_plus['high_quality_scale_back'], sr, path_prefix, name)
 
 
-# # CV2 AI algorithms
-# Algorithms.CV2_EDSR: lambda frames, factor, _: cv2_ai_common(frames, factor, "EDSR", {2, 3, 4}),
-# Algorithms.CV2_ESPCN: lambda frames, factor, _: cv2_ai_common(frames, factor, "ESPCN", {2, 3, 4}),
-# Algorithms.CV2_FSRCNN: lambda frames, factor, _: cv2_ai_common(frames, factor, "FSRCNN", {2, 3, 4}),
-# Algorithms.CV2_FSRCNN_small: lambda frames, _, factor: cv2_ai_common(frames, factor, "FSRCNN_small", {2, 3, 4}),
-# Algorithms.CV2_LapSRN: lambda frames, factor, _: cv2_ai_common(frames, factor, "LapSRN", {2, 4, 8}),  # 248
-
-
 def ai_scale_edsr(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
     return cv2_ai_common(frames, factor, config_plus, "EDSR", {2, 3, 4})
 
@@ -170,4 +162,4 @@ def ai_scale_fsrcnn_small(frames: list[PIL.Image], factor: float, config_plus: C
 
 
 def ai_scale_lapsrn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    return cv2_ai_common(frames, factor, config_plus, "LapSRN", {2, 4, 8})
+    return cv2_ai_common(frames, factor, config_plus, "LapSRN", {2, 4, 8})  # 248

@@ -10,12 +10,7 @@ def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> li
     allowed_factors = {2, 3, 4}
     if factor not in allowed_factors:
         if factor < 1:
-            print(
-                colored(
-                    "ERROR: HQx does not support downscaling! Cannot perform any fixes! Skipping!",
-                    'red'
-                )
-            )
+            print(colored("WARNING: HQx does not support downscaling! Skipping!", 'yellow'))
             return []
 
         print(
@@ -26,7 +21,6 @@ def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> li
             )
         )
 
-    # min_allowed_factor = min(allowed_factors)
     max_allowed_factor = max(allowed_factors)
     scaled_frames = []
     for frame in frames:

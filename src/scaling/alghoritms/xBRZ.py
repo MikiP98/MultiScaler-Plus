@@ -1,6 +1,6 @@
 # coding=utf-8
 import PIL.Image
-import xbrz  # See xBRZ scaling on Jira
+import xbrz  # See xBRZ scaling on Jira TODO: move this info to more appropriate place
 
 from scaling.utils import ConfigPlus, correct_frame
 from termcolor import colored
@@ -31,10 +31,8 @@ def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> li
     scaled_frames = []
     for frame in frames:
         original_size = frame.size
-        # width, height = frame.size
 
         frame = frame.convert('RGBA')
-        # output_width, output_height = round(width * factor), round(height * factor)
 
         current_scale = 1
         while current_scale < factor:

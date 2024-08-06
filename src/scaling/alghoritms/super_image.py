@@ -18,7 +18,6 @@ def ai_scale(
         pretrained_path: str
 ) -> list[PIL.Image]:
     current_factor = 1
-    # temp_factor = factor
     scaled_frames = frames.copy()
     while current_factor < factor:
         temp_factor = 4
@@ -49,7 +48,7 @@ def ai_scale(
         for scaled_frame, frame in zip(scaled_frames, frames)
     ]
 
-    model = None  # why it this here? Bug fix? Memory cleaning?
+    model = None  # why it this here? Bug fix? Memory cleaning? TODO: check this
     return scaled_frames
 
 

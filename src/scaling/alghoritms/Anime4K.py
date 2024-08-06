@@ -9,12 +9,11 @@ from termcolor import colored
 
 def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
     if factor < 1:
-        print(
-            colored(
-                "WARNING: Anime4K is and AI algorithm, and downscaling with it is just equal to PIL LANCHOS scaling, SKIPPING!",
-                "yellow"
-            )
-        )
+        print(colored(
+            "WARNING: Anime4K is and AI algorithm, and downscaling with it is just equal to PIL LANCHOS scaling, "
+            "SKIPPING!",
+            "yellow"
+        ))
         return []
 
     scaled_frames: list[PIL.Image.Image] = []
@@ -39,7 +38,8 @@ def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> li
 
             np_image = a.save_image_to_numpy()
 
-            a = None  # REQUIRED, DO NOT DELETE! Else raises a GPU error! TODO: Make a GitHub issue
+            a = None  # REQUIRED, DO NOT DELETE! Else raises a GPU error!
+            # Issue #26 https://github.com/TianZerL/pyanime4k/issues/26
 
         new_frame = PIL.Image.fromarray(np_image)
 

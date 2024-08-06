@@ -37,9 +37,6 @@ def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> li
         # Convert PIL image to numpy array
         frame_array = np.array(frame)
 
-        # Get dimensions
-        # height, width = frame_array.shape[:2]
-
         # Create new array for the output image
         new_frame_array = np.zeros((output_height, output_width, frame_array.shape[2]), dtype=frame_array.dtype)
 

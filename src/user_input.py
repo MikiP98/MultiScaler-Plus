@@ -21,7 +21,7 @@ nr = '\x1B[0m'
 
 
 def greetings():
-    print((f"Hello! Welcome to the {rainbowify("MultiScaler+", bold=True)} !\n"
+    print((f"Hello! Welcome to the {rainbowify("MultiScaler+", bold=True)}{nr} !\n"
            "Thanks for using this app :)\n"
            "Using this app you can:\n"
            "1. Scale images using various different algorithms!\n"
@@ -163,6 +163,9 @@ def scale_images():
 
     # CLI test; Test passed :)
     # algorithms = [Algorithms.FSR, Algorithms.CAS]
+    # factors = [2]
+
+    # algorithms = [Algorithms.RealESRGAN]
     # factors = [2]
 
     images, roots, file_names = loader.load_images(load_config)

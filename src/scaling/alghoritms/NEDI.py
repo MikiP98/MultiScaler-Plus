@@ -12,12 +12,7 @@ from scaling.utils import correct_frame_from_cv2
 
 def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
     if factor < 1:
-        print(
-            colored(
-                "ERROR: NEDI does not support downscaling! Cannot perform any fixes! Skipping!",
-                'red'
-            )
-        )
+        print(colored("WARNING: NEDI does not support downscaling! Skipping!", 'yellow'))
         return []
 
     if 'NEDI_m' not in config_plus:
@@ -29,7 +24,7 @@ def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> li
         )
         config_plus['NEDI_m'] = 4
 
-    # If factor is not a whole number or is not a power of 2, print a warning
+    # If factor is not a whole number or is not a power of 2, print a warning TODO: check why this is here
     # if factor != int(factor) or factor > 6:
     #     print(
     #         colored(

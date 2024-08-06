@@ -40,8 +40,6 @@ def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> li
     scaled_frames = []
     for frame in frames:
         original_size = frame.size
-        # width, height = frame.size
-        # output_width, output_height = round(width * temp_factor), round(height * temp_factor)
 
         frame = superxbr.scale(frame, power)
 
