@@ -1,8 +1,9 @@
 # coding=utf-8
-import saving.encoder as encoder
+# import saving.saver as saver
 import subprocess
 import PIL.Image
 
+from FidelityFX_CLI.wrapper import get_virtual_drive_letter
 from scaling.utils import ConfigPlus
 from termcolor import colored
 
@@ -11,9 +12,34 @@ cli_supported_formats = {"BMP", "PNG", "ICO", "JPG", "TIF", "GIF"}
 
 
 # TODO: Create a temporal RAM storage drive to properly support all image formats and the saver
-def fsr_scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
-    # frames_bytes: list[bytes] = encoder.encode_frames(frames, 'PNG')
-    ...
+def fsr_scale(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+    print(f"Virtual drive letter: {get_virtual_drive_letter()}")
+    if factor > 2:
+        print(
+            colored(
+                f"WARNING: Scaling with FSR by factor of {factor} is not supported, result might be blurry!",
+                'yellow'
+            )
+        )
+
+    processed_frames = []
+
+    script_path = './FidelityFX_CLI/FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'
+    options = f"-Scale {factor}x {factor}x -Mode EASU"
+
+    path_prefix = f"{get_virtual_drive_letter()}:\\"
+    for i, frame in enumerate(frames):
+        input_frame = f"{path_prefix}frame_{i}.png"
+        frame.save(input_frame)
+
+        output_frame = f"{path_prefix}frame_{i}_FSR.png"
+
+        command = f"{script_path} {options} {input_frame} {output_frame}"
+        subprocess.run(command)
+
+        processed_frames.append(PIL.Image.open(output_frame))
+
+    return processed_frames
 
     # if config_plus is None:
     #     raise ValueError("config_plus is None! Cannot use CLI controlled algorithms without it!")
