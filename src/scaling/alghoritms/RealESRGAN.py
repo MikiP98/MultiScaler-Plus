@@ -14,9 +14,9 @@ def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> li
     if factor < 1:
         print(
             colored(
-                "RealESRGAN AI does not support downscaling!; "
+                "WARNING: RealESRGAN AI does not support downscaling!; "
                 "Skipping!",
-                'red'
+                'yellow'
             )
         )
         return []
