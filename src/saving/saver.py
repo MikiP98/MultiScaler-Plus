@@ -69,24 +69,27 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
 
     output_path_parts: list[str] = ["..", "output"]
     file_name_prefix: list[str] = []
-    file_name_part: list[str] = [file_name]
+
+    # TODO: benchmark this vs all in the loop
+    if config['sort_by_processing_method']:
+        output_path_parts.append(config['processing_method'].name)
+
+    if config['add_processing_method_to_name']:
+        file_name_prefix.append(config['processing_method'].name)
 
     for filtered_image, factor in zip(image["images"], config['factors']):
-        # TODO: Tweak the order
-        if config['sort_by_factor']:
-            output_path_parts.append(str(factor))
-        if config['sort_by_processing_method']:  # TODO: fix
-            output_path_parts.append(config['processing_method'].name)
+        file_name_part: list[str] = [file_name]
+        final_output_path_parts = output_path_parts.copy()
 
-        if config['add_processing_method_to_name']:
-            file_name_prefix.append(config['processing_method'].name)
+        if config['sort_by_factor']:
+            final_output_path_parts.append(str(factor))
 
         if config['add_factor_to_name']:
             file_name_part.append(str(factor))
 
         new_file_name = "_".join([*file_name_prefix, *file_name_part])
 
-        full_output_path = os.path.join(*output_path_parts, output_path, new_file_name)
+        full_output_path = os.path.join(*final_output_path_parts, output_path, new_file_name)
 
         save_image(
             filtered_image[0],
