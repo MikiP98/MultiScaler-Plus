@@ -1,4 +1,5 @@
 import config
+import json
 import os
 import sys
 
@@ -214,6 +215,62 @@ def get_loader_config() -> dict:
             print("Do you want to save this config as a preset?")
             user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
             save_selected_config = true_false_dict[user_input]
+        except (ValueError, KeyError):
+            print(colored("Invalid input! Please try again.", "red"))
+        else:
+            break
+
+    if save_selected_config:
+        # TODO: Implement saving presets
+        while True:
+            try:
+                print_config(selected_config)
+                print("Do you want to make this preset a new default?")
+                user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
+                make_selected_config_default = true_false_dict[user_input]
+            except (ValueError, KeyError):
+                print(colored("Invalid input! Please try again.", "red"))
+            else:
+                break
+
+        if make_selected_config_default:
+            raise NotImplementedError
+
+    return selected_config
+
+
+saver_options_descriptions = {}
+
+
+def get_saver_config() -> dict:
+    selected_config, default = config.get_saver_config()
+    config_source = "default" if default else "preset"
+
+    while True:
+        try:
+            print()
+            print("Saver config:")
+            print_config(selected_config)
+            print(f"Do you want to use the {config_source} loader config?")
+            user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
+            use_selected_config = true_false_dict[user_input]
+        except (ValueError, KeyError):
+            print(colored("Invalid input! Please try again.", "red"))
+        else:
+            break
+
+    if use_selected_config:
+        return selected_config
+
+    # TODO load user presets and display the choice of using one if present
+    selected_config = create_new_config(selected_config, saver_options_descriptions)
+
+    while True:
+        try:
+            print_config(selected_config)
+            print("Do you want to save this config as a preset?")
+            user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
+            save_selected_config = true_false_dict[user_input]
         except ValueError | KeyError:
             print(colored("Invalid input! Please try again.", "red"))
         else:
@@ -251,7 +308,7 @@ def create_new_config(base_config: dict, options_descriptions: dict) -> dict:
                 if key in options_descriptions:
                     print(f"Description: {options_descriptions[key]}")
 
-                new_value = input("Enter new value (leave empty to skip): ").strip().lower()
+                new_value = input("Enter new value (empty to skip): ").strip().lower()
                 if new_value:
                     new_config[key] = convert(new_value, type(value))
                 else:
@@ -266,4 +323,6 @@ def create_new_config(base_config: dict, options_descriptions: dict) -> dict:
 def convert(value: str, type_: type) -> any:
     if type_ == bool:
         return true_false_dict[value]
+    elif type_ == dict or type_ == list:
+        return json.loads(value.replace("'", '"'))
     return type_(value)

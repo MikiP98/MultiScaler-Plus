@@ -59,7 +59,7 @@ def scale_images():
     # load_config, _ = config.get_loader_config()
     load_config = UI.console.get_loader_config()
     scaler_config, _ = config.get_scaler_config()
-    saver_config, _ = config.get_saver_config()
+    saver_config = UI.console.get_saver_config()
 
     # algorithms = presets.FullDownScalingTest.algorithms  # Test passed :)
     # factors = presets.FullDownScalingTest.scales
@@ -119,9 +119,8 @@ def apply_filters():
 
     print("Applying filters!")
 
-    # load_config, _ = config.get_loader_config()
     load_config = UI.console.get_loader_config()
-    saver_config, _ = config.get_saver_config()
+    saver_config = UI.console.get_saver_config()
 
     # user input start ----------------
     selected_filters_ids = UI.console.get_filters()

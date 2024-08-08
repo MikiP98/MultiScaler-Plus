@@ -53,7 +53,7 @@ def save_image(image: PIL.Image, path: str, config: SimpleConfig) -> None:
                 suffix = "_lossy+." if compression['additional_lossless'] else "_lossy."
 
         for format_name in config['formats']:
-            format_savers[format_name](image_to_save, path + suffix, compression)
+            format_savers[format_name.upper()](image_to_save, path + suffix, compression)
 
     print(colored(f"{path} Fully Saved!", 'light_green'))
 
