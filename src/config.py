@@ -1,7 +1,7 @@
 # coding=utf-8
 
 
-default_configs = {
+_default_configs = {
     "loader": {
         'clear_output_dir': True,
         'copy_mcmeta': True
@@ -56,19 +56,14 @@ default_configs = {
     }
 }
 
-# 'multiprocessing_levels': {},
-# 'max_processes': (2, 2, 2),
-# 'override_processes_count': False,
-# # If True, max_processes will set the Exact number of processes, instead of the Maximum number of them
-
 
 def get_loader_config() -> tuple[dict, bool]:
-    return default_configs["loader"], True
+    return _default_configs["loader"], True
 
 
 def get_saver_config() -> tuple[dict, bool]:
-    return default_configs["saver"], True
+    return _default_configs["saver"], True
 
 
 def get_scaler_config() -> tuple[dict, bool]:
-    return default_configs["scaler"], True
+    return _default_configs["scaler"], True

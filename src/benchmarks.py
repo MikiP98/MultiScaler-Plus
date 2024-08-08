@@ -5,7 +5,6 @@ import numpy as np
 import os
 import queue
 import scaling.scaler_manager as scaler
-import standalone
 # import sys
 import time
 import timeit
@@ -18,11 +17,11 @@ from collections import deque
 from enum import auto, IntEnum, unique
 from functools import lru_cache, partial
 from PIL import Image
-from pympler import asizeof
+from pympler import asizeof  # Outside package
 from typing import Union
-from utils import Algorithms
-from utils import algorithm_to_string_dict
-from utils import string_to_algorithm_dict
+from scaling.scaler_manager import Algorithms
+# from utils import algorithm_to_string_dict
+# from utils import string_to_algorithm_dict
 
 
 def warmup():

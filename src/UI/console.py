@@ -158,3 +158,112 @@ def get_algorithms() -> list[Algorithms]:
         else:
             break
     return selected_algorithms_ids
+
+
+# TODO: Improve indentation and add colours
+def print_config(config: dict) -> None:
+    for key, value in config.items():
+        print(f"{key}: {value}")
+    print()
+
+
+true_false_dict = {
+    "y": True,
+    "yes": True,
+    "t": True,
+    "true": True,
+    "1": True,
+
+    "n": False,
+    "no": False,
+    "f": False,
+    "false": False,
+    "0": False
+}
+
+
+loader_options_descriptions = {}
+
+
+def get_loader_config() -> dict:
+    selected_config, default = config.get_loader_config()
+    config_source = "default" if default else "preset"
+
+    while True:
+        try:
+            print()
+            print("Loader config:")
+            print_config(selected_config)
+            print(f"Do you want to use the {config_source} loader config?")
+            user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
+            use_selected_config = true_false_dict[user_input]
+        except (ValueError, KeyError):
+            print(colored("Invalid input! Please try again.", "red"))
+        else:
+            break
+
+    if use_selected_config:
+        return selected_config
+
+    # TODO load user presets and display the choice of using one if present
+    selected_config = create_new_config(selected_config, loader_options_descriptions)
+
+    while True:
+        try:
+            print_config(selected_config)
+            print("Do you want to save this config as a preset?")
+            user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
+            save_selected_config = true_false_dict[user_input]
+        except ValueError | KeyError:
+            print(colored("Invalid input! Please try again.", "red"))
+        else:
+            break
+
+    if save_selected_config:
+        raise NotImplementedError
+
+    while True:
+        try:
+            print_config(selected_config)
+            print("Do you want to make this config a new default?")
+            user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
+            make_selected_config_default = true_false_dict[user_input]
+        except ValueError | KeyError:
+            print(colored("Invalid input! Please try again.", "red"))
+        else:
+            break
+
+    if make_selected_config_default:
+        raise NotImplementedError
+
+    return selected_config
+
+
+def create_new_config(base_config: dict, options_descriptions: dict) -> dict:
+    new_config = {}
+    for key, value in base_config.items():
+        while True:
+            try:
+                print()
+                print(f"Option: {key}")
+                print(f"Current value: {value}")
+
+                if key in options_descriptions:
+                    print(f"Description: {options_descriptions[key]}")
+
+                new_value = input("Enter new value (leave empty to skip): ").strip().lower()
+                if new_value:
+                    new_config[key] = convert(new_value, type(value))
+                else:
+                    new_config[key] = value
+            except (ValueError, KeyError):
+                print(colored("Invalid input! Please try again.", "red"))
+            else:
+                break
+    return new_config
+
+
+def convert(value: str, type_: type) -> any:
+    if type_ == bool:
+        return true_false_dict[value]
+    return type_(value)

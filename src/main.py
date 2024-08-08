@@ -56,9 +56,10 @@ def scale_images():
 
     print("Scaling images!")
 
+    # load_config, _ = config.get_loader_config()
+    load_config = UI.console.get_loader_config()
     scaler_config, _ = config.get_scaler_config()
-
-    load_config, _ = config.get_loader_config()
+    saver_config, _ = config.get_saver_config()
 
     # algorithms = presets.FullDownScalingTest.algorithms  # Test passed :)
     # factors = presets.FullDownScalingTest.scales
@@ -83,9 +84,12 @@ def scale_images():
     # user input end ----------------
 
     images, roots, file_names = loader.load_images(load_config)
-    print(f"\nLoaded {len(images)} images")
 
-    print("Processing images...\n")
+    print(
+        f"\nApplying {len(algorithms)} algorithm{'s' if len(algorithms) > 1 else ''} "
+        f"to {len(images)} images...\n"
+    )
+
     if Algorithms.FSR in algorithms or Algorithms.CAS in algorithms:
         max_pixel_count = max(sum(frame.size[0] * frame.size[0] for frame in image["images"][0]) for image in images)
         try:
@@ -106,10 +110,7 @@ def scale_images():
             config_plus=scaler_config
         )
 
-    saver_config, _ = config.get_saver_config()
     saver_config["factors"] = factors
-    # saver_config["processing_methods"] = algorithms
-
     saver.save_img_list_multithreaded(scaled_images, roots, file_names, saver_config, algorithms)
 
 
@@ -118,22 +119,22 @@ def apply_filters():
 
     print("Applying filters!")
 
+    # load_config, _ = config.get_loader_config()
+    load_config = UI.console.get_loader_config()
+    saver_config, _ = config.get_saver_config()
+
     # user input start ----------------
     selected_filters_ids = UI.console.get_filters()
     factors = UI.console.get_factors()
     # user input end ----------------
 
-    load_config, default = config.get_loader_config()
     images, roots, file_names = loader.load_images(load_config)
-    # print(f"\nLoaded {len(images)} images")
-    # print("Processing images...\n")
 
-    # No, it can't
     print(
         f"\nApplying {len(selected_filters_ids)} filter{'s' if len(selected_filters_ids) > 1 else ''} "
-        f"to {len(images)} images\n"
+        f"to {len(images)} images...\n"
     )
-    # factors = [0.4]
+
     filtered_images = filter_manager.filter_image_batch(
         selected_filters_ids,
         images,
@@ -141,9 +142,7 @@ def apply_filters():
     )
     print("Filtering is done!\n")
 
-    saver_config, _ = config.get_saver_config()
     saver_config["factors"] = factors
-
     saver.save_img_list_multithreaded(filtered_images, roots, file_names, saver_config, selected_filters_ids)
 
 
