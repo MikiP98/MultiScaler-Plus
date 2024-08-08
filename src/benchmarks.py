@@ -10,9 +10,11 @@ import time
 import timeit
 import utils
 
-from aenum import IntEnum as AIntEnum
-from aenum import auto as aauto
-from aenum import unique as aunique
+from aenum import (
+    IntEnum as AIntEnum,
+    auto as aauto,
+    unique as aunique
+)
 from collections import deque
 from enum import auto, IntEnum, unique
 from functools import lru_cache, partial
@@ -20,8 +22,6 @@ from PIL import Image
 from pympler import asizeof  # Outside package
 from typing import Union
 from scaling.scaler_manager import Algorithms
-# from utils import algorithm_to_string_dict
-# from utils import string_to_algorithm_dict
 
 
 def warmup():
@@ -823,181 +823,181 @@ def endswith_tuple_vs_split_in_set(n=100_000, k=10):
     # ------------------------------------------------------------------------------------------------------------------
 
 
-def single_process_3():
-    config = {
-        'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
-        'sort_by_algorithm': False,
-        'lossless_compression': True,
-        'multiprocessing_levels': {},
-        'override_processes_count': False,
-        'max_processes': (32, 32, 32),
-        'mcmeta_correction': True
-    }
-
-    algorithms = [Algorithms.CV2_INTER_NEAREST]
-    scales = [4, 8, 16, 24, 32, 64, 72, 88]
-
-    standalone.run(algorithms, scales, config)
-
-
-def multi_processed_3():
-    config = {
-        'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
-        'sort_by_algorithm': False,
-        'lossless_compression': True,
-        'multiprocessing_levels': {3},
-        'override_processes_count': False,
-        'max_processes': (32, 32, 32),
-        'mcmeta_correction': True
-    }
-
-    algorithms = [Algorithms.CV2_INTER_NEAREST]
-    scales = [4, 8, 16, 24, 32, 64, 72, 88]
-
-    standalone.run(algorithms, scales, config)
-
-
-def single_vs_multi_3(n=4, k=2):
-    single_time = 0
-    multi_time = 0
-
-    for i in range(k):
-        print(f"Iteration {i + 1}/{k}")
-        single_time += timeit.timeit(lambda: single_process_3(), number=n // k)
-        multi_time += timeit.timeit(lambda: multi_processed_3(), number=n // k)
-    print()
-
-    single_time = round(single_time / k, 4)
-    multi_time = round(multi_time / k, 4)
-
-    print(f"Single time: {single_time}")
-    print(f"Multi time: {multi_time}")
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------- END OF "single_vs_multi_3" ----------------------------------------
-    # ------------------------------------------------------------------------------------------------------------------
-
-
-def single_process_2():
-    config = {
-        'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
-        'sort_by_algorithm': False,
-        'lossless_compression': True,
-        'multiprocessing_levels': {},
-        'override_processes_count': False,
-        'max_processes': (32, 32, 32),
-        'mcmeta_correction': True
-    }
-
-    algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
-                  Algorithms.RealESRGAN, Algorithms.xBRZ]  # , Algorithms.FSR
-    scales = [2, 4, 8]
-
-    standalone.run(algorithms, scales, config)
-
-
-def multi_processed_2():
-    config = {
-        'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
-        'sort_by_algorithm': False,
-        'lossless_compression': True,
-        'multiprocessing_levels': {2},
-        'override_processes_count': False,
-        'max_processes': (32, 32, 32),
-        'mcmeta_correction': True
-    }
-
-    algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
-                  Algorithms.RealESRGAN, Algorithms.xBRZ]  # , Algorithms.FSR
-    scales = [2, 4, 8]
-
-    standalone.run(algorithms, scales, config)
-
-
-def single_vs_multi_2(n=4, k=2):
-    single_time = 0
-    multi_time = 0
-
-    for i in range(k):
-        print(f"Iteration {i + 1}/{k}")
-        single_time += timeit.timeit(lambda: single_process_2(), number=n // k)
-        multi_time += timeit.timeit(lambda: multi_processed_2(), number=n // k)
-    print()
-
-    single_time = round(single_time / k, 4)
-    multi_time = round(multi_time / k, 4)
-
-    print(f"Single time: {single_time}")
-    print(f"Multi time: {multi_time}")
-    # ------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------- END OF "single_vs_multi_2" ----------------------------------------
-    # ------------------------------------------------------------------------------------------------------------------
-
-
-def single_process_2_3():
-    config = {
-        'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
-        'sort_by_algorithm': False,
-        'lossless_compression': True,
-        'multiprocessing_levels': {},
-        'override_processes_count': False,
-        'max_processes': (32, 32, 32),
-        'mcmeta_correction': True
-    }
-
-    algorithms = [Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC]
-    scales = [2, 4, 32, 64]
-
-    standalone.run(algorithms, scales, config)
-
-
-def multi_processed_2_3():
-    config = {
-        'clear_output_directory': True,
-        'add_algorithm_name_to_output_files_names': True,
-        'add_factor_to_output_files_names': True,
-        'sort_by_algorithm': False,
-        'lossless_compression': True,
-        'multiprocessing_levels': {2, 3},
-        'override_processes_count': False,
-        'max_processes': (32, 32, 32),
-        'mcmeta_correction': True
-    }
-
-    algorithms = [Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC]
-    scales = [2, 4, 32, 64]
-
-    standalone.run(algorithms, scales, config)
-
-
-def single_vs_multi_2_3(n=2, k=2):
-    single_time = 0
-    multi_time = 0
-
-    for i in range(k):
-        print(f"Iteration {i + 1}/{k}")
-        single_time += timeit.timeit(lambda: single_process_2_3(), number=n // k)
-        multi_time += timeit.timeit(lambda: multi_processed_2_3(), number=n // k)
-    print()
-
-    single_time = round(single_time / k, 4)
-    multi_time = round(multi_time / k, 4)
-
-    print(f"Single time: {single_time}")
-    print(f"Multi time: {multi_time}")
-    # ------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------- END OF "single_vs_multi_2_3" ----------------------------------------
-    # ------------------------------------------------------------------------------------------------------------------
+# def single_process_3():
+#     config = {
+#         'clear_output_directory': True,
+#         'add_algorithm_name_to_output_files_names': True,
+#         'add_factor_to_output_files_names': True,
+#         'sort_by_algorithm': False,
+#         'lossless_compression': True,
+#         'multiprocessing_levels': {},
+#         'override_processes_count': False,
+#         'max_processes': (32, 32, 32),
+#         'mcmeta_correction': True
+#     }
+#
+#     algorithms = [Algorithms.CV2_INTER_NEAREST]
+#     scales = [4, 8, 16, 24, 32, 64, 72, 88]
+#
+#     standalone.run(algorithms, scales, config)
+#
+#
+# def multi_processed_3():
+#     config = {
+#         'clear_output_directory': True,
+#         'add_algorithm_name_to_output_files_names': True,
+#         'add_factor_to_output_files_names': True,
+#         'sort_by_algorithm': False,
+#         'lossless_compression': True,
+#         'multiprocessing_levels': {3},
+#         'override_processes_count': False,
+#         'max_processes': (32, 32, 32),
+#         'mcmeta_correction': True
+#     }
+#
+#     algorithms = [Algorithms.CV2_INTER_NEAREST]
+#     scales = [4, 8, 16, 24, 32, 64, 72, 88]
+#
+#     standalone.run(algorithms, scales, config)
+#
+#
+# def single_vs_multi_3(n=4, k=2):
+#     single_time = 0
+#     multi_time = 0
+#
+#     for i in range(k):
+#         print(f"Iteration {i + 1}/{k}")
+#         single_time += timeit.timeit(lambda: single_process_3(), number=n // k)
+#         multi_time += timeit.timeit(lambda: multi_processed_3(), number=n // k)
+#     print()
+#
+#     single_time = round(single_time / k, 4)
+#     multi_time = round(multi_time / k, 4)
+#
+#     print(f"Single time: {single_time}")
+#     print(f"Multi time: {multi_time}")
+#
+#     # ------------------------------------------------------------------------------------------------------------------
+#     # ---------------------------------------- END OF "single_vs_multi_3" ----------------------------------------
+#     # ------------------------------------------------------------------------------------------------------------------
+#
+#
+# def single_process_2():
+#     config = {
+#         'clear_output_directory': True,
+#         'add_algorithm_name_to_output_files_names': True,
+#         'add_factor_to_output_files_names': True,
+#         'sort_by_algorithm': False,
+#         'lossless_compression': True,
+#         'multiprocessing_levels': {},
+#         'override_processes_count': False,
+#         'max_processes': (32, 32, 32),
+#         'mcmeta_correction': True
+#     }
+#
+#     algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
+#                   Algorithms.RealESRGAN, Algorithms.xBRZ]  # , Algorithms.FSR
+#     scales = [2, 4, 8]
+#
+#     standalone.run(algorithms, scales, config)
+#
+#
+# def multi_processed_2():
+#     config = {
+#         'clear_output_directory': True,
+#         'add_algorithm_name_to_output_files_names': True,
+#         'add_factor_to_output_files_names': True,
+#         'sort_by_algorithm': False,
+#         'lossless_compression': True,
+#         'multiprocessing_levels': {2},
+#         'override_processes_count': False,
+#         'max_processes': (32, 32, 32),
+#         'mcmeta_correction': True
+#     }
+#
+#     algorithms = [Algorithms.CV2_INTER_NEAREST, Algorithms.CV2_ESPCN, Algorithms.PIL_NEAREST_NEIGHBOR,
+#                   Algorithms.RealESRGAN, Algorithms.xBRZ]  # , Algorithms.FSR
+#     scales = [2, 4, 8]
+#
+#     standalone.run(algorithms, scales, config)
+#
+#
+# def single_vs_multi_2(n=4, k=2):
+#     single_time = 0
+#     multi_time = 0
+#
+#     for i in range(k):
+#         print(f"Iteration {i + 1}/{k}")
+#         single_time += timeit.timeit(lambda: single_process_2(), number=n // k)
+#         multi_time += timeit.timeit(lambda: multi_processed_2(), number=n // k)
+#     print()
+#
+#     single_time = round(single_time / k, 4)
+#     multi_time = round(multi_time / k, 4)
+#
+#     print(f"Single time: {single_time}")
+#     print(f"Multi time: {multi_time}")
+#     # ------------------------------------------------------------------------------------------------------------------
+#     # ---------------------------------------- END OF "single_vs_multi_2" ----------------------------------------
+#     # ------------------------------------------------------------------------------------------------------------------
+#
+#
+# def single_process_2_3():
+#     config = {
+#         'clear_output_directory': True,
+#         'add_algorithm_name_to_output_files_names': True,
+#         'add_factor_to_output_files_names': True,
+#         'sort_by_algorithm': False,
+#         'lossless_compression': True,
+#         'multiprocessing_levels': {},
+#         'override_processes_count': False,
+#         'max_processes': (32, 32, 32),
+#         'mcmeta_correction': True
+#     }
+#
+#     algorithms = [Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC]
+#     scales = [2, 4, 32, 64]
+#
+#     standalone.run(algorithms, scales, config)
+#
+#
+# def multi_processed_2_3():
+#     config = {
+#         'clear_output_directory': True,
+#         'add_algorithm_name_to_output_files_names': True,
+#         'add_factor_to_output_files_names': True,
+#         'sort_by_algorithm': False,
+#         'lossless_compression': True,
+#         'multiprocessing_levels': {2, 3},
+#         'override_processes_count': False,
+#         'max_processes': (32, 32, 32),
+#         'mcmeta_correction': True
+#     }
+#
+#     algorithms = [Algorithms.CV2_INTER_LANCZOS4, Algorithms.CV2_INTER_LINEAR, Algorithms.CV2_INTER_CUBIC]
+#     scales = [2, 4, 32, 64]
+#
+#     standalone.run(algorithms, scales, config)
+#
+#
+# def single_vs_multi_2_3(n=2, k=2):
+#     single_time = 0
+#     multi_time = 0
+#
+#     for i in range(k):
+#         print(f"Iteration {i + 1}/{k}")
+#         single_time += timeit.timeit(lambda: single_process_2_3(), number=n // k)
+#         multi_time += timeit.timeit(lambda: multi_processed_2_3(), number=n // k)
+#     print()
+#
+#     single_time = round(single_time / k, 4)
+#     multi_time = round(multi_time / k, 4)
+#
+#     print(f"Single time: {single_time}")
+#     print(f"Multi time: {multi_time}")
+#     # ------------------------------------------------------------------------------------------------------------------
+#     # ---------------------------------------- END OF "single_vs_multi_2_3" ----------------------------------------
+#     # ------------------------------------------------------------------------------------------------------------------
 
 
 def list_alike_test(n=1_000_000, k=10):
@@ -2075,6 +2075,7 @@ def vector(image_data, factor):
         scaling_vector = np.array([factor, factor, 1])
     new_image_data = new_image_data * scaling_vector + 128
     return new_image_data
+
 
 def vector_test(n=2_000, k=10):
     image = Image.open("example_images/input/example_shell_40px.png").convert("RGBA")
