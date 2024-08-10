@@ -177,6 +177,8 @@ A summary of best and most unique results of up-scaling the image *(40px -> 160p
 
 ## Performance:
 
+[//]: # (TODO: Rerun the benchmarks with the new version of the app + add a version with no additional lossless compression)
+
 File size and time needed to save the image using different formats with lossless+ compression.  
 Tested on the [xBRZ Retexture v1.2 64x](https://modrinth.com/resourcepack/xbrz-retexture/version/1.2) Minecraft resourcepack + example shell:
 
@@ -200,7 +202,19 @@ Different test on random collection of smaller files:
 
 <sup>*AVIF does not have transparency for some unknown reason</sup>
 
-[//]: # (TODO: Add AI speed up guide -> pytorch cuda install)
+### How to speed up AI algorithms:
+
+By default `pytorch`, library used by most AI algorithms, installs without GPU acceleration.  
+It is that way because it required <300 MB to download and install, while the GPU version requires almost 2 GB to download.  
+To get the GPU accelerated version, first please run the following command to uninstall current pytorch version:
+```bash
+pip uninstall torch torchvision torchaudio
+```
+After that you need to reinstall pytorch with GPU support, to find the correct command for your system, please visit the [pytorch website](https://pytorch.org/get-started/locally/) and select the correct options.  
+*Example command for Windows with CUDA 12.4 with stable torch release 2.4.0:*
+```bash
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+```
 
 [//]: # (<br/>)
 
