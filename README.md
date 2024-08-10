@@ -216,8 +216,6 @@ After that you need to reinstall pytorch with GPU support, to find the correct c
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 ```
 
-[//]: # (<br/>)
-
 ## Roadmap:
 
 - Rewrite and update the **WebUI** *(in progress...)*
@@ -254,7 +252,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
   - ~~Normal map strength~~
 - Add basic **cropping** and **rotating** support
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
-- Make my own scaling algorithm or AI for fun :)
+- Make my own scaling algorithm or AI for fun :) <sup>*(HSDBTRE deos not count)*</sup>
 - Add an option to blend all algorithms together instead of saving them separately
 - Add some conversions:
   - Old SEUS to labPBR 1.3
@@ -267,6 +265,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 - Add image merger: multiple images into one stacked or animated image
 - ~~Add big 160px example shell image to example images~~
 - Librarify this app...
+- Add a markdown page(s) with detailed algorithms descriptions
 
 <br/>
 
