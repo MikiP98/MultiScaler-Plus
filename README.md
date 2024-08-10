@@ -200,6 +200,8 @@ Different test on random collection of smaller files:
 
 <sup>*AVIF does not have transparency for some unknown reason</sup>
 
+[//]: # (TODO: Add AI speed up guide -> pytorch cuda install)
+
 [//]: # (<br/>)
 
 ## Roadmap:
