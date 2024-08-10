@@ -1,3 +1,4 @@
+# Set execution policy
 Set-ExecutionPolicy unrestricted -Scope Process
 
 # Download ImDisk installer
