@@ -62,11 +62,12 @@ If feature you are interested in is not in either branch's roadmap, feel free to
 
 ## Usage:
 - **Command line tool**:
-  - Run the included `run_console.bat` script
-  - Run the python script manually: `python src/standalone.py`
+  - Run the included `run_console.ps1` script
+    - Right-click on the script and select `Run with PowerShell`
+  - Or run the python script manually: `python src/main.py`
     - You can also pass arguments to the script. Add `--help` to see the list of available arguments
-- **Web GUI** *(currently lacks some functionality)*:
-  - Run the included `run_webui.bat` script
+- **Web GUI** *(will be back soon!)*:
+  - ~~Run the included `run_webui.bat` script~~
 
 <br/>
 
