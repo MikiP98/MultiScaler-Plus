@@ -1,11 +1,14 @@
 # coding=utf-8
 import io
 import PIL.Image
+import saving.utils as utils
 
 from saving.utils import Compression, apply_lossless_compression
 
 
-def save(image: PIL.Image, path: str, compression: Compression):
+def save(image: PIL.Image, path: str, compression: Compression, sort_by_file_extension: bool) -> None:
+    path = utils.sort_by_file_extension(path, sort_by_file_extension, "WEBP")
+
     file_path = path + "webp"
     if compression['lossless']:
         if not compression['additional_lossless']:

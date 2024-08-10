@@ -30,12 +30,6 @@ format_savers = {
 def save_image(image: PIL.Image, path: str, config: SimpleConfig) -> None:
     print(path)
 
-    if not os.path.exists(os.path.dirname(path)):  # TODO: move this check higher
-        try:
-            os.makedirs(os.path.dirname(path))
-        except OSError:
-            pass  # Path created by another thread
-
     if any([compression['additional_lossless'] for compression in config['compressions']]):  # TODO: benchmark this
         additional_lossless_image = image.convert("RGB") if not utils.uses_transparency(image) else image
 
@@ -53,7 +47,7 @@ def save_image(image: PIL.Image, path: str, config: SimpleConfig) -> None:
                 suffix = "_lossy+." if compression['additional_lossless'] else "_lossy."
 
         for format_name in config['formats']:
-            format_savers[format_name.upper()](image_to_save, path + suffix, compression)
+            format_savers[format_name.upper()](image_to_save, path + suffix, compression, config['sort_by_file_extension'])
 
     print(colored(f"{path} Fully Saved!", 'light_green'))
 
@@ -80,6 +74,9 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
     for filtered_image, factor in zip(image["images"], config['factors']):
         file_name_part: list[str] = [file_name]
         final_output_path_parts = output_path_parts.copy()
+
+        if config['sort_by_image']:
+            final_output_path_parts.append(file_name)
 
         if config['sort_by_factor']:
             final_output_path_parts.append(str(factor))

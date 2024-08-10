@@ -1,5 +1,6 @@
 # coding=utf-8
 import io
+import os
 import PIL.Image
 import utils
 
@@ -17,6 +18,7 @@ class SimpleConfig(TypedDict):
     formats: list[str]
     compressions: list[Compression]
     add_compression_to_name: bool  # TODO: Add auto option
+    sort_by_file_extension: bool  # TODO: Implement this
 
 
 class AdvancedConfig(TypedDict):
@@ -26,15 +28,15 @@ class AdvancedConfig(TypedDict):
     sort_by_factor: bool
 
     # A.K.A. algorithm or filter
-    add_processing_method_to_name: bool  # TODO: Implement this
-    sort_by_processing_method: bool  # TODO: Implement this
+    add_processing_method_to_name: bool
+    sort_by_processing_method: bool
 
-    sort_by_image: bool  # TODO: Implement this
+    sort_by_image: bool
     sort_by_file_extension: int  # -1 - auto, 0 - no, 1 - yes TODO: Implement this
     # TODO: Add more auto options
 
     factors: Optional[list[float]]
-    processing_method: Optional[IntEnum]  # TODO: Implement this
+    processing_method: Optional[IntEnum]
 
 
 def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:
@@ -72,3 +74,18 @@ def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:
                 # print("Saving palette")
 
     return img_byte_arr.getvalue()
+
+
+def sort_by_file_extension(path: str, sort_by_file_extension: bool, extension: str) -> str:
+    if sort_by_file_extension:
+        path_parts = path.split(os.path.sep)
+        path_parts.insert(2, extension)
+        path = os.path.sep.join(path_parts)  # TODO: benchmark this vs os.path.join(*path_parts)
+
+    if not os.path.exists(os.path.dirname(path)):
+        try:
+            os.makedirs(os.path.dirname(path))
+        except OSError:
+            pass  # Path created by another thread
+
+    return path

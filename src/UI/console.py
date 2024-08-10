@@ -5,8 +5,11 @@ import sys
 
 from filtering import filter_manager
 from functools import lru_cache
-from scaling.utils import Algorithms
+from loader import LoaderConfig
+from scaling.utils import Algorithms, ConfigPlus as ScalerConfig
+from saving.utils import AdvancedConfig as SaverConfig
 from termcolor import colored
+from typing import Callable
 from utils import rainbowify
 
 it = '\x1B[3m'
@@ -186,16 +189,38 @@ true_false_dict = {
 loader_options_descriptions = {}
 
 
-def get_loader_config() -> dict:
-    selected_config, default = config.get_loader_config()
+def get_loader_config() -> LoaderConfig:
+    return get_config("loader", config.get_loader_config, loader_options_descriptions)
+
+
+saver_options_descriptions = {}
+
+
+def get_saver_config() -> SaverConfig:
+    return get_config("saver", config.get_saver_config, saver_options_descriptions)
+
+
+scaler_options_descriptions = {}
+
+
+def get_scaler_config() -> ScalerConfig:
+    return get_config("scaler", config.get_scaler_config, scaler_options_descriptions)
+
+
+def get_config(
+        name: str,
+        get_config_function: Callable[[], tuple[ScalerConfig | SaverConfig | LoaderConfig, bool]],
+        config_options_descriptions: dict
+) -> ScalerConfig | SaverConfig | LoaderConfig:
+    selected_config, default = get_config_function()
     config_source = "default" if default else "preset"
 
     while True:
         try:
             print()
-            print("Loader config:")
+            print(f"{name.capitalize()} config:")
             print_config(selected_config)
-            print(f"Do you want to use the {config_source} loader config?")
+            print(f"Do you want to use the {config_source} {name} config?")
             user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
             use_selected_config = true_false_dict[user_input]
         except (ValueError, KeyError):
@@ -207,7 +232,7 @@ def get_loader_config() -> dict:
         return selected_config
 
     # TODO load user presets and display the choice of using one if present
-    selected_config = create_new_config(selected_config, loader_options_descriptions)
+    selected_config = create_new_config(selected_config, config_options_descriptions)
 
     while True:
         try:
@@ -221,11 +246,12 @@ def get_loader_config() -> dict:
             break
 
     if save_selected_config:
-        # TODO: Implement saving presets
+        # TODO load user presets and display the choice of using one if present
+
         while True:
             try:
                 print_config(selected_config)
-                print("Do you want to make this preset a new default?")
+                print("Do you want to make this config a new default?")
                 user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
                 make_selected_config_default = true_false_dict[user_input]
             except (ValueError, KeyError):
@@ -235,63 +261,6 @@ def get_loader_config() -> dict:
 
         if make_selected_config_default:
             raise NotImplementedError
-
-    return selected_config
-
-
-saver_options_descriptions = {}
-
-
-def get_saver_config() -> dict:
-    selected_config, default = config.get_saver_config()
-    config_source = "default" if default else "preset"
-
-    while True:
-        try:
-            print()
-            print("Saver config:")
-            print_config(selected_config)
-            print(f"Do you want to use the {config_source} loader config?")
-            user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
-            use_selected_config = true_false_dict[user_input]
-        except (ValueError, KeyError):
-            print(colored("Invalid input! Please try again.", "red"))
-        else:
-            break
-
-    if use_selected_config:
-        return selected_config
-
-    # TODO load user presets and display the choice of using one if present
-    selected_config = create_new_config(selected_config, saver_options_descriptions)
-
-    while True:
-        try:
-            print_config(selected_config)
-            print("Do you want to save this config as a preset?")
-            user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
-            save_selected_config = true_false_dict[user_input]
-        except ValueError | KeyError:
-            print(colored("Invalid input! Please try again.", "red"))
-        else:
-            break
-
-    if save_selected_config:
-        raise NotImplementedError
-
-    while True:
-        try:
-            print_config(selected_config)
-            print("Do you want to make this config a new default?")
-            user_input = input(colored(f"{it}Enter your choice (y/n): ", "light_grey")).strip().lower()
-            make_selected_config_default = true_false_dict[user_input]
-        except ValueError | KeyError:
-            print(colored("Invalid input! Please try again.", "red"))
-        else:
-            break
-
-    if make_selected_config_default:
-        raise NotImplementedError
 
     return selected_config
 

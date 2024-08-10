@@ -16,7 +16,8 @@ _default_configs = {
                     "quality": 95
                 }
             ],
-            "add_compression_to_name": False
+            "add_compression_to_name": False,
+            "sort_by_file_extension": False
         },
 
         "add_factor_to_name": True,
@@ -27,11 +28,12 @@ _default_configs = {
         "sort_by_processing_method": False,
 
         "sort_by_image": False,
+
         "sort_by_file_extension": -1,  # -1 - auto, 0 - no, 1 - yes
         # TODO: Add more auto options
 
         "factors": None,
-        "processing_methods": None
+        "processing_method": None
     },
     "scaler": {
         "high_quality_scale_back": True,

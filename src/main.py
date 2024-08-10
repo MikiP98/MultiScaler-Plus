@@ -56,9 +56,8 @@ def scale_images():
 
     print("Scaling images!")
 
-    # load_config, _ = config.get_loader_config()
     load_config = UI.console.get_loader_config()
-    scaler_config, _ = config.get_scaler_config()
+    scaler_config = UI.console.get_scaler_config()
     saver_config = UI.console.get_saver_config()
 
     # algorithms = presets.FullDownScalingTest.algorithms  # Test passed :)
