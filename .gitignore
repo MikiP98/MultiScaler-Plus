@@ -7,13 +7,8 @@ input/**
 !input/example_shell_40px.png
 output
 
-#src/SUPIR
-#src/SUPIR/*
-#src/SUPIR/**
-
-#src/MultiScaler-Plus_Web_Server
-#src/MultiScaler-Plus_Web_Server/*
-#src/MultiScaler-Plus_Web_Server/**
+# Why this exeption is needed?
+!src/example_images/output
 
 src/web_temp_input
 src/web_temp_input/*
