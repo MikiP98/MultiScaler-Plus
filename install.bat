@@ -1,5 +1,7 @@
 @cd src
 
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe .\install_vs_buildtools.ps1
+
 pip install -r requirements.txt
 pip install -r requirements.txt
 
