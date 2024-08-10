@@ -55,7 +55,7 @@ If feature you are interested in is not in either branch's roadmap, feel free to
 ## Installation:
 1. Make sure you have installed on your system:
    - **[Python](https://www.python.org/downloads/) 3.12** <sup>(minor version does not matter)</sup>
-   - [**Node.js**](https://nodejs.org/en/download/prebuilt-installer) *(16.0.0 or newer)*
+   - **[*OPTIONAL*] [Node.js](https://nodejs.org/en/download/prebuilt-installer)** *(16.0.0 or newer)*
    - **[*OPTIONAL*] [Docker](https://docs.docker.com/get-docker/)** *(for **Waifu2x** & **Supir**)*
 2. Clone this repository `git clone "https://github.com/MikiP98/MultiScaler-Plus"`
 3. Run the included `install.bat` script
