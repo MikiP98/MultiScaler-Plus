@@ -21,6 +21,7 @@ option_names = [
     "Apply filters to images",
     "Compress images",
     "Convert images",
+    "Repeat the process",
     "Exit"
 ]
 
@@ -154,12 +155,18 @@ def convert_images():
     raise OptionNotImplementedError
 
 
+def repeat():
+    print("Repeating the process!")
+    raise OptionNotImplementedError
+
+
 options = {
     "1": scale_images,
     "2": apply_filters,
     "3": compress_images,
     "4": convert_images,
-    "5": UI.console.goodbye  # exit with a goodbye message
+    "5": repeat,
+    "6": UI.console.goodbye  # exit with a goodbye message
 }
 
 if __name__ == "__main__":
