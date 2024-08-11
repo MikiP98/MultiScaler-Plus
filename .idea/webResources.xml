@@ -11,6 +11,7 @@
             <path value="file://$PROJECT_DIR$/src/prebuild_wheels" />
             <path value="file://$PROJECT_DIR$/src/quality_comparison" />
             <path value="file://$PROJECT_DIR$/src/weights" />
+            <path value="file://$PROJECT_DIR$/src/algorithm_descriptions" />
           </resourceRoots>
         </entryData>
       </entry>

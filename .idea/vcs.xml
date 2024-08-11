@@ -2,8 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/src/scaling/Edge_Directed_Interpolation" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/src/GUI/MultiScaler-Plus_Web_Server" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/docker/SUPIR" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/scaling/Edge_Directed_Interpolation" vcs="Git" />
   </component>
 </project>

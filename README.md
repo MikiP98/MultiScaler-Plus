@@ -50,6 +50,8 @@ If feature you are interested in is not in either branch's roadmap, feel free to
   - **FSR** *(FidelityFX Super Resolution 1.1, made by AMD)*
   - **CAS** *(Contrast Adaptive Sharpening, made by AMD)*
 
+### [More detailed algorithms descriptions](./src/algorithm_descriptions/README.md)
+
 <br/>
 
 ## Installation:
@@ -224,8 +226,8 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
   - Add lambda GPU *(or other)* connection support for **Supir** and others
 - **Fix** and **improve** standalone console application experience:
   - Smarter Algorithms print with descriptions and categories
-  - Smarter config editing with descriptions and incorrect input handling
-  - Saving user config settings *(multiple **profiles**?)*
+  - Smarter config editing with descriptions ~~and incorrect input handling~~
+  - Saving user config settings *(multiple **presets**)*
   - *(add console **buttons**?)*
 - Add support for **stacked** and **animated** images
 - Add **image tracing** scaling algorithm and support for **SVG** format
@@ -250,6 +252,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
   - Saturation
   - Brightness
   - Exposure
+  - Motion blur *(for animated and stacked images)* *(temporal data and optical flow)*
   - ~~Normal map strength~~
 - Add basic **cropping** and **rotating** support
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
@@ -280,9 +283,9 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 - [**xBRZ**](https://github.com/ioistired/xbrz.py) implementation by [ioistired](https://github.com/ioistired)
 - [**Super xBR**](https://github.com/MikiP98/py-super-xbr) implementation originally created by [Matt Schwartz (n0spaces)](https://github.com/n0spaces) corrected by [Mikołaj Pokora](https://github.com/MikiP98)
 - [**FSR**](https://gpuopen.com/fidelityfx-superresolution/) and [**CAS**](https://gpuopen.com/fidelityfx-cas/) are implemented using [FidelityFX-CLI](https://github.com/GPUOpen-Effects/FidelityFX-CLI) by [GPUOpen-Effects](https://github.com/GPUOpen-Effects) and [AMD](https://www.amd.com/) <sup>*(licence in "src/FidelityFX-CLI-v1.0.3")*</sup>
-- ***Area***, ***Bicubic***, ***Bilinear***, ***Lanchos*** and ***Nearest neighbor*** algorithms are implemented using [OpenCV](https://opencv.org)
+- ***Nearest neighbor***, ***Bilinear***, ***Bicubic*** and ***Lanchos*** algorithms are implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
+- ***Area*** as well as ***Bicubic***, ***Bilinear***, ***Lanchos*** and ***Nearest neighbor*** algorithms are implemented using [OpenCV](https://opencv.org)
 - ***EDSR***, ***ESPCN***, ***FSRCNN***, ***FSRCNN-small***, ***LapSRN*** AI algorithms are also implemented using [OpenCV](https://opencv.org)
-- ***Nearest neighbor***, ***Bilinear***, ***Bicubic*** and ***Lanchos*** algorithms are also implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
 - ***A2N***, ***AWSRN-BAM***, ***CARN***, ***CARN-BAM***, ***DRLN***, ***DRLN-BAM***, ***EDSR***, ***EDSR-base***, ***HAN***, ***MDSR***, *...gasssp...*  
   ***MDSR-BAM***, ***MSRN***, ***MSRN-BAM***, ***PAN***, ***PAN-BAM***, ***RCAN-BAM*** AI algorithms are implemented using:  
   [super-image](https://pypi.org/project/super-image/) by [eugenesiow (Eugene Siow)](https://pypi.org/user/eugenesiow/) and [Freed Wu](https://pypi.org/user/Freed-Wu/)
@@ -291,15 +294,19 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 - [**JPEG XL PIL plugin**](https://pypi.org/project/pillow-jxl-plugin/) by [Isotr0py](https://pypi.org/user/Isotr0py/)
 - **Example Shell** image: 
   - [Green Sea Shell 160 thumbnail](https://commons.wikimedia.org/wiki/File:160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) by James Petts / shaddim and 
-  - [Green Sea Shell 40 thumbnail](https://commons.wikimedia.org/wiki/File:40_by_40_thumbnail_of_%27Green_Sea_Shell%27.png) by James Petts, 
-  - under: [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5), via Wikimedia Commons
+  - [Green Sea Shell 40 thumbnail](https://commons.wikimedia.org/wiki/File:40_by_40_thumbnail_of_%27Green_Sea_Shell%27.png) by James Petts  
+  Under: [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5), via Wikimedia Commons
 
-<sup>
+[//]: # (<sup>)
 
-- **Download** icon: <a href="https://www.flaticon.com/free-icons/install" title="install icons">Install icons created by NajmunNahar - Flaticon</a>
+[//]: # ()
+[//]: # (- **Download** icon: <a href="https://www.flaticon.com/free-icons/install" title="install icons">Install icons created by NajmunNahar - Flaticon</a>)
 
-- **Web GUI** icon: <a href="https://www.flaticon.com/free-icons/interface" title="interface icons">Interface icons created by Freepik - Flaticon</a>
+[//]: # ()
+[//]: # (- **Web GUI** icon: <a href="https://www.flaticon.com/free-icons/interface" title="interface icons">Interface icons created by Freepik - Flaticon</a>)
 
-- **Console** icon: <a target="_blank" href="https://icons8.com/icon/nRH1nzeThlgk/console">Console</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+[//]: # ()
+[//]: # (- **Console** icon: <a target="_blank" href="https://icons8.com/icon/nRH1nzeThlgk/console">Console</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>)
 
-</sup>
+[//]: # ()
+[//]: # (</sup>)
