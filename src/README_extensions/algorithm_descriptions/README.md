@@ -7,9 +7,9 @@
 ### Simple algorithms that use more or less basic interpolation techniques
 
 - [Area Average](./classic/area_average.md)
-- [Bilinear](./classic/bilinear.md)
-- [Bicubic](./classic/bicubic.md)
-- [Lanczos](./classic/lanczos.md)
+- \[Bilinear](./classic/bilinear.md)
+- \[Bicubic](./classic/bicubic.md)
+- \[Lanczos](./classic/lanczos.md)
 - [Nearest Neighbour](./classic/nearest_neighbour.md)
 - 
 

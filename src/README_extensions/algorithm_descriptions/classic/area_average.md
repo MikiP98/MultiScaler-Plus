@@ -11,12 +11,18 @@ Area Average is a simple algorithm that calculates the average color of the pixe
 
 ## Images:
 
-Test pattern images (d) + shell (ud) + pixel art (ud)  
-In:
+Downscale test pattern image:
+- Original
+- Results of x0.25:
+  - Theoretical perfect
+  - Nearest Neighbour
+  - Area Average
+  - PIL Lanczos
+
+Wiki Shell (ud) + pixel art (ud)
 - Original
 - Nearest Neighbour
 - Area Average
-- Bilinear
 - PIL Lanczos
 - ...
 
