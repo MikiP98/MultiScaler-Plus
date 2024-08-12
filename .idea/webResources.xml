@@ -9,9 +9,8 @@
             <path value="file://$PROJECT_DIR$/src/example_images" />
             <path value="file://$PROJECT_DIR$/src/icons" />
             <path value="file://$PROJECT_DIR$/src/prebuild_wheels" />
-            <path value="file://$PROJECT_DIR$/src/quality_comparison" />
             <path value="file://$PROJECT_DIR$/src/weights" />
-            <path value="file://$PROJECT_DIR$/src/algorithm_descriptions" />
+            <path value="file://$PROJECT_DIR$/src/README_extensions" />
           </resourceRoots>
         </entryData>
       </entry>

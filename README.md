@@ -13,11 +13,11 @@ If feature you are interested in is not in either branch's roadmap, feel free to
 
 ## Supported algorithms
 - **Classical Algorithms** <sup>(Up-scaling and downscaling)</sup>:
+  - **Area** *(Averages pixels into smaller ones)* *<sup>(Only down-scaling)</sup>*
   - **Bicubic** *(Better than bilinear, less blur, more detail, higher contrast)*
   - **Bilinear** *(Second-simplest algorithm, most common and most blurry)*
-  - **Nearest neighbor** *(Simplest algorithm, duplicates or keeps only the nearest pixel)*
-  - **Area** *(Averages pixels into smaller ones)* *<sup>(Only down-scaling)</sup>*
   - **Lanczos** *(Better than bicubic, less blur, higher contrast)*
+  - **Nearest neighbor** *(Simplest algorithm, duplicates or keeps only the nearest pixel)*
 - **AI-based Algorithms** <sup>(Only up-scaling)</sup>:
   - **A2N**
   - **AWSRN-BAM**
@@ -50,7 +50,7 @@ If feature you are interested in is not in either branch's roadmap, feel free to
   - **FSR** *(FidelityFX Super Resolution 1.1, made by AMD)*
   - **CAS** *(Contrast Adaptive Sharpening, made by AMD)*
 
-### [More detailed algorithms descriptions](./src/algorithm_descriptions/README.md)
+### [More detailed algorithms descriptions](src/README_extensions/algorithm_descriptions/README.md)
 
 <br/>
 
@@ -95,7 +95,7 @@ A summary of best and most unique results of up-scaling the image *(40px -> 160p
 |:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------:|
 | ![NEDI](src/example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.webp) | ![Super xBR](src/example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.webp) | ![xBRZ](src/example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp) | ![FSR](src/example_images/output/example_shell_40px/example_shell_40px_FSR.webp) |
 
-### [More detailed comparisons](./src/quality_comparison/README.md)
+### [More detailed comparisons](src/README_extensions/quality_comparison/README.md)
 
 <br/>
 

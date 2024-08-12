@@ -1,13 +1,17 @@
 # Detailed Algorithm Descriptions
 
-[Back to main README](../../README.md)
+[Back to main README](../../../README.md)
 
 ## Classic Algorithms
 
 ### Simple algorithms that use more or less basic interpolation techniques
 
-- TODO
-- ...
+- [Area Average](./classic/area_average.md)
+- [Bilinear](./classic/bilinear.md)
+- [Bicubic](./classic/bicubic.md)
+- [Lanczos](./classic/lanczos.md)
+- [Nearest Neighbour](./classic/nearest_neighbour.md)
+- 
 
 ## Smart Algorithms
 
@@ -32,4 +36,4 @@
 
 <br>
 
-### [Back to main README](../../README.md)
+### [Back to main README](../../../README.md)
