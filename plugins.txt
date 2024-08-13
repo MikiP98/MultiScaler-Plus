@@ -1,0 +1,7 @@
+# This is a file for plugins
+# Every plugin pasted here will be loaded on startup of the application
+# Every plugin should be on a new line
+# If the python package of the plugin does not match the name of the plugin, use the following format:
+# package_name | package_import
+# Example:
+# py_plugin_example | PluginExample

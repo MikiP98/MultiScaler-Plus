@@ -2,6 +2,7 @@
 # File for user input functions
 
 import loader
+import plugin_manager
 # import presets
 import saving.saver as saver
 import UI.console
@@ -15,12 +16,14 @@ it = '\x1B[3m'
 nr = '\x1B[0m'
 # b = '\x1B[1m'
 
+# TODO: Make this an enum
 option_names = [
     "Scale images",
     "Apply filters to images",
     "Compress images",
     "Convert images",
     "Repeat the process",
+    "Install plugins",
     "Exit"
 ]
 
@@ -31,6 +34,11 @@ class OptionNotImplementedError(NotImplementedError):
 
 def main():
     UI.console.greetings()
+
+    plugin_manager.read_plugin_file()
+    if plugin_manager.load_plugins():
+        print(colored("ERROR: Some plugins failed to load! Make sure they are installed!", "red"))
+
     while True:
         print("\nWhat would you like to do?")
         for i, option in enumerate(option_names, start=1):
@@ -159,13 +167,22 @@ def repeat():
     raise OptionNotImplementedError
 
 
+def attempt_to_install_plugins():
+    print("Installing plugins!")
+    plugin_manager.install_plugins()
+    print("Plugins installed!")
+    print("Attempting to load installed plugins...")
+    plugin_manager.load_plugins()
+
+
 options = {
     "1": scale_images,
     "2": apply_filters,
     "3": compress_images,
     "4": convert_images,
     "5": repeat,
-    "6": UI.console.goodbye  # exit with a goodbye message
+    "6": attempt_to_install_plugins,
+    "7": UI.console.goodbye  # exit with a goodbye message
 }
 
 if __name__ == "__main__":
