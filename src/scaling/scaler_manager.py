@@ -131,8 +131,8 @@ def scale_image_batch(
 
     for algorithm in algorithms:
         scaling_function = scaling_functions[algorithm]
-        if scaling_function is None:
-            raise ValueError(f"Filter {algorithm.name} (ID: {algorithm}) is not implemented")
+        # if scaling_function is None:
+        #     raise ValueError(f"Filter {algorithm.name} (ID: {algorithm}) is not implemented")
 
         scaled_images.append([
             {

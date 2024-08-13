@@ -27,7 +27,7 @@ def conversion_not_implemented(_: list[PIL.Image.Image]) -> list[PIL.Image.Image
     raise NotImplementedError("Conversion not implemented")
 
 
-convert_functions: dict[auto, Callable[[list[PIL.Image.Image]], list[PIL.Image.Image]]] = {
+conversion_functions: dict[auto, Callable[[list[PIL.Image.Image]], list[PIL.Image.Image]]] = {
     Conversions.TO_AVIF: conversion_not_implemented,
     Conversions.TO_JPEG_XL: conversion_not_implemented,
     Conversions.TO_PNG: conversion_not_implemented,
@@ -43,20 +43,19 @@ convert_functions: dict[auto, Callable[[list[PIL.Image.Image]], list[PIL.Image.I
 
 def convert_image_batch(
         conversions: list[Conversions],
-        images: list[utils.ImageDict],
-        factors: list[float]
+        images: list[utils.ImageDict]
 ) -> list[list[utils.ImageDict]]:
 
     result = []
 
     for conversion in conversions:
-        conversion_function = ceonversion_functions[img_filter]
-        if conversion_function is None:
-            raise ValueError(f"Filter {conversion.name} (ID: {conversion}) is not implemented")
+        conversion_function = conversion_functions[conversion]
+        # if conversion_function is None:
+        #     raise ValueError(f"Filter {conversion.name} (ID: {conversion}) is not implemented")
 
         result.append([
             {
-                "images": [conversion_function(image["images"][0], factor) for factor in factors],
+                "images": [conversion_function(image["images"][0])],
                 "is_animated": image.get("is_animated"),
                 "animation_spacing": image.get("animation_spacing"),
             } for image in images
@@ -67,7 +66,6 @@ def convert_image_batch(
 
 def filter_image(
         conversion: Conversions,
-        image: utils.ImageDict,
-        factor: float
+        image: utils.ImageDict
 ) -> utils.ImageDict:
-    return convert_image_batch([conversion], [image], [factor])[0][0]
+    return convert_image_batch([conversion], [image])[0][0]

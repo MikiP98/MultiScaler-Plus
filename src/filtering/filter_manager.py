@@ -59,8 +59,8 @@ def filter_image_batch(
 
     for img_filter in filters:
         filter_function = filter_functions[img_filter]
-        if filter_function is None:
-            raise ValueError(f"Filter {img_filter.name} (ID: {img_filter}) is not implemented")
+        # if filter_function is None:
+        #     raise ValueError(f"Filter {img_filter.name} (ID: {img_filter}) is not implemented")
 
         result.append([
             {
