@@ -1,6 +1,7 @@
 # coding=utf-8
 # File for filter functions
 
+import PIL.Image
 import utils
 
 from aenum import auto, IntEnum, unique
@@ -8,6 +9,7 @@ from filtering.filters.normal_map import (
     strength_linear as normal_map_strength_linear,
     strength_exponential as normal_map_strength_exponential
 )
+from typing import Callable
 
 
 @unique
@@ -40,7 +42,7 @@ class Filters(IntEnum):
     SI_TODO = auto()  # TODO: Add filters
 
 
-filter_functions = {
+filter_functions: dict[auto, Callable[[list[PIL.Image.Image], float], list[PIL.Image.Image]]] = {
     Filters.NORMAL_MAP_STRENGTH_LINEAR: normal_map_strength_linear,
     Filters.NORMAL_MAP_STRENGTH_EXPONENTIAL: normal_map_strength_exponential
 }
@@ -74,6 +76,6 @@ def filter_image_batch(
 def filter_image(
         img_filter: Filters,
         image: utils.ImageDict,
-        factors: list[float]
+        factor: float
 ) -> utils.ImageDict:
-    return filter_image_batch([img_filter], [image], factors)[0][0]
+    return filter_image_batch([img_filter], [image], [factor])[0][0]

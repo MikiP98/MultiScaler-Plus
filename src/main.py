@@ -1,7 +1,6 @@
 # coding=utf-8
 # File for user input functions
 
-import config
 import loader
 # import presets
 import saving.saver as saver

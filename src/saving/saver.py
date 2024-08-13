@@ -13,12 +13,13 @@ from saving.file_formats.jpeg_xl import save as save_jpeg_xl
 from saving.file_formats.png import save as save_png
 from saving.file_formats.qoi import save as save_qoi
 from saving.file_formats.webp import save as save_webp
-from saving.utils import SimpleConfig, AdvancedConfig
+from saving.utils import Compression, AdvancedConfig, SimpleConfig
 from termcolor import colored
+from typing import Callable
 
 
 # Global, allows for easy injection of another format via a plugin
-format_savers = {
+format_savers: dict[str, Callable[[PIL.Image.Image, str, Compression, bool], None]] = {
     "AVIF": save_avif,
     "JPEG_XL": save_jpeg_xl,
     "PNG": save_png,

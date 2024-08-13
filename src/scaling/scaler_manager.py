@@ -2,6 +2,7 @@
 import PIL.Image
 import utils
 
+from aenum import auto
 from scaling.alghoritms.Anime4K import scale as anime4k_scale
 from scaling.alghoritms.CV2 import (
     ai_scale_edsr,
@@ -51,10 +52,11 @@ from scaling.alghoritms.super_image import (
 )
 from scaling.alghoritms.Super_xBR import scale as super_xbr_scale
 from scaling.alghoritms.xBRZ import scale as xbrz_scale
-from scaling.utils import Algorithms
+from scaling.utils import Algorithms, ConfigPlus
+from typing import Callable
 
 
-scaling_functions = {
+scaling_functions: dict[auto, Callable[[list[PIL.Image.Image], float, ConfigPlus], list[PIL.Image.Image]]] = {
     # PIL classic algorithms
     Algorithms.PIL_BILINEAR: pil_scale_bilinear,
     Algorithms.PIL_BICUBIC: pil_scale_bicubic,
@@ -120,9 +122,9 @@ scaling_functions = {
 def scale_image_batch(
         algorithms: list[Algorithms],
         images: list[utils.ImageDict],
-        factors,
+        factors: list[float],
         *,
-        config_plus=None
+        config_plus: ConfigPlus = None
 ) -> list[list[utils.ImageDict]]:
 
     scaled_images: list[list[utils.ImageDict]] = []
@@ -146,9 +148,9 @@ def scale_image_batch(
 def scale_image(
         algorithm: Algorithms,
         image: PIL.Image,
-        factor: int,
+        factor: float,
         *,
-        config_plus=None
+        config_plus: ConfigPlus = None
 ) -> utils.ImageDict:
     return scale_image_batch(
         [algorithm],
