@@ -7,7 +7,7 @@ from termcolor import colored
 plugins: frozenset[tuple[str, str]] = frozenset()
 
 
-def read_plugin_file():
+def read_plugin_file() -> None:
     global plugins
 
     read_plugins = []
@@ -36,7 +36,7 @@ def load_plugins() -> bool:
     return failed
 
 
-def install_plugins():
+def install_plugins() -> None:
     for plugin_package, _ in plugins:
         command = f"pip install {plugin_package}"
         print(f"Installing {plugin_package}")

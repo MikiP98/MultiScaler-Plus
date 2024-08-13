@@ -4,7 +4,7 @@ import PIL.Image
 from scaling.utils import ConfigPlus
 
 
-def pil_scale(frames: list[PIL.Image], factor: float, algorithm: PIL.Image) -> list[PIL.Image]:
+def scale(frames: list[PIL.Image.Image], factor: float, algorithm: PIL.Image.Resampling) -> list[PIL.Image.Image]:
     scaled_frames = []
     for frame in frames:
         width, height = frame.size
@@ -15,17 +15,24 @@ def pil_scale(frames: list[PIL.Image], factor: float, algorithm: PIL.Image) -> l
     return scaled_frames
 
 
-def pil_scale_nearest_neighbor(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
-    return pil_scale(frames, factor, PIL.Image.NEAREST)
+def scale_nearest_neighbor(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
+    return scale(frames, factor, PIL.Image.Resampling.NEAREST)
 
 
-def pil_scale_bilinear(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
-    return pil_scale(frames, factor, PIL.Image.BILINEAR)
+def scale_bilinear(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
+    return scale(frames, factor, PIL.Image.Resampling.BILINEAR)
 
 
-def pil_scale_bicubic(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
-    return pil_scale(frames, factor, PIL.Image.BICUBIC)
+def scale_bicubic(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
+    return scale(frames, factor, PIL.Image.Resampling.BICUBIC)
 
 
-def pil_scale_lanczos(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
-    return pil_scale(frames, factor, PIL.Image.LANCZOS)
+def scale_lanczos(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
+    return scale(frames, factor, PIL.Image.Resampling.LANCZOS)
+
+# TODO: HAMMING & BOX
+def scale_hamming(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
+    return scale(frames, factor, PIL.Image.Resampling.HAMMING)
+
+def scale_box(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
+    return scale(frames, factor, PIL.Image.Resampling.BOX)

@@ -7,7 +7,7 @@ from termcolor import colored
 
 
 # TODO: Use RGB mode if the image is not RGBA
-def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     if factor < 1:
         print(
             colored(

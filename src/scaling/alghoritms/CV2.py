@@ -7,7 +7,7 @@ from scaling.utils import ConfigPlus, correct_frame_from_cv2
 from termcolor import colored
 
 
-def cv2_non_ai_common(frames: list[PIL.Image], factor: float, algorithm: int) -> list[PIL.Image]:
+def cv2_non_ai_common(frames: list[PIL.Image.Image], factor: float, algorithm: int) -> list[PIL.Image.Image]:
     scaled_frames = []
     for frame in frames:
         cv2_image = utils.pil_to_cv2(frame)
@@ -22,7 +22,7 @@ def cv2_non_ai_common(frames: list[PIL.Image], factor: float, algorithm: int) ->
     return scaled_frames
 
 
-def scale_inter_area(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+def scale_inter_area(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
     if factor > 1:
         print(colored(
             f"WARNING: INTER_AREA does not support upscaling! Factor: {factor}; Skipping!", 'yellow'
@@ -32,24 +32,24 @@ def scale_inter_area(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> l
         return cv2_non_ai_common(frames, factor, cv2.INTER_AREA)
 
 
-def scale_inter_cubic(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+def scale_inter_cubic(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
     return cv2_non_ai_common(frames, factor, cv2.INTER_CUBIC)
 
 
-def scale_inter_lanczos4(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+def scale_inter_lanczos4(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
     return cv2_non_ai_common(frames, factor, cv2.INTER_LANCZOS4)
 
 
-def scale_inter_linear(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+def scale_inter_linear(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
     return cv2_non_ai_common(frames, factor, cv2.INTER_LINEAR)
 
 
-def scale_inter_nearest(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+def scale_inter_nearest(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
     return cv2_non_ai_common(frames, factor, cv2.INTER_NEAREST)
 
 
 def cv2_ai_common_scale(
-        frames: list[PIL.Image],
+        frames: list[PIL.Image.Image],
         factor: int,
         high_quality_scale_back: bool,
         sr: cv2.dnn_superres.DnnSuperResImpl,
@@ -76,12 +76,12 @@ def cv2_ai_common_scale(
 
 
 def cv2_ai_common(
-        frames: list[PIL.Image],
+        frames: list[PIL.Image.Image],
         factor: float,
         config_plus: ConfigPlus,
         name: str,
         allowed_factors: set
-) -> list[PIL.Image]:
+) -> list[PIL.Image.Image]:
     if factor < 1:
         print(
             colored(
@@ -110,7 +110,7 @@ def cv2_ai_common(
         max_allowed_factor = max(allowed_factors)
         scaled_frames = []
         for frame in frames:
-            width, height = frame.size
+            original_size = frame.size
             result = utils.pil_to_cv2(frame.convert('RGB'))
             current_factor = 1
             while current_factor < factor:
@@ -131,12 +131,7 @@ def cv2_ai_common(
                 result = sr.upsample(result)
 
             scaled_frames.append(
-                utils.cv2_to_pil(
-                    cv2.resize(
-                        # TODO: Replace with csatca(fallback_algorithm)
-                        result, (width * factor, height * factor), interpolation=cv2.INTER_AREA
-                    )
-                )
+                correct_frame_from_cv2(result, original_size, factor, config_plus['high_quality_scale_back'])
             )
 
         return scaled_frames
@@ -145,21 +140,21 @@ def cv2_ai_common(
         return cv2_ai_common_scale(frames, int(factor), config_plus['high_quality_scale_back'], sr, path_prefix, name)
 
 
-def ai_scale_edsr(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def ai_scale_edsr(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return cv2_ai_common(frames, factor, config_plus, "EDSR", {2, 3, 4})
 
 
-def ai_scale_espcn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def ai_scale_espcn(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return cv2_ai_common(frames, factor, config_plus, "ESPCN", {2, 3, 4})
 
 
-def ai_scale_fsrcnn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def ai_scale_fsrcnn(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return cv2_ai_common(frames, factor, config_plus, "FSRCNN", {2, 3, 4})
 
 
-def ai_scale_fsrcnn_small(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def ai_scale_fsrcnn_small(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return cv2_ai_common(frames, factor, config_plus, "FSRCNN_small", {2, 3, 4})
 
 
-def ai_scale_lapsrn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def ai_scale_lapsrn(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return cv2_ai_common(frames, factor, config_plus, "LapSRN", {2, 4, 8})  # 248

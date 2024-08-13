@@ -87,8 +87,13 @@ class ConfigPlus(TypedDict):
     offset_y: float
 
 
-def correct_frame(frame: PIL.Image, original_size: tuple, factor: float, high_quality_scaleback: bool) -> PIL.Image:
-    correct_size = (round(original_size[0] * factor), round(original_size[1] * factor))
+def correct_frame(
+        frame: PIL.Image.Image,
+        original_size: tuple[int | float, int | float],
+        factor: float,
+        high_quality_scaleback: bool
+) -> PIL.Image.Image:
+    correct_size: tuple[int, int] = (round(original_size[0] * factor), round(original_size[1] * factor))
     if high_quality_scaleback:
         return frame.resize(correct_size, PIL.Image.LANCZOS)
     else:
@@ -102,12 +107,12 @@ def correct_frame(frame: PIL.Image, original_size: tuple, factor: float, high_qu
 
 
 def correct_frame_from_cv2(
-        frame: np.array,
-        original_size: tuple,
+        frame: np.ndarray,
+        original_size: tuple[int | float, int | float],
         factor: float,
         high_quality_scale_back: bool
-) -> PIL.Image:
-    correct_size = (round(original_size[0] * factor), round(original_size[1] * factor))
+) -> PIL.Image.Image:
+    correct_size: tuple[int, int] = (round(original_size[0] * factor), round(original_size[1] * factor))
     if high_quality_scale_back:
         return utils.cv2_to_pil(frame).resize(correct_size, PIL.Image.LANCZOS)
     else:

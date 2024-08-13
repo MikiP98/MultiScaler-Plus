@@ -10,7 +10,7 @@ from termcolor import colored
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     if factor < 1:
         print(
             colored(

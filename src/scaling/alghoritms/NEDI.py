@@ -10,7 +10,7 @@ from scaling.Edge_Directed_Interpolation.edi import EDI_upscale
 from scaling.utils import correct_frame_from_cv2
 
 
-def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     if factor < 1:
         print(colored("WARNING: NEDI does not support downscaling! Skipping!", 'yellow'))
         return []

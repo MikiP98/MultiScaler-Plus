@@ -6,7 +6,7 @@ from scaling.utils import ConfigPlus
 from termcolor import colored
 
 
-def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     if config_plus is None:
         print(colored("WARNING: config_plus is None! Creating empty config_plus!", 'yellow'))
         config_plus = {}

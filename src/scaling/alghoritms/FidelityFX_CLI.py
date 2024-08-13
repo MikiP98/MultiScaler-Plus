@@ -8,13 +8,13 @@ from scaling.utils import ConfigPlus
 from termcolor import colored
 
 
-def fsr_scale(frames: list[PIL.Image], factor: float, _: ConfigPlus) -> list[PIL.Image]:
+def fsr_scale(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
     factor_check(factor)
     options = f"-Scale {factor}x {factor}x -Mode EASU"
     return cli_process_frames(frames, options)
 
 
-def cas_scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def cas_scale(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     factor_check(factor)
     options = f"-Scale {factor}x {factor}x -Sharpness {config_plus["sharpness"]} -Mode CAS"
     return cli_process_frames(frames, options)
@@ -30,7 +30,7 @@ def factor_check(factor: float) -> None:
         )
 
 
-def cli_process_frames(frames: list[PIL.Image], options: str) -> PIL.Image:
+def cli_process_frames(frames: list[PIL.Image.Image], options: str) -> list[PIL.Image.Image]:
     processed_frames = []
 
     script_path = './FidelityFX_CLI/FidelityFX-CLI-v1.0.3/FidelityFX_CLI.exe'

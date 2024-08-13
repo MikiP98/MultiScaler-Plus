@@ -8,7 +8,7 @@ from scaling.utils import ConfigPlus, correct_frame
 from termcolor import colored
 
 
-def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     if factor < 1:
         print(colored("WARNING: HSDBTRE is an AI algorithm and does not support downscaling! Skipping!", 'yellow'))
         return []

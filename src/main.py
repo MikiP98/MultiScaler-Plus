@@ -32,7 +32,7 @@ class OptionNotImplementedError(NotImplementedError):
     pass
 
 
-def main():
+def main() -> None:
     UI.console.greetings()
 
     plugin_manager.read_plugin_file()

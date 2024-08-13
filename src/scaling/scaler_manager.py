@@ -25,10 +25,12 @@ from scaling.alghoritms.hqx import scale as hqx_scale
 from scaling.alghoritms.HSDBTRE import scale as hsdbtre_scale
 from scaling.alghoritms.NEDI import scale as nedi_scale
 from scaling.alghoritms.PIL import (
-    pil_scale_bicubic,
-    pil_scale_bilinear,
-    pil_scale_lanczos,
-    pil_scale_nearest_neighbor
+    scale_bicubic as pil_scale_bicubic,
+    scale_bilinear as pil_scale_bilinear,
+    scale_box as pil_scale_box,
+    scale_hamming as pil_scale_hamming,
+    scale_lanczos as pil_scale_lanczos,
+    scale_nearest_neighbor as pil_scale_nearest_neighbor
 )
 from scaling.alghoritms.RealESRGAN import scale as real_esrgan_scale
 from scaling.alghoritms.Repetition import scale as repetition_scale
@@ -60,6 +62,8 @@ scaling_functions: dict[auto, Callable[[list[PIL.Image.Image], float, ConfigPlus
     # PIL classic algorithms
     Algorithms.PIL_BILINEAR: pil_scale_bilinear,
     Algorithms.PIL_BICUBIC: pil_scale_bicubic,
+    Algorithms.PIL_BOX: pil_scale_box,  # TODO: test
+    Algorithms.PIL_HAMMING: pil_scale_hamming,  # TODO: test
     Algorithms.PIL_LANCZOS: pil_scale_lanczos,
     Algorithms.PIL_NEAREST_NEIGHBOR: pil_scale_nearest_neighbor,
 

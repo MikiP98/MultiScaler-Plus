@@ -15,7 +15,7 @@ from saving.file_formats.qoi import save as save_qoi
 from saving.file_formats.webp import save as save_webp
 from saving.utils import Compression, AdvancedConfig, SimpleConfig
 from termcolor import colored
-from typing import Callable
+from typing import Any, Callable
 
 
 # Global, allows for easy injection of another format via a plugin
@@ -28,7 +28,7 @@ format_savers: dict[str, Callable[[PIL.Image.Image, str, Compression, bool], Non
 }
 
 
-def save_image(image: PIL.Image, path: str, config: SimpleConfig) -> None:
+def save_image(image: PIL.Image.Image, path: str, config: SimpleConfig) -> None:
     print(path)
 
     if any([compression['additional_lossless'] for compression in config['compressions']]):  # TODO: benchmark this
@@ -96,7 +96,7 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
         )
 
 
-def save_img_list(bundle, saver_config: AdvancedConfig):
+def save_img_list(bundle: zip[list[utils.ImageDict], list[str], list[str]], saver_config: AdvancedConfig):
     for filtered_image, root, file_name in bundle:
         save_image_pre_processor(
             filtered_image,
@@ -108,12 +108,12 @@ def save_img_list(bundle, saver_config: AdvancedConfig):
 
 def save_img_list_multithreaded(
         processed_images: list[list[utils.ImageDict]],
-        roots,
-        file_names,
+        roots: list[str],
+        file_names: list[str],
         saver_config: AdvancedConfig,
-        processing_methods,
+        processing_methods: list[Any],
         *,
-        max_thread_count=4
+        max_thread_count: int = 4
 ):
     # processes_loop_threads = min(round(len(processed_images) / 2), max_thread_count)
     # print(f"Using {processes_loop_threads} threads")

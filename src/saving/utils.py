@@ -39,6 +39,30 @@ class AdvancedConfig(TypedDict):
     processing_method: Optional[IntEnum]
 
 
+def count_unique_colors_python_break_batched(image: PIL.Image) -> int:
+    # Get the image data as a list of pixels
+    pixels = list(image.getdata())
+
+    scanned_pixels = min(256, len(pixels))
+
+    # Create a set to store the unique colors
+    unique_colors = set(pixels[:scanned_pixels])
+
+    # Loop over the pixels and add them to the set
+    while len(unique_colors) <= 256:
+        # print(f"Iteration; scanned_pixels: {scanned_pixels}; unique_colors: {len(unique_colors)}")
+        new_scanned_pixels = min(scanned_pixels + 257 - len(unique_colors), len(pixels))
+        unique_colors.update(pixels[scanned_pixels:new_scanned_pixels])
+        if new_scanned_pixels == len(pixels):
+            break
+        scanned_pixels = new_scanned_pixels
+    else:  # no break happened, so len(unique_colors) > 256
+        return 320
+
+    # Return the number of unique colors
+    return len(unique_colors)
+
+
 def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:
     img_byte_arr = io.BytesIO()
 

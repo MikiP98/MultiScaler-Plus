@@ -1,95 +1,26 @@
 # coding=utf-8
 
 import cv2
-import io
 import numpy as np
 import PIL.Image
 import struct
 
 from termcolor import colored
 from termcolor._types import Color as TermColor  # Ignore this warning, TODO: create an issue on the termcolor repo.
-from typing import Optional, TypedDict, Union
+from typing import Optional, TypedDict
 
 
 # class Image:
-#     def __init__(self, images: list[list[PIL.Image]], *, is_animated=False, animation_spacing=(1000/30)):
+#     def __init__(self, images: list[list[PIL.Image.Image]], *, is_animated=False, animation_spacing=(1000/30)):
 #         self.images = images
 #         if is_animated:
 #             self.animationSpacing = animation_spacing
 
 
 class ImageDict(TypedDict):
-    images: list[list[PIL.Image]]  # List of scaled lists of image frames/layers, only 1 entry on input
+    images: list[list[PIL.Image.Image]]  # List of scaled lists of image frames/layers, only 1 entry on input
     is_animated: Optional[bool]
     animation_spacing: Optional[float]
-
-
-# cli_algorithms = {Algorithms.FSR, Algorithms.CAS, Algorithms.SUPIR, Algorithms.Super_xBR}
-#
-#
-# string_to_algorithm_dict = {
-#     "cv2_area": Algorithms.CV2_INTER_AREA,
-#     "cv2_bicubic": Algorithms.CV2_INTER_CUBIC,
-#     "cv2_bilinear": Algorithms.CV2_INTER_LINEAR,
-#     "cv2_lanczos": Algorithms.CV2_INTER_LANCZOS4,
-#     "cv2_nearest": Algorithms.CV2_INTER_NEAREST,
-#
-#     "cv2_edsr": Algorithms.CV2_EDSR,
-#     "cv2_espcn": Algorithms.CV2_ESPCN,
-#     "cv2_fsrcnn": Algorithms.CV2_FSRCNN,
-#     "cv2_fsrcnn_small": Algorithms.CV2_FSRCNN_small,
-#     "cv2_lapsrn": Algorithms.CV2_LapSRN,
-#
-#     "pil_bicubic": Algorithms.PIL_BICUBIC,
-#     "pil_bilinear": Algorithms.PIL_BILINEAR,
-#     "pil_lanczos": Algorithms.PIL_LANCZOS,
-#     "pil_nearest": Algorithms.PIL_NEAREST_NEIGHBOR,
-#     "nedi": Algorithms.NEDI,
-#     "cas": Algorithms.CAS,
-#     "fsr": Algorithms.FSR,
-#     "hqx": Algorithms.hqx,  # "hq2x", "hq3x", "hq4x"
-#     "real_esrgan": Algorithms.RealESRGAN,
-#     "super_xbr": Algorithms.Super_xBR,
-#     "supir": Algorithms.SUPIR,
-#     "xbrz": Algorithms.xBRZ
-# }
-#
-#
-# def string_to_algorithm(string: str) -> Algorithms:
-#     return string_to_algorithm_dict[string.lower()]
-#
-#
-# algorithm_to_string_dict = {
-#     Algorithms.CV2_INTER_AREA: "cv2_area",
-#     Algorithms.CV2_INTER_CUBIC: "cv2_bicubic",
-#     Algorithms.CV2_INTER_LINEAR: "cv2_bilinear",
-#     Algorithms.CV2_INTER_LANCZOS4: "cv2_lanczos",
-#     Algorithms.CV2_INTER_NEAREST: "cv2_nearest",
-#
-#     Algorithms.CV2_EDSR: "cv2_edsr",
-#     Algorithms.CV2_ESPCN: "cv2_espcn",
-#     Algorithms.CV2_FSRCNN: "cv2_fsrcnn",
-#     Algorithms.CV2_FSRCNN_small: "cv2_fsrcnn_small",
-#     Algorithms.CV2_LapSRN: "cv2_lapsrn",
-#
-#     Algorithms.PIL_BICUBIC: "pil_bicubic",
-#     Algorithms.PIL_BILINEAR: "pil_bilinear",
-#     Algorithms.PIL_LANCZOS: "pil_lanczos",
-#     Algorithms.PIL_NEAREST_NEIGHBOR: "pil_nearest",
-#
-#     Algorithms.CAS: "cas",
-#     Algorithms.FSR: "fsr",
-#     Algorithms.hqx: "hqx",
-#     Algorithms.NEDI: "nedi",
-#     Algorithms.RealESRGAN: "real_esrgan",
-#     Algorithms.Super_xBR: "super_xbr",
-#     Algorithms.SUPIR: "supir",
-#     Algorithms.xBRZ: "xbrz"
-# }
-#
-#
-# def algorithm_to_string(algorithm: Algorithms) -> str:
-#     return algorithm_to_string_dict[algorithm]
 
 
 # TODO: Think about frozen sets
@@ -177,11 +108,11 @@ pil_indentify_only_formats_cache = frozenset(
 
 
 pil_animated_formats = {
-    "BLP": {"blp2"},  # Only BLP2 supports multiple images and animations
-    "TIFF": {"tif", "tiff", "tiff2"},
-    "APNG": {"apng"},
-    "WebP": {"webp"},
-    "JPX": {"jpx"}  # Only JPEG 2000 Part 2 (JPX) supports multiple images and animations
+    "BLP": ("blp2",),  # Only BLP2 supports multiple images and animations
+    "TIFF": ("tif", "tiff", "tiff2",),
+    "APNG": ("apng",),
+    "WebP": ("webp",),
+    "JPX": ("jpx",)  # Only JPEG 2000 Part 2 (JPX) supports multiple images and animations
 }
 # AV1
 # MNG: {.mng} MNG supports both multiple images and animations
@@ -190,7 +121,7 @@ pil_animated_formats_cache = {
 }
 
 
-def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
+def pil_to_cv2(pil_image: PIL.Image.Image) -> np.ndarray:
     """
     Convert a Pillow image to OpenCV format
     :param pil_image: PIL image object (PIL.Image)
@@ -207,7 +138,7 @@ def pil_to_cv2(pil_image: PIL.Image) -> 'np.ndarray':
     return cv2.cvtColor(np.array(pil_image), color_format)
 
 
-def cv2_to_pil(cv2_image: 'np.ndarray') -> PIL.Image:
+def cv2_to_pil(cv2_image: np.ndarray) -> PIL.Image.Image:
     """
     Convert an OpenCV image to Pillow format
     :param cv2_image: OpenCV format image (np.ndarray)
@@ -227,50 +158,6 @@ def cv2_to_pil(cv2_image: 'np.ndarray') -> PIL.Image:
 
         # Convert NumPy array to Pillow format
         return PIL.Image.fromarray(numpy_array)
-
-
-@DeprecationWarning
-def image_to_byte_array(image: PIL.Image, additional_lossless_compression=True) -> bytes:
-    # If additional_lossless_compression is True, apply lossless compression
-    if additional_lossless_compression:
-        # return apply_lossless_compression_png(image)
-        return None
-    # else, just convert the image to bytes
-
-    # BytesIO is a file-like buffer stored in memory
-    img_byte_arr = io.BytesIO()
-
-    # image.save expects a file-like as an argument
-    image.save(img_byte_arr, format='PNG')
-
-    # Turn the BytesIO object back into a bytes object
-    img_byte_arr = img_byte_arr.getvalue()
-
-    return img_byte_arr
-
-
-def count_unique_colors_python_break_batched(image: PIL.Image) -> int:
-    # Get the image data as a list of pixels
-    pixels = list(image.getdata())
-
-    scanned_pixels = min(256, len(pixels))
-
-    # Create a set to store the unique colors
-    unique_colors = set(pixels[:scanned_pixels])
-
-    # Loop over the pixels and add them to the set
-    while len(unique_colors) <= 256:
-        # print(f"Iteration; scanned_pixels: {scanned_pixels}; unique_colors: {len(unique_colors)}")
-        new_scanned_pixels = min(scanned_pixels + 257 - len(unique_colors), len(pixels))
-        unique_colors.update(pixels[scanned_pixels:new_scanned_pixels])
-        if new_scanned_pixels == len(pixels):
-            break
-        scanned_pixels = new_scanned_pixels
-    else:  # no break happened, so len(unique_colors) > 256
-        return 320
-
-    # Return the number of unique colors
-    return len(unique_colors)
 
 
 # def pngify_class(image: PIL.Image) -> Image:
@@ -312,11 +199,11 @@ def pngify(image: PIL.Image) -> ImageDict:
     return {'images': [[image]]}
 
 
-def float_to_int32(float_value):
+def float_to_int32(float_value: float):
     return struct.unpack('!I', struct.pack('!f', float_value))[0]
 
 
-def int32_to_float(int_value):
+def int32_to_float(int_value: int):
     return struct.unpack('!f', struct.pack('!I', int_value))[0]
 
 
@@ -327,7 +214,7 @@ def hdr_to_sdr(hdr_image):
 
 def generate_mask(image: PIL.Image, scale: float, mode: tuple) -> np.ndarray:
     # Generate an outbound mask for the image
-    mask_mode = 'A'
+    # mask_mode = 'A'
     if has_transparency(image):
         mask_mode = mode[0]
     else:
@@ -397,7 +284,7 @@ def apply_mask(image: PIL.Image, mask: np.ndarray) -> PIL.Image:
     return cv2_to_pil(image_array)
 
 
-def has_transparency(img: Union[PIL.Image, np.ndarray]) -> bool:
+def has_transparency(img: PIL.Image.Image | np.ndarray) -> bool:
     if isinstance(img, np.ndarray):
         return img.shape[2] == 4
 
@@ -412,14 +299,11 @@ def has_transparency(img: Union[PIL.Image, np.ndarray]) -> bool:
 
     elif img.mode == "RGBA":
         return True
-        # extrema = img.getextrema()
-        # if extrema[3][0] < 255:
-        #     return True
 
     return False
 
 
-def uses_transparency(img: Union[PIL.Image, np.ndarray]) -> bool:
+def uses_transparency(img: PIL.Image.Image | np.ndarray) -> bool:
     if isinstance(img, np.ndarray):
         # check if the image has an alpha channel
         if img.shape[2] == 4:

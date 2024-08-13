@@ -10,13 +10,13 @@ from typing import Type
 
 
 def ai_scale(
-        frames: list[PIL.Image],
+        frames: list[PIL.Image.Image],
         factor: float,
         high_quality_scale_back: bool,
         allowed_factors: set,
         pretrained_model: Type[super_image_PreTrainedModel],
         pretrained_path: str
-) -> list[PIL.Image]:
+) -> list[PIL.Image.Image]:
     current_factor = 1
     scaled_frames = frames.copy()
     while current_factor < factor:
@@ -52,7 +52,7 @@ def ai_scale(
     return scaled_frames
 
 
-def scale_a2n(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_a2n(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -63,7 +63,7 @@ def scale_a2n(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -
     )
 
 
-def scale_awsrn_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_awsrn_bam(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -74,7 +74,7 @@ def scale_awsrn_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigP
     )
 
 
-def scale_carn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_carn(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -85,7 +85,7 @@ def scale_carn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) 
     )
 
 
-def scale_carn_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_carn_bam(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -96,7 +96,7 @@ def scale_carn_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPl
     )
 
 
-def scale_drln(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_drln(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -107,7 +107,7 @@ def scale_drln(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) 
     )
 
 
-def scale_drln_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_drln_bam(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -118,7 +118,7 @@ def scale_drln_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPl
     )
 
 
-def scale_edsr(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_edsr(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -129,7 +129,7 @@ def scale_edsr(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) 
     )
 
 
-def scale_edsr_base(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_edsr_base(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -140,7 +140,7 @@ def scale_edsr_base(frames: list[PIL.Image], factor: float, config_plus: ConfigP
     )
 
 
-def scale_han(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_han(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -151,7 +151,7 @@ def scale_han(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -
     )
 
 
-def scale_mdsr(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_mdsr(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -162,7 +162,7 @@ def scale_mdsr(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) 
     )
 
 
-def scale_mdsr_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_mdsr_bam(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -173,7 +173,7 @@ def scale_mdsr_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPl
     )
 
 
-def scale_msrn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_msrn(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -184,7 +184,7 @@ def scale_msrn(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) 
     )
 
 
-def scale_msrn_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_msrn_bam(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -195,7 +195,7 @@ def scale_msrn_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPl
     )
 
 
-def scale_pan(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_pan(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -206,7 +206,7 @@ def scale_pan(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -
     )
 
 
-def scale_pan_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_pan_bam(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,
@@ -217,7 +217,7 @@ def scale_pan_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlu
     )
 
 
-def scale_rcan_bam(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale_rcan_bam(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     return ai_scale(
         frames,
         factor,

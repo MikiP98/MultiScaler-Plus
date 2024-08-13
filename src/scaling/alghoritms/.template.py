@@ -5,5 +5,5 @@ from scaling.utils import ConfigPlus, correct_frame
 from termcolor import colored
 
 
-def scale(frames: list[PIL.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image]:
+def scale(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
     ...
