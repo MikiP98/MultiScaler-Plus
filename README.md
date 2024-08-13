@@ -244,13 +244,15 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 - Add support for **ZIP** and **7z** archives as input and output
 - Add **filters** and **effects** support:
   - Blur
-  - Sharpen
-  - Noise reduction
+  - Brightness
+  - CAS *(Contrast Adaptive Sharpening)*
   - Color correction
   - Color grading
   - Contrast
+  - [DeOldify](https://github.com/jantic/DeOldify)
+  - Noise reduction
   - Saturation
-  - Brightness
+  - Sharpen
   - Exposure
   - Motion blur *(for animated and stacked images)* *(temporal data and optical flow)*
   - ~~Normal map strength~~
