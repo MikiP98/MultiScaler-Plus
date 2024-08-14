@@ -1,5 +1,4 @@
 # coding=utf-8
-
 import PIL.Image
 import utils
 
@@ -9,14 +8,6 @@ from typing import Callable
 
 @unique
 class Conversions(IntEnum):
-    # File extensions aliases
-    TO_AVIF = auto()
-    TO_JPEG_XL = auto()
-    TO_PNG = auto()
-    TO_QOI = auto()
-    TO_WEBP = auto()
-
-    # Real conversions
     Old_SEUS_to_labPBR_1_3 = auto()
     Old_Continuum_to_labPBR_1_3 = auto()
     PPR_plus_Emissive_old_BSL_to_labPBR_1_3 = auto()
@@ -28,12 +19,6 @@ def conversion_not_implemented(_: list[PIL.Image.Image]) -> list[PIL.Image.Image
 
 
 conversion_functions: dict[auto, Callable[[list[PIL.Image.Image]], list[PIL.Image.Image]]] = {
-    Conversions.TO_AVIF: conversion_not_implemented,
-    Conversions.TO_JPEG_XL: conversion_not_implemented,
-    Conversions.TO_PNG: conversion_not_implemented,
-    Conversions.TO_QOI: conversion_not_implemented,
-    Conversions.TO_WEBP: conversion_not_implemented,
-
     Conversions.Old_SEUS_to_labPBR_1_3: conversion_not_implemented,
     Conversions.Old_Continuum_to_labPBR_1_3: conversion_not_implemented,
     Conversions.PPR_plus_Emissive_old_BSL_to_labPBR_1_3: conversion_not_implemented,
@@ -64,7 +49,7 @@ def convert_image_batch(
     return result
 
 
-def filter_image(
+def convert_image(
         conversion: Conversions,
         image: utils.ImageDict
 ) -> utils.ImageDict:

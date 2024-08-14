@@ -3,6 +3,7 @@ import json
 import os
 import sys
 
+from converting import converter
 from filtering import filter_manager
 from functools import lru_cache
 from loader import LoaderConfig
@@ -162,6 +163,10 @@ def get_algorithms() -> list[Algorithms]:
         else:
             break
     return selected_algorithms_ids
+
+
+def get_conversions() -> list[converter.Conversions]:
+    raise NotImplementedError
 
 
 # TODO: Improve indentation and add colours

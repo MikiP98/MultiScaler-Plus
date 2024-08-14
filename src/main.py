@@ -159,6 +159,33 @@ def compress_images():
 
 def convert_images():
     print("Converting images!")
+
+    while True:
+        try:
+            print("\nWhat would you like to do?")
+            print("1. Change the image format (e.g. PNG to JPEG_XL)")
+            print("2. Apply an advanced conversion (e.g. SEUS to labPBR)")
+            user_input = int(input(colored(f"\n{it}Enter your choice: ", "light_grey")).strip())
+            if user_input not in (1, 2):
+                raise ValueError
+        except ValueError:
+            print(colored("Invalid option! Please try again.", "red"))
+            print()
+            continue
+        else:
+            break
+
+    load_config = UI.console.get_loader_config()
+    saver_config = UI.console.get_saver_config()
+
+    images, roots, file_names = loader.load_images(load_config)
+
+    if user_input == 1:
+        saver.save_img_list_multithreaded([images], roots, file_names, saver_config, [])
+    elif user_input == 2:
+        conversions = UI.console.get_conversions()
+        converted_images = converting.convert_image_batch(conversions, images)
+
     raise OptionNotImplementedError
 
 
