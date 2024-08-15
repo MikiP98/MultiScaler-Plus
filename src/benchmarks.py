@@ -2141,6 +2141,37 @@ def partial_vs_lambda_test(n=60_000_000, k=15):
     # ------------------------------------------------------------------------------------------------------------------
 
 
+def native_unpack(dictionary: dict[str, tuple]):
+    return frozenset(*_tuple for _tuple in dictionary)  # does not work
+
+
+def loop_unpack(dictionary: dict[str, tuple]):
+    return frozenset(value for _tuple in dictionary for value in _tuple)
+
+
+def unpack_test(n=60_000_000, k=15):
+    dictionary = utils.pil_read_only_formats
+
+    native_time = 0
+    loop_time = 0
+
+    assert native_unpack(dictionary) == loop_unpack(dictionary)
+
+    for i in range(k):
+        print(f"Iteration {i + 1}/{k}")
+        native_time += timeit.timeit(lambda: native_unpack(dictionary), number=n // k)
+        loop_time += timeit.timeit(lambda: loop_unpack(dictionary), number=n // k)
+
+    native_time = round(native_time / k, 4)
+    loop_time = round(loop_time / k, 4)
+
+    print(f"Native time: {native_time}")
+    print(f"Loop time: {loop_time}")
+    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------- END OF "unpack_test" ----------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+
 def docstring_tests():
     print(scaler.csatpa.__doc__)
 
@@ -2182,7 +2213,8 @@ if __name__ == "__main__":
     # aenum_test()
     # transparency_use_test()
     # vector_test()
-    partial_vs_lambda_test()
+    # partial_vs_lambda_test()
+    # unpack_test()
 
     # set_from_dict()
     # set_from_dick_w_tuples_simple()
