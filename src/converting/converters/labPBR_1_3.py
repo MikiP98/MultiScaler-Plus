@@ -1,5 +1,10 @@
 # coding=utf-8
 
+# Info:
+#   - LabPBR spec -> https://shaderlabs.org/wiki/LabPBR_Material_Standard
+#   - Original converter -> https://github.com/flodri/RGBA-Formats-Converter/blob/master/MAIN.py
+#   - Continuum -> https://discord.com/channels/341731475621806083/341988569612550144/1273341091156070450
+
 # LabPBR 1.3 specification:
 
 #   Red Channel
@@ -63,27 +68,72 @@
 #
 #       For Texture Artists
 #           The lower the value the less light it will emit, the higher the more luminescent it'll be, but never use a value of 255 since this will cause it to be ignored.
+#
+#       My understanding: 0 is no emission, 254 is full emission, 255 is ignored, a.k.a. texture is not emissive.
+
+# Normal Texture (_n)
+#   The normal texture does not only contain the normal vectors, but also ambient occlusion and a height/displacement map.
+#   The normal vector should be encoded in DirectX format (Y-);
+#   this is commonly referred to as top-down normals, which can be visibly characterized as having X/red pointing to the right, and Y/green pointing downward.
+
+#   Material AO
+#       Ambient occlusion gets stored in the blue channel of the normal texture.
+#       The third component (.z) of the normal vector can be reconstructed using sqrt(1.0 - dot(normal.xy, normal.xy)).
+#       This attribute is stored linearly; 0 being 100% AO and 255 being 0%.
+
+#   Height Map
+#       The height map used for POM is stored in the alpha channel of the normal texture; a value of 0 (pure black on the height map) represents a depth of 25% in the block.
+#       Be aware that a value of 0 on the height map will cause some issues with certain shader packs' POM implementations, so a minimum of 1 is recommended instead.
+
+# Reasoning for this Layout
+#   The AO is stored in the blue channel because the first 3 components of a pixel in the normal texture represent a vector of length 1. Since we know the length, we only need 2 of the 3 components to reconstruct the vector (thanks Pythagore). This means that one of the three channels can be used for something else, like storing AO in the blue channel.
 
 
 # Conversions:
 
 #   'old seus to labPBR 1.3':
-#       R = 255 * round(sqrt(r / 255))  # convert to perceptual smoothness
-#       G = round(g * 0.8980392156862745)  # 0-229 range
-#       B = 0
-#       A = 255
+#       original:
+#          R = 255 * round(sqrt(r / 255))  # convert to perceptual smoothness
+#          G = round(g * 0.8980392156862745)  # 0-229 range
+#          B = 0
+#          A = 255
+#       my:
+#           _s:
+#               # SEUS specular map spec: https://github.com/Moo-Ack-Productions/MCprep/issues/78 -> SEUS PBR has emission in the blue channel
+#               R = 255 * round(sqrt(r / 255))  # convert to perceptual smoothness
+#               G = round(g * 0.8980392156862745)  # 0-229 range
+#               B = 0
+#               A = min(B, 254)
 
-#   'old continuum to labPBR 1.3':
-#       R = b
-#       G = round(g * 0.8980392156862745)  # 0-229 range
-#       B = 0
-#       A = a
+#   'old continuum to labPBR 1.3':  # Done? TODO: Revamp new blue channel
+#       original:
+#           R = b
+#           G = round(g * 0.8980392156862745)  # 0-229 range
+#           B = 0
+#           A = a
+#       my:
+#           _s:
+#               R = b  # Blue had smoothness
+#               G = r  # Red had f0
+#               B = (max(a, 65)) if a > g and a > 33 else (min(g, 64))  # Alpha had subsurface scattering and green had porosity
+#               A = 255  # Continuum didn't have emission
+#           _n:
+#               R = r
+#               G = g
+#               B = 255  # LabPBR has AO in blue channel, continuum didn't have it
+#               A = a
 
 #   'pbr+emissive (old BSL) to labPBR 1.3':
-#       R = 255 * round(sqrt(r / 255))  # convert to perceptual smoothness
-#       G = round(g * 0.8980392156862745)  # 0-229 range
-#       B = 0
-#       A = b-1  # 1-255 to 0-254 range and 0 become 255 with underflow
+#       original:
+#           R = 255 * round(sqrt(r / 255))  # convert to perceptual smoothness
+#           G = round(g * 0.8980392156862745)  # 0-229 range
+#           B = 0
+#           A = b-1  # 1-255 to 0-254 range and 0 become 255 with underflow
+#       my:
+#           R = 255 * round(sqrt(r / 255))  # convert to perceptual smoothness
+#           G = round(g * 0.8980392156862745)  # 0-229 range
+#           B = 0
+#           A = min(b, 254) ???
 
 #   "gray to labPBR 1.3 (you probably won't get good results)":
 #       # magic number are 1-x of the one in ITU-R 601-2 (L = R * 299 / 1000 + G * 587 / 1000 + B * 114 / 1000)
@@ -99,5 +149,97 @@
 #       A = a
 
 
-def convert_from_old_seus():
-    raise NotImplementedError("Conversion not implemented")
+# image order in dict:
+#   _s: specular
+#   _n: normal
+
+
+# import numpy as np
+import PIL.Image
+
+# from aenum import IntEnum
+from utils import ImageDict
+
+
+# R = 0
+# G = 1
+# B = 2
+# A = 3
+
+
+def convert_from_old_continuum(image_dict: ImageDict) -> ImageDict:
+    specular_map, normal_map = image_dict['images']
+
+    new_specular_map = []
+    for frame in specular_map:
+        frame = frame.convert('RGBA')
+        new_frame = PIL.Image.new('RGB', frame.size)
+
+        for x in range(frame.size[0]):
+            for y in range(frame.size[1]):
+                r, g, b, a = frame.getpixel((x, y))
+
+                new_frame.putpixel(
+                    (x, y),
+                    (
+                        b,
+                        r,
+                        (max(a, 65)) if a > g and a > 33 else (min(g, 64))
+                    )
+                )
+        new_frame.putalpha(255)
+
+        new_specular_map.append(new_frame)
+
+    new_normal_map = []
+    for frame in normal_map:
+        frame = frame.convert('RGBA')
+        new_frame = PIL.Image.new('RGBA', frame.size)
+
+        for x in range(frame.size[0]):
+            for y in range(frame.size[1]):
+                r, g, b, a = frame.getpixel((x, y))
+
+                new_frame.putpixel(
+                    (x, y),
+                    (
+                        r,
+                        g,
+                        255,
+                        a
+                    )
+                )
+
+        new_normal_map.append(new_frame)
+
+    # specular_map = specular_map.convert('RGBA')
+    # specular_map.putalpha(255)
+    #
+    # numpy_specular_map = np.array(specular_map)
+    # new_numpy_specular_map = np.array(specular_map.deepcopy())
+    # # Red channel
+    # new_numpy_specular_map[:, :, R] = numpy_specular_map[:, :, B]
+    # # Green channel
+    # new_numpy_specular_map[:, :, G] = numpy_specular_map[:, :, R]
+    # # Blue channel
+    # new_numpy_specular_map[:, :, B] = (max(numpy_specular_map[:, :, A], 65) if numpy_specular_map[:, :, A] > 33 else 0) if numpy_specular_map[:, :, A] > numpy_specular_map[:, :, G] else (min(numpy_specular_map[:, :, G], 64))
+    # # Alpha channel
+    # new_numpy_specular_map[:, :, A] = 255
+    #
+    # new_specular_map = PIL.Image.fromarray(new_numpy_specular_map)
+    #
+    # normal_map = normal_map.convert('RGBA')
+    # new_numpy_normal_map = np.array(normal_map)
+    # # Blue channel
+    # new_numpy_normal_map[:, :, B] = 255
+    #
+    # new_normal_map = PIL.Image.fromarray(new_numpy_normal_map)
+
+    return {
+        "images": [new_specular_map, new_normal_map],
+        "is_animated": image_dict.get("is_animated"),
+        "animation_spacing": image_dict.get("animation_spacing"),
+    }
+
+
+# https://bdcraft.net/community/viewtopic.php?t=7069&start=10
