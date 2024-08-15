@@ -24,6 +24,7 @@ option_names = [
     "Convert images",
     "Repeat the process",
     "Install plugins",
+    "Raport",  # TODO: implement; It can say what MC textures are you missing, what normal maps are you missing, etc.
     "Exit"
 ]
 
@@ -209,7 +210,8 @@ options = {
     "4": convert_images,
     "5": repeat,
     "6": attempt_to_install_plugins,
-    "7": UI.console.goodbye  # exit with a goodbye message
+    "7": None,
+    "8": UI.console.goodbye  # exit with a goodbye message
 }
 
 if __name__ == "__main__":
