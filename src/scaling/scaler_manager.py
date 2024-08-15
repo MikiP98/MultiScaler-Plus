@@ -60,8 +60,8 @@ from typing import Callable
 
 scaling_functions: dict[auto, Callable[[list[PIL.Image.Image], float, ConfigPlus], list[PIL.Image.Image]]] = {
     # PIL classic algorithms
-    Algorithms.PIL_BILINEAR: pil_scale_bilinear,
     Algorithms.PIL_BICUBIC: pil_scale_bicubic,
+    Algorithms.PIL_BILINEAR: pil_scale_bilinear,
     Algorithms.PIL_BOX: pil_scale_box,  # TODO: test
     Algorithms.PIL_HAMMING: pil_scale_hamming,  # TODO: test
     Algorithms.PIL_LANCZOS: pil_scale_lanczos,

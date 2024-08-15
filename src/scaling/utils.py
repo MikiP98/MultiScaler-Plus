@@ -34,6 +34,8 @@ class Algorithms(IntEnum):
     NEDI = auto()  # New Edge-Directed Interpolation
     PIL_BICUBIC = auto()  # less blur and artifacts than bilinear, but slower
     PIL_BILINEAR = auto()
+    PIL_BOX = auto()  # TODO: test
+    PIL_HAMMING = auto()  # TODO: test
     PIL_LANCZOS = auto()  # less blur than bicubic, but artifacts may appear
     PIL_NEAREST_NEIGHBOR = auto()
     RealESRGAN = auto()
