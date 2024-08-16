@@ -73,7 +73,7 @@ def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:
     image.save(img_byte_arr, **optional_args)
 
     # unique_colors_number = len(set(image.getdata()))
-    unique_colors_number = utils.count_unique_colors_python_break_batched(image)
+    unique_colors_number = count_unique_colors_python_break_batched(image)
     # print(f"Unique colors: {unique_colors_number}")
     if unique_colors_number <= 256:
 
