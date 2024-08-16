@@ -166,7 +166,28 @@ def get_algorithms() -> list[Algorithms]:
 
 
 def get_conversions() -> list[converter.Conversions]:
-    raise NotImplementedError
+    while True:
+        try:
+            print("\nChoose the conversions you want to apply to the original images\n"
+                  "You can select multiple conversions by separating them with a space or a coma\n"
+                  "Available conversions (select the IDs):")
+            # Ignore the warning
+            available_conversions = tuple(f"{conversion.value} - {conversion.name}" for conversion in converter.Conversions)
+            print(columnify(available_conversions))
+            user_input = input(colored(f"{it}Enter your choice: ", "light_grey")).strip()
+            selected_conversions_ids = list(
+                converter.Conversions(
+                    int(conversion_id)
+                ) for conversion_id in user_input.replace(',', ' ').replace("  ", ' ').split(' ')
+            )
+            if any(conversion_id not in converter.Conversions for conversion_id in selected_conversions_ids):
+                raise ValueError
+        except ValueError:
+            # If int() conversion fails or the algorithm ID is not in the list
+            print(colored("Invalid input! IDs should be natural numbers from the list. Please try again.", "red"))
+        else:
+            break
+    return selected_conversions_ids
 
 
 # TODO: Improve indentation and add colours
