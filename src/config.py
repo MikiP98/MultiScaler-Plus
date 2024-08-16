@@ -1,10 +1,13 @@
 # coding=utf-8
 
+# TODO: split static and dynamic configs,
+#  e.g. `"factors": None` and `"processing_method": None` in saver config
 
 _default_configs = {
     "loader": {
         'clear_output_dir': True,
-        'copy_mcmeta': True
+        'copy_mcmeta': True,
+        'merge_texture_extensions': False
     },
     "saver": {
         "simple_config": {

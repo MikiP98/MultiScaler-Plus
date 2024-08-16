@@ -158,6 +158,7 @@
 import PIL.Image
 
 # from aenum import IntEnum
+from termcolor import colored
 from utils import ImageDict
 
 
@@ -168,7 +169,14 @@ from utils import ImageDict
 
 
 def convert_from_old_continuum(image_dict: ImageDict) -> ImageDict:
-    specular_map, normal_map = image_dict['images']
+    if len(image_dict['images']) < 2:
+        print(colored(f"WARN: Image is missing texture extensions! Skipping!", "yellow"))
+        return image_dict
+
+    if len(image_dict['images']) == 2:
+        specular_map, normal_map = image_dict['images']
+    else:
+        specular_map, normal_map, _ = image_dict['images']
 
     new_specular_map = []
     for frame in specular_map:

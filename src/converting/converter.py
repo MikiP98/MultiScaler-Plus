@@ -1,8 +1,8 @@
 # coding=utf-8
-import PIL.Image
 import utils
 
 from aenum import auto, IntEnum, unique
+from converting.converters.labPBR_1_3 import convert_from_old_continuum
 from typing import Callable
 
 
@@ -14,13 +14,13 @@ class Conversions(IntEnum):
     Grey_to_labPBR_1_3 = auto()  # (most likely won't be great)
 
 
-def conversion_not_implemented(_: list[PIL.Image.Image]) -> list[PIL.Image.Image]:
+def conversion_not_implemented(_: utils.ImageDict) -> utils.ImageDict:
     raise NotImplementedError("Conversion not implemented")
 
 
-conversion_functions: dict[auto, Callable[[list[PIL.Image.Image]], list[PIL.Image.Image]]] = {
+conversion_functions: dict[auto, Callable[[utils.ImageDict], utils.ImageDict]] = {
     Conversions.Old_SEUS_to_labPBR_1_3: conversion_not_implemented,
-    Conversions.Old_Continuum_to_labPBR_1_3: conversion_not_implemented,
+    Conversions.Old_Continuum_to_labPBR_1_3: convert_from_old_continuum,
     Conversions.PPR_plus_Emissive_old_BSL_to_labPBR_1_3: conversion_not_implemented,
     Conversions.Grey_to_labPBR_1_3: conversion_not_implemented,
 }
@@ -39,11 +39,7 @@ def convert_image_batch(
         #     raise ValueError(f"Filter {conversion.name} (ID: {conversion}) is not implemented")
 
         result.append([
-            {
-                "images": [conversion_function(image["images"][0])],
-                "is_animated": image.get("is_animated"),
-                "animation_spacing": image.get("animation_spacing"),
-            } for image in images
+            conversion_function(image) for image in images
         ])
 
     return result

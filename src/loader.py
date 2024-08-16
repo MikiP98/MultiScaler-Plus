@@ -27,6 +27,7 @@ class LoaderConfig(TypedDict):
     clear_output_dir: bool
 
     copy_mcmeta: bool
+    merge_texture_extensions: bool  # TODO: implement
 
     prefix_filter: Optional[str]  # endswith TODO: implement
     suffix_filter: Optional[str]  # startswith TODO: implement
@@ -51,9 +52,10 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
         shutil.rmtree("../output", ignore_errors=True)
         os.makedirs("../output")
 
-    images = []
-    roots = []
-    file_names = []
+    images: list[utils.ImageDict] = []
+    last_texture_extension = ""
+    roots: list[str] = []
+    file_names: list[str] = []
     for root, dirs, files in os.walk("../input"):
         # print(f"Length of images: {len(images)}")
         # print(f"Length of roots: {len(roots)}")
@@ -64,9 +66,10 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
 
         for file in files:
             path = os.path.join(root, file)
-            name_parts = file.split('.')
-            extension = name_parts[-1].lower()
-            filename = ''.join(name_parts[:-1])
+            filename, extension = split_file_extension(file)
+            if config['merge_texture_extensions']:
+                filename, texture_extension = split_texture_extension(filename)
+
             # print(f"\nFilename: {filename}")
             # print(f"Extension: {extension}")
             # print(f"Root: {root}")
@@ -76,10 +79,18 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
                 image = PIL.Image.open(path)
                 image = pngify(image)
 
-                images.append(image)
-                roots.append(root)
-                file_names.append(filename)
-                # print(f"Appended root: {root} and file: {file} to their respective lists")
+                if config['merge_texture_extensions'] and file_check(file_names, filename):
+                    print("Merging texture images")
+                    images[-1] = merge_texture_images(images[-1], last_texture_extension, image, texture_extension)
+                    print(f"New image length: {len(images[-1]['images'])}")
+                else:
+                    # TODO: Consider additional texture extension check
+                    images.append(image)
+                    if config['merge_texture_extensions']:
+                        last_texture_extension = texture_extension
+                    roots.append(root)
+                    file_names.append(filename)
+                    # print(f"Appended root: {root} and file: {file} to their respective lists")
 
             elif extension == "zip" or extension == "7z":
                 with zipfile.ZipFile(path) as zip_ref:
@@ -127,3 +138,51 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
             print(f"Loaded: {path}")
 
     return images, roots, file_names
+
+
+def split_string(string: str, separator: str) -> tuple[str, str]:
+    parts = string.split(separator)
+    return separator.join(parts[:-1]), parts[-1].lower()
+
+
+def split_file_extension(file_name: str) -> tuple[str, str]:
+    return split_string(file_name, '.')
+
+
+def split_texture_extension(file_name: str) -> tuple[str, str]:
+    return split_string(file_name, '_')
+
+
+# the order should go like this: n, s, e
+def merge_texture_images(
+        original_image: utils.ImageDict,
+        original_texture_extension: str,
+        new_image: utils.ImageDict,
+        new_texture_extension: str
+) -> utils.ImageDict:
+    new_images = []
+
+    if original_texture_extension == 'n':
+        new_images.append(*original_image['images'])
+    elif original_texture_extension == 's':
+        new_images.insert(1, *original_image['images'])
+    else:
+        raise ValueError(f"Unknown texture extension `{original_texture_extension}`?")
+
+    if new_texture_extension == 's':
+        new_images.append(*new_image['images'])
+    elif new_texture_extension == 'e':
+        new_images.insert(1, *new_image['images'])
+    else:
+        raise ValueError(f"Unknown texture extension `{new_texture_extension}`?")
+
+    original_image['images'] = new_images
+
+    return original_image
+
+
+def file_check(file_names: list[str], filename: str) -> bool:
+    if len(file_names) == 0:
+        return False
+    else:
+        return file_names[-1] == filename
