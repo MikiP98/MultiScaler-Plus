@@ -30,9 +30,11 @@ def scale_bicubic(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -
 def scale_lanczos(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
     return scale(frames, factor, PIL.Image.Resampling.LANCZOS)
 
-# TODO: HAMMING & BOX
+
+# TODO: Test HAMMING & BOX
 def scale_hamming(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
     return scale(frames, factor, PIL.Image.Resampling.HAMMING)
+
 
 def scale_box(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
     return scale(frames, factor, PIL.Image.Resampling.BOX)

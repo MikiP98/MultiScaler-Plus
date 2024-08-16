@@ -152,7 +152,9 @@ def ai_scale_fsrcnn(frames: list[PIL.Image.Image], factor: float, config_plus: C
     return cv2_ai_common(frames, factor, config_plus, "FSRCNN", {2, 3, 4})
 
 
-def ai_scale_fsrcnn_small(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
+def ai_scale_fsrcnn_small(
+        frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus
+) -> list[PIL.Image.Image]:
     return cv2_ai_common(frames, factor, config_plus, "FSRCNN_small", {2, 3, 4})
 
 
