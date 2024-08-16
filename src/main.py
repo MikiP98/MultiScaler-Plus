@@ -60,7 +60,7 @@ def main() -> None:
             print()
 
 
-def scale_images():
+def scale_images() -> None:
     import scaling.scaler_manager as scaler
 
     print("Scaling images!")
@@ -122,7 +122,7 @@ def scale_images():
     saver.save_img_list_multithreaded(scaled_images, roots, file_names, saver_config, algorithms)
 
 
-def apply_filters():
+def apply_filters() -> None:
     import filtering.filter_manager as filter_manager
 
     print("Applying filters!")
@@ -153,12 +153,14 @@ def apply_filters():
     saver.save_img_list_multithreaded(filtered_images, roots, file_names, saver_config, selected_filters_ids)
 
 
-def compress_images():
+def compress_images() -> None:
     print("Compressing images!")
     raise OptionNotImplementedError
 
 
-def convert_images():
+def convert_images() -> None:
+    import converting.converter as converter
+
     print("Converting images!")
 
     while True:
@@ -179,15 +181,18 @@ def convert_images():
     load_config = UI.console.get_loader_config()
     saver_config = UI.console.get_saver_config()
 
-    images, roots, file_names = loader.load_images(load_config)
-
     if user_input == 1:
-        saver.save_img_list_multithreaded([images], roots, file_names, saver_config, [])
+        images, roots, file_names = loader.load_images(load_config)
+        saver.save_img_list_multithreaded([images], roots, file_names, saver_config, ['conversion'])
     elif user_input == 2:
-        conversions = UI.console.get_conversions()
-        converted_images = converting.convert_image_batch(conversions, images)
+        print(colored("INFO: Loader config override! merge_texture_extensions = true", "green"))
+        load_config["merge_texture_extensions"] = True
+        images, roots, file_names = loader.load_images(load_config)
 
-    raise OptionNotImplementedError
+        conversions = UI.console.get_conversions()
+        converted_images = converter.convert_image_batch(conversions, images)
+
+        saver.save_img_list_multithreaded(converted_images, roots, file_names, saver_config, ['n', 's', 'e'])
 
 
 def repeat():
