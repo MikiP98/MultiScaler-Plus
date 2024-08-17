@@ -28,8 +28,10 @@ conversion_functions: dict[auto, Callable[[utils.ImageDict], utils.ImageDict]] =
 
 def convert_image_batch(
         conversions: list[Conversions],
-        images: list[utils.ImageDict]
+        images: list[list[utils.ImageDict]]
 ) -> list[list[utils.ImageDict]]:
+    # images is a list of a list of textures
+    # the inner list follows this pattern: [_n, _s, {rest} ...]
 
     result = []
 

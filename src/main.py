@@ -187,10 +187,10 @@ def convert_images() -> None:
     elif user_input == 2:
         print(colored("INFO: Loader config override! merge_texture_extensions = true", "green"))
         load_config["merge_texture_extensions"] = True
-        images, roots, file_names = loader.load_images(load_config)
+        textures, roots, file_names = loader.load_textures(load_config)
 
         conversions = UI.console.get_conversions()
-        converted_images = converter.convert_image_batch(conversions, images)
+        converted_images = converter.convert_image_batch(conversions, textures)
 
         saver.save_img_list_multithreaded(converted_images, roots, file_names, saver_config, ['n', 's', 'e'])
 

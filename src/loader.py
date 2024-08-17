@@ -53,7 +53,7 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
         os.makedirs("../output")
 
     images: list[utils.ImageDict] = []
-    last_texture_extension = ""
+    # last_texture_extension = ""
     roots: list[str] = []
     file_names: list[str] = []
     for root, dirs, files in os.walk("../input"):
@@ -67,8 +67,8 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
         for file in files:
             path = os.path.join(root, file)
             filename, extension = split_file_extension(file)
-            if config['merge_texture_extensions']:
-                filename, texture_extension = split_texture_extension(filename)
+            # if config['merge_texture_extensions']:
+            #     filename, texture_extension = split_texture_extension(filename)
 
             # print(f"\nFilename: {filename}")
             # print(f"Extension: {extension}")
@@ -79,18 +79,130 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
                 image = PIL.Image.open(path)
                 image = pngify(image)
 
-                if config['merge_texture_extensions'] and file_check(file_names, filename):
-                    print("Merging texture images")
-                    images[-1] = merge_texture_images(images[-1], last_texture_extension, image, texture_extension)
-                    print(f"New image length: {len(images[-1]['images'])}")
+                # if config['merge_texture_extensions'] and file_check(file_names, filename):
+                #     print("Merging texture images")
+                #     images[-1] = merge_texture_images(images[-1], last_texture_extension, image, texture_extension)
+                #     print(f"New image length: {len(images[-1]['images'])}")
+                # else:
+                #     # TODO: Consider additional texture extension check
+                #     images.append(image)
+                #     if config['merge_texture_extensions']:
+                #         last_texture_extension = texture_extension
+                #     roots.append(root)
+                #     file_names.append(filename)
+                #     # print(f"Appended root: {root} and file: {file} to their respective lists")
+
+                images.append(image)
+                roots.append(root)
+                file_names.append(filename)
+                # print(f"Appended root: {root} and file: {file} to their respective lists")
+
+            elif extension == "zip" or extension == "7z":
+                with zipfile.ZipFile(path) as zip_ref:
+                    # Get a list of all files and directories inside the zip file
+                    zip_contents = zip_ref.namelist()
+
+                    # Iterate through each file in the zip file
+                    for file_name in zip_contents:
+                        # Check if the current item is a file (not a directory)
+                        if not file_name.endswith('/'):  # Directories end with '/'
+                            # Read the content of the file
+                            with zip_ref.open(file_name) as zip_file:
+                                # Process the content of the file
+                                print(f"Contents of {file_name}:")
+                                print(zip_file.read())  # You can perform any operation you want with the file content
+                                print("---------------")
+
+                raise NotImplementedError("Zip and 7z files are not supported yet")
+
+            elif extension == "mcmeta":
+                if config['copy_mcmeta']:
+                    print(f"MCMeta file: {path} is being copied to the output directory")
+                    # output_dir = f"../output{root.lstrip('../input')}"
+                    output_dir = f"../output{root[8:]}"
+                    if not os.path.exists(output_dir):
+                        os.makedirs(output_dir)
+                    shutil.copy2(path, output_dir)
                 else:
-                    # TODO: Consider additional texture extension check
-                    images.append(image)
-                    if config['merge_texture_extensions']:
-                        last_texture_extension = texture_extension
+                    print(f"MCMeta file: {path} will be ignored, animated texture will be corrupted!")
+
+                continue
+
+            elif extension in pil_write_only_formats_cache or extension in pil_indentify_only_formats_cache:
+                print(f"File: {path} is an recognized image format but is not supported :( (yet)")
+                try:
+                    PIL.Image.open(path)  # Open the image to display Pillow's error message
+                finally:
+                    pass
+
+                continue
+            else:
+                print(f"File: {path} is not supported, unrecognized file extension '{extension}'")
+                continue
+
+            print(f"Loaded: {path}")
+
+    return images, roots, file_names
+
+
+# list["_n", "_s", {else} ...]
+def load_textures(config: LoaderConfig) -> tuple[list[list[utils.ImageDict | None]], list[str], list[str]]:
+    if config['clear_output_dir']:
+        print(f"{b}Clearing the output directory{nr}")
+        shutil.rmtree("../output", ignore_errors=True)
+        os.makedirs("../output")
+
+    images: list[list[utils.ImageDict | None]] = []
+    last_filename = ''
+    roots: list[str] = []
+    file_names: list[str] = []
+    for root, dirs, files in os.walk("../input"):
+        # print(f"Length of images: {len(images)}")
+        # print(f"Length of roots: {len(roots)}")
+        # print(f"Length of files: {len(file_names)}")
+
+        files_number = len(files)
+        print(f"\n{b}Checking {files_number} files in {root} directory{nr}")
+
+        for file in files:
+            path = os.path.join(root, file)
+            filename, extension = split_file_extension(file)
+
+            filename, texture_extension = split_texture_extension(filename)
+
+            # print(f"\nFilename: {filename}")
+            # print(f"Extension: {extension}")
+            # print(f"Root: {root}")
+            # print(f"Root[8:]: {root[9:]}")
+
+            if extension in pil_fully_supported_formats_cache or extension in pil_read_only_formats_cache:
+                image: PIL.Image.Image = PIL.Image.open(path)
+                image: utils.ImageDict = pngify(image)
+
+                if filename != last_filename:
+                    image_to_insert: list[utils.ImageDict | None] = [None] * 2
+
+                    if texture_extension == 'n':
+                        image_to_insert[0] = image
+                    elif texture_extension == 's':
+                        image_to_insert[1] = image
+                    else:
+                        image_to_insert.append(image)
+
+                    images.append(image_to_insert)
                     roots.append(root)
                     file_names.append(filename)
-                    # print(f"Appended root: {root} and file: {file} to their respective lists")
+                    last_filename = filename
+
+                else:
+                    if texture_extension == 'n':
+                        images[-1][0] = image
+                    elif texture_extension == 's':
+                        images[-1][1] = image
+                    else:
+                        images[-1].append(image)
+
+                # print(f"Appended root: {root} and file: {file} to their respective lists")
 
             elif extension == "zip" or extension == "7z":
                 with zipfile.ZipFile(path) as zip_ref:
