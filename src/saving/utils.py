@@ -2,7 +2,6 @@
 import io
 import os
 import PIL.Image
-import utils
 
 from aenum import IntEnum
 from typing import Optional, TypedDict
@@ -64,12 +63,9 @@ def count_unique_colors_python_break_batched(image: PIL.Image) -> int:
 
 
 def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:
+    mode = image.mode
+
     img_byte_arr = io.BytesIO()
-
-    mode = 'RGBA'
-    if not utils.has_transparency(image):
-        mode = 'RGB'
-
     image.save(img_byte_arr, **optional_args)
 
     # unique_colors_number = len(set(image.getdata()))
@@ -88,7 +84,7 @@ def apply_lossless_compression(image: PIL.Image, optional_args: dict) -> bytes:
         img_temp_byte_arr = io.BytesIO()
         temp_image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)  # sometimes deletes some data :/
 
-        # Additional check to see if PIL didn't fuck up, (it sometimes it wrong)
+        # Additional check to see if PIL didn't fuck up, (it is sometimes wrong)
         if image.getdata() == temp_image.convert(mode).getdata():  # benchmarked
             temp_image.save(img_temp_byte_arr, **optional_args)
 
