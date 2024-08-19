@@ -67,6 +67,8 @@ class FullAlgorithmsTest(Preset):
         Algorithms.NEDI,  # New Edge-Directed Interpolation
         Algorithms.PIL_BICUBIC,  # less blur and artifacts than bilinear, but slower
         Algorithms.PIL_BILINEAR,
+        Algorithms.PIL_BOX,
+        Algorithms.PIL_HAMMING,
         Algorithms.PIL_LANCZOS,  # less blur than bicubic, but artifacts may appear
         Algorithms.PIL_NEAREST_NEIGHBOR,
         Algorithms.RealESRGAN,
@@ -122,6 +124,8 @@ class FullUpscaleTest(Preset):
         Algorithms.NEDI,  # New Edge-Directed Interpolation
         Algorithms.PIL_BICUBIC,  # less blur and artifacts than bilinear, but slower
         Algorithms.PIL_BILINEAR,
+        Algorithms.PIL_BOX,
+        Algorithms.PIL_HAMMING,
         Algorithms.PIL_LANCZOS,  # less blur than bicubic, but artifacts may appear
         Algorithms.PIL_NEAREST_NEIGHBOR,
         Algorithms.RealESRGAN,
@@ -195,6 +199,8 @@ class UpscaleNoCLITest(Preset):
         Algorithms.NEDI,  # New Edge-Directed Interpolation
         Algorithms.PIL_BICUBIC,  # less blur and artifacts than bilinear, but slower
         Algorithms.PIL_BILINEAR,
+        Algorithms.PIL_BOX,
+        Algorithms.PIL_HAMMING,
         Algorithms.PIL_LANCZOS,  # less blur than bicubic, but artifacts may appear
         Algorithms.PIL_NEAREST_NEIGHBOR,
         Algorithms.RealESRGAN,
@@ -235,6 +241,8 @@ class FullDownScalingTest(Preset):
 
         Algorithms.PIL_BICUBIC,  # less blur and artifacts than bilinear, but slower
         Algorithms.PIL_BILINEAR,
+        Algorithms.PIL_BOX,
+        Algorithms.PIL_HAMMING,
         Algorithms.PIL_LANCZOS,  # less blur than bicubic, but artifacts may appear
         Algorithms.PIL_NEAREST_NEIGHBOR,
 
