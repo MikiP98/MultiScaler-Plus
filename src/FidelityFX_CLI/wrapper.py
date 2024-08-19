@@ -127,7 +127,7 @@ def ignite_the_drive(max_pixel_count: int, max_factor: float) -> None:
         virtual_drive_letter = ram_disk_drive_letter
         create_ram_disk_windows(ram_disk_size_mb, ram_disk_drive_letter)
         is_virtual_drive_on = True
-        print(f"Created RAM disk at {ram_disk_drive_letter}:")
+        print(f"Created RAM disk at `{ram_disk_drive_letter}:`")
 
 
 def extinguish_the_drive():
