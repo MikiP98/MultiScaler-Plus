@@ -18,7 +18,9 @@ def generate_markdown_for_example_images(split=True):
     algorithms = [
         "Original",
 
-        "Nearest Neighbour", "Bilinear", "Bicubic", "Lanczos",
+        "Nearest Neighbour", 
+        "Bilinear *(PIL)*", "Bicubic *(PIL)*", "Lanczos *(PIL)*", "Hamming *(PIL)*",
+        "Bilinear *(CV2)*", "Bicubic *(CV2)*", "Lanczos *(CV2)*",
 
         "EDSR *(CV2)*", "ESPCN *(CV2)*", "FSRCNN *(CV2)*", "FSRCNN-small *(CV2)*", "LapSRN *(CV2)*",
 
@@ -30,50 +32,60 @@ def generate_markdown_for_example_images(split=True):
 
         "hqx", "NEDI <sup>*(m = 4)*</sup>", "Super xBR", "xBRZ",
 
-        "FSR", "CAS <sup>*(sharpness = 0.5)*</sup>"
+        "FSR", "CAS <sup>*(sharpness = 0.5)*</sup>",
+
+        "Repetition"
     ]
     links = [
         "https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png",
 
-        "./src/example_images/output/CV2_INTER_NEAREST_example_shell_40px_4x.png",
-        "./src/example_images/output/CV2_INTER_LINEAR_example_shell_40px_4x.png",
-        "./src/example_images/output/CV2_INTER_CUBIC_example_shell_40px_4x.png",
-        "./src/example_images/output/CV2_INTER_LANCZOS4_example_shell_40px_4x.png",
+        "../../example_images/output/example_shell_40px/CV2_INTER_NEAREST_example_shell_40px_4x.webp",
 
-        "./src/example_images/output/CV2_EDSR_example_shell_40px_4x.png",
-        "./src/example_images/output/CV2_ESPCN_example_shell_40px_4x.png",
-        "./src/example_images/output/CV2_FSRCNN_example_shell_40px_4x.png",
-        "./src/example_images/output/CV2_FSRCNN_small_example_shell_40px_4x.png",
-        "./src/example_images/output/CV2_LapSRN_example_shell_40px_4x.png",
+        "../../example_images/output/example_shell_40px/PIL_BILINEAR_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/PIL_BICUBIC_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/PIL_LANCZOS_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/PIL_HAMMING_example_shell_40px_4x.webp",
 
-        "./src/example_images/output/SI_a2n_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_awsrn_bam_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_carn_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_carn_bam_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_drln_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_drln_bam_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_edsr_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_edsr_base_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_han_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_mdsr_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_mdsr_bam_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_msrn_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_msrn_bam_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_pan_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_pan_bam_example_shell_40px_4x.png",
-        "./src/example_images/output/SI_rcan_bam_example_shell_40px_4x.png",
+        "../../example_images/output/example_shell_40px/CV2_INTER_LINEAR_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/CV2_INTER_CUBIC_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/CV2_INTER_LANCZOS4_example_shell_40px_4x.webp",
 
-        "./src/example_images/output/RealESRGAN_example_shell_40px_4x.png",
-        "./src/example_images/output/Anime4K_example_shell_40px_4x.png",
-        "./src/example_images/output/HSDBTRE_example_shell_40px_4x.png",
+        "../../example_images/output/example_shell_40px/CV2_EDSR_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/CV2_ESPCN_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/CV2_FSRCNN_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/CV2_FSRCNN_small_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/CV2_LapSRN_example_shell_40px_4x.webp",
 
-        "./src/example_images/output/hqx_example_shell_40px_4x.png",
-        "./src/example_images/output/NEDI_example_shell_40px_4x.png",
-        "./src/example_images/output/Super_xBR_example_shell_40px_4x.png",
-        "./src/example_images/output/xBRZ_example_shell_40px_4x.png",
+        "../../example_images/output/example_shell_40px/SI_a2n_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_awsrn_bam_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_carn_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_carn_bam_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_drln_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_drln_bam_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_edsr_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_edsr_base_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_han_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_mdsr_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_mdsr_bam_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_msrn_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_msrn_bam_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_pan_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_pan_bam_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/SI_rcan_bam_example_shell_40px_4x.webp",
 
-        "./src/example_images/output/example_shell_40px_FSR.png",
-        "./src/example_images/output/example_shell_40px_CAS.png",
+        "../../example_images/output/example_shell_40px/RealESRGAN_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/Anime4K_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/HSDBTRE_example_shell_40px_4x.webp",
+
+        "../../example_images/output/example_shell_40px/hqx_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp",
+
+        "../../example_images/output/example_shell_40px/FSR_example_shell_40px_4x.webp",
+        "../../example_images/output/example_shell_40px/CAS_example_shell_40px_4x.webp",
+
+        "../../example_images/output/example_shell_40px/Repetition_example_shell_40px_4x.webp"
     ]
 
     columns = 4
