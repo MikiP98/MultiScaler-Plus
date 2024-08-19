@@ -4,7 +4,7 @@
 
 ## Description
 
-Area Average is a simple algorithm that calculates the average color of the pixels in the area of the new pixel, because of this it only supports downscaling.  
+Area Average / Box is a simple algorithm that calculates the average color of the pixels in the area of the new pixel, because of this it only supports downscaling.  
 <br> 
 *Small image of "how it works"*  
 
