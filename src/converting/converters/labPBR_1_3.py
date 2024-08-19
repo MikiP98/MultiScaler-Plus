@@ -170,7 +170,7 @@ from utils import ImageDict
 
 def convert_from_old_continuum(image_dict: ImageDict) -> ImageDict:
     if len(image_dict['images']) < 2:
-        print(colored(f"WARN: Image is missing texture extensions! Skipping!", "yellow"))
+        print(colored("WARN: Image is missing texture extensions! Skipping!", "yellow"))
         return image_dict
 
     if len(image_dict['images']) == 2:

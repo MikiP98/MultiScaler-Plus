@@ -18,7 +18,7 @@ def generate_markdown_for_example_images(split=True):
     algorithms = [
         "Original",
 
-        "Nearest Neighbour", 
+        "Nearest Neighbour",
         "Bilinear *(PIL)*", "Bicubic *(PIL)*", "Lanczos *(PIL)*", "Hamming *(PIL)*",
         "Bilinear *(CV2)*", "Bicubic *(CV2)*", "Lanczos *(CV2)*",
 
