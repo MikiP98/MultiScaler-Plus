@@ -22,8 +22,6 @@ def scale(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus)
 
         current_factor = 1
         while current_factor < factor:
-            print(f"iteration: {current_factor}")
-
             parameters = pyanime4k.ac.Parameters()
             parameters.HDN = True
             a = pyanime4k.ac.AC(
