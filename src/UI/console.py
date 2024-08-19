@@ -1,3 +1,5 @@
+import aenum
+
 import config
 import json
 import os
@@ -10,7 +12,7 @@ from loader import LoaderConfig
 from scaling.utils import Algorithms, ConfigPlus as ScalerConfig
 from saving.utils import AdvancedConfig as SaverConfig
 from termcolor import colored
-from typing import Callable
+from typing import Callable, Type
 from utils import rainbowify
 
 it = '\x1B[3m'
@@ -116,84 +118,59 @@ def get_factors() -> list[float]:
 
 
 def get_filters() -> list[filter_manager.Filters]:
-    while True:
-        try:
-            print("\nChoose the filters you want to apply to the original images\n"
-                  "You can select multiple filters by separating them with a space or coma\n"
-                  "Available filters (select the IDs):")
-            # Ignore the warning
-            available_filters = tuple(f"{filter.value} - {filter.name}" for filter in filter_manager.Filters)
-            print(columnify(available_filters))
-            user_input = input(colored(f"{it}Enter your choice: ", "light_grey")).strip()
-            selected_filters_ids = list(
-                filter_manager.Filters(
-                    int(filter_id)
-                ) for filter_id in user_input.replace(',', ' ').replace("  ", ' ').split(' ')
-            )
-            if any(filter_id not in filter_manager.Filters for filter_id in selected_filters_ids):
-                raise ValueError
-        except ValueError:
-            # If int() conversion fails or the filter ID is not in the list
-            print(colored("Invalid input! IDs should be natural numbers from the list. Please try again.", "red"))
-        else:
-            break
-    return selected_filters_ids
+    return get_selections(filter_manager.Filters, "filters")
 
 
 def get_algorithms() -> list[Algorithms]:
-    while True:
-        try:
-            print("\nChoose the scaling algorithms you want to apply to the original images\n"
-                  "You can select multiple algorithms by separating them with a space or coma\n"
-                  "Available algorithms (select the IDs):")
-            # Ignore the warning
-            available_algorithms = tuple(f"{algorithm.value} - {algorithm.name}" for algorithm in Algorithms)
-            print(columnify(available_algorithms))
-            user_input = input(colored(f"{it}Enter your choice: ", "light_grey")).strip()
-            selected_algorithms_ids = list(
-                Algorithms(
-                    int(algorithm_id)
-                ) for algorithm_id in user_input.replace(',', ' ').replace("  ", ' ').split(' ')
-            )
-            if any(algorithm_id not in Algorithms for algorithm_id in selected_algorithms_ids):
-                raise ValueError
-        except ValueError:
-            # If int() conversion fails or the algorithm ID is not in the list
-            print(colored("Invalid input! IDs should be natural numbers from the list. Please try again.", "red"))
-        else:
-            break
-    return selected_algorithms_ids
+    return get_selections(Algorithms, "algorithms")
 
 
 def get_conversions() -> list[converter.Conversions]:
+    return get_selections(converter.Conversions, "conversions")
+
+
+def get_selections(
+        enum: Type[Algorithms | converter.Conversions | filter_manager.Filters],
+        plural_name: str
+) -> list[Algorithms | converter.Conversions | filter_manager.Filters]:
     while True:
         try:
-            print("\nChoose the conversions you want to apply to the original images\n"
-                  "You can select multiple conversions by separating them with a space or a coma\n"
-                  "Available conversions (select the IDs):")
+            print(f"\nChoose the {plural_name} you want to apply to the original images\n"
+                  f"You can select multiple {plural_name} by separating them with a space or a coma\n"
+                  f"You can also select a range of {plural_name} with '-'\n"
+                  f"Available {plural_name} (select the IDs):")
             # Ignore the warning
-            available_conversions = tuple(f"{conversion.value} - {conversion.name}" for conversion in converter.Conversions)
-            print(columnify(available_conversions))
+            available_options = tuple(f"{option.value} - {option.name}" for option in enum)
+            print(columnify(available_options))
             user_input = input(colored(f"{it}Enter your choice: ", "light_grey")).strip()
-            selected_conversions_ids = list(
-                converter.Conversions(
-                    int(conversion_id)
-                ) for conversion_id in user_input.replace(',', ' ').replace("  ", ' ').split(' ')
-            )
-            if any(conversion_id not in converter.Conversions for conversion_id in selected_conversions_ids):
-                raise ValueError
+
+            # TODO: Consider moving it all to the separate function
+            user_input_parts = user_input.replace(',', ' ').replace("  ", ' ').split(' ')
+            selected_options_ids = [
+                enum(option_id)
+                for user_input_part in user_input_parts
+                for option_id in interpret_input(user_input_part)
+            ]
         except ValueError:
             # If int() conversion fails or the algorithm ID is not in the list
-            print(colored("Invalid input! IDs should be natural numbers from the list. Please try again.", "red"))
+            print(colored("\nInvalid input! IDs should be natural numbers from the list. Please try again.", "red"))
         else:
             break
-    return selected_conversions_ids
+    return selected_options_ids
+
+
+def interpret_input(user_input_part: str) -> list[int]:
+    if '-' in user_input_part:
+        start, end = user_input_part.split('-')
+        return list(range(int(start), int(end) + 1))
+    else:
+        return [int(user_input_part)]
 
 
 # TODO: Improve indentation and add colours
 def print_config(config: dict) -> None:
     for key, value in config.items():
-        print(f"{key}: {value}")
+        print(f"{colored(key + ':', "magenta")} {colored(value, "light_blue")}")
     print()
 
 
@@ -321,3 +298,13 @@ def convert(value: str, type_: type) -> any:
     elif type_ == dict or type_ == list:
         return json.loads(value.replace("'", '"'))
     return type_(value)
+
+
+if __name__ == '__main__':
+    @aenum.unique
+    class _enum(aenum.IntEnum):
+        one = 1
+        two = 2
+        three = 3
+
+    get_selections(_enum, "enums")
