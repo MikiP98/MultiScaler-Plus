@@ -9,22 +9,22 @@ from termcolor import colored
 
 
 def fsr_scale(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
-    factor_check(factor)
+    factor_check(factor, "FSR")
     options = f"-Scale {factor}x {factor}x -Mode EASU"
     return cli_process_frames(frames, options)
 
 
 def cas_scale(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus) -> list[PIL.Image.Image]:
-    factor_check(factor)
+    factor_check(factor, "CAS")
     options = f"-Scale {factor}x {factor}x -Sharpness {config_plus["sharpness"]} -Mode CAS"
     return cli_process_frames(frames, options)
 
 
-def factor_check(factor: float) -> None:
+def factor_check(factor: float, name: str) -> None:
     if factor > 2:
         print(
             colored(
-                f"WARNING: Scaling with CAS by factor of {factor} is not supported, result might be blurry!",
+                f"WARNING: Scaling with {name} by factor of {factor} is not supported, result might be blurry!",
                 'yellow'
             )
         )
