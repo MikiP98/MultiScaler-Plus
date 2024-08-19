@@ -1,6 +1,7 @@
 # coding=utf-8
 # File for saving images
 
+import fractions
 import itertools
 import os
 import PIL.Image
@@ -30,7 +31,7 @@ format_savers: dict[str, Callable[[PIL.Image.Image, str, Compression, bool], Non
 
 
 def save_image(image: PIL.Image.Image, path: str, config: SimpleConfig) -> None:
-    print(path)
+    print(colored(path, "light_green"))
 
     if any([compression['additional_lossless'] for compression in config['compressions']]):  # TODO: benchmark this
         additional_lossless_image = image.convert("RGB") if not utils.uses_transparency(image) else image
@@ -56,7 +57,7 @@ def save_image(image: PIL.Image.Image, path: str, config: SimpleConfig) -> None:
                 config['sort_by_file_extension']
             )
 
-    print(colored(f"{path} Fully Saved!", 'light_green'))
+    print(colored(f"{path} Fully Saved!", 'green'))
 
 
 def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name: str, config: AdvancedConfig) -> None:
@@ -89,7 +90,6 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
     if config['factors'] is None:
         config['factors'] = []
 
-    print(f"Saving {len(image["images"])} images")
     for processed_image, factor in zip_longest(image["images"], config['factors']):
         file_name_part: list[str] = [file_name]
         final_output_path_parts = output_path_parts.copy()
@@ -99,15 +99,15 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
 
         if factor is not None:
             if config['sort_by_factor']:
-                final_output_path_parts.append(str(factor))
+                final_output_path_parts.append(factor_to_string(factor))
             if config['add_factor_to_name']:
-                file_name_part.append(str(factor))
+                file_name_part.append(factor_to_string(factor))
 
         new_file_name = "_".join([*file_name_prefix, *file_name_part])
 
         full_output_path = os.path.join(*final_output_path_parts, output_path, new_file_name)
 
-        print(f"Saving to: {full_output_path}")
+        # print(f"Saving to: {full_output_path}")
 
         save_image(
             processed_image[0],
@@ -116,11 +116,18 @@ def save_image_pre_processor(image: utils.ImageDict, output_path: str, file_name
         )
 
 
+def factor_to_string(factor: float) -> str:
+    if factor.is_integer():
+        return f"{int(factor)}x"
+    else:
+        factor = fractions.Fraction(factor)
+        return f"({factor.numerator}/{factor.denominator}x)"
+
+
 def save_img_list(bundle: tuple[list[utils.ImageDict], list[str], list[str]], saver_config: AdvancedConfig):
     # bundle is a zip, but is a tuple...
     # print(f"Type of bundle: {type(bundle)}")
     for filtered_image, root, file_name in bundle:
-        print("Pre-process")
         save_image_pre_processor(
             filtered_image,
             root[9:],
@@ -150,7 +157,6 @@ def save_img_list_multithreaded(
     # print(f"Split the bundle into sizes of {batched_cache}\n")
 
     for processed_image_set, processing_method in zip(processed_images, processing_methods):
-        print("Iteration")
         current_saver_config = saver_config.copy()
         current_saver_config['processing_method'] = processing_method
 
@@ -160,7 +166,6 @@ def save_img_list_multithreaded(
         threads = []
 
         for bundle_split in bundle_splits:
-            print("Split")
             thread = threading.Thread(
                 target=save_img_list,
                 args=(bundle_split, current_saver_config)
