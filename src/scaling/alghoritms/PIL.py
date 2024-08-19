@@ -31,10 +31,13 @@ def scale_lanczos(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -
     return scale(frames, factor, PIL.Image.Resampling.LANCZOS)
 
 
-# TODO: Test HAMMING & BOX
 def scale_hamming(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
     return scale(frames, factor, PIL.Image.Resampling.HAMMING)
 
 
 def scale_box(frames: list[PIL.Image.Image], factor: float, _: ConfigPlus) -> list[PIL.Image.Image]:
+    if factor > 1:
+        # Box upscaling is same as nearest neighbor
+        print("WARNING: BOX upscaling is equal to Nearest Neighbour; Skipping!")
+        return []
     return scale(frames, factor, PIL.Image.Resampling.BOX)
