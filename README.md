@@ -57,8 +57,8 @@ If feature you are interested in is not in either branch's roadmap, feel free to
 ## Installation:
 1. Make sure you have installed on your system:
    - **[Python](https://www.python.org/downloads/) 3.12** <sup>(minor version does not matter)</sup>
-   - **[*OPTIONAL*] [Node.js](https://nodejs.org/en/download/prebuilt-installer)** *(16.0.0 or newer)*
-   - **[*OPTIONAL*] [Docker](https://docs.docker.com/get-docker/)** *(for **Waifu2x** & **Supir**)*
+   - ~~**[*OPTIONAL*] [Node.js](https://nodejs.org/en/download/prebuilt-installer)** *(16.0.0 or newer)*~~
+   - ~~**[*OPTIONAL*] [Docker](https://docs.docker.com/get-docker/)** *(for **Waifu2x** & **Supir**)*~~
 2. Clone this repository `git clone "https://github.com/MikiP98/MultiScaler-Plus"`
 3. Run the included `install.bat` script
 
@@ -67,8 +67,8 @@ If feature you are interested in is not in either branch's roadmap, feel free to
   - Run the included `run_console.ps1` script
     - Right-click on the script and select `Run with PowerShell`
   - Or run the python script manually: `python src/main.py`
-    - You can also pass arguments to the script. Add `--help` to see the list of available arguments
-- **Web GUI** *(will be back soon!)*:
+    - ~~You can also pass arguments to the script. Add `--help` to see the list of available arguments~~ *(will be back soon!)*:
+- ~~**Web GUI**~~ *(will be back soon!)*:
   - ~~Run the included `run_webui.bat` script~~
 
 <br/>
@@ -109,11 +109,13 @@ A summary of best and most unique results of up-scaling the image *(40px -> 160p
   - **WEBP** *(Comparable, lossless and lossy compression, to **JPEG XL** (a bit worse on average), but with better overall support)*
   - **JPEG XL** *(New advanced compression format, better lossless compression compared to **PNG** and better lossy compared to **JPEG**)* <br> <sup>*(see [this plugin](https://github.com/saschanaz/jxl-winthumb) for Windows Support)*</sup>
   - **AVIF** *(New advanced compression format, much, much slower and with worse lossless compression then **WEBP** and **JPEG XL**, currently no transparency because of a bug, pretty wide support)*
-  - *<sup> See benchmarks below for more detail </sup>*
+  
+    *<sup> See benchmarks below for more detail </sup>*
 
 - **Read:**
-  - **PNG** *(.png)*
   - **JPEG** *(.jpg, .jpeg)*
+  - **PNG** *(.png)*
+  - **WEBP** *(.webp)*
 
 ### Should work:
 
@@ -242,7 +244,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
   - NVIDIAs **DLSS** and **NIS** support
   - support for **WEBP2** format *(both reading and writing)*
 - Add support for **ZIP** and **7z** archives as input and output
-- Add **filters** and **effects** support:
+- Add **filters** and **effects** support: *(in progress...)*
   - Blur
   - Brightness
   - CAS *(Contrast Adaptive Sharpening)*
@@ -262,7 +264,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 - Add an option to blend all algorithms together instead of saving them separately
 - Add some conversions:
   - Old SEUS to labPBR 1.3
-  - Old Continuum to labPBR 1.3
+  - ~~Old Continuum to labPBR 1.3~~
   - PPR+Emissive (old BSL) to labPBR 1.3
   - Gray to labPBR 1.3 (most likely won't be great)
   - More?
@@ -271,7 +273,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 - Add image merger: multiple images into one stacked or animated image
 - ~~Add big 160px example shell image to example images~~
 - Librarify this app...
-- Add a markdown page(s) with detailed algorithms descriptions
+- Add a markdown page(s) with detailed algorithms descriptions *(in progress...)*
 
 <br/>
 

@@ -5,12 +5,13 @@
       <entry url="file://$PROJECT_DIR$">
         <entryData>
           <resourceRoots>
-            <path value="file://$PROJECT_DIR$/src/bat_templates" />
-            <path value="file://$PROJECT_DIR$/src/example_images" />
-            <path value="file://$PROJECT_DIR$/src/icons" />
-            <path value="file://$PROJECT_DIR$/src/prebuild_wheels" />
-            <path value="file://$PROJECT_DIR$/src/weights" />
-            <path value="file://$PROJECT_DIR$/src/README_extensions" />
+            <path value="file://$PROJECT_DIR$/content/resources/prebuild_wheels" />
+            <path value="file://$PROJECT_DIR$/content/resources/README_extensions" />
+            <path value="file://$PROJECT_DIR$/content/resources" />
+            <path value="file://$PROJECT_DIR$/content/resources/icons" />
+            <path value="file://$PROJECT_DIR$/content/resources/install_scripts" />
+            <path value="file://$PROJECT_DIR$/content/resources/example_images" />
+            <path value="file://$PROJECT_DIR$/content/src/weights" />
           </resourceRoots>
         </entryData>
       </entry>

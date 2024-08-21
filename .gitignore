@@ -8,24 +8,16 @@ input/**
 output
 
 # Why this exeption is needed?
-!src/example_images/output
-
-src/web_temp_input
-src/web_temp_input/*
-src/web_temp_input/**
-
-src/web_temp_output
-src/web_temp_output/*
-src/web_temp_output/**
+!content/resources/example_images/output
 
 #src/tests.py
 
-src/weights/RealESRGAN_x2.pth
-src/weights/RealESRGAN_x4.pth
-src/weights/RealESRGAN_x8.pth
+content/src/weights/RealESRGAN_x2.pth
+content/src/weights/RealESRGAN_x4.pth
+content/src/weights/RealESRGAN_x8.pth
 
 .coverage
-src/.coverage
+content/src/.coverage
 
 # DC rich presence plugin
 .idea/discord.xml
