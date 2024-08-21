@@ -1,6 +1,3 @@
-# Set execution policy
-Set-ExecutionPolicy unrestricted -Scope Process
-
 # Download ImDisk installer
 Invoke-WebRequest -Uri "http://www.ltr-data.se/files/imdiskinst.exe" -OutFile "$env:TEMP\imdiskinst.exe"
 

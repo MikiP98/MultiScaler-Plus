@@ -1,6 +1,3 @@
-# Set execution policy
-Set-ExecutionPolicy unrestricted -Scope Process
-
 # Define the URL for Visual Studio Build Tools installer
 $vsBuildToolsUrl = "https://aka.ms/vs/17/release/vs_buildtools.exe"
 
