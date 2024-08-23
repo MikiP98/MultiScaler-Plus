@@ -17,7 +17,9 @@ content/src/weights/RealESRGAN_x4.pth
 content/src/weights/RealESRGAN_x8.pth
 
 .coverage
+content/.coverage
 content/src/.coverage
+content/htmlcov
 
 # DC rich presence plugin
 .idea/discord.xml
