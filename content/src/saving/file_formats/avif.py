@@ -1,5 +1,6 @@
 # coding=utf-8
 import PIL.Image
+import pillow_avif  # This is a PIL plugin for AVIF, is must be imported, but isn't directly used
 import saving.utils as utils
 
 from saving.utils import Compression

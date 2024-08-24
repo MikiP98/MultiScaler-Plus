@@ -1,5 +1,6 @@
 # coding=utf-8
 import PIL.Image
+import pillow_jxl  # This is a PIL plugin for JPEG XL, is must be imported, but isn't directly used
 import saving.utils as utils
 
 from saving.utils import Compression
