@@ -63,7 +63,7 @@ def is_drive_letter_available(drive_letter):
 
 def find_available_drive_letter(start_letter='R'):
     # Generate a list of drive letters from the given start letter
-    drive_letters = string.ascii_uppercase[string.ascii_uppercase.index(start_letter):]
+    drive_letters = string.ascii_uppercase[string.ascii_uppercase.index(start_letter):]  # TODO: Add characters before R
 
     for letter in drive_letters:
         if is_drive_letter_available(letter):
