@@ -27,7 +27,7 @@ class LoaderConfig(TypedDict):
     clear_output_dir: bool
 
     copy_mcmeta: bool
-    merge_texture_extensions: bool  # TODO: implement
+    merge_texture_extensions: bool  # TODO: DO NOT implement
 
     prefix_filter: Optional[str]  # endswith TODO: implement
     suffix_filter: Optional[str]  # startswith TODO: implement
@@ -146,13 +146,21 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
 
 
 # list["_n", "_s", {else} ...]
-def load_textures(config: LoaderConfig) -> tuple[list[list[utils.ImageDict | None]], list[str], list[str]]:
+def load_textures(
+        config: LoaderConfig
+) -> tuple[
+    list[tuple[utils.ImageDict | None, utils.ImageDict | None]],
+    list[list[tuple[utils.ImageDict, str]]],
+    list[str],
+    list[str]
+]:
     if config['clear_output_dir']:
         print(f"{b}Clearing the output directory{nr}")
         shutil.rmtree("../output", ignore_errors=True)
         os.makedirs("../output")
 
-    images: list[list[utils.ImageDict | None]] = []
+    texture_sets: list[list[utils.ImageDict | None]] = []
+    other_images: list[list[tuple[utils.ImageDict, str]]] = []
     last_filename = ''
     roots: list[str] = []
     file_names: list[str] = []
@@ -180,27 +188,27 @@ def load_textures(config: LoaderConfig) -> tuple[list[list[utils.ImageDict | Non
                 image: utils.ImageDict = pngify(image)
 
                 if filename != last_filename:
-                    image_to_insert: list[utils.ImageDict | None] = [None] * 2
+                    new_texture_set: list[utils.ImageDict | None] = [None] * 2
 
                     if texture_extension == 'n':
-                        image_to_insert[0] = image
+                        new_texture_set[0] = image
                     elif texture_extension == 's':
-                        image_to_insert[1] = image
+                        new_texture_set[1] = image
                     else:
-                        image_to_insert.append(image)
+                        other_images.append([(image, texture_extension)])
 
-                    images.append(image_to_insert)
+                    texture_sets.append(new_texture_set)
                     roots.append(root)
                     file_names.append(filename)
                     last_filename = filename
 
                 else:
                     if texture_extension == 'n':
-                        images[-1][0] = image
+                        texture_sets[-1][0] = image
                     elif texture_extension == 's':
-                        images[-1][1] = image
+                        texture_sets[-1][1] = image
                     else:
-                        images[-1].append(image)
+                        other_images[-1].append((image, texture_extension))
 
                 # print(f"Appended root: {root} and file: {file} to their respective lists")
 
@@ -237,10 +245,10 @@ def load_textures(config: LoaderConfig) -> tuple[list[list[utils.ImageDict | Non
 
             elif extension in pil_write_only_formats_cache or extension in pil_indentify_only_formats_cache:
                 print(f"File: {path} is an recognized image format but is not supported :( (yet)")
-                try:
-                    PIL.Image.open(path)  # Open the image to display Pillow's error message
-                finally:
-                    pass
+                try:  # Open the image to display Pillow's error message
+                    PIL.Image.open(path)
+                except Exception as e:
+                    print(e)
 
                 continue
             else:
@@ -249,7 +257,10 @@ def load_textures(config: LoaderConfig) -> tuple[list[list[utils.ImageDict | Non
 
             print(f"Loaded: {path}")
 
-    return images, roots, file_names
+    texture_sets: list[
+        tuple[utils.ImageDict | None, utils.ImageDict | None]
+    ] = [tuple(texture_set) for texture_set in texture_sets]
+    return texture_sets, other_images, roots, file_names
 
 
 def split_string(string: str, separator: str) -> tuple[str, str]:

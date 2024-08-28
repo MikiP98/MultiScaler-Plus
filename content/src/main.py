@@ -10,7 +10,7 @@ import UI.console
 from FidelityFX_CLI.wrapper import extinguish_the_drive, ignite_the_drive
 from scaling.utils import Algorithms
 from termcolor import colored
-from utils import rainbowify
+from utils import ImageDict, rainbowify
 
 it = '\x1B[3m'
 nr = '\x1B[0m'
@@ -145,7 +145,7 @@ def apply_filters() -> None:
     filtered_images = filter_manager.filter_image_batch(
         selected_filters_ids,
         images,
-        factors  # No, it can't
+        factors
     )
     print("Filtering is done!\n")
 
@@ -187,12 +187,57 @@ def convert_images() -> None:
     elif user_input == 2:
         print(colored("INFO: Loader config override! merge_texture_extensions = true", "green"))
         load_config["merge_texture_extensions"] = True
-        textures, roots, file_names = loader.load_textures(load_config)
+        texture_sets, other_images, roots, file_names = loader.load_textures(load_config)
 
         conversions = UI.console.get_conversions()
-        converted_images = converter.convert_image_batch(conversions, textures)
+        converted_images = converter.convert_image_batch(conversions, texture_sets)
 
-        saver.save_img_list_multithreaded(converted_images, roots, file_names, saver_config, ['n', 's', 'e'])
+        converted_images, roots, file_names = convert_textures_to_raw_images(
+            converted_images, other_images, roots, file_names
+        )
+
+        saver.save_img_list_multithreaded(converted_images, roots, file_names, saver_config, conversions)
+
+
+def convert_textures_to_raw_images(
+        texture_sets: list[list[tuple[ImageDict | None, ImageDict | None]]],
+        other_images: list[list[tuple[ImageDict, str]]],
+        roots: list[str],
+        file_names: list[str]
+) -> tuple[list[list[ImageDict]], list[str], list[str]]:
+    image_dicts: list[list[ImageDict]] = []
+    new_roots: list[str] = []
+    new_file_names: list[str] = []
+
+    for conversion_list_texture_sets, conversion_other_images_parts, root, file_name in zip(texture_sets, other_images, roots, file_names):
+
+        for texture_set, other_images_part in zip(conversion_list_texture_sets, conversion_other_images_parts):
+            normal_map, specular_map = texture_set
+
+            if normal_map is not None:
+                normal_map_filename = file_name + "_n"
+
+                image_dicts.append(normal_map)
+                new_roots.append(root)
+                new_file_names.append(normal_map_filename)
+
+            if specular_map is not None:
+                specular_map_filename = file_name + "_s"
+
+                image_dicts.append(normal_map)
+                new_roots.append(root)
+                new_file_names.append(specular_map_filename)
+
+            for other_image, other_image_suffix in other_images_part:
+                new_image_filename = file_name
+                if len(other_image_suffix) != 0:
+                    new_image_filename += '_' + other_image_suffix
+
+                image_dicts.append(other_image)
+                new_roots.append(root)
+                new_file_names.append(new_image_filename)
+
+    return image_dicts, new_roots, new_file_names
 
 
 def repeat():

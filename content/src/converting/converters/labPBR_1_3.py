@@ -168,57 +168,59 @@ from utils import ImageDict
 # A = 3
 
 
-def convert_from_old_continuum(image_dict: ImageDict) -> ImageDict:
-    if len(image_dict['images']) < 2:
-        print(colored("WARN: Image is missing texture extensions! Skipping!", "yellow"))
-        return image_dict
+def convert_from_old_continuum(
+        texture_set: tuple[list[PIL.Image.Image] | None, list[PIL.Image.Image] | None]
+) -> tuple[list[PIL.Image.Image] | None, list[PIL.Image.Image] | None]:
 
-    if len(image_dict['images']) == 2:
-        specular_map, normal_map = image_dict['images']
+    specular_map, normal_map = texture_set
+
+    if specular_map is None:
+        new_specular_map = None
     else:
-        specular_map, normal_map, _ = image_dict['images']
+        new_specular_map = []
+        for frame in specular_map:
+            frame = frame.convert('RGBA')
+            new_frame = PIL.Image.new('RGB', frame.size)
 
-    new_specular_map = []
-    for frame in specular_map:
-        frame = frame.convert('RGBA')
-        new_frame = PIL.Image.new('RGB', frame.size)
+            for x in range(frame.size[0]):
+                for y in range(frame.size[1]):
+                    r, g, b, a = frame.getpixel((x, y))
 
-        for x in range(frame.size[0]):
-            for y in range(frame.size[1]):
-                r, g, b, a = frame.getpixel((x, y))
-
-                new_frame.putpixel(
-                    (x, y),
-                    (
-                        b,
-                        r,
-                        (max(a, 65)) if a > g and a > 33 else (min(g, 64))
+                    new_frame.putpixel(
+                        (x, y),
+                        (
+                            b,
+                            r,
+                            (max(a, 65)) if a > g and a > 33 else (min(g, 64))
+                        )
                     )
-                )
-        new_frame.putalpha(255)
+            new_frame.putalpha(255)
 
-        new_specular_map.append(new_frame)
+            new_specular_map.append(new_frame)
 
-    new_normal_map = []
-    for frame in normal_map:
-        frame = frame.convert('RGBA')
-        new_frame = PIL.Image.new('RGBA', frame.size)
+    if normal_map is None:
+        new_normal_map = None
+    else:
+        new_normal_map = []
+        for frame in normal_map:
+            frame = frame.convert('RGBA')
+            new_frame = PIL.Image.new('RGBA', frame.size)
 
-        for x in range(frame.size[0]):
-            for y in range(frame.size[1]):
-                r, g, b, a = frame.getpixel((x, y))
+            for x in range(frame.size[0]):
+                for y in range(frame.size[1]):
+                    r, g, b, a = frame.getpixel((x, y))
 
-                new_frame.putpixel(
-                    (x, y),
-                    (
-                        r,
-                        g,
-                        255,
-                        a
+                    new_frame.putpixel(
+                        (x, y),
+                        (
+                            r,
+                            g,
+                            255,
+                            a
+                        )
                     )
-                )
 
-        new_normal_map.append(new_frame)
+            new_normal_map.append(new_frame)
 
     # specular_map = specular_map.convert('RGBA')
     # specular_map.putalpha(255)
@@ -243,11 +245,7 @@ def convert_from_old_continuum(image_dict: ImageDict) -> ImageDict:
     #
     # new_normal_map = PIL.Image.fromarray(new_numpy_normal_map)
 
-    return {
-        "images": [new_specular_map, new_normal_map],
-        "is_animated": image_dict.get("is_animated"),
-        "animation_spacing": image_dict.get("animation_spacing"),
-    }
+    return new_normal_map, new_specular_map
 
 
 # https://bdcraft.net/community/viewtopic.php?t=7069&start=10
