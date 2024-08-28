@@ -1,6 +1,6 @@
 # Changelog
 
-## MultiScaler+ 2.0:
+## v2.0.0:
 
 - Added filters support:
   - Normal map Strength linear
@@ -16,7 +16,19 @@
 - Various fixes and optimizations
 - Plugin support *(right now only kind-off, but should work)*
 - Better console user interface
+- Added Unittests to assure everything will work during next releases
+- Full, better, native CLI support
 
 ## Older
 
 For older changelog the only source are [GitHub commits](https://github.com/MikiP98/MultiScaler-Plus/commits)
+
+<br>
+
+## Versioning methodology
+
+### `{Major}.{Minor}.{Patch}`  
+
+- **Major** &nbsp; --> &nbsp; big changes or entire new features  
+- **Minor** &nbsp; --> &nbsp; current features improvements and added content  
+- **Patch** &nbsp; --> &nbsp; bug fixes/typo fixes/markdown updates
