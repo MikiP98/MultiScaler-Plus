@@ -10,6 +10,7 @@ import pillow_jxl  # This is a PIL plugin for JPEG XL, is must be imported, but 
 import threading
 import utils
 
+from aenum import IntEnum
 from itertools import zip_longest
 from math import ceil
 from saving.file_formats.avif import save as save_avif
@@ -19,7 +20,7 @@ from saving.file_formats.qoi import save as save_qoi
 from saving.file_formats.webp import save as save_webp
 from saving.utils import Compression, AdvancedConfig, SimpleConfig
 from termcolor import colored
-from typing import Any, Callable
+from typing import Callable
 
 
 # Global, allows for easy injection of another format via a plugin
@@ -148,7 +149,7 @@ def save_img_list_multithreaded(
         roots_ids: list[int],
         roots: list[str],
         saver_config: AdvancedConfig,
-        processing_methods: list[Any],
+        processing_methods: list[IntEnum | str],
         *,
         max_thread_count: int = 4
 ):
