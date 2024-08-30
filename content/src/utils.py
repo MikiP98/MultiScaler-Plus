@@ -55,7 +55,6 @@ pil_fully_supported_formats = {
 pil_fully_supported_formats_cache = frozenset(
     extension for extensions in pil_fully_supported_formats.values() for extension in extensions
 )
-# print(pil_fully_supported_formats.values())
 
 pil_read_only_formats = {
     "CUR": ("cur",),
