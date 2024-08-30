@@ -5,8 +5,6 @@ import fractions
 import itertools
 import os
 import PIL.Image
-import pillow_avif  # This is a PIL plugin for AVIF, is must be imported, but isn't directly used
-import pillow_jxl  # This is a PIL plugin for JPEG XL, is must be imported, but isn't directly used
 import threading
 import utils
 
