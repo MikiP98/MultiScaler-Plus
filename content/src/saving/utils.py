@@ -35,7 +35,7 @@ class AdvancedConfig(TypedDict):
     # TODO: Add more auto options
 
     factors: Optional[list[float]]
-    processing_method: Optional[IntEnum]
+    processing_method: Optional[IntEnum | str]
 
 
 def count_unique_colors_python_break_batched(image: PIL.Image) -> int:
