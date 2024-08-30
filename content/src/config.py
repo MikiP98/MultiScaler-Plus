@@ -1,13 +1,16 @@
 # coding=utf-8
 
+from loader import LoaderConfig
+from saving.utils import AdvancedConfig as SaverConfig
+from scaling.utils import ConfigPlus as ScalerConfig
+
 # TODO: split static and dynamic configs,
 #  e.g. `"factors": None` and `"processing_method": None` in saver config
 
-_default_configs = {
+_default_configs: dict[str, LoaderConfig | SaverConfig | ScalerConfig] = {
     "loader": {
         'clear_output_dir': True,
-        'copy_mcmeta': True,
-        'merge_texture_extensions': False
+        'copy_mcmeta': True
     },
     "saver": {
         "simple_config": {
