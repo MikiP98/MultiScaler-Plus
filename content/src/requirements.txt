@@ -1,9 +1,10 @@
+# Required
 aenum
 argparse
 coverage
 fastapi
 hqx
-numpy<2.0.0b1  # newest numpy version (2.0.0) is incompatible with `torch` and `py_super_xbr`
+numpy<=1.26.4  # newest numpy version (2.0.0) is incompatible with `torch`? and `py_super_xbr`
 opencv-contrib-python
 pillow
 pillow-avif-plugin
@@ -14,17 +15,24 @@ python-multipart
 qoi>=0.7.0  # Required to support new NumPy 2.0.0
 super-image
 termcolor
-torch
+# 2.3.0 got some Numpy 2.0.0 support, while 2.4.0 got some related fixes,
+# the compatibility is still not fully done, see: https://github.com/pytorch/pytorch/issues/128860
+# Hope that 2.5.0 will have the full support, TODO: check this once in a while
+torch>=2.4.0
 uvicorn[standard]
+
+
+# Required by EDI
+matplotlib
+
 
 # Optional
 docker
-
 setuptools
 wheel
 
-matplotlib
 
+# Custom required
 git+https://github.com/sberbank-ai/Real-ESRGAN.git
 ../resources/prebuild_wheels/xbrz.py-1.0.2-cp312-cp312-win_amd64.whl
 ../resources/prebuild_wheels/py_super_xbr-0.0.2-cp312-cp312-win_amd64.whl
