@@ -12,8 +12,9 @@ exclude =
 per-file-ignores =
     # imported but unused
     __init__.py: F401
-    standalone.py: F401
     loader.py: F401
+    avif.py: F401
+    jpeg_xl.py: F401
     .template.py: F401
     labPBR_1_3.py: E501
 

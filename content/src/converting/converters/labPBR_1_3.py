@@ -158,8 +158,8 @@
 import PIL.Image
 
 # from aenum import IntEnum
-from termcolor import colored
-from utils import ImageDict
+# from termcolor import colored
+# from utils import ImageDict
 
 
 # R = 0
