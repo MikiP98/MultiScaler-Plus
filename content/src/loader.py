@@ -9,7 +9,8 @@ import shutil
 import utils
 import zipfile
 
-from typing import TypedDict, Optional
+from termcolor import colored
+from typing import cast, TypedDict, Optional
 from utils import (
     pil_fully_supported_formats_cache,
     pil_read_only_formats_cache,
@@ -17,6 +18,13 @@ from utils import (
     pil_indentify_only_formats_cache,
     pngify
 )
+
+# from typing import NamedTuple
+# class ImageDataPassable(NamedTuple):
+#     images: list[utils.ImageDict]
+#     file_names: list[str]
+#     roots_ids: list[int]
+#     roots: list[str]
 
 
 PIL.Image.MAX_IMAGE_PIXELS = 4_294_967_296  # 2^16 squared, a.k.a. 65536x65536 pixels or 4 GigaPixels
@@ -27,7 +35,6 @@ class LoaderConfig(TypedDict):
     clear_output_dir: bool
 
     copy_mcmeta: bool
-    merge_texture_extensions: bool  # TODO: DO NOT implement
 
     prefix_filter: Optional[str]  # endswith TODO: implement
     suffix_filter: Optional[str]  # startswith TODO: implement
@@ -46,7 +53,12 @@ nr = '\x1B[0m'
 b = '\x1B[1m'
 
 
-def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str], list[str]]:
+def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str], list[int], list[str]]:
+    """
+
+    :param config:
+    :return: tuple containing: list of images, list of file_names, list of roots ids, list of roots of which first 3 have equal size
+    """
     if config['clear_output_dir']:
         print(f"{b}Clearing the output directory{nr}")
         shutil.rmtree("../../output", ignore_errors=True)
@@ -54,12 +66,16 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
 
     images: list[utils.ImageDict] = []
     # last_texture_extension = ""
-    roots: list[str] = []
     file_names: list[str] = []
+    roots_ids: list[int] = []
+    roots: list[str] = []
+    root_i = 0
     for root, dirs, files in os.walk("../../input"):
         # print(f"Length of images: {len(images)}")
         # print(f"Length of roots: {len(roots)}")
         # print(f"Length of files: {len(file_names)}")
+
+        roots.append(root)
 
         files_number = len(files)
         print(f"\n{b}Checking {files_number} files in {root} directory{nr}")
@@ -93,67 +109,48 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
                 #     # print(f"Appended root: {root} and file: {file} to their respective lists")
 
                 images.append(image)
-                roots.append(root)
+                roots_ids.append(root_i)
                 file_names.append(filename)
                 # print(f"Appended root: {root} and file: {file} to their respective lists")
 
             elif extension == "zip" or extension == "7z":
-                with zipfile.ZipFile(path) as zip_ref:
-                    # Get a list of all files and directories inside the zip file
-                    zip_contents = zip_ref.namelist()
-
-                    # Iterate through each file in the zip file
-                    for file_name in zip_contents:
-                        # Check if the current item is a file (not a directory)
-                        if not file_name.endswith('/'):  # Directories end with '/'
-                            # Read the content of the file
-                            with zip_ref.open(file_name) as zip_file:
-                                # Process the content of the file
-                                print(f"Contents of {file_name}:")
-                                print(zip_file.read())  # You can perform any operation you want with the file content
-                                print("---------------")
-
-                raise NotImplementedError("Zip and 7z files are not supported yet")
+                handle_zip(path)
 
             elif extension == "mcmeta":
-                if config['copy_mcmeta']:
-                    print(f"MCMeta file: {path} is being copied to the output directory")
-                    # output_dir = f"../output{root.lstrip('../input')}"
-                    output_dir = f"../output{root[8:]}"
-                    if not os.path.exists(output_dir):
-                        os.makedirs(output_dir)
-                    shutil.copy2(path, output_dir)
-                else:
-                    print(f"MCMeta file: {path} will be ignored, animated texture will be corrupted!")
-
+                handle_mcmeta(root, path, config['copy_mcmeta'])
                 continue
 
             elif extension in pil_write_only_formats_cache or extension in pil_indentify_only_formats_cache:
-                print(f"File: {path} is an recognized image format but is not supported :( (yet)")
-                try:
-                    PIL.Image.open(path)  # Open the image to display Pillow's error message
-                finally:
-                    pass
-
+                handle_unreadable_images(path)
                 continue
             else:
                 print(f"File: {path} is not supported, unrecognized file extension '{extension}'")
                 continue
 
             print(f"Loaded: {path}")
+        root_i += 1
 
-    return images, roots, file_names
+    return images, file_names, roots_ids, roots
+
+
+type TextureSet = tuple[utils.ImageDict | None, utils.ImageDict | None]
 
 
 # list["_n", "_s", {else} ...]
 def load_textures(
         config: LoaderConfig
 ) -> tuple[
-    list[tuple[utils.ImageDict | None, utils.ImageDict | None]],
+    list[TextureSet],
     list[list[tuple[utils.ImageDict, str]]],
     list[str],
+    list[int],
     list[str]
 ]:
+    """
+
+    :param config:
+    :return: tuple of: Texture set, images with unknown texture extensions, file_names, roots_ids, roots
+    """
     if config['clear_output_dir']:
         print(f"{b}Clearing the output directory{nr}")
         shutil.rmtree("../output", ignore_errors=True)
@@ -162,12 +159,16 @@ def load_textures(
     texture_sets: list[list[utils.ImageDict | None]] = []
     other_images: list[list[tuple[utils.ImageDict, str]]] = []
     last_filename = ''
-    roots: list[str] = []
     file_names: list[str] = []
+    roots_ids: list[int] = []
+    roots: list[str] = []
+    root_i = 0
     for root, dirs, files in os.walk("../input"):
         # print(f"Length of images: {len(images)}")
         # print(f"Length of roots: {len(roots)}")
         # print(f"Length of files: {len(file_names)}")
+
+        roots.append(root)
 
         files_number = len(files)
         print(f"\n{b}Checking {files_number} files in {root} directory{nr}")
@@ -198,7 +199,7 @@ def load_textures(
                         other_images.append([(image, texture_extension)])
 
                     texture_sets.append(new_texture_set)
-                    roots.append(root)
+                    roots_ids.append(root_i)
                     file_names.append(filename)
                     last_filename = filename
 
@@ -213,43 +214,14 @@ def load_textures(
                 # print(f"Appended root: {root} and file: {file} to their respective lists")
 
             elif extension == "zip" or extension == "7z":
-                with zipfile.ZipFile(path) as zip_ref:
-                    # Get a list of all files and directories inside the zip file
-                    zip_contents = zip_ref.namelist()
-
-                    # Iterate through each file in the zip file
-                    for file_name in zip_contents:
-                        # Check if the current item is a file (not a directory)
-                        if not file_name.endswith('/'):  # Directories end with '/'
-                            # Read the content of the file
-                            with zip_ref.open(file_name) as zip_file:
-                                # Process the content of the file
-                                print(f"Contents of {file_name}:")
-                                print(zip_file.read())  # You can perform any operation you want with the file content
-                                print("---------------")
-
-                raise NotImplementedError("Zip and 7z files are not supported yet")
+                handle_zip(path)
 
             elif extension == "mcmeta":
-                if config['copy_mcmeta']:
-                    print(f"MCMeta file: {path} is being copied to the output directory")
-                    # output_dir = f"../output{root.lstrip('../input')}"
-                    output_dir = f"../output{root[8:]}"
-                    if not os.path.exists(output_dir):
-                        os.makedirs(output_dir)
-                    shutil.copy2(path, output_dir)
-                else:
-                    print(f"MCMeta file: {path} will be ignored, animated texture will be corrupted!")
-
+                handle_mcmeta(root, path, config['copy_mcmeta'])
                 continue
 
             elif extension in pil_write_only_formats_cache or extension in pil_indentify_only_formats_cache:
-                print(f"File: {path} is an recognized image format but is not supported :( (yet)")
-                try:  # Open the image to display Pillow's error message
-                    PIL.Image.open(path)
-                except Exception as e:
-                    print(e)
-
+                handle_unreadable_images(path)
                 continue
             else:
                 print(f"File: {path} is not supported, unrecognized file extension '{extension}'")
@@ -257,10 +229,47 @@ def load_textures(
 
             print(f"Loaded: {path}")
 
-    texture_sets: list[
-        tuple[utils.ImageDict | None, utils.ImageDict | None]
-    ] = [tuple(texture_set) for texture_set in texture_sets]
-    return texture_sets, other_images, roots, file_names
+    texture_sets: list[TextureSet] = [cast(TextureSet, tuple(texture_set)) for texture_set in texture_sets]
+    return texture_sets, other_images, file_names, roots_ids, roots
+
+
+def handle_zip(path: str):
+    with zipfile.ZipFile(path) as zip_ref:
+        # Get a list of all files and directories inside the zip file
+        zip_contents = zip_ref.namelist()
+
+        # Iterate through each file in the zip file
+        for file_name in zip_contents:
+            # Check if the current item is a file (not a directory)
+            if not file_name.endswith('/'):  # Directories end with '/'
+                # Read the content of the file
+                with zip_ref.open(file_name) as zip_file:
+                    # Process the content of the file
+                    print(f"Contents of {file_name}:")
+                    print(zip_file.read())  # You can perform any operation you want with the file content
+                    print("---------------")
+
+    raise NotImplementedError("Zip and 7z files are not supported yet")
+
+
+def handle_mcmeta(root: str, path: str, copy_mcmeta: bool):
+    if copy_mcmeta:
+        print(f"MCMeta file: {path} is being copied to the output directory")
+        # output_dir = f"../output{root.lstrip('../../input')}"
+        output_dir = f"../output{root[11:]}"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        shutil.copy2(path, output_dir)
+    else:
+        print(colored(f"WARNING: MCMeta file: {path} will be ignored, animated texture will be corrupted!", "yellow"))
+
+
+def handle_unreadable_images(path: str):
+    print(f"File: {path} is an recognized image format but is not supported :( (yet)")
+    try:  # Open the image to display Pillow's error message
+        PIL.Image.open(path)
+    except Exception as e:
+        print(e)
 
 
 def split_string(string: str, separator: str) -> tuple[str, str]:

@@ -5,6 +5,8 @@ import fractions
 import itertools
 import os
 import PIL.Image
+import pillow_avif  # This is a PIL plugin for AVIF, is must be imported, but isn't directly used
+import pillow_jxl  # This is a PIL plugin for JPEG XL, is must be imported, but isn't directly used
 import threading
 import utils
 
@@ -124,13 +126,17 @@ def factor_to_string(factor: float) -> str:
         return f"({factor.numerator}%{factor.denominator}x)"
 
 
-def save_img_list(bundle: tuple[list[utils.ImageDict], list[str], list[str]], saver_config: AdvancedConfig):
+def save_img_list(
+        bundle: tuple[list[utils.ImageDict], list[int], list[str]],
+        roots: list[str],
+        saver_config: AdvancedConfig
+):
     # bundle is a zip, but is a tuple...
     # print(f"Type of bundle: {type(bundle)}")
-    for filtered_image, root, file_name in bundle:
+    for filtered_image, root_id, file_name in bundle:
         save_image_pre_processor(
             filtered_image,
-            root[12:],
+            roots[root_id][12:],
             file_name,
             saver_config
         )
@@ -138,8 +144,9 @@ def save_img_list(bundle: tuple[list[utils.ImageDict], list[str], list[str]], sa
 
 def save_img_list_multithreaded(
         processed_images: list[list[utils.ImageDict]],
-        roots: list[str],
         file_names: list[str],
+        roots_ids: list[int],
+        roots: list[str],
         saver_config: AdvancedConfig,
         processing_methods: list[Any],
         *,
@@ -151,9 +158,9 @@ def save_img_list_multithreaded(
     # bundle_split_threads = len(processed_images) // processes_loop_threads
     # print(f"Splitting the bundle into {bundle_split_threads} parts")
 
-    bundle_split_threads = min(max(round(len(roots) / 4), 1), max_thread_count)
+    bundle_split_threads = min(max(round(len(roots_ids) / 4), 1), max_thread_count)
     # print(f"Splitting the bundle into {bundle_split_threads} parts")
-    batched_cache = ceil(len(roots) / bundle_split_threads)
+    batched_cache = ceil(len(roots_ids) / bundle_split_threads)
     # print(f"Split the bundle into sizes of {batched_cache}\n")
 
     # TODO: fix if no images are loaded
@@ -161,15 +168,16 @@ def save_img_list_multithreaded(
         current_saver_config = saver_config.copy()
         current_saver_config['processing_method'] = processing_method
 
-        bundle = zip(processed_image_set, roots, file_names)
+        bundle = zip(processed_image_set, roots_ids, file_names)
 
         bundle_splits = itertools.batched(bundle, batched_cache)
         threads = []
 
+        # TODO: Consider Thread Pool
         for bundle_split in bundle_splits:
             thread = threading.Thread(
                 target=save_img_list,
-                args=(bundle_split, current_saver_config)
+                args=(bundle_split, roots, current_saver_config)
             )
             thread.start()
             threads.append(thread)

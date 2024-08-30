@@ -91,7 +91,7 @@ def scale_images() -> None:
     factors = UI.console.get_factors()
     # user input end ----------------
 
-    images, roots, file_names = loader.load_images(load_config)
+    images, file_names, roots_ids, roots = loader.load_images(load_config)
 
     print(
         f"\nApplying {len(algorithms)} algorithm{'s' if len(algorithms) > 1 else ''} "
@@ -119,7 +119,7 @@ def scale_images() -> None:
         )
 
     saver_config["factors"] = factors
-    saver.save_img_list_multithreaded(scaled_images, roots, file_names, saver_config, algorithms)
+    saver.save_img_list_multithreaded(scaled_images, file_names, roots_ids, roots, saver_config, algorithms)
 
 
 def apply_filters() -> None:
@@ -135,7 +135,7 @@ def apply_filters() -> None:
     factors = UI.console.get_factors()
     # user input end ----------------
 
-    images, roots, file_names = loader.load_images(load_config)
+    images, file_names, roots_ids, roots = loader.load_images(load_config)
 
     print(
         f"\nApplying {len(selected_filters_ids)} filter{'s' if len(selected_filters_ids) > 1 else ''} "
@@ -150,7 +150,7 @@ def apply_filters() -> None:
     print("Filtering is done!\n")
 
     saver_config["factors"] = factors
-    saver.save_img_list_multithreaded(filtered_images, roots, file_names, saver_config, selected_filters_ids)
+    saver.save_img_list_multithreaded(filtered_images, file_names, roots_ids, roots, saver_config, selected_filters_ids)
 
 
 def compress_images() -> None:
@@ -174,7 +174,6 @@ def convert_images() -> None:
         except ValueError:
             print(colored("Invalid option! Please try again.", "red"))
             print()
-            continue
         else:
             break
 
@@ -182,34 +181,38 @@ def convert_images() -> None:
     saver_config = UI.console.get_saver_config()
 
     if user_input == 1:
-        images, roots, file_names = loader.load_images(load_config)
-        saver.save_img_list_multithreaded([images], roots, file_names, saver_config, ['conversion'])
+        images, file_names, roots_ids, roots = loader.load_images(load_config)
+        saver.save_img_list_multithreaded([images], file_names, roots_ids, roots, saver_config, ['format_conversion'])
+
     elif user_input == 2:
-        print(colored("INFO: Loader config override! merge_texture_extensions = true", "green"))
-        load_config["merge_texture_extensions"] = True
-        texture_sets, other_images, roots, file_names = loader.load_textures(load_config)
+        texture_sets, other_images, file_names, roots_ids, roots = loader.load_textures(load_config)
 
         conversions = UI.console.get_conversions()
         converted_images = converter.convert_image_batch(conversions, texture_sets)
 
-        converted_images, roots, file_names = convert_textures_to_raw_images(
-            converted_images, other_images, roots, file_names
+        converted_images, file_names, roots_ids = convert_textures_to_raw_images(
+            converted_images, other_images, file_names, roots_ids
         )
 
-        saver.save_img_list_multithreaded(converted_images, roots, file_names, saver_config, conversions)
+        saver.save_img_list_multithreaded(converted_images, file_names, roots_ids, roots, saver_config, conversions)
 
 
 def convert_textures_to_raw_images(
         texture_sets: list[list[tuple[ImageDict | None, ImageDict | None]]],
         other_images: list[list[tuple[ImageDict, str]]],
-        roots: list[str],
-        file_names: list[str]
-) -> tuple[list[list[ImageDict]], list[str], list[str]]:
+        file_names: list[str],
+        roots_ids: list[int]
+) -> tuple[list[list[ImageDict]], list[str], list[int]]:
     image_dicts: list[list[ImageDict]] = []
-    new_roots: list[str] = []
     new_file_names: list[str] = []
+    new_roots_ids: list[int] = []
 
-    for conversion_list_texture_sets, conversion_other_images_parts, root, file_name in zip(texture_sets, other_images, roots, file_names):
+    for (
+            conversion_list_texture_sets,
+            conversion_other_images_parts,
+            root_id,
+            file_name
+    ) in zip(texture_sets, other_images, roots_ids, file_names):
 
         for texture_set, other_images_part in zip(conversion_list_texture_sets, conversion_other_images_parts):
             normal_map, specular_map = texture_set
@@ -218,14 +221,14 @@ def convert_textures_to_raw_images(
                 normal_map_filename = file_name + "_n"
 
                 image_dicts.append(normal_map)
-                new_roots.append(root)
+                new_roots_ids.append(root_id)
                 new_file_names.append(normal_map_filename)
 
             if specular_map is not None:
                 specular_map_filename = file_name + "_s"
 
                 image_dicts.append(normal_map)
-                new_roots.append(root)
+                new_roots_ids.append(root_id)
                 new_file_names.append(specular_map_filename)
 
             for other_image, other_image_suffix in other_images_part:
@@ -234,10 +237,10 @@ def convert_textures_to_raw_images(
                     new_image_filename += '_' + other_image_suffix
 
                 image_dicts.append(other_image)
-                new_roots.append(root)
+                new_roots_ids.append(root_id)
                 new_file_names.append(new_image_filename)
 
-    return image_dicts, new_roots, new_file_names
+    return image_dicts, new_file_names, new_roots_ids
 
 
 def repeat():
