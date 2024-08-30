@@ -1,10 +1,11 @@
 # coding=utf-8
+import math
 import os
 import psutil
-
-import math
 import string
 import subprocess
+
+from termcolor import colored
 
 
 class RAMDrive:
@@ -35,8 +36,8 @@ class RAMDrive:
 
     @staticmethod
     def find_available_drive_letter(start_letter='R'):
-        # Generate a list of drive letters from the given start letter
-        drive_letters = string.ascii_uppercase[string.ascii_uppercase.index(start_letter):]  # TODO: Add characters before R
+        # Generate a list of drive letters from the given start letter  TODO: Add characters before R
+        drive_letters = string.ascii_uppercase[string.ascii_uppercase.index(start_letter):]
 
         for letter in drive_letters:
             if RAMDrive.is_drive_letter_available(letter):
@@ -153,8 +154,11 @@ class SingleImageRAMDrive(RAMDrive):
         if available_memory > required_size + offset:
             return required_size
         else:
-            print("Not enough memory available for the RAM disk.")
-            print(f"Required size: {required_size} bytes")
-            print(f"Required offset: {offset} bytes")
-            print(f"Available memory: {available_memory} bytes")
+            print(colored(
+                "ERROR: Not enough memory available for the RAM disk!\n"
+                f"Required size: {required_size} bytes\n"
+                f"Required offset: {offset} bytes\n"
+                f"Available memory: {available_memory} bytes",
+                "red"
+            ))
             return None
