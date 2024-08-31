@@ -44,7 +44,10 @@ def save(image: PIL.Image.Image, path: str, _: Compression, sort_by_file_extensi
         try:
             image.save(file_path, **flags)
         except ValueError:
-            print(colored("ERROR: Image saving has failed! Unrecognized file format!\n\t Make sure that the file extension is correct or pass additional flag named `format`", "red"))
+            print(colored(
+                "ERROR: Image saving has failed! Unrecognized file format!\n"
+                "\tMake sure that the file extension is correct or pass additional flag named `format`", "red"
+            ))
             user_input = input(colored(f"{it}Do you want to try again? (y/n): ", "light_grey")).strip()
 
             if true_false_dict[user_input]:
