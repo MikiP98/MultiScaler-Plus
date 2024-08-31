@@ -10,12 +10,12 @@ it = '\x1B[3m'
 
 
 def save(image: PIL.Image.Image, path: str, _: Compression, sort_by_file_extension: bool):
-    path = utils.sort_by_file_extension(path, sort_by_file_extension, "PNG")
+    file_extension = input(colored(f"{it}Enter the file extension: ", "light_grey")).strip().replace('.', '')
+
+    path = utils.sort_by_file_extension(path, sort_by_file_extension, file_extension.upper())
 
     while True:
-        file_extension = input(colored(f"{it}Enter the file extension: ", "light_grey")).strip()
-
-        file_path = path + file_extension.replace('.', '')
+        file_path = path + file_extension
 
         while True:
             transparency = input(colored(f"{it}Does this format support transparency? (y/n): ", "light_grey")).strip()
