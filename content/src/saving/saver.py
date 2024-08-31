@@ -13,6 +13,7 @@ from itertools import zip_longest
 from math import ceil
 from saving.file_formats.avif import save as save_avif
 from saving.file_formats.jpeg_xl import save as save_jpeg_xl
+from saving.file_formats.PIL_custom import save as save_custom
 from saving.file_formats.png import save as save_png
 from saving.file_formats.qoi import save as save_qoi
 from saving.file_formats.webp import save as save_webp
@@ -27,7 +28,9 @@ format_savers: dict[str, Callable[[PIL.Image.Image, str, Compression, bool], Non
     "JPEG_XL": save_jpeg_xl,
     "PNG": save_png,
     "QOI": save_qoi,
-    "WEBP": save_webp
+    "WEBP": save_webp,
+
+    "CUSTOM": save_custom
 }
 
 
@@ -163,23 +166,30 @@ def save_img_list_multithreaded(
     # print(f"Split the bundle into sizes of {batched_cache}\n")
 
     # TODO: fix if no images are loaded
-    for processed_image_set, processing_method in zip(processed_images, processing_methods):
-        current_saver_config = saver_config.copy()
-        current_saver_config['processing_method'] = processing_method
+    if "custom" not in saver_config["simple_config"]["formats"]:
+        for processed_image_set, processing_method in zip(processed_images, processing_methods):
+            current_saver_config = saver_config.copy()
+            current_saver_config['processing_method'] = processing_method
 
-        bundle = zip(processed_image_set, roots_ids, file_names)
+            bundle = zip(processed_image_set, roots_ids, file_names)
 
-        bundle_splits = itertools.batched(bundle, batched_cache)
-        threads = []
+            bundle_splits = itertools.batched(bundle, batched_cache)
+            threads = []
 
-        # TODO: Consider Thread Pool
-        for bundle_split in bundle_splits:
-            thread = threading.Thread(
-                target=save_img_list,
-                args=(bundle_split, roots, current_saver_config)
-            )
-            thread.start()
-            threads.append(thread)
+            # TODO: Consider Thread Pool
+            for bundle_split in bundle_splits:
+                thread = threading.Thread(
+                    target=save_img_list,
+                    args=(bundle_split, roots, current_saver_config)
+                )
+                thread.start()
+                threads.append(thread)
 
-        for thread in threads:
-            thread.join()
+            for thread in threads:
+                thread.join()
+
+    else:
+        print("INFO: Skipping multithreading because of the `CUSTOM` file format")
+        for processed_image_set, processing_method in zip(processed_images, processing_methods):
+            saver_config['processing_method'] = processing_method
+            save_img_list(zip(processed_image_set, roots_ids, file_names), roots, saver_config)
