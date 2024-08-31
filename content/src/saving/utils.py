@@ -103,9 +103,6 @@ def sort_by_file_extension(path: str, sort_by_file_extension: bool, extension: s
         path = os.path.sep.join(path_parts)  # TODO: benchmark this vs os.path.join(*path_parts)
 
     if not os.path.exists(os.path.dirname(path)):
-        try:
-            os.makedirs(os.path.dirname(path))
-        except OSError:
-            pass  # Path created by another thread
+        os.makedirs(os.path.dirname(path), exist_ok=True)  # exist_ok=True is required because of multithreading
 
     return path
