@@ -57,7 +57,7 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
     """
 
     :param config:
-    :return: tuple containing: list of images, list of file_names, list of roots ids, list of roots of which first 3 have equal size
+    :return: tuple containing lists of: images, file_names, roots ids, roots; of which first 3 have equal size
     """
     if config['clear_output_dir']:
         print(f"{b}Clearing the output directory{nr}")
