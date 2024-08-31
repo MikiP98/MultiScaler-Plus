@@ -6,7 +6,7 @@ from saving.utils import Compression, apply_lossless_compression
 from termcolor import colored
 
 
-def save(image: PIL.Image, path: str, compression: Compression, sort_by_file_extension: bool) -> None:
+def save(image: PIL.Image.Image, path: str, compression: Compression, sort_by_file_extension: bool) -> None:
     if not compression['lossless']:  # if lossy
         print(colored(
             "WARN: You CAN use lossy compression with PNG format, but this app does not support it :(\n"

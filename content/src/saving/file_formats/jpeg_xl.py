@@ -6,7 +6,7 @@ import saving.utils as utils
 from saving.utils import Compression
 
 
-def save(image: PIL.Image, path: str, compression: Compression, sort_by_file_extension: bool) -> None:
+def save(image: PIL.Image.Image, path: str, compression: Compression, sort_by_file_extension: bool) -> None:
     path = utils.sort_by_file_extension(path, sort_by_file_extension, "JPEG_XL")
 
     file_path = path + "jxl"
