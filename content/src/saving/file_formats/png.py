@@ -15,17 +15,23 @@ def save(image: PIL.Image.Image, path: str, compression: Compression, sort_by_fi
         print(colored(
             "WARN: You CAN use lossy compression with PNG format, but this app does not support it :(\n"
             "\tMaking a forced palette PNG", 'yellow'))
+
+        max_colors = max(round(256 * compression["quality"] / 100), 2)
         if not compression["additional_lossless"]:
-            image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=255)
+            colors = 256
+            while colors > max_colors:
+                colors *= 0.5
+
+            image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=256)
         else:
             unique_colors_number = utils.count_unique_colors_python_break_batched(image)
 
-            colors = 2  # benchmarked
-            if unique_colors_number > 16:
+            colors = 2
+            if unique_colors_number > 16 and max_colors >= 256:
                 colors = 256
-            elif unique_colors_number > 4:
+            elif unique_colors_number > 4 and max_colors >= 16:
                 colors = 16
-            elif unique_colors_number > 2:
+            elif unique_colors_number > 2 and max_colors >= 4:
                 colors = 4
 
             image = image.convert('P', palette=PIL.Image.ADAPTIVE, colors=colors)
