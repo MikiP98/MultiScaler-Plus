@@ -66,7 +66,8 @@ If feature you are interested in is not in either branch's roadmap, feel free to
 - **Command line tool**:
   - Run the included `run_console.ps1` script
     - Right-click on the script and select `Run with PowerShell`
-  - Or run the python script manually: `python src/main.py`
+  - Or run the python script manually: `python main.py`
+    - Make sure you are inside the folder `content/src` *(for now)*
     - ~~You can also pass arguments to the script. Add `--help` to see the list of available arguments~~ *(will be back soon!)*:
 - ~~**Web GUI**~~ *(will be back soon!)*:
   - ~~Run the included `run_webui.bat` script~~
@@ -286,7 +287,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 - [**hqx**](https://pypi.org/project/hqx/) implementation by [whoatemybutter](https://pypi.org/user/whoatemybutter/)
 - [**xBRZ**](https://github.com/ioistired/xbrz.py) implementation by [ioistired](https://github.com/ioistired)
 - [**Super xBR**](https://github.com/MikiP98/py-super-xbr) implementation originally created by [Matt Schwartz (n0spaces)](https://github.com/n0spaces) corrected by [Mikołaj Pokora](https://github.com/MikiP98)
-- [**FSR**](https://gpuopen.com/fidelityfx-superresolution/) and [**CAS**](https://gpuopen.com/fidelityfx-cas/) are implemented using [FidelityFX-CLI](https://github.com/GPUOpen-Effects/FidelityFX-CLI) by [GPUOpen-Effects](https://github.com/GPUOpen-Effects) and [AMD](https://www.amd.com/) <sup>*(licence in "src/FidelityFX-CLI-v1.0.3")*</sup>
+- [**FSR**](https://gpuopen.com/fidelityfx-superresolution/) and [**CAS**](https://gpuopen.com/fidelityfx-cas/) are implemented using [FidelityFX-CLI](https://github.com/GPUOpen-Effects/FidelityFX-CLI) by [GPUOpen-Effects](https://github.com/GPUOpen-Effects) and [AMD](https://www.amd.com/) <sup>*([licence](content/src/FidelityFX_CLI/FidelityFX-CLI-v1.0.3/license.txt) in "content/src/FidelityFX-CLI/FidelityFX-CLI-v1.0.3")*</sup>
 - ***Nearest neighbor***, ***Bilinear***, ***Bicubic*** and ***Lanchos*** algorithms are implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
 - ***Area*** as well as ***Bicubic***, ***Bilinear***, ***Lanchos*** and ***Nearest neighbor*** algorithms are implemented using [OpenCV](https://opencv.org)
 - ***EDSR***, ***ESPCN***, ***FSRCNN***, ***FSRCNN-small***, ***LapSRN*** AI algorithms are also implemented using [OpenCV](https://opencv.org)
