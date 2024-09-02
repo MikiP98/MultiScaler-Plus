@@ -122,3 +122,10 @@ coming soon
 <br>
 
 ### [Back to main README](../../../README.md)
+
+<br>
+
+*<sup>
+This file contains shell images that are derived from works licensed under Creative Commons Attribution-ShareAlike 2.5 and 2.0.<br>
+These images, including any modifications, are licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+</sup>*

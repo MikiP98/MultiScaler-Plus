@@ -304,6 +304,13 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
   - Original [**Green sea shell**](https://commons.wikimedia.org/wiki/File:Green_sea_shell_(11985932994).jpg) by [James Petts](https://www.flickr.com/people/14730981@N08)  
   Under: [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0), via Wikimedia Commons
 
+<br>
+
+*<sup>
+This file contains shell images that are derived from works licensed under Creative Commons Attribution-ShareAlike 2.5 and 2.0.<br>
+These images, including any modifications, are licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+</sup>*
+
 [//]: # (<sup>)
 
 [//]: # ()
