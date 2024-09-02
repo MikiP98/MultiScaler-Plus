@@ -127,7 +127,7 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
                 print(f"File: {path} is not supported, unrecognized file extension '{extension}'")
                 continue
 
-            print(f"Loaded: {path}")
+            print(colored(f"Loaded: {path}", "green"))
         root_i += 1
 
     return images, file_names, roots_ids, roots
