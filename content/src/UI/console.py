@@ -105,10 +105,19 @@ def get_factors() -> list[float]:
     while True:
         try:
             print("\nChoose the factors you want to apply to the selected filters\n"
-                  "You can select multiple factors by separating them with a space or coma\n"
+                  "You can select multiple factors by separating them with a space or with `;`\n"
                   "(Factors should be floats)")
             user_input = input(colored(f"{it}Enter your choice: ", "light_grey")).strip()
-            factors = list(float(factor) for factor in user_input.replace(',', ' ').replace("  ", ' ').split(" "))
+            factors = list(
+                float(
+                    factor
+                ) for factor in user_input.replace(',', '.').replace(';', ' ').split(' ')
+            )
+            # removes all 0 from factors as they do not make sense to have
+            factors = list(filter((lambda factor: factor != 0), factors))  # TODO: consider tuple or set
+            if len(factors) == 0:
+                print("You have to chose at least 1 factor to scale with!")
+                continue
         except ValueError:
             # If float() conversion fails
             print(colored("Invalid input! Please try again.", "red"))
