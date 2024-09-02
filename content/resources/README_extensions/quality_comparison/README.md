@@ -31,7 +31,7 @@ Scaled down image *(40px)*: <br>
 
 ### Wiki Example Shell *(160px -> 640px)*:
 
-[//]: # (TODO: Update bicubic to PIL implementation)
+[//]: # (TODO: Update bicubic to PIL implementation (switch to lanchos?\))
 |                                            Nearest Neighbour                                            |                                           Bicubic                                           |
 |:-------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
 | ![Nearest Neighbour](../../example_images/output/160_Sea_Shell/CV2_INTER_NEAREST_160_Sea_Shell_4x.webp) | ![Bicubic](../../example_images/output/160_Sea_Shell/CV2_INTER_CUBIC_160_Sea_Shell_4x.webp) |
