@@ -288,7 +288,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 - [**xBRZ**](https://github.com/ioistired/xbrz.py) implementation by [ioistired](https://github.com/ioistired)
 - [**Super xBR**](https://github.com/MikiP98/py-super-xbr) implementation originally created by [Matt Schwartz (n0spaces)](https://github.com/n0spaces) corrected by [Mikołaj Pokora](https://github.com/MikiP98)
 - [**FSR**](https://gpuopen.com/fidelityfx-superresolution/) and [**CAS**](https://gpuopen.com/fidelityfx-cas/) are implemented using [FidelityFX-CLI](https://github.com/GPUOpen-Effects/FidelityFX-CLI) by [GPUOpen-Effects](https://github.com/GPUOpen-Effects) and [AMD](https://www.amd.com/) <sup>*([licence](content/src/FidelityFX_CLI/FidelityFX-CLI-v1.0.3/license.txt) in "content/src/FidelityFX-CLI/FidelityFX-CLI-v1.0.3")*</sup>
-- ***Nearest neighbor***, ***Bilinear***, ***Bicubic*** and ***Lanchos*** algorithms are implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
+- ***Bicubic***, ***Bilinear***, ***Box***, ***Hamming***, ***Lanchos*** and ***Nearest neighbor*** algorithms are implemented using [Pillow library](https://pillow.readthedocs.io/en/stable/)
 - ***Area*** as well as ***Bicubic***, ***Bilinear***, ***Lanchos*** and ***Nearest neighbor*** algorithms are implemented using [OpenCV](https://opencv.org)
 - ***EDSR***, ***ESPCN***, ***FSRCNN***, ***FSRCNN-small***, ***LapSRN*** AI algorithms are also implemented using [OpenCV](https://opencv.org)
 - ***A2N***, ***AWSRN-BAM***, ***CARN***, ***CARN-BAM***, ***DRLN***, ***DRLN-BAM***, ***EDSR***, ***EDSR-base***, ***HAN***, ***MDSR***, *...gasssp...*  
