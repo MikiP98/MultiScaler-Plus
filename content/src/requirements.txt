@@ -6,7 +6,7 @@ fastapi
 hqx
 numpy<=1.26.4  # newest numpy version (2.0.0) is incompatible with `torch`? and `py_super_xbr`
 opencv-contrib-python
-pillow
+pillow>=6.0.0  # required to read PNG metadata
 pillow-avif-plugin
 pillow-jxl-plugin
 psutil
