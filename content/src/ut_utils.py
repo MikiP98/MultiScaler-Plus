@@ -1,4 +1,8 @@
 # coding=utf-8
+import os.path
+
+from aenum import auto, IntEnum, unique
+from typing import Iterable
 from utils import pil_fully_supported_formats, pil_read_only_formats
 
 
@@ -18,7 +22,7 @@ def generate_markdown_for_example_images(split=True):
     algorithms = [
         "Original",
 
-        "Nearest Neighbour",
+        "Nearest Neighbour *(CV2)*",
         "Bilinear *(PIL)*", "Bicubic *(PIL)*", "Lanczos *(PIL)*", "Hamming *(PIL)*",
         "Bilinear *(CV2)*", "Bicubic *(CV2)*", "Lanczos *(CV2)*",
 
@@ -127,7 +131,116 @@ def generate_markdown_for_example_images(split=True):
             )
 
 
+@unique
+class POSITIONS(IntEnum):
+    LEFT = auto()
+    CENTER = auto()
+    RIGHT = auto()
+
+
+def generate_markdown_table(table: Iterable[Iterable[str]], position: POSITIONS = POSITIONS.CENTER) -> str:
+    result_builder = ['|']
+    headers = [column[0] for column in table]
+    result_builder.append('|'.join(headers))
+    result_builder.append('|')
+
+    if position == POSITIONS.LEFT:
+        positional_string = ":--"
+    elif position == POSITIONS.CENTER:
+        positional_string = ":-:"
+    else:
+        positional_string = "--:"
+
+    result_builder.append("\n|")
+    for _ in headers:
+        result_builder.append(f"{positional_string}|")
+
+    i = 1
+    while i < len(table[0]):
+        row = [column[i] for column in table]
+        result_builder.append("\n|")
+        result_builder.append('|'.join(row))
+        result_builder.append("|")
+
+        i += 1
+
+    return ''.join(result_builder)
+
+
+def generate_big_shell_summary(p: str) -> None:
+    u = os.path.join(p, "output", "160_Sea_Shell")
+    big_shell_summary_data: list[tuple[str, str]] = [
+        (
+            "Original",
+            f"{p}/other/Green_sea_shell_original_crop_640.webp"
+        ),
+        (
+            "Nearest Neighbour *(CV2)*",
+            f"{u}/CV2_INTER_NEAREST_160_Sea_Shell_4x.webp"
+        ),
+        (
+            "Bicubic *(PIL)*",
+            f"{u}/PIL_BICUBIC_160_Sea_Shell_4x.webp"
+        ),
+        (
+            "Lanchos *(PIL)*",
+            f"{u}/PIL_LANCZOS_160_Sea_Shell_4x.webp"
+        ),
+        (
+            "DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*",
+            f"{u}/SI_drln_160_Sea_Shell_4x.webp"
+        ),
+        (
+            "RealESRGAN",
+            f"{u}/RealESRGAN_160_Sea_Shell_4x.webp"
+        ),
+        (
+            "Anime4K",
+            f"{u}/Anime4K_160_Sea_Shell_4x.webp"
+        ),
+        (
+            "HSDBTRE",
+            f"{u}/HSDBTRE_160_Sea_Shell_4x.webp"
+        ),
+        (
+            "NEDI <sup>*(m = 4)*</sup>",
+            f"{u}/NEDI_160_Sea_Shell_4x.webp"
+        ),
+        (
+            "Super xBR",
+            f"{u}/Super_xBR_160_Sea_Shell_4x.webp"
+        ),
+        (
+            "xBRZ",
+            f"{u}/xBRZ_160_Sea_Shell_4x.webp"
+        ),
+        (
+            "FSR *1.1*",
+            f"{u}/FSR_160_Sea_Shell_4x.webp"
+        )
+    ]
+
+    for i, entry in enumerate(big_shell_summary_data):
+        big_shell_summary_data[i] = (entry[0], f"![{entry[0]}]({entry[1]})")
+
+    batches: list[tuple[tuple[str, str], tuple[str, str]]] = []
+
+    for i in range(0, len(big_shell_summary_data), 2):
+        batches.append((big_shell_summary_data[i], big_shell_summary_data[i+1]))
+
+    # 100 x `-`
+    print("\n----------------------------------------------------------------------------------------------------\n")
+    for batch in batches:
+        print(generate_markdown_table(batch))
+        print()
+    print("----------------------------------------------------------------------------------------------------\n")
+
+
 if __name__ == "__main__":
     # generate_markdown_for_supported_read_formats()
-    generate_markdown_for_example_images()
+    # generate_markdown_for_example_images()
+
+    p = os.path.join("..", "..", "example_images")
+
+    generate_big_shell_summary(p)
     ...
