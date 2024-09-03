@@ -33,7 +33,7 @@ Scaled down image *(40px)*: <br>
 
 [//]: # (TODO: Update bicubic to PIL implementation (switch to lanchos?\))
 
-|                                    Original                                    |                                            Nearest Neighbour *(CV2)*                                            |
+|                                    Original                                    |                                                Nearest Neighbour                                                |
 |:------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------:|
 | ![Original](../../example_images/other/Green_sea_shell_original_crop_640.webp) | ![Nearest Neighbour *(CV2)*](../../example_images/output/160_Sea_Shell/CV2_INTER_NEAREST_160_Sea_Shell_4x.webp) |
 
