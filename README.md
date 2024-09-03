@@ -50,7 +50,7 @@ If feature you are interested in is not in either branch's roadmap, feel free to
   - **FSR** *(FidelityFX Super Resolution 1.1, made by AMD)*
   - **CAS** *(Contrast Adaptive Sharpening, made by AMD)*
 
-### [More detailed algorithms descriptions](src/README_extensions/algorithm_descriptions/README.md)
+### [More detailed algorithms descriptions](content/resources/README_extensions/algorithm_descriptions/README.md)
 
 <br/>
 
