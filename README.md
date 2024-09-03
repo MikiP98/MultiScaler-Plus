@@ -96,7 +96,7 @@ A summary of best and most unique results of up-scaling the image *(40px -> 160p
 |:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|
 | ![NEDI](src/example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.webp) | ![Super xBR](src/example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.webp) | ![xBRZ](src/example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp) | ![FSR](src/example_images/output/example_shell_40px/FSR_example_shell_40px_4x.webp) |
 
-### [More detailed comparisons](src/README_extensions/quality_comparison/README.md)
+### [More detailed comparisons](content/resources/README_extensions/quality_comparison/README.md)
 
 <br/>
 
