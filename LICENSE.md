@@ -187,48 +187,36 @@ _END OF TERMS AND CONDITIONS_
 
 ## Additional Licensing Terms for Shell Images
 
-This project contains certain files that are derivative works of original images licensed under the Creative Commons Attribution-ShareAlike licenses (CC BY-SA 2.5 and CC BY-SA 2.0). These files are not covered by the Apache License 2.0.
+This project contains certain files that are derivative works of original images 
+licensed under the Creative Commons Attribution-ShareAlike licenses (CC BY-SA 2.5 and CC BY-SA 2.0). 
+These files are not covered by the Apache License 2.0.
 
 **Shell Images:**
 
-- The shell images used in this project, including any modifications made by the contributors, are licensed under the [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
+- The shell images used in this project, including any modifications made by the contributors, 
+  are licensed under the [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
 
 **Conditions:**
 
-- You are free to share, modify, and distribute these images under the same license, provided that you give appropriate credit, provide a link to the license, and indicate if changes were made. If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+- You are free to share, modify, and distribute these images under the same license, provided that you give appropriate credit, 
+  provide a link to the license, and indicate if changes were made. 
+  If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
 For more details, refer to the [CC BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
 
+<br>
 
+## Credit Request for Processed Images
 
-[//]: # (                          Additional Licensing Terms for Shell Images)
+**Images Processed with This Software:**
 
-[//]: # ()
-[//]: # (   This project contains certain files that are derivative works of original images licensed under)
+If you use this software to process, scale, or modify images, you are kindly requested (but not legally required) to credit the software and its creators as follows:
 
-[//]: # (   the Creative Commons Attribution-ShareAlike licenses &#40;CC BY-SA 2.5 and CC BY-SA 2.0&#41;.)
+- Include a credit such as `Processed with MultiScaler+` in any published form of the image (including digital and print formats),  
+  or `Contains images processed with MultiScaler+` in the credits section of any larger project you create.
+- Optionally, you may provide a [link](https://github.com/MikiP98/MultiScaler-Plus) to the software's website or repository.
 
-[//]: # (   These files are not covered by the Apache License 2.0.)
+Note: This credit request is voluntary and does not legally bind you under the terms of the Apache License 2.0 or the Creative Commons licenses. 
+However, following this request helps support the ongoing development and maintenance of the software.
 
-[//]: # ()
-[//]: # (   Shell Images:)
-
-[//]: # (   -  The shell images used in this project, including any modifications made by the contributors,)
-
-[//]: # (      are licensed under the Creative Commons Attribution-ShareAlike 4.0 International &#40;CC BY-SA 4.0&#41;.)
-
-[//]: # ()
-[//]: # (   Conditions:)
-
-[//]: # (   -  You are free to share, modify, and distribute these images under the same license,)
-
-[//]: # (      provided that you give appropriate credit, provide a link to the license,)
-
-[//]: # (      and indicate if changes were made. If you remix, transform, or build upon the material,)
-
-[//]: # (      you must distribute your contributions under the same license as the original.)
-
-[//]: # ()
-[//]: # (   For more details, refer to the CC BY-SA 4.0 License.)
-
-[//]: # (   https://creativecommons.org/licenses/by-sa/4.0/deed.en)
+<br>
