@@ -1,6 +1,6 @@
 # Quality comparisons between algorithms
 
-[Back to main README](../../../README.md)
+[Back to main README](../../../../README.md)
 
 ## Summary:
 
@@ -125,7 +125,7 @@ coming soon
 
 <br>
 
-### [Back to main README](../../../README.md)
+### [Back to main README](../../../../README.md)
 
 <br>
 

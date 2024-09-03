@@ -1,6 +1,6 @@
 # Detailed Algorithm Descriptions
 
-[Back to main README](../../../README.md)
+[Back to main README](../../../../README.md)
 
 ## Classic Algorithms
 
@@ -36,4 +36,4 @@
 
 <br>
 
-### [Back to main README](../../../README.md)
+### [Back to main README](../../../../README.md)
