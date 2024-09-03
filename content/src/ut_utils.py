@@ -168,7 +168,7 @@ def generate_markdown_table(table: Iterable[Iterable[str]], position: POSITIONS 
 
 
 def generate_big_shell_summary(p: str) -> None:
-    u = os.path.join(p, "output", "160_Sea_Shell")
+    u = f"{p}/output/160_Sea_Shell"
     big_shell_summary_data: list[tuple[str, str]] = [
         (
             "Original",
@@ -240,7 +240,7 @@ if __name__ == "__main__":
     # generate_markdown_for_supported_read_formats()
     # generate_markdown_for_example_images()
 
-    p = os.path.join("..", "..", "example_images")
+    p = "../../example_images"
 
     generate_big_shell_summary(p)
     ...

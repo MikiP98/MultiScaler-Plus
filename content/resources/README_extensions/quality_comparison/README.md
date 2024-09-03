@@ -32,29 +32,30 @@ Scaled down image *(40px)*: <br>
 ### Wiki Example Shell *(160px -> 640px)*:
 
 [//]: # (TODO: Update bicubic to PIL implementation (switch to lanchos?\))
+
 |                                    Original                                    |                                            Nearest Neighbour *(CV2)*                                            |
 |:------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------:|
-| ![Original](..\..\example_images/other/Green_sea_shell_original_crop_640.webp) | ![Nearest Neighbour *(CV2)*](..\..\example_images\output\160_Sea_Shell/CV2_INTER_NEAREST_160_Sea_Shell_4x.webp) |
+| ![Original](../../example_images/other/Green_sea_shell_original_crop_640.webp) | ![Nearest Neighbour *(CV2)*](../../example_images/output/160_Sea_Shell/CV2_INTER_NEAREST_160_Sea_Shell_4x.webp) |
 
 |                                         Bicubic *(PIL)*                                         |                                         Lanchos *(PIL)*                                         |
 |:-----------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
-| ![Bicubic *(PIL)*](..\..\example_images\output\160_Sea_Shell/PIL_BICUBIC_160_Sea_Shell_4x.webp) | ![Lanchos *(PIL)*](..\..\example_images\output\160_Sea_Shell/PIL_LANCZOS_160_Sea_Shell_4x.webp) |
+| ![Bicubic *(PIL)*](../../example_images/output/160_Sea_Shell/PIL_BICUBIC_160_Sea_Shell_4x.webp) | ![Lanchos *(PIL)*](../../example_images/output/160_Sea_Shell/PIL_LANCZOS_160_Sea_Shell_4x.webp) |
 
 |                                       DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                                       |                                        RealESRGAN                                         |
 |:-----------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------:|
-| ![DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*](..\..\example_images\output\160_Sea_Shell/SI_drln_160_Sea_Shell_4x.webp) | ![RealESRGAN](..\..\example_images\output\160_Sea_Shell/RealESRGAN_160_Sea_Shell_4x.webp) |
+| ![DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*](../../example_images/output/160_Sea_Shell/SI_drln_160_Sea_Shell_4x.webp) | ![RealESRGAN](../../example_images/output/160_Sea_Shell/RealESRGAN_160_Sea_Shell_4x.webp) |
 
 |                                       Anime4K                                       |                                       HSDBTRE                                       |
 |:-----------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|
-| ![Anime4K](..\..\example_images\output\160_Sea_Shell/Anime4K_160_Sea_Shell_4x.webp) | ![HSDBTRE](..\..\example_images\output\160_Sea_Shell/HSDBTRE_160_Sea_Shell_4x.webp) |
+| ![Anime4K](../../example_images/output/160_Sea_Shell/Anime4K_160_Sea_Shell_4x.webp) | ![HSDBTRE](../../example_images/output/160_Sea_Shell/HSDBTRE_160_Sea_Shell_4x.webp) |
 
 |                                     NEDI <sup>*(m = 4)*</sup>                                      |                                        Super xBR                                        |
 |:--------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|
-| ![NEDI <sup>*(m = 4)*</sup>](..\..\example_images\output\160_Sea_Shell/NEDI_160_Sea_Shell_4x.webp) | ![Super xBR](..\..\example_images\output\160_Sea_Shell/Super_xBR_160_Sea_Shell_4x.webp) |
+| ![NEDI <sup>*(m = 4)*</sup>](../../example_images/output/160_Sea_Shell/NEDI_160_Sea_Shell_4x.webp) | ![Super xBR](../../example_images/output/160_Sea_Shell/Super_xBR_160_Sea_Shell_4x.webp) |
 
 |                                     xBRZ                                      |                                     FSR *1.1*                                     |
 |:-----------------------------------------------------------------------------:|:---------------------------------------------------------------------------------:|
-| ![xBRZ](..\..\example_images\output\160_Sea_Shell/xBRZ_160_Sea_Shell_4x.webp) | ![FSR *1.1*](..\..\example_images\output\160_Sea_Shell/FSR_160_Sea_Shell_4x.webp) |
+| ![xBRZ](../../example_images/output/160_Sea_Shell/xBRZ_160_Sea_Shell_4x.webp) | ![FSR *1.1*](../../example_images/output/160_Sea_Shell/FSR_160_Sea_Shell_4x.webp) |
 
 <br>
 
