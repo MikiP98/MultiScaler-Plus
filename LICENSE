@@ -214,11 +214,14 @@
 
 
 
+
+
                           Credit Request for Processed Images
 
    Images Processed with This Software:
 
-   If you use this software to process, scale, or modify images, you are kindly requested (but not legally required) to credit the software and its creators as follows:
+   If you use this software to process, scale, or modify images, you are kindly requested
+   (but not legally required) to credit the software and its creators as follows:
    -  Include a credit such as `Processed with MultiScaler+` in any published form of the image (including digital and print formats),
       or `Contains images processed with MultiScaler+` in the credits section of any larger project you create.
    -  Optionally, you may provide a [link](https://github.com/MikiP98/MultiScaler-Plus) to the software's website or repository.
