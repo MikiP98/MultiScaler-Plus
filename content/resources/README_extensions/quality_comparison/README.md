@@ -120,7 +120,67 @@ images coming soon
 
 ## Recommendations:
 
-coming soon
+### Downscaling:
+
+Downscaling is simpler that's why it's first  
+In theory the best algorithm to use, supported by this APP is **PIL**'s implementation of `Lanchos` algorithm  
+Second best in theory is **PIL**'s implementation of `Bicubic` algorithm  
+In practice though the differance is that **Lanchos** will have **sharper** and **contrastier** look, 
+  but sometimes it looks like it has some over-sharping artifacts  
+If you are looking for even softer look try `Area Average` implementation by **CV2**
+The rest of algorithms might be used as an artistic choice, sometimes with cool and interesting results
+
+### Upscaling:
+
+If you want to quickly scale some images with anything at 
+  least a bit better than a default bilinear scaler present in most application, 
+  chose either: `Bicubic` or `Lanchos`  
+Though **Lanchos** is in theory better it sometimes looks over sharpened and over contrasted 
+  in comparison to **Bicubic**  
+`FSR` can also result in better image as it better preserves the overall shape of the object in the image, 
+  but it will add some noise and grain to the output
+
+If you wish to get the best possible results from the upscaling you can choose 1 of 2 path:
+
+- **AI for realistic images:**  
+  There are a lot of AI algorithms to chose from but here are the best overall for realistic images:
+  - `DRLN` implemented by **SI**, *or `DRLN-BAM` if your scaling factor is less than 4*  
+    **DRLN** is in theore the bst of the simple scaling AI's that do not add detail to the image.
+      The image will most likely look better than when scaled with classic or smart algorithms,
+      but at larger scales the lack of detail becomes visible :/
+  - `RealESRGAN`  
+    **RealESRGAN** adds more detail to the upscaled image and when it works, it works great!
+      But not so rarely it tends to over smooth the image creating flat surfaces where previously was detail
+      and has big tendencies to hallucinate if the input image was too small or there was not enough detail in it
+      **RealESRGAN** can also be used to remove the JPEG artifacts from the image :)
+  - `HSDBTRE`  
+    **HSDBTRE** is a simple hybrid of the 2 algorithms above.
+      It starts with applying 2x **DRLN** after which comes 2x **RealESRGAN**.
+
+- **AI for Anime or similar contrast art-style:**
+  - `Anime4K`  
+    Designed to upscale old Anime in realtime during playback. Easy to run with mostly good results.
+  - `RealESRGAN`  
+    Offers a bit better contrast on the edges, but a bit worse antialiasing, while being a lot slower.
+     Also tends to over smooth the background, removing small detail as e.g. fences or pattern on shirts.  
+  - `DRLN`
+    As it focuses on the best upscaling without adding detail, it won't destroy the visuals with many artifacts, 
+      while still being better than **Bilinear** scaling in most playback software.
+      Will be the softest of all 3.
+
+- **Edge Detection for pixel art or Anime/similar contrast art-style:**  
+  Most edge detection algorithms are really unique, it is really hard to choose the best ones but here we go!
+  - `xBRZ`  
+    Personally one of my favourite algorithms, this is the one that inspired me to make this APP :)  
+    Creates a palette effect when there are gradients of high frequency detail,
+      usually not visible on anime or similar styles. 
+      The simplest way to describe it is that it adds 45 deg lines where there are edges, instead of blurring them.
+  - `Super xBR`  
+    Works for more angles than xBRZ, but produces more blurry output
+  - `NEDI`  
+    The overall bluriness and shape are similar to **Super xBR**, but it adds detail in artistic way. 
+      May produce some visible artifacts. 
+      The edge detection radius can be fine-tuned with `Nedi_m` config option. *(Default and recommended minimum is 4)*
 
 <br>
 

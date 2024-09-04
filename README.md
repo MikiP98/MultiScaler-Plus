@@ -96,7 +96,7 @@ A summary of best and most unique results of up-scaling the image *(40px -> 160p
 |:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|
 | ![NEDI](src/example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.webp) | ![Super xBR](src/example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.webp) | ![xBRZ](src/example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp) | ![FSR](src/example_images/output/example_shell_40px/FSR_example_shell_40px_4x.webp) |
 
-### [More detailed comparisons](content/resources/README_extensions/quality_comparison/README.md)
+### [More Detailed Comparisons & Recommendations](content/resources/README_extensions/quality_comparison/README.md)
 
 <br/>
 
@@ -237,7 +237,8 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 - Add better image quality comparison:
   - ~~Summary~~
   - Extended summary
-  - note with recommendations
+  - ~~note with recommendations~~
+  - Downscaling comparison
 - Create a **C++ python extension** for:
   - More optimizations and better performance
   - **ScaleFX** scaling shader
