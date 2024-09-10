@@ -28,7 +28,7 @@ jobs:
           flake8
 
   test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
       pull-requests: write
       contents: read
