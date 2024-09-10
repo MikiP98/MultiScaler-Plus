@@ -10,13 +10,12 @@
 from typing import TypedDict
 
 class AlgorithmConfigDTO(TypedDict):
-    id: int
-    display_name: str | None
-    description: str | None
+    name: str  # Not using ID so that new algorithms won't break API compat
+    display_name: str | None  # If left empty, WebUI will try to use the hardcoded clientside display_name
+    description: str | None  # If left empty, WebUI will try to use the hardcoded clientside description
     non_cost_per_output_pixel: int
     premium_cost_per_output_pixel: int
     premium_only: bool
-
 
 class ServerConfigDTO(TypedDict):
   api_version: str
