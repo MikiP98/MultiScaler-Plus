@@ -236,11 +236,108 @@ def generate_big_shell_summary(p: str) -> None:
     print("----------------------------------------------------------------------------------------------------\n")
 
 
+def generate_small_shell_summary(p: str):
+    u = f"{p}/output/example_shell_40px"
+    big_shell_summary_data: list[tuple[str, str]] = [
+        (
+            "Original",
+            "https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png"
+        ),
+        (
+            "Nearest Neighbour <sup>*(CV2)*</sup>",
+            f"{u}/CV2_INTER_NEAREST_example_shell_40px_4x.webp"
+        ),
+        (
+            "Hamming",
+            f"{u}/PIL_HAMMING_example_shell_40px_4x.webp"
+        ),
+        (
+            "Bicubic *(PIL)*",
+            f"{u}/PIL_BICUBIC_example_shell_40px_4x.webp"
+        ),
+        (
+            "Lanczos *(PIL)*",
+            f"{u}/PIL_LANCZOS_example_shell_40px_4x.webp"
+        ),
+        (
+            "EDSR *(CV2)*",
+            f"{u}/CV2_EDSR_example_shell_40px_4x.webp"
+        ),
+        (
+            "DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*",
+            f"{u}/SI_drln_example_shell_40px_4x.webp"
+        ),
+        (
+            "RealESRGAN",
+            f"{u}/RealESRGAN_example_shell_40px_4x.webp"
+        ),
+        (
+            "Anime4K",
+            f"{u}/Anime4K_example_shell_40px_4x.webp"
+        ),
+        (
+            "HSDBTRE",
+            f"{u}/HSDBTRE_example_shell_40px_4x.webp"
+        ),
+        (
+            "NEDI <sup>*(m = 4)*</sup>",
+            f"{u}/NEDI_example_shell_40px_4x.webp"
+        ),
+        (
+            "Super xBR",
+            f"{u}/Super_xBR_example_shell_40px_4x.webp"
+        ),
+        (
+            "xBRZ",
+            f"{u}/xBRZ_example_shell_40px_4x.webp"
+        ),
+        (
+            "FSR 1.1",
+            f"{u}/FSR_example_shell_40px_4x.webp"
+        ),
+        (
+            "Repetition",
+            f"{u}/Repetition_example_shell_40px_4x.webp"
+        )
+    ]
+
+    for i, entry in enumerate(big_shell_summary_data):
+        big_shell_summary_data[i] = (entry[0], f"![{entry[0]}]({entry[1]})")
+
+    batches: list[tuple[tuple[str, str], tuple[str, str], tuple[str, str], tuple[str, str]] | list[tuple[str, str]]] = []
+
+    rest = False
+    end = None
+    for i in range(0, len(big_shell_summary_data), 4):
+        if len(big_shell_summary_data[i:]) < 4:
+            rest = True
+            end = i
+            break
+        batches.append((
+            big_shell_summary_data[i],
+            big_shell_summary_data[i + 1],
+            big_shell_summary_data[i + 2],
+            big_shell_summary_data[i + 3]
+        ))
+
+    if rest:
+        rest = big_shell_summary_data[end:]
+        batches.append(rest)
+
+    # 100 x `-`
+    print("\n----------------------------------------------------------------------------------------------------\n")
+    for batch in batches:
+        print(generate_markdown_table(batch))
+        print()
+    print("----------------------------------------------------------------------------------------------------\n")
+
+
 if __name__ == "__main__":
     # generate_markdown_for_supported_read_formats()
     # generate_markdown_for_example_images()
 
     p = "../../example_images"
 
-    generate_big_shell_summary(p)
+    generate_small_shell_summary(p)
+    # generate_big_shell_summary(p)
     ...

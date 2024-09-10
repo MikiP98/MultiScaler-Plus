@@ -13,19 +13,21 @@
 Scaled down image *(40px)*: <br>
 ![Wiki Example Shell - Small](../../example_images/input/example_shell_40px.png)
 
-|                                                      Original                                                      |                                                 Nearest Neighbour                                                 |                                          Bicubic *(PIL)*                                          |                                          Lanczos *(PIL)*                                          |
-|:------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|
-| ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](../../example_images/output/example_shell_40px/CV2_INTER_NEAREST_example_shell_40px_4x.webp) | ![Bicubic](../../example_images/output/example_shell_40px/PIL_BICUBIC_example_shell_40px_4x.webp) | ![Lanczos](../../example_images/output/example_shell_40px/PIL_LANCZOS_example_shell_40px_4x.webp) |
+|Original|Nearest Neighbour <sup>*(CV2)*</sup>|Hamming|Bicubic *(PIL)*|
+|:-:|:-:|:-:|:-:|
+|![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png)|![Nearest Neighbour <sup>*(CV2)*</sup>](../../example_images/output/example_shell_40px/CV2_INTER_NEAREST_example_shell_40px_4x.webp)|![Hamming](../../example_images/output/example_shell_40px/PIL_HAMMING_example_shell_40px_4x.webp)|![Bicubic *(PIL)*](../../example_images/output/example_shell_40px/PIL_BICUBIC_example_shell_40px_4x.webp)|
 
+|Lanczos *(PIL)*|EDSR *(CV2)*|DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*|RealESRGAN|
+|:-:|:-:|:-:|:-:|
+|![Lanczos *(PIL)*](../../example_images/output/example_shell_40px/PIL_LANCZOS_example_shell_40px_4x.webp)|![EDSR *(CV2)*](../../example_images/output/example_shell_40px/CV2_EDSR_example_shell_40px_4x.webp)|![DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*](../../example_images/output/example_shell_40px/SI_drln_example_shell_40px_4x.webp)|![RealESRGAN](../../example_images/output/example_shell_40px/RealESRGAN_example_shell_40px_4x.webp)|
 
-|                           DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                            |                                             RealESRGAN                                              |                                            Anime4K                                            |                                            HSDBTRE                                            |
-|:------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|
-| ![DRLN](../../example_images/output/example_shell_40px/SI_drln_example_shell_40px_4x.webp) | ![RealESRGAN](../../example_images/output/example_shell_40px/RealESRGAN_example_shell_40px_4x.webp) | ![Anime4K](../../example_images/output/example_shell_40px/Anime4K_example_shell_40px_4x.webp) | ![HSDBTRE](../../example_images/output/example_shell_40px/HSDBTRE_example_shell_40px_4x.webp) |
+|Anime4K|HSDBTRE|NEDI <sup>*(m = 4)*</sup>|Super xBR|
+|:-:|:-:|:-:|:-:|
+|![Anime4K](../../example_images/output/example_shell_40px/Anime4K_example_shell_40px_4x.webp)|![HSDBTRE](../../example_images/output/example_shell_40px/HSDBTRE_example_shell_40px_4x.webp)|![NEDI <sup>*(m = 4)*</sup>](../../example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.webp)|![Super xBR](../../example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.webp)|
 
-
-|                                NEDI <sup>*(m = 4)*</sup>                                |                                             Super xBR                                             |                                          xBRZ                                           |                                       FSR *1.1*                                       |
-|:---------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|
-| ![NEDI](../../example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.webp) | ![Super xBR](../../example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.webp) | ![xBRZ](../../example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp) | ![FSR](../../example_images/output/example_shell_40px/FSR_example_shell_40px_4x.webp) |
+|xBRZ|FSR 1.1|Repetition|
+|:-:|:-:|:-:|
+|![xBRZ](../../example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp)|![FSR 1.1](../../example_images/output/example_shell_40px/FSR_example_shell_40px_4x.webp)|![Repetition](../../example_images/output/example_shell_40px/Repetition_example_shell_40px_4x.webp)|
 
 <br>
 
@@ -70,7 +72,7 @@ images coming soon
 
 ### Wiki Example Shell (40 -> 160):
 
-|                                                      Original                                                      |                                                     Nearest Neighbour                                                     |                                              Bilinear *(PIL)*                                               |                                              Bicubic *(PIL)*                                              |
+|                                                      Original                                                      |                                           Nearest Neighbour <sup>*(CV2)*</sup>                                            |                                              Bilinear *(PIL)*                                               |                                              Bicubic *(PIL)*                                              |
 |:------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|
 | ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour *(CV2)*](../../example_images/output/example_shell_40px/CV2_INTER_NEAREST_example_shell_40px_4x.webp) | ![Bilinear *(PIL)*](../../example_images/output/example_shell_40px/PIL_BILINEAR_example_shell_40px_4x.webp) | ![Bicubic *(PIL)*](../../example_images/output/example_shell_40px/PIL_BICUBIC_example_shell_40px_4x.webp) |
 

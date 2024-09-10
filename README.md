@@ -76,7 +76,11 @@ Though **Lanchos** is in theory better it sometimes looks over sharpened and ove
 `FSR` can also result in better image as it better preserves the overall shape of the object in the image, 
   but it will add some noise and grain to the output
 
-If you wish to get the best possible results from the upscaling you can choose 1 of 2 path:
+If you are willing to use AI, EDSR implementation by CV2 offers the least blur while not adding any visible artifacts.
+The image will still be noticeably blurry though
+The result might also get worse the bigger the scaling factor.<sup>(main testing is done with the factor of 4)</sup>
+
+If you wish to get the best possible results from the upscaling you can choose 1 of 3 paths:
 
 - **AI for realistic images:**  
   There are a lot of AI algorithms to chose from but here are the best overall for realistic images:
@@ -145,25 +149,31 @@ If you wish to get the best possible results from the upscaling you can choose 1
 ### Example - Wiki Shell:
 
 Scaled down image *(40px)*: <br>
-![Wiki Example Shell - Small](./src/example_images/input/example_shell_40px.png)
+![Wiki Example Shell - Small](content/resources/example_images/input/example_shell_40px.png)
+
+[//]: # (TODO: Make the Original use the local file)
 
 A summary of best and most unique results of up-scaling the image *(40px -> 160px)*:
 
-|                                                      Original                                                      |                                                Nearest Neighbour                                                |                                             Bicubic                                             |                                             Lanczos                                             |
-|:------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
-| ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour](src/example_images/output/example_shell_40px/CV2_INTER_NEAREST_example_shell_40px_4x.webp) | ![Bicubic](src/example_images/output/example_shell_40px/PIL_BICUBIC_example_shell_40px_4x.webp) | ![Lanczos](src/example_images/output/example_shell_40px/PIL_LANCZOS_example_shell_40px_4x.webp) |
+|                                                      Original                                                      |                                                       Nearest Neighbour <sup>*(CV2)*</sup>                                                       |                                                    Hamming                                                    |                                                    Bicubic *(PIL)*                                                    |
+|:------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------:|
+| ![Original](https://upload.wikimedia.org/wikipedia/commons/a/a6/160_by_160_thumbnail_of_%27Green_Sea_Shell%27.png) | ![Nearest Neighbour <sup>*(CV2)*</sup>](content/resources/example_images/output/example_shell_40px/CV2_INTER_NEAREST_example_shell_40px_4x.webp) | ![Hamming](content/resources/example_images/output/example_shell_40px/PIL_HAMMING_example_shell_40px_4x.webp) | ![Bicubic *(PIL)*](content/resources/example_images/output/example_shell_40px/PIL_BICUBIC_example_shell_40px_4x.webp) |
 
+|                                                    Lanczos *(PIL)*                                                    |                                                  EDSR *(CV2)*                                                   |                                                  DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                                                  |                                                   RealESRGAN                                                    |
+|:---------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------:|
+| ![Lanczos *(PIL)*](content/resources/example_images/output/example_shell_40px/PIL_LANCZOS_example_shell_40px_4x.webp) | ![EDSR *(CV2)*](content/resources/example_images/output/example_shell_40px/CV2_EDSR_example_shell_40px_4x.webp) | ![DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*](content/resources/example_images/output/example_shell_40px/SI_drln_example_shell_40px_4x.webp) | ![RealESRGAN](content/resources/example_images/output/example_shell_40px/RealESRGAN_example_shell_40px_4x.webp) |
 
-|                          DRLN<sup>*(-BAM if <4x)*</sup> *(SI)*                           |                                            RealESRGAN                                             |                                           Anime4K                                           |                                           HSDBTRE                                           |
-|:----------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
-| ![DRLN](src/example_images/output/example_shell_40px/SI_drln_example_shell_40px_4x.webp) | ![RealESRGAN](src/example_images/output/example_shell_40px/RealESRGAN_example_shell_40px_4x.webp) | ![Anime4K](src/example_images/output/example_shell_40px/Anime4K_example_shell_40px_4x.webp) | ![HSDBTRE](src/example_images/output/example_shell_40px/HSDBTRE_example_shell_40px_4x.webp) |
+|                                                  Anime4K                                                  |                                                  HSDBTRE                                                  |                                                NEDI <sup>*(m = 4)*</sup>                                                 |                                                   Super xBR                                                   |
+|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------:|
+| ![Anime4K](content/resources/example_images/output/example_shell_40px/Anime4K_example_shell_40px_4x.webp) | ![HSDBTRE](content/resources/example_images/output/example_shell_40px/HSDBTRE_example_shell_40px_4x.webp) | ![NEDI <sup>*(m = 4)*</sup>](content/resources/example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.webp) | ![Super xBR](content/resources/example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.webp) |
 
-
-|                               NEDI <sup>*(m = 4)*</sup>                               |                                            Super xBR                                            |                                         xBRZ                                          |                                      FSR *1.1*                                      |
-|:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|
-| ![NEDI](src/example_images/output/example_shell_40px/NEDI_example_shell_40px_4x.webp) | ![Super xBR](src/example_images/output/example_shell_40px/Super_xBR_example_shell_40px_4x.webp) | ![xBRZ](src/example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp) | ![FSR](src/example_images/output/example_shell_40px/FSR_example_shell_40px_4x.webp) |
+|                                                xBRZ                                                 |                                                FSR 1.1                                                |                                                   Repetition                                                    |
+|:---------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------:|
+| ![xBRZ](content/resources/example_images/output/example_shell_40px/xBRZ_example_shell_40px_4x.webp) | ![FSR 1.1](content/resources/example_images/output/example_shell_40px/FSR_example_shell_40px_4x.webp) | ![Repetition](content/resources/example_images/output/example_shell_40px/Repetition_example_shell_40px_4x.webp) |
 
 ### [More Detailed Comparisons](content/resources/README_extensions/quality_comparison/README.md)
+
+*For recommendations look just below the algorithm list*
 
 <br/>
 
