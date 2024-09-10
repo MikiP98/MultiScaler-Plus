@@ -1,6 +1,4 @@
 # coding=utf-8
-import os.path
-
 from aenum import auto, IntEnum, unique
 from typing import Iterable
 from utils import pil_fully_supported_formats, pil_read_only_formats
@@ -304,7 +302,9 @@ def generate_small_shell_summary(p: str):
     for i, entry in enumerate(big_shell_summary_data):
         big_shell_summary_data[i] = (entry[0], f"![{entry[0]}]({entry[1]})")
 
-    batches: list[tuple[tuple[str, str], tuple[str, str], tuple[str, str], tuple[str, str]] | list[tuple[str, str]]] = []
+    batches: list[
+        tuple[tuple[str, str], tuple[str, str], tuple[str, str], tuple[str, str]] | list[tuple[str, str]]
+        ] = []
 
     rest = False
     end = None
