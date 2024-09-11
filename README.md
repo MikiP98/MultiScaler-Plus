@@ -335,6 +335,8 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
   - Sharpen
   - Exposure
   - Motion blur *(for animated and stacked images)* *(temporal data and optical flow)*
+  - [Diffraction hologram](https://www.youtube.com/watch?v=atg1PN1sZfg)
+  - Negative
   - ~~Normal map strength~~
 - Add basic **cropping** and **rotating** support
 - Add **intelligent masking** *(to e.g. not mask the minecraft bat wing on the edge, but in a box)*
