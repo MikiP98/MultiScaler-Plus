@@ -39,14 +39,40 @@ class ServerConfigDTO(TypedDict):
 }
 ```
 
-## POST `./process_image`
+## POST `./process/scale`
 
 ### Send
 
 *Example JSON*
 ```JSON
 {
-    "processing_method": 0
+    "images": [
+      
+    ]
+}
+```
+
+### Return
+
+*Example JSON*
+```JSON
+{
+  "compressed_images_data": [
+    "GZIP?"
+  ]
+}
+```
+
+## POST `./process/filter`
+
+### Send
+
+*Example JSON*
+```JSON
+{
+    "images": [
+      
+    ]
 }
 ```
 
