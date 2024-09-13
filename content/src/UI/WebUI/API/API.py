@@ -29,29 +29,27 @@ def read_root() -> JSON:
 
 @app.get("/handshake")
 def read_root() -> ServerConfigDTO:
-    # pil_lanchos: AlgorithmConfigDTO = {
-    #     "name": "PIL_LANCHOS",
-    #     "display_name": "Lanchos *(PIL)*",
-    #     "description": "High quality classic scaling algorithm. "
-    #                    "In theory best for both down and up scaling among classic algorithms.",
-    #     "tags": ["Classic"],
-    #     "non_cost_per_output_pixel": 0,
-    #     "premium_cost_per_output_pixel": 0,
-    #     "premium_only": False
-    # }
     return {
         "api_version": "1.0.0",
-        "algorithm_configs": [
+        "endpoints": [
             {
-                "name": "PIL_LANCHOS",
-                "display_name": "Lanchos *(PIL)*",
-                "description": "High quality classic scaling algorithm. "
-                               "In theory best for both down and up scaling among classic algorithms.",
-                "tags": ["Classic"],
-                "non_cost_per_output_pixel": 0,
-                "premium_cost_per_output_pixel": 0,
+                "endpoint": "process/scale",
+                "display_name": "scaling",
+                "processes": [
+                    {
+                        "name": "PIL_LANCHOS",
+                        "display_name": "Lanchos *(PIL)*",
+                        "description": "High quality classic scaling algorithm. "
+                                       "In theory best for both down and up scaling among classic algorithms.",
+                        "tags": ["Classic"],
+                        "non_cost_per_output_pixel": 0,
+                        "premium_cost_per_output_pixel": 0,
+                        "premium_only": False
+                    }
+                ],
                 "premium_only": False
             }
         ],
-        "make_premium_a_tag": True
+        "make_premium_a_tag": True,
+        "require_account_for_non_zero_costs_processing": False
     }

@@ -9,37 +9,54 @@
 ```PY
 from typing import TypedDict
 
-class AlgorithmConfigDTO(TypedDict):
+class EndpointProcess(TypedDict):
     name: str  # Not using ID so that new algorithms won't break API compat
     display_name: str | None  # If left empty, WebUI will try to use the hardcoded clientside display_name
     description: str | None  # If left empty, WebUI will try to use the hardcoded clientside description
     tags: list[str]
     non_cost_per_output_pixel: int
     premium_cost_per_output_pixel: int
-    premium_only: bool
+    premium_only: bool | None  # if None, parent premium_only value will be used
+
+
+class EndpointConfigDTO(TypedDict):
+    endpoint: str
+    display_name: str
+    processes: list[EndpointProcess]
+    premium_only: bool  # overrides all processes premium_only value if true
+
 
 class ServerConfigDTO(TypedDict):
     api_version: str
-    algorithm_configs: list[AlgorithmConfigDTO]
+    endpoints: list[EndpointConfigDTO]
     make_premium_a_tag: bool  # If true, only premium image processing methods will have additional `Premium` tag
+    require_account_for_non_zero_costs_processing: bool
 ```
 
 *Example JSON*
 ```JSON
 {
-  "api_version": "1.0.0", 
-  "algorithm_configs": [
-    {
-      "name": "PIL_LANCHOS",
-      "display_name": "Lanchos *(PIL)*",
-      "description": "High quality classic scaling algorithm. In theory best for both down and up scaling among classic algorithms.",
-      "tags": ["Classic"],
-      "non_cost_per_output_pixel": 0,
-      "premium_cost_per_output_pixel": 0,
-      "premium_only": false
-    }
-  ],
-  "make_premium_a_tag": true
+    "api_version": "1.0.0",
+    "endpoints": [
+        {
+            "endpoint": "scale",
+            "display_name": "scaling",
+            "processes": [
+                {
+                    "name": "PIL_LANCHOS",
+                    "display_name": "Lanchos *(PIL)*",
+                    "description": "High quality classic scaling algorithm. In theory best for both down and up scaling among classic algorithms.",
+                    "tags": ["Classic"],
+                    "non_cost_per_output_pixel": 0,
+                    "premium_cost_per_output_pixel": 0,
+                    "premium_only": false
+                }
+            ],
+            "premium_only": false
+        }
+    ],
+    "make_premium_a_tag": true,
+    "require_account_for_non_zero_costs_processing": false
 }
 ```
 
