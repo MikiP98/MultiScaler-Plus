@@ -1,10 +1,12 @@
 # coding=utf-8
 
+import numpy as np
 import os
 import PIL.Image
 import PIL.GifImagePlugin
 import pillow_avif  # This is a PIL plugin for AVIF, is must be imported, but isn't directly used
 import pillow_jxl  # This is a PIL plugin for JPEG XL, is must be imported, but isn't directly used
+import re
 import shutil
 import utils
 import zipfile
@@ -49,8 +51,36 @@ class LoaderConfig(TypedDict):
     extension_blacklist: Optional[str]  # not exact match TODO: implement
 
 
+def safe_image_loading(path: str) -> PIL.Image:  # by [suneeta-mall](https://github.com/suneeta-mall)
+    img = PIL.Image.open(path)
+
+    # if img.mode != "RGB" and img.mode != "RGBA" and
+    if img.mode == "I;16":
+
+        bit_size = re.findall(r"\d+", img.mode)
+        bit_size = int(bit_size[0]) if bit_size else 8
+        if bit_size not in [8, 16, 32]:
+            raise ValueError(f"Unsupported file type, supported bit size is {bit_size}")
+        if bit_size != 8:
+            print(colored(f"SEVERE WARN: Image will lose its extended bit depth!!!", "light_red"))
+            max_value = 2**bit_size - 1
+            img_arr = (np.array(img) / max_value) * 255.0
+            img = PIL.Image.fromarray(img_arr.astype(np.uint8))
+        return img.convert("L")
+
+    else:
+        return img
+
+
 nr = '\x1B[0m'
 b = '\x1B[1m'
+
+
+def clear_output_directory(clear_output_dir: bool):
+    if clear_output_dir:
+        print(f"{b}Clearing the output directory{nr}")
+        shutil.rmtree("../../output", ignore_errors=True)
+        os.makedirs("../../output", exist_ok=True)
 
 
 def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str], list[int], list[str]]:
@@ -59,10 +89,7 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
     :param config:
     :return: tuple containing lists of: images, file_names, roots ids, roots; of which first 3 have equal size
     """
-    if config['clear_output_dir']:
-        print(f"{b}Clearing the output directory{nr}")
-        shutil.rmtree("../../output", ignore_errors=True)
-        os.makedirs("../../output", exist_ok=True)
+    clear_output_directory(config['clear_output_dir'])
 
     images: list[utils.ImageDict] = []
     # last_texture_extension = ""
@@ -71,10 +98,6 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
     roots: list[str] = []
     root_i = 0
     for root, dirs, files in os.walk("../../input"):
-        # print(f"Length of images: {len(images)}")
-        # print(f"Length of roots: {len(roots)}")
-        # print(f"Length of files: {len(file_names)}")
-
         roots.append(root)
 
         files_number = len(files)
@@ -83,30 +106,11 @@ def load_images(config: LoaderConfig) -> tuple[list[utils.ImageDict], list[str],
         for file in files:
             path = os.path.join(root, file)
             filename, extension = split_file_extension(file)
-            # if config['merge_texture_extensions']:
-            #     filename, texture_extension = split_texture_extension(filename)
-
-            # print(f"\nFilename: {filename}")
-            # print(f"Extension: {extension}")
-            # print(f"Root: {root}")
-            # print(f"Root[8:]: {root[9:]}")
 
             if extension in pil_fully_supported_formats_cache or extension in pil_read_only_formats_cache:
-                image = PIL.Image.open(path)
+                # image = PIL.Image.open(path)
+                image = safe_image_loading(path)
                 image = pngify(image)
-
-                # if config['merge_texture_extensions'] and file_check(file_names, filename):
-                #     print("Merging texture images")
-                #     images[-1] = merge_texture_images(images[-1], last_texture_extension, image, texture_extension)
-                #     print(f"New image length: {len(images[-1]['images'])}")
-                # else:
-                #     # TODO: Consider additional texture extension check
-                #     images.append(image)
-                #     if config['merge_texture_extensions']:
-                #         last_texture_extension = texture_extension
-                #     roots.append(root)
-                #     file_names.append(filename)
-                #     # print(f"Appended root: {root} and file: {file} to their respective lists")
 
                 images.append(image)
                 roots_ids.append(root_i)
@@ -151,10 +155,7 @@ def load_textures(
     :param config:
     :return: tuple of: Texture set, images with unknown texture extensions, file_names, roots_ids, roots
     """
-    if config['clear_output_dir']:
-        print(f"{b}Clearing the output directory{nr}")
-        shutil.rmtree("../output", ignore_errors=True)
-        os.makedirs("../output")
+    clear_output_directory(config['clear_output_dir'])
 
     texture_sets: list[list[utils.ImageDict | None]] = []
     other_images: list[list[tuple[utils.ImageDict, str]]] = []
@@ -163,8 +164,8 @@ def load_textures(
     roots_ids: list[int] = []
     roots: list[str] = []
     root_i = 0
-    for root, dirs, files in os.walk("../input"):
-        # print(f"Length of images: {len(images)}")
+    for root, dirs, files in os.walk("../../input"):
+        # print(f"Length of images: {len(files)}")
         # print(f"Length of roots: {len(roots)}")
         # print(f"Length of files: {len(file_names)}")
 
@@ -179,24 +180,21 @@ def load_textures(
 
             filename, texture_extension = split_texture_extension(filename)
 
-            # print(f"\nFilename: {filename}")
-            # print(f"Extension: {extension}")
-            # print(f"Root: {root}")
-            # print(f"Root[8:]: {root[9:]}")
-
             if extension in pil_fully_supported_formats_cache or extension in pil_read_only_formats_cache:
-                image: PIL.Image.Image = PIL.Image.open(path)
+                # image: PIL.Image.Image = PIL.Image.open(path)
+                image: PIL.Image.Image = safe_image_loading(path)
                 image: utils.ImageDict = pngify(image)
 
                 if filename != last_filename:
                     new_texture_set: list[utils.ImageDict | None] = [None] * 2
+                    other_images.append([])
 
                     if texture_extension == 'n':
                         new_texture_set[0] = image
                     elif texture_extension == 's':
                         new_texture_set[1] = image
                     else:
-                        other_images.append([(image, texture_extension)])
+                        other_images[-1].append((image, texture_extension))
 
                     texture_sets.append(new_texture_set)
                     roots_ids.append(root_i)
@@ -228,6 +226,7 @@ def load_textures(
                 continue
 
             print(f"Loaded: {path}")
+        root_i += 1
 
     texture_sets: list[TextureSet] = [cast(TextureSet, tuple(texture_set)) for texture_set in texture_sets]
     return texture_sets, other_images, file_names, roots_ids, roots

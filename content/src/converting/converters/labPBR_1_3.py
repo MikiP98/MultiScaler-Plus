@@ -172,14 +172,16 @@ def convert_from_old_continuum(
         texture_set: tuple[list[PIL.Image.Image] | None, list[PIL.Image.Image] | None]
 ) -> tuple[list[PIL.Image.Image] | None, list[PIL.Image.Image] | None]:
 
-    specular_map, normal_map = texture_set
+    normal_map, specular_map = texture_set
 
     if specular_map is None:
         new_specular_map = None
     else:
         new_specular_map = []
         for frame in specular_map:
-            frame = frame.convert('RGBA')
+            if frame.mode == "RGB":
+                frame.putalpha(0)
+                # frame = frame.convert('RGBA')
             new_frame = PIL.Image.new('RGB', frame.size)
 
             for x in range(frame.size[0]):
@@ -203,7 +205,9 @@ def convert_from_old_continuum(
     else:
         new_normal_map = []
         for frame in normal_map:
-            frame = frame.convert('RGBA')
+            if frame.mode == "RGB":
+                frame.putalpha(0)
+                # frame = frame.convert('RGBA')
             new_frame = PIL.Image.new('RGBA', frame.size)
 
             for x in range(frame.size[0]):

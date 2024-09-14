@@ -24,7 +24,7 @@ option_names = [
     "Convert images",
     "Repeat the process",
     "Install plugins",
-    "Raport",  # TODO: implement; It can say what MC textures are you missing, what normal maps are you missing, etc.
+    "Report",  # TODO: implement; It can say what MC textures are you missing, what normal maps are you missing, etc.
     "Exit"
 ]
 
@@ -193,7 +193,6 @@ def convert_images() -> None:
         converted_images, file_names, roots_ids = convert_textures_to_raw_images(
             converted_images, other_images, file_names, roots_ids
         )
-
         saver.save_img_list_multithreaded(converted_images, file_names, roots_ids, roots, saver_config, conversions)
 
 
@@ -207,38 +206,59 @@ def convert_textures_to_raw_images(
     new_file_names: list[str] = []
     new_roots_ids: list[int] = []
 
-    for (
-            conversion_list_texture_sets,
-            conversion_other_images_parts,
-            root_id,
-            file_name
-    ) in zip(texture_sets, other_images, roots_ids, file_names):
+    # print(f"Other Images:\n{other_images}")
 
-        for texture_set, other_images_part in zip(conversion_list_texture_sets, conversion_other_images_parts):
-            normal_map, specular_map = texture_set
+    # Processing methods loop
+    for processed_texture_set in texture_sets:
+        process_image_dicts: list[ImageDict] = []
+
+        conversion_list_texture_sets: list[tuple[ImageDict | None, ImageDict | None]]
+        conversion_other_images_parts: list[tuple[ImageDict, str]]
+        for (
+                conversion_texture_set,
+                conversion_other_images,
+                root_id,
+                file_name
+        ) in zip(processed_texture_set, other_images, roots_ids, file_names):
+
+            normal_map, specular_map = conversion_texture_set
 
             if normal_map is not None:
                 normal_map_filename = file_name + "_n"
 
-                image_dicts.append(normal_map)
+                process_image_dicts.append(normal_map)
                 new_roots_ids.append(root_id)
                 new_file_names.append(normal_map_filename)
 
             if specular_map is not None:
                 specular_map_filename = file_name + "_s"
 
-                image_dicts.append(normal_map)
+                process_image_dicts.append(specular_map)
                 new_roots_ids.append(root_id)
                 new_file_names.append(specular_map_filename)
 
-            for other_image, other_image_suffix in other_images_part:
+            other_images_part: tuple[ImageDict, str]
+            for other_images_part in conversion_other_images:
+                # print(f"other_images_part:\n{other_images_part}")
+                # print(type(other_images_part))
+                # print(f"len of other_images_part: {len(other_images_part)}")
+
+                other_image, other_image_suffix = other_images_part
+                # print(
+                #     f"other_image: {other_image}\n"
+                #     f"other_image_suffix: {other_image_suffix}"
+                # )
                 new_image_filename = file_name
                 if len(other_image_suffix) != 0:
                     new_image_filename += '_' + other_image_suffix
 
-                image_dicts.append(other_image)
+                process_image_dicts.append(other_image)
                 new_roots_ids.append(root_id)
                 new_file_names.append(new_image_filename)
+
+        image_dicts.append(process_image_dicts)
+
+    # print(f"image_dicts:\n{image_dicts}")
 
     return image_dicts, new_file_names, new_roots_ids
 

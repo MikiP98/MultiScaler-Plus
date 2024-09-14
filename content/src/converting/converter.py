@@ -62,6 +62,11 @@ def convert_image_batch(
                 s_frames = s['images'][0]
 
             new_n, new_s = conversion_function((n_frames, s_frames))
+            # print(
+            #     f"n: {n}; \ts: {s}\n"
+            #     f"n_frames: {n_frames}; \ts_frames: {s_frames}\n"
+            #     f"new_n: {new_n}; \tnew_s: {new_s}\n"
+            # )
 
             if new_n is None:
                 n_dict = None

@@ -179,20 +179,31 @@ def cv2_to_pil(cv2_image: np.ndarray) -> PIL.Image.Image:
 #     # return [image]  # Return an 'image' with single 'frame'
 
 
-def pngify(image: PIL.Image) -> ImageDict:
-    if image.format.lower() in pil_animated_formats_cache:
-        # Extract all frames from the animated image as a list of images
-        if image.is_animated:
-            raise NotImplementedError("Animated images are not supported yet")
-
-        raise NotImplementedError(
-            f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}"
-        )
+# TODO: Move to loader, merge with safe load
+def pngify(image: PIL.Image.Image) -> ImageDict:
+    # TODO: Fix this, this never worked in the first place, but now with safe image loading it crashes
+    # if image.format.lower() in pil_animated_formats_cache:
+    #     # Extract all frames from the animated image as a list of images
+    #     if image.is_animated:
+    #         raise NotImplementedError("Animated images are not supported yet")
+    #
+    #     raise NotImplementedError(
+    #         f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}"
+    #     )
+    #
+    # check if is RGBA or RGB
+    # elif not (image.mode == "RGB" or image.mode == "RGBA"):
+    #     image = image.convert("RGBA")
+    #     if not uses_transparency(image):
+    #         image = image.convert("RGB")
 
     # check if is RGBA or RGB
-    elif not (image.mode == "RGB" or image.mode == "RGBA"):
+    if not (image.mode == "RGB" or image.mode == "RGBA"):
         image = image.convert("RGBA")
+        # TODO: Fix this somehow,
+        #  right now it can delete important info from textures, grayscale textures have added alpha
         if not uses_transparency(image):
+            print(colored("WARN: Possible texture data removal!", "light_red"))
             image = image.convert("RGB")
 
     return {'images': [[image]]}
