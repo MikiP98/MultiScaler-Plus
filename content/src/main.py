@@ -123,18 +123,28 @@ def scale_images() -> None:
 
 
 def apply_filters() -> None:
+    """Apply filters to the images.
+
+    This function applies filters to the images that are loaded from the disk.
+    It prompts the user to select the filters and their factors as well as configs
+    for loading and saving the images, and then applies them to the images.
+
+    After the filtering is done, it saves the filtered images to the disk.
+
+    """
     import filtering.filter_manager as filter_manager
 
     print("Applying filters!")
 
+    # Get the configuration for the loader and saver
     load_config = UI.console.get_loader_config()
     saver_config = UI.console.get_saver_config()
 
-    # user input start ----------------
+    # Get the filters and their factors from the user
     selected_filters_ids = UI.console.get_filters()
     factors = UI.console.get_factors()
-    # user input end ----------------
 
+    # Load the images
     images, file_names, roots_ids, roots = loader.load_images(load_config)
 
     print(
@@ -142,6 +152,7 @@ def apply_filters() -> None:
         f"to {len(images)} images...\n"
     )
 
+    # Apply the filters to the images
     filtered_images = filter_manager.filter_image_batch(
         selected_filters_ids,
         images,
@@ -149,6 +160,7 @@ def apply_filters() -> None:
     )
     print("Filtering is done!\n")
 
+    # Save the filtered images to the disk
     saver_config["factors"] = factors
     saver.save_img_list_multithreaded(filtered_images, file_names, roots_ids, roots, saver_config, selected_filters_ids)
 
