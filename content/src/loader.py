@@ -17,8 +17,7 @@ from utils import (
     pil_fully_supported_formats_cache,
     pil_read_only_formats_cache,
     pil_write_only_formats_cache,
-    pil_indentify_only_formats_cache,
-    pngify
+    pil_indentify_only_formats_cache
 )
 
 # from typing import NamedTuple
@@ -54,7 +53,7 @@ class LoaderConfig(TypedDict):
 def safe_image_loading(path: str) -> PIL.Image:  # by [suneeta-mall](https://github.com/suneeta-mall)
     img = PIL.Image.open(path)
 
-    # if img.mode != "RGB" and img.mode != "RGBA" and
+    # if img.mode != "RGB" and img.mode != "RGBA" and img.mode != "P":
     if img.mode == "I;16":
 
         bit_size = re.findall(r"\d+", img.mode)
@@ -70,6 +69,35 @@ def safe_image_loading(path: str) -> PIL.Image:  # by [suneeta-mall](https://git
 
     else:
         return img
+
+
+def pngify(image: PIL.Image.Image) -> utils.ImageDict:
+    # TODO: Fix this, this never worked in the first place, but now with safe image loading it crashes
+    # if image.format.lower() in pil_animated_formats_cache:
+    #     # Extract all frames from the animated image as a list of images
+    #     if image.is_animated:
+    #         raise NotImplementedError("Animated images are not supported yet")
+    #
+    #     raise NotImplementedError(
+    #         f"Animatable and stackable images are not supported yet: {pil_animated_formats_cache}"
+    #     )
+    #
+    # check if is RGBA or RGB
+    # elif not (image.mode == "RGB" or image.mode == "RGBA"):
+    #     image = image.convert("RGBA")
+    #     if not uses_transparency(image):
+    #         image = image.convert("RGB")
+
+    # check if is RGBA or RGB
+    if not (image.mode == "RGB" or image.mode == "RGBA"):
+        image = image.convert("RGBA")
+        # TODO: Fix this somehow,
+        #  right now it can delete important info from textures, grayscale textures have added alpha
+        if not utils.uses_transparency(image):
+            print(colored("WARN: Possible texture data removal!", "light_red"))
+            image = image.convert("RGB")
+
+    return {'images': [[image]]}
 
 
 nr = '\x1B[0m'

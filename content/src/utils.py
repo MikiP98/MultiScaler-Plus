@@ -148,15 +148,13 @@ def cv2_to_pil(cv2_image: np.ndarray) -> PIL.Image.Image:
         # Convert OpenCV image to NumPy array
         numpy_array = cv2.cvtColor(cv2_image, cv2.COLOR_BGRA2RGBA)
 
-        # Convert NumPy array to Pillow format
-        return PIL.Image.fromarray(numpy_array)
     else:
         # print("Converting from BGR to RGB format...")
         # Convert OpenCV image to NumPy array
         numpy_array = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
 
-        # Convert NumPy array to Pillow format
-        return PIL.Image.fromarray(numpy_array)
+    # Convert NumPy array to Pillow format
+    return PIL.Image.fromarray(numpy_array)
 
 
 # def pngify_class(image: PIL.Image) -> Image:
