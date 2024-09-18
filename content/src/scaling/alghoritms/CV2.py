@@ -7,6 +7,9 @@ from scaling.utils import ConfigPlus, correct_frame_from_cv2
 from termcolor import colored
 
 
+# TODO: Benchmark using map(),
+#  generate a Partial or a lambda that will fill the factor,
+#  then map frames using map(Partial, frame)
 def cv2_non_ai_common(frames: list[PIL.Image.Image], factor: float, algorithm: int) -> list[PIL.Image.Image]:
     scaled_frames = []
     for frame in frames:

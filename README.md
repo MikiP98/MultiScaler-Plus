@@ -354,6 +354,10 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 - ~~Add big 160px example shell image to example images~~
 - Librarify this app...
 - Add a markdown page(s) with detailed algorithms descriptions *(in progress...)*
+- Benchmark lazy imports inside scaling (and other) functions:
+  - no lazy import
+  - lazy import
+  - lazy import behind an if check
 
 <br/>
 
