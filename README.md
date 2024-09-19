@@ -63,7 +63,7 @@ In theory the best algorithm to use, supported by this APP is **PIL**'s implemen
 Second best in theory is **PIL**'s implementation of `Bicubic` algorithm  
 In practice though the differance is that **Lanchos** will have **sharper** and **contrastier** look, 
   but sometimes it looks like it has some over-sharping artifacts  
-If you are looking for even softer look try `Area Average` implementation by **CV2**
+If you are looking for even softer look try `Area Average` implementation by **CV2**.  
 The rest of algorithms might be used as an artistic choice, sometimes with cool and interesting results
 
 ### Upscaling:
