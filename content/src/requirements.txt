@@ -34,5 +34,7 @@ wheel
 
 # Custom required
 git+https://github.com/sberbank-ai/Real-ESRGAN.git
-../resources/prebuild_wheels/xbrz.py-1.0.2-cp312-cp312-win_amd64.whl
-../resources/prebuild_wheels/py_super_xbr-0.0.2-cp312-cp312-win_amd64.whl
+# ../resources/prebuild_wheels/xbrz.py-1.0.2-cp312-cp312-win_amd64.whl
+git+https://github.com/ioistired/xbrz.py
+# ../resources/prebuild_wheels/py_super_xbr-0.0.2-cp312-cp312-win_amd64.whl
+git+https://github.com/MikiP98/py-super-xbr
