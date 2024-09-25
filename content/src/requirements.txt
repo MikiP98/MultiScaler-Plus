@@ -22,7 +22,7 @@ torch>=2.4.0
 uvicorn[standard]
 
 
-# Required by EDI
+# Required by EDI ( though not used :/ ) TODO: Create a fork, fix it, and package it
 matplotlib
 
 
