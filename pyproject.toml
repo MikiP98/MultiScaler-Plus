@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "humility-image-processor"
+authors = [
+    {name = "Mikołaj Pokora", email = "pokora.mikolaj@gmail.com"},
+]
+description = "Advanced image processing app/library"
+readme = "README.md"
+#requires-python = ">=3.8"
+keywords = [
+    "image", "images",
+    "photo", "photos",
+    "pixel-art", "pixel art", "pixelart",
+    "metadata",
+
+    "super-resolution", "super resolution", "superres",
+    "super-sampling", "super sampling", "super-sampling",
+    "processing", "processing", "imageproc",
+    "methods", "method",
+
+    "scale", "scaler", "scaling",
+    "filter", "filters", "filtering",
+    "restore", "restoration", "restoring",
+    "compression", "compress", "compressing",
+
+    "WEBP", "PNG", "JPEG_XL", "JXL", "QOI", "AVIF"
+]
+license = {file = "LICENSE.md"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "aenum",
+    "argparse",
+    "fastapi",
+    "hqx",
+    "numpy>=2.0.0",  # newest numpy version (2.0.0+) is incompatible with `py_super_xbr`
+    "opencv-contrib-python",
+    "pillow>=6.0.0",  # required to read PNG metadata
+    "pillow-avif-plugin",
+    "pillow-jxl-plugin",
+    "psutil",
+    "pyanime4k",
+    "python-multipart",
+    "qoi>=0.7.0",  # Required to support new NumPy 2.0.0
+    "super-image",
+    "termcolor",
+    "torch>=2.5.0",  # Required to support new NumPy 2.0.0
+    "uvicorn[standard]",
+
+    "py_nedi @ git+https://github.com/MikiP98/Edge-Directed_Interpolation.git",
+    "superxbr @ git+https://github.com/MikiP98/py-super-xbr.git",
+    "py_real_esrgan @ git+https://github.com/nbdy/Real-ESRGAN.git",  # `sberbank-ai/Real-ESRGAN` fork
+    "xbrz @ git+https://github.com/ioistired/xbrz.py.git"
+]
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = {attr = "humility_image_processor.main.__version__"}
+
+[project.optional-dependencies]
+coverage = ["coverage"]
+docker = ["docker"]
+setuptools = ["setuptools"]
+wheel = ["wheel"]
+
+[project.scripts]
+HIP = "humility_image_processor.main:main_cli"

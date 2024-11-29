@@ -1,0 +1,32 @@
+# Required
+aenum
+argparse
+fastapi
+hqx
+numpy>=2.0.0  # newest numpy version (2.0.0+) is incompatible with `py_super_xbr`
+opencv-contrib-python
+pillow>=6.0.0  # required to read PNG metadata
+pillow-avif-plugin
+pillow-jxl-plugin
+psutil
+pyanime4k
+python-multipart
+qoi>=0.7.0  # Required to support new NumPy 2.0.0
+super-image
+termcolor
+torch>=2.5.0  # Required to support new NumPy 2.0.0
+uvicorn[standard]
+
+
+# Optional
+coverage
+docker
+setuptools
+wheel
+
+
+# Custom required
+git+https://github.com/MikiP98/Edge-Directed_Interpolation.git
+git+https://github.com/MikiP98/py-super-xbr.git
+git+https://github.com/nbdy/Real-ESRGAN.git  # `sberbank-ai/Real-ESRGAN` fork
+git+https://github.com/ioistired/xbrz.py.git

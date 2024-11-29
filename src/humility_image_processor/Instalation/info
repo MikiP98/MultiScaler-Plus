@@ -1,0 +1,6 @@
+Checking and installation on packages and plugins
+
+E.G. if:
+- PIL high quality quantization is available
+- PyTorch CUDA is available
+- PIL plugins like AVIF and JXL are available
