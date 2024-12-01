@@ -59,7 +59,7 @@ dependencies = [
 dynamic = ["version"]
 
 [tool.setuptools.dynamic]
-version = {attr = "humility_image_processor.main.__version__"}
+version = {attr = "humility_image_processor.__version__.__version__"}
 
 [project.optional-dependencies]
 coverage = ["coverage"]

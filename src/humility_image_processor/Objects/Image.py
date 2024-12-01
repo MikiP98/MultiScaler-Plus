@@ -14,7 +14,7 @@ bpc2dtype = {
 }
 
 
-class HDR2SDR_Mode(Enum):
+class HDR2SDR_Mode(IntEnum):
     MAP = auto()
     MULTIPLY = auto()
 
