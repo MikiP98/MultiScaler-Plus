@@ -10,6 +10,7 @@ class Tasks(IntEnum):
     CREATE_SHORTCUT = auto()
     RESET_FLAGS = auto()
     REPEAT = auto()
+    SHOW_IMAGES = auto()
     QUIT = auto()
 
 

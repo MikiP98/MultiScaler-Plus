@@ -48,6 +48,7 @@ def main(shortcut_creation_available=False):
     flag_parser.add_argument("-i", "--ignore-input-folder", action="store_true", help="Ignore input folder")
     flag_parser.add_argument("-f", "--files", nargs="+", help="Additional input files/folders")
     flag_parser.add_argument("-o", "--output", type=str, help="Set output folder path")
+    # Loader config
     flag_parser.add_argument("-ofd", "--output-for-drag-and-drop", type=bool, default=False, help="Use output folder for drag and drop files")
     flag_parser.add_argument("-ofi", "--output-for-input", type=bool, default=True, help="Use output folder for input files/folders")
 
@@ -115,7 +116,7 @@ def create_script_shortcut(*_, **kwargs):
         print(f"\n{light_green}Shortcut created at `{os.path.join(working_directory, 'humility-image-processor.lnk')}`{reset}")
 
     else:
-        print(f"{red}ERROR: Shortcut creation is not available. Please launch Humility Image Processor though the script. Run `HIP` command in the target directory{reset}")
+        print(error("Shortcut creation is not available. Please launch Humility Image Processor though the script. Run `HIP` command in the target directory"))
 
 
 def reset_flags(*_, **kwargs):
@@ -133,6 +134,8 @@ def reset_flags(*_, **kwargs):
     agrs.processing_ids = None
     agrs.repeat_if_no_user_input = None
     agrs.keep_open = None
+
+    print(f"\n{light_green}Flags reseted{reset}")
 
 
 task_dict: dict[Tasks, Callable[[...], None]] = {

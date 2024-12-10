@@ -3,6 +3,10 @@
 .idea/discord.xml
 humility-image-processor.lnk
 hip_ps.ps1
+tests/INPUT
+tests/INPUT/*
+tests/OUTPUT
+tests/OUTPUT/*
 
 
 

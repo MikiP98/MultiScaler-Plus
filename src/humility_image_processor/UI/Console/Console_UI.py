@@ -6,7 +6,7 @@ from humility_image_processor.Objects.Tasks import Tasks
 
 def print_welcome_message() -> None:
     print(
-        f"{green}Welcome to `{rainbowify("Humility Image Processor", make_bold=True)}{green}` "
+        f"{light_green}Welcome to `{rainbowify("Humility Image Processor", make_bold=True)}{light_green}` "
         f"{cyan}{italic}v{__version__}{reset}"
     )
 
@@ -20,11 +20,12 @@ def get_task_to_execute() -> str:
     # - Manage exensions and plugins
     # - Create a shortcut
     # - Reset flags
+    # - Show images
     # - Quit
     while True:
-        print(f"\n{bold}{magenta}What would you like to do?{reset}")
+        print(f"\n{bold}{light_cyan}What would you like to do?{reset}")
         for i, option in enumerate(Tasks.__members__.keys(), start=1):
-            print(f"{light_green}{i}{reset}. {italic}{light_blue}{option}{reset}")
+            print(f"{bright_green}{i}{reset}. {italic}{light_magenta}{option}{reset}")
         user_input = input(ui(f"\nEnter your choice: ")).strip()
         task = Tasks.get_task_from_string(user_input)
         if task is not None:

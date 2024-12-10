@@ -1,16 +1,31 @@
 # coding=utf-8
 import numpy as np
+import PIL.Image
 
 from aenum import auto, Enum, IntEnum
+
+from humility_image_processor.UI.Console.console_formatting import *
 
 
 bpc2dtype = {
     8: np.uint8,
     16: np.uint16,
     32: np.uint32,
-    64: np.uint64,
-    128: np.uint128,
-    256: np.uint256
+    64: np.uint64
+}
+
+dtype2bpc = {
+    np.uint8: 8,
+    np.uint16: 16,
+    np.uint32: 32,
+    np.uint64: 64
+}
+
+dtype2power = {
+    np.uint8: 3,
+    np.uint16: 4,
+    np.uint32: 5,
+    np.uint64: 6
 }
 
 
@@ -76,7 +91,65 @@ class Frame:
     def bit_split(self, new_bpc) -> list[np.ndarray]:
         raise NotImplementedError
 
+    def print(
+            self,
+            output_width=None,
+            output_height=None,
+            aa=True,
+            alpha_threshold=0.5,
+            fill_bg=True,
+            bg_color=(0, 0, 0),
+            resampling=PIL.Image.Resampling.LANCZOS
+    ) -> int:
+        # Get frame in Integer format
+        image_arr = self.get_frame_as_sdr()[0]
 
+        # Get only 8 most significant bits
+        if image_arr.dtype != np.uint8:
+            new_array = np.zeros((image_arr.shape[0], image_arr.shape[1], 3), dtype=np.uint8)
+
+            power = dtype2power[image_arr.dtype]
+            # mask with only 8 most significant bits
+            mask = 2**(power - 1) + 2**(power - 2) + 2**(power - 3) + 2**(power - 4) + 2**(power - 5) + 2**(power - 6) + 2**(power - 7) + 2**(power - 8)
+            offset = 2**(power - 8)
+            new_array[:, :, 0] = (image_arr[:, :, 0] & mask) + offset
+            new_array[:, :, 1] = (image_arr[:, :, 1] & mask) + offset
+            new_array[:, :, 2] = (image_arr[:, :, 2] & mask) + offset
+
+            image_arr = new_array
+
+        width, height = image_arr.shape[1], image_arr.shape[0]
+        if output_width is not None:
+            if output_height is None:
+                output_height = int(output_width * height / width / 3)
+
+        elif output_height is not None:
+            if output_width is None:
+                output_width = int(output_height * width * 3 / height)
+
+        else:
+            output_width = width * 3
+            output_height = height
+
+        if output_width != width or output_height != height:
+            pil_image = PIL.Image.fromarray(image_arr)
+            pil_image_lan = pil_image.resize((output_width, output_height), PIL.Image.Resampling.LANCZOS)
+            image_arr = np.array(pil_image_lan)
+            pil_image_n = pil_image.resize((output_width * 2, output_height * 2), resampling)
+            pil_image_n = pil_image_n.resize((output_width, output_height), PIL.Image.Resampling.BILINEAR)
+            image_arr_n = np.array(pil_image_n)
+            # image_arr_n = image_arr
+        else:
+            image_arr_n = image_arr
+
+        for i in range(image_arr.shape[0]):
+            for j in range(image_arr.shape[1]):
+                bg_r, bg_g, bg_b = image_arr[i, j]
+                font_r, font_g, font_b = image_arr_n[i, j]
+                print(all_colorize(f"#", font_r, font_g, font_b, bg_r, bg_g, bg_b), end='')
+            print()
+
+        return output_height
 
 
 class Image:
