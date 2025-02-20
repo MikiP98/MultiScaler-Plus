@@ -2,7 +2,7 @@
 import PIL.Image
 
 from scaling.utils import ConfigPlus, correct_frame
-from superxbr import superxbr  # Ignore the error, it works fine
+# from superxbr import superxbr  # Ignore the error, it works fine
 from termcolor import colored
 
 
@@ -41,7 +41,7 @@ def scale(frames: list[PIL.Image.Image], factor: float, config_plus: ConfigPlus)
     for frame in frames:
         original_size = frame.size
 
-        frame = superxbr.scale(frame, power)
+        # frame = superxbr.scale(frame, power)
 
         scaled_frames.append(
             correct_frame(frame, original_size, factor, config_plus['high_quality_scale_back'])
